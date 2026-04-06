@@ -6,12 +6,70 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.4.0] — 2026-04-06
+
+### Added — 主页重构 + Dark/Light/System 主题切换（P0 任务）
+
+#### Tailwind CSS v4 + PostCSS 集成（全新）
+- 安装 `tailwindcss@^4.2.2`、`@tailwindcss/postcss`、`@tailwindcss/typography`
+- 新建 `postcss.config.mjs`（`@tailwindcss/postcss` 插件）
+- 新建 `src/app/globals.css`：
+  - `@import "tailwindcss"` — Tailwind v4 入口
+  - `@variant dark (&:where(.dark, .dark *))` — class-based 暗黑模式（对接 `next-themes`）
+  - `@plugin "@tailwindcss/typography"` — prose 排版支持
+  - CSS 自定义属性 `--background / --foreground` 适配明暗双主题
+
+#### Root Layout 升级（`src/app/layout.tsx`）
+- 引入 `globals.css`
+- 包裹 `<ThemeProvider>` 实现全局主题上下文
+- 新增 `Metadata` 导出（`title.template`、`description`、`metadataBase`）
+- `<html suppressHydrationWarning>` 防止 SSR 主题 hydration 闪烁
+
+#### Dark / Light / System 三态主题切换
+- **`src/components/ThemeProvider.tsx`**（新建）
+  - 封装 `next-themes` 的 `ThemeProvider`，`attribute="class"`，默认跟随系统（`defaultTheme="system"`）
+  - localStorage key：`jd-theme`
+- **`src/components/ThemeToggle.tsx`**（新建）
+  - 三态循环：Light → Dark → System，SVG 图标随当前态变化
+  - `mounted` 检测防止 SSR/客户端渲染不一致
+  - `title` + `aria-label` 无障碍支持
+
+#### 导航栏（`src/components/Navbar.tsx`）（新建）
+- 粘性顶部（`sticky top-0 z-50`），毛玻璃背景（`backdrop-blur-sm`）
+- 左：Logo 链接至 `/`；中：Blog / About 导航；右：ThemeToggle
+- 响应式：手机端隐藏中间导航链接
+
+#### 主页完全重构（`src/app/page.tsx`）（ISR `revalidate: 3600`）
+- **Hero 区**
+  - 状态 pill：绿色脉冲点 + "Available for opportunities"
+  - 主标题 `Jack Deng`（56px bold）+ 一句话简介（关键词高亮）
+  - 两个 CTA 按钮：Read the blog / About me
+- **Latest Posts 区**（最新 3 篇已发布文章，调用 Payload Local API）
+  - 复用 `BlogCard` 组件，三列响应式网格
+  - "View all →" 链接至 `/blog`
+  - 数据库为空时自动隐藏整个区块
+- **Projects 区**（最多 2 个 `isPinned: true` 的项目）
+  - 内联 `ProjectCard` 组件：名称、状态 badge（active/completed/on-hold 色码）、描述、外链
+  - 数据库为空时自动隐藏整个区块
+- **Footer**：版权年份动态计算
+
+#### 博客路由 layout（`src/app/blog/layout.tsx`）（新建）
+- 为所有 `/blog/*` 页面统一注入 `Navbar` + `Footer`
+
+#### 依赖新增
+- `next-themes@^0.4.6`
+- `tailwindcss@^4.2.2`
+- `@tailwindcss/postcss`
+- `@tailwindcss/typography`
+
+---
+
 ## [0.3.1] — 2026-04-06
 
-### Fixed
-- Fixed Payload DB migration script and updated tables/schema in Supabase safely.
-- Verified `/admin`, `/api/users/me`, `/blog`, and `/blog/archive` endpoints returning HTTP 200 properly.
-- Prepared the groundwork for Milestone 3 (Front-end UI P0 items).
+### Fixed — 部署验证与数据库 Migration（OpenClaw）
+- 执行 Payload DB migration，在 Supabase 中成功建立 `categories` 和 `tags` 表
+- 验证以下端点均返回 HTTP 200：`/admin`、`/api/users/me`、`/blog`、`/blog/archive`
+- 为 P0 前端任务完成部署基础准备
 
 ---
 
@@ -108,36 +166,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 按业务价值和依赖关系排序：
 
-### 🔴 P0 — 立即规划（影响基本可用性）
-1. **主页重构（`/`）**
-   - 当前主页仅有占位文本。需实现：
-     - **Hero 区**：一句话简介 + 当前状态（可先用静态数据）
-     - **内容聚合**：最新 3 篇博客（调用 Payload Local API，SSG）
-     - **置顶项目**：2 个 `featured: true` 的 Projects
-   - *渲染策略*：`export const revalidate = 3600`（ISR）
-2. **Dark / Light / System 主题切换**
-   - 基于 Tailwind CSS `dark:` 变体，三态切换：`light / dark / system`
-   - 状态持久化至 `localStorage`
-   - *建议使用 `next-themes` 库封装，避免 hydration 闪烁*
+### 🔴 P0 — 完成 ✅
+- [x] **主页重构** — Hero、最新博客聚合、置顶项目展示（ISR）✅ v0.4.0
+- [x] **Dark / Light / System 主题切换** — `next-themes` + Tailwind v4 `dark:` + localStorage ✅ v0.4.0
 
 ### 🟡 P1 — 近期规划（完善内容体验）
-3. **关于我页面（`/about`）**
-   - 静态页面，SSG
-   - 内容建议：个人简介、技能栈、工作经历时间线、联系方式
-4. **全局搜索 — Command Palette**
-   - 快捷键 `Cmd/Ctrl + K` 唤起
-   - 搜索范围：博客标题 / 分类名 / 标签名 / 工具列表
-   - *访问控制*：仅索引 `status: published` 的内容
+3. **关于我页面（`/about`）** — 静态 SSG，个人简介 / 技能栈 / 工作经历时间线
+4. **全局搜索 — Command Palette** — `Cmd/Ctrl + K`，覆盖博客 / 分类 / 标签 / 工具
 
 ### 🟢 P2 — 中期规划（扩展能力）
-5. **i18n 双语（`/zh / /en`）**
-   - 子路径模式：`/en/blog/...`、`/zh/blog/...`
-   - `Accept-Language` 自动重定向
-   - *注意*：需同步 Payload Collections 加 `locale` 字段
-6. **工具引擎 + RBAC**
-   - 公开工具（如 JSON 格式化）：匿名可访问
-   - 私有工具（如 Webhook 测试器）：必须登录，`req.user` 校验
-   - Supabase 独立 Schema 记录工具调用审计日志
-7. **评论系统**
-   - 推荐方案：[Giscus](https://giscus.app/)（基于 GitHub Discussions，零成本）
-   - 备选：自建 Payload `Comments` Collection + 审核流程
+5. **i18n 双语（`/zh` / `/en`）** — 子路径路由 + `Accept-Language` 自动重定向
+6. **工具引擎 + RBAC** — 公开工具 vs 私有工具动态渲染，Supabase 审计日志
+7. **评论系统** — 推荐 [Giscus](https://giscus.app/)（GitHub Discussions，零成本）

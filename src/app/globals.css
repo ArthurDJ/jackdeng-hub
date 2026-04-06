@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+/* ── Dark mode: class-based (driven by next-themes) ── */
+@variant dark (&:where(.dark, .dark *));
+
+/* ── Typography plugin prose styles ── */
+@plugin "@tailwindcss/typography";
+
+/* ── CSS custom properties ── */
+@layer base {
+  :root {
+    --background: 255 255 255;
+    --foreground: 9 9 11;
+  }
+
+  .dark {
+    --background: 9 9 11;
+    --foreground: 250 250 250;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+  }
+}

@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jackdeng-hub-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # 这里可以留空或填默认值，实际部署时建议通过项目根目录的 .env 文件注入
+      - DATABASE_URI=${DATABASE_URI}
+      - PAYLOAD_SECRET=${PAYLOAD_SECRET}
+      - NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
+    env_file:
+      - .env # 自动读取根目录的 .env 文件
+    depends_on:
+      - db
+
+  # 可选：如果您不想用托管的 Supabase，也可以用这个本地的 PostgreSQL 容器
+  db:
+    image: postgres:15-alpine
+    container_name: jackdeng-hub-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: payload
+      POSTGRES_PASSWORD: payload_password
+      POSTGRES_DB: payload_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

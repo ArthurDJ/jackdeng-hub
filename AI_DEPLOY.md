@@ -45,3 +45,13 @@ When the user asks to "add a new tool":
 ## 🚨 Troubleshooting Guidelines
 - **500 Errors on `/admin` during Local Dev (Cloudflare Tunnel):** Check `next.config.mjs`. Payload strictly enforces CORS and origin checks. Ensure `allowedDevOrigins` includes the active Cloudflare Tunnel hostname.
 - **Database Connection Failures:** Ensure `DATABASE_URI` uses IPv4 pooling (`aws-1...pooler.supabase.com:6543`) with `?pgbouncer=true`. Native IPv6 (`db.xxx.supabase.co:5432`) will silently fail on local machines without IPv6 ISP support.
+
+## 📝 Changelog Protocol (Mandatory for AI Agents)
+
+After **every** code change that is committed and pushed, you MUST update `CHANGELOG.md`:
+
+1. Determine the new version (patch / minor / major based on change scope).
+2. Add a new `## [x.y.z] — YYYY-MM-DD` section at the top of the changelog body.
+3. Group entries under: `Added`, `Changed`, `Fixed`, `Removed`, `Security`.
+4. Commit the changelog update in the **same commit** as the code change, or as an immediate follow-up commit with message `docs: update CHANGELOG for vX.Y.Z`.
+5. Never skip this step — the changelog is the primary audit trail for OpenClaw and other agents inheriting this project.

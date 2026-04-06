@@ -104,14 +104,40 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## 待办 / 下一步规划
+## 待办 / 路线图规划 (Roadmap)
 
-以下功能在系统规划中，尚未实现：
+按业务价值和依赖关系排序：
 
-- [ ] **主页重构** — Hero 动态状态（LeetCode 进度 / 最近 AI 项目）、最新博客聚合、置顶项目展示（SSG）
-- [ ] **Dark / Light / System 主题切换** — 基于 Tailwind `dark:` + `localStorage` 持久化
-- [ ] **i18n 双语** — `/zh/` 和 `/en/` 子路径路由，`Accept-Language` 自动跳转
-- [ ] **全局搜索** — `Cmd/Ctrl + K` 命令面板，覆盖博客 / 项目 / 工具
-- [ ] **工具引擎 + RBAC** — 公开工具 vs 私有工具动态渲染，Supabase 审计日志
-- [ ] **关于我页面** — `/about`
-- [ ] **评论系统** — 第三方（如 Giscus / Disqus）或自建
+### 🔴 P0 — 立即规划（影响基本可用性）
+1. **主页重构（`/`）**
+   - 当前主页仅有占位文本。需实现：
+     - **Hero 区**：一句话简介 + 当前状态（可先用静态数据）
+     - **内容聚合**：最新 3 篇博客（调用 Payload Local API，SSG）
+     - **置顶项目**：2 个 `featured: true` 的 Projects
+   - *渲染策略*：`export const revalidate = 3600`（ISR）
+2. **Dark / Light / System 主题切换**
+   - 基于 Tailwind CSS `dark:` 变体，三态切换：`light / dark / system`
+   - 状态持久化至 `localStorage`
+   - *建议使用 `next-themes` 库封装，避免 hydration 闪烁*
+
+### 🟡 P1 — 近期规划（完善内容体验）
+3. **关于我页面（`/about`）**
+   - 静态页面，SSG
+   - 内容建议：个人简介、技能栈、工作经历时间线、联系方式
+4. **全局搜索 — Command Palette**
+   - 快捷键 `Cmd/Ctrl + K` 唤起
+   - 搜索范围：博客标题 / 分类名 / 标签名 / 工具列表
+   - *访问控制*：仅索引 `status: published` 的内容
+
+### 🟢 P2 — 中期规划（扩展能力）
+5. **i18n 双语（`/zh / /en`）**
+   - 子路径模式：`/en/blog/...`、`/zh/blog/...`
+   - `Accept-Language` 自动重定向
+   - *注意*：需同步 Payload Collections 加 `locale` 字段
+6. **工具引擎 + RBAC**
+   - 公开工具（如 JSON 格式化）：匿名可访问
+   - 私有工具（如 Webhook 测试器）：必须登录，`req.user` 校验
+   - Supabase 独立 Schema 记录工具调用审计日志
+7. **评论系统**
+   - 推荐方案：[Giscus](https://giscus.app/)（基于 GitHub Discussions，零成本）
+   - 备选：自建 Payload `Comments` Collection + 审核流程

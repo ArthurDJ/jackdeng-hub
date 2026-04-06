@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import { ThemeToggle } from './ThemeToggle'
+import { commandPaletteStore } from '@/store/commandPaletteStore'
 
 const NAV_LINKS = [
   { href: '/blog',    label: 'Blog' },
@@ -34,6 +37,28 @@ export function Navbar() {
 
         {/* Right actions */}
         <div className="flex items-center gap-2">
+          {/* Search trigger */}
+          <button
+            onClick={commandPaletteStore.open}
+            aria-label="Open search (Cmd+K)"
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-400 dark:text-zinc-500 hover:border-zinc-300 dark:hover:border-zinc-600 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors bg-white dark:bg-zinc-900"
+          >
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <span>Search</span>
+            <kbd className="text-[10px] font-mono opacity-70">⌘K</kbd>
+          </button>
+          {/* Mobile search icon only */}
+          <button
+            onClick={commandPaletteStore.open}
+            aria-label="Open search"
+            className="sm:hidden p-1.5 rounded-md text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
           <ThemeToggle />
         </div>
       </nav>

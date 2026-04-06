@@ -6,6 +6,44 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.5.0] — 2026-04-06
+
+### Added — About 页面 + 全局搜索 Command Palette（P1 任务）
+
+#### About 页面（`src/app/about/page.tsx`）（新建，静态 SSG）
+- `export const dynamic = 'force-static'` — 构建时完全静态化，零运行时开销
+- **Bio 区**：头像占位符、姓名 + 职业标签、三段介绍（技术栈外链 Next.js / Payload / Supabase）
+- **Skills 区**：2×2 响应式卡片网格，四组技能（Languages / Frontend / Backend / Infra）
+- **Timeline 区**：竖线时间轴，三条经历条目（含角色、所在地、描述）
+- **Links 区**：GitHub / LinkedIn / Email 外链按钮，外链带 svg 箭头图标
+- **CTA 区**：圆角卡片，引导发邮件 + 跳转博客
+
+#### 全局搜索 Command Palette（`src/components/CommandPalette.tsx`）（新建）
+- **触发方式**：`Cmd+K`（Mac）/ `Ctrl+K`（Win/Linux）全局快捷键 + Navbar 搜索按钮
+- **搜索范围**：已发布博客文章（标题 + 摘要）、分类、标签，并行三路 Payload REST API 查询
+- **交互**：`↑↓` 键盘导航、`↵` 跳转、`Esc` 关闭；280ms debounce 防止过度请求
+- **空状态**：未输入时显示 Home / Blog / About 快捷导航；无结果时显示提示文字
+- **无障碍**：`role="dialog" aria-modal`、`role="listbox"`、`aria-selected`、`aria-label`
+- **结果类型图标**：post（文件图标）/ category（网格图标）/ tag（标签图标）/ page（房子图标），各有独立色
+- 全局状态使用 `useSyncExternalStore` 模式（无额外依赖）
+
+#### 状态管理（`src/store/commandPaletteStore.ts`）（新建）
+- 模块级单例，`subscribe / getSnapshot` 实现 `useSyncExternalStore` 接口
+- SSR server snapshot 固定返回 `false`，避免 hydration 不匹配
+
+#### 快捷键 Hook（`src/hooks/useCommandPalette.ts`）（新建）
+- `window.addEventListener('keydown')` 监听 `Cmd/Ctrl+K` 和 `Esc`，组件 unmount 自动清理
+
+#### Navbar 更新（`src/components/Navbar.tsx`）
+- 桌面端：搜索输入样式触发按钮（显示 `⌘K` 提示）
+- 移动端：仅显示搜索图标按钮
+- 添加 `'use client'` 指令（按钮需要 onClick 事件）
+
+#### Root Layout 更新（`src/app/layout.tsx`）
+- 全局挂载 `<CommandPalette />`，使快捷键在所有页面生效
+
+---
+
 ## [0.4.1] — 2026-04-06
 
 ### Fixed

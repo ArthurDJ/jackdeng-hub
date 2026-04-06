@@ -44,6 +44,9 @@ export const config = buildConfig({
     },
   }),
   editor: lexicalEditor({}),
+  graphQL: {
+    schemaOutputFile: path.resolve(dirname, 'schema.graphql'),
+  },
 })
 
 export default config

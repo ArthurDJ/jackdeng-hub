@@ -6,6 +6,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.4.1] — 2026-04-06
+
+### Fixed
+
+- **`/api/graphql` → 404**：`payload.config.ts` 中未显式声明 `graphQL` 配置，导致 Payload 3.x 不激活 GraphQL schema 注册；新增 `graphQL: { schemaOutputFile }` 配置项修复。`/api/users` 返回 403 系正常访问控制行为（非 bug），已从验收标准中更正为「期望 403 或 401，非 404/500」。
+
+---
+
 ## [0.4.0] — 2026-04-06
 
 ### Added — 主页重构 + Dark/Light/System 主题切换（P0 任务）

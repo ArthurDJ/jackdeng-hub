@@ -1,0 +1,12 @@
+{
+  "buildCommand": "npx payload migrate && next build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["sfo1"],
+  "crons": [
+    {
+      "path": "/api/revalidate",
+      "schedule": "0 * * * *"
+    }
+  ]
+}

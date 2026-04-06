@@ -6,6 +6,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.6.0] — 2026-04-06
+
+### Added
+- **Vercel 部署配置** (`vercel.json`) — 为自动化部署添加 `buildCommand`、`installCommand` 及 Cron Job 配置。
+- **自动化部署支持** — 项目现已支持通过 GitHub 仓库直接接入 Vercel 进行持续集成与发布。
+
+---
+
 ## [0.5.0] — 2026-04-06
 
 ### Added — About 页面 + 全局搜索 Command Palette（P1 任务）

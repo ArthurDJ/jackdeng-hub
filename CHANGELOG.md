@@ -216,18 +216,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - [x] **主页重构** — Hero、最新博客聚合、置顶项目展示（ISR）✅ v0.4.0
 - [x] **Dark / Light / System 主题切换** — `next-themes` + Tailwind v4 `dark:` + localStorage ✅ v0.4.0
 
-### 🟡 P1 — 近期规划（完善内容体验）
-3. **关于我页面（`/about`）** — 静态 SSG，个人简介 / 技能栈 / 工作经历时间线
-4. **全局搜索 — Command Palette** — `Cmd/Ctrl + K`，覆盖博客 / 分类 / 标签 / 工具
+### 🟡 P1 — 完成 ✅
+- [x] **关于我页面（`/about`）** — 静态 SSG，个人简介 / 技能栈 / 工作经历时间线 ✅ v0.5.0
+- [x] **全局搜索 — Command Palette** — `Cmd/Ctrl + K`，覆盖博客 / 分类 / 标签 / 工具 ✅ v0.5.0
 
 ### 🟢 P2 — 中期规划（扩展能力）
-5. **i18n 双语（`/zh` / `/en`）** — 子路径路由 + `Accept-Language` 自动重定向
-6. **工具引擎 + RBAC** — 公开工具 vs 私有工具动态渲染，Supabase 审计日志
-7. **评论系统** — 推荐 [Giscus](https://giscus.app/)（GitHub Discussions，零成本）
+- [ ] **i18n 双语（`/zh` / `/en`）** — 子路径路由 + `Accept-Language` 自动重定向
+- [ ] **工具引擎 + RBAC** — 公开工具 vs 私有工具动态渲染，Supabase 审计日志
+- [ ] **评论系统** — 推荐 [Giscus](https://giscus.app/)（GitHub Discussions，零成本）
 
-### Verified — OpenClaw 2026-04-06
-- [x] Build pass / ❌ (附错误)
-- [x] Migration pass
-- [x] All endpoints 200/401/403 (非 404/500)
-- [x] Theme toggle works + persists
-- [x] Homepage Hero renders correctly
+### Verified — OpenClaw 2026-04-06 (v0.5.0)
+- [x] `GET /about` -> 200, 包含 `<h1>Jack Deng</h1>` & Skills
+- [x] Navbar 搜索按钮可见 + `⌘K` 提示
+- [x] `GET /api/blogs` 搜索接口 -> 200 (Command Palette)
+- [x] `npm run build` 无 TypeScript 错误
+- [x] 迁移与依赖验证通过 (sharp installed)

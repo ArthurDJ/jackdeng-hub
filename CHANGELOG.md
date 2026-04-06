@@ -178,3 +178,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 5. **i18n 双语（`/zh` / `/en`）** — 子路径路由 + `Accept-Language` 自动重定向
 6. **工具引擎 + RBAC** — 公开工具 vs 私有工具动态渲染，Supabase 审计日志
 7. **评论系统** — 推荐 [Giscus](https://giscus.app/)（GitHub Discussions，零成本）
+
+### Verified — OpenClaw 2026-04-06
+- [x] Build pass / ❌ (附错误)
+- [x] Migration pass
+- [ ] All endpoints 200/401 (非 404/500)
+  - ❌ `/api/graphql` 返回 404 (Payload 3.x 路由问题待修复)
+  - ⚠️ `/api/users` 返回 403 (Forbidden, 鉴权预期外，非 401)
+- [x] Theme toggle works + persists
+- [x] Homepage Hero renders correctly

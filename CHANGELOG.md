@@ -6,6 +6,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.3.1] — 2026-04-06
+
+### Fixed
+- Fixed Payload DB migration script and updated tables/schema in Supabase safely.
+- Verified `/admin`, `/api/users/me`, `/blog`, and `/blog/archive` endpoints returning HTTP 200 properly.
+- Prepared the groundwork for Milestone 3 (Front-end UI P0 items).
+
+---
+
 ## [0.3.0] — 2026-04-06
 
 ### Added — 博客系统完整实现

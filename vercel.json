@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx payload migrate && next build",
+  "buildCommand": "npm run migrate && npm run build",
   "installCommand": "npm install",
   "framework": "nextjs",
   "regions": ["sfo1"],

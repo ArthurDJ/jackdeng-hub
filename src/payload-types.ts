@@ -68,6 +68,8 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    categories: Category;
+    tags: Tag;
     blogs: Blog;
     projects: Project;
     tools: Tool;
@@ -80,6 +82,8 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
     blogs: BlogsSelect<false> | BlogsSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     tools: ToolsSelect<false> | ToolsSelect<true>;
@@ -150,12 +154,38 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  name: string;
+  slug: string;
+  color: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blogs".
  */
 export interface Blog {
   id: number;
   title: string;
   slug: string;
+  excerpt: string;
   coverImage?: (number | null) | Media;
   content: {
     root: {
@@ -172,9 +202,16 @@ export interface Blog {
     };
     [k: string]: unknown;
   };
-  category?: ('tech' | 'life' | 'news')[] | null;
-  status?: ('draft' | 'published') | null;
-  publishedDate?: string | null;
+  category?: (number | null) | Category;
+  tags?: ((number | null) | Tag)[] | null;
+  status: 'draft' | 'published';
+  publishedAt?: string | null;
+  featured?: boolean | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -332,6 +369,21 @@ export interface PayloadMigration {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+export interface TagsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  color?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
 export interface UsersSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;

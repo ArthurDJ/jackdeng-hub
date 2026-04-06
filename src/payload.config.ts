@@ -4,6 +4,8 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { Blogs } from './collections/Blogs'
+import { Categories } from './collections/Categories'
+import { Tags } from './collections/Tags'
 import { Projects } from './collections/Projects'
 import { Tools } from './collections/Tools'
 import { Media } from './collections/Media'
@@ -25,6 +27,8 @@ export const config = buildConfig({
       auth: true,
       fields: [],
     },
+    Categories,
+    Tags,
     Blogs,
     Projects,
     Tools,

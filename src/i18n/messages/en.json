@@ -1,0 +1,83 @@
+{
+  "nav": {
+    "blog": "Blog",
+    "about": "About",
+    "search": "Search",
+    "searchShortcut": "⌘K"
+  },
+  "home": {
+    "available": "Available for opportunities",
+    "title": "Jack Deng",
+    "bio": "Software engineer building things at the intersection of {ai}, {data}, and {systems}.",
+    "ctaBlog": "Read the blog",
+    "ctaAbout": "About me",
+    "latestPosts": "Latest Posts",
+    "viewAll": "View all →",
+    "projects": "Projects",
+    "active": "Active",
+    "completed": "Completed",
+    "onHold": "On Hold",
+    "viewProject": "View project →"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Thoughts on engineering, systems, and building things.",
+    "readMore": "Read more →",
+    "backToAll": "← Back to all posts",
+    "category": "Category",
+    "tag": "Tag",
+    "archive": "Archive",
+    "featured": "Featured",
+    "noPostsFound": "No posts found.",
+    "postedIn": "Posted in",
+    "comments": "comments",
+    "comment": "comment",
+    "noComments": "No comments yet",
+    "leaveComment": "Leave a comment",
+    "commentDisclaimer": "Comments are reviewed before appearing. No spam, no selling your email.",
+    "commentName": "Name",
+    "commentEmail": "Email",
+    "commentEmailNote": "(not displayed)",
+    "commentContent": "Comment",
+    "commentMaxChars": "(max 500 chars)",
+    "commentSubmit": "Post comment",
+    "commentSubmitting": "Submitting…",
+    "commentSuccess": "Comment submitted!",
+    "commentSuccessNote": "It will appear after review. Thanks for reading.",
+    "commentLeaveAnother": "Leave another comment",
+    "commentRequired": "*"
+  },
+  "about": {
+    "title": "Jack Deng",
+    "subtitle": "Software Engineer · Builder · Writer",
+    "bio1": "Hi, I'm Jack — a software engineer based in Australia who loves building things end-to-end. I'm particularly drawn to the intersection of great developer experience and delightful user interfaces.",
+    "bio2": "This site is my public workspace: a place for writing, experiments, and tools I build for fun or productivity. It runs on {nextjs} + {payload} with a PostgreSQL backend, self-hosted on {supabase}.",
+    "bio3": "When I'm not at a keyboard I'm probably reading, hiking, or figuring out why the coffee tastes different today.",
+    "skills": "Skills",
+    "experience": "Experience & Education",
+    "findMe": "Find me online",
+    "cta": "Interested in working together or just want to say hi?",
+    "ctaButton": "Send me a message",
+    "ctaNote": "Or read what I've been {writing}.",
+    "ctaNoteLink": "writing lately →"
+  },
+  "footer": {
+    "builtWith": "Built with Next.js + Payload CMS."
+  },
+  "search": {
+    "placeholder": "Search posts, categories, tags…",
+    "navigate": "navigate",
+    "open": "open",
+    "close": "close",
+    "noResults": "No results for \"{query}\"",
+    "typePost": "post",
+    "typeCategory": "category",
+    "typeTag": "tag",
+    "typePage": "page"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "message": "Sorry, we couldn't find the page you're looking for.",
+    "back": "Go back home"
+  }
+}

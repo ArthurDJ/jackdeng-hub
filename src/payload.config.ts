@@ -37,6 +37,14 @@ export const config = buildConfig({
     Tools,
     Media,
   ],
+  localization: {
+    locales: [
+      { label: 'English', code: 'en' },
+      { label: '中文',     code: 'zh' },
+    ],
+    defaultLocale: 'en',
+    fallback: true,
+  },
   secret: process.env.PAYLOAD_SECRET || 'YOUR_SECRET_HERE',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

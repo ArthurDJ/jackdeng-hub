@@ -31,6 +31,7 @@ export const Blogs: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
+      localized: true,
     },
     {
       name: 'slug',
@@ -60,6 +61,7 @@ export const Blogs: CollectionConfig = {
       type: 'textarea',
       required: false,
       maxLength: 150,
+      localized: true,
       admin: {
         description: 'Short summary shown in blog cards. Max 150 characters.',
       },
@@ -74,6 +76,7 @@ export const Blogs: CollectionConfig = {
       name: 'content',
       type: 'richText',
       required: true,
+      localized: true,
     },
 
     // ── Taxonomy ─────────────────────────────────────────────────

@@ -1,51 +1,51 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { BlogCard } from '@/components/BlogCard'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
 
-export const revalidate = 3600 // ISR: re-generate every hour
+export const revalidate = 3600
 
-export const metadata: Metadata = {
-  title: 'Blog — Jack Deng',
-  description: 'Thoughts on software engineering, AI, and system design.',
+type Props = { params: Promise<{ locale: string }> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'blog' })
+  return { title: t('title'), description: t('subtitle') }
 }
 
-export default async function BlogListPage() {
-  const payload = await getPayload()
+export default async function BlogListPage({ params }: Props) {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'blog' })
 
-  const [blogsResult] = await Promise.all([
-    payload.find({
-      collection: 'blogs',
-      where: { status: { equals: 'published' } },
-      sort: '-publishedAt',
-      depth: 2,
-      limit: 12,
-    }),
-  ])
+  const payload = await getPayload()
+  const blogsResult = await payload.find({
+    collection: 'blogs',
+    where: { status: { equals: 'published' } },
+    sort: '-publishedAt',
+    depth: 2,
+    limit: 12,
+    locale: locale as 'en' | 'zh',
+  })
 
   const sidebar = await buildSidebarData()
-
   const blogs = blogsResult.docs as any[]
 
   return (
-    <main className="min-h-screen bg-white dark:bg-zinc-950">
-      {/* Page header */}
+    <main>
       <section className="border-b border-zinc-200 dark:border-zinc-800 py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">Blog</h1>
-          <p className="mt-2 text-zinc-500 dark:text-zinc-400">
-            {blogsResult.totalDocs} post{blogsResult.totalDocs !== 1 ? 's' : ''} — sorted by newest first
-          </p>
+          <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">{t('title')}</h1>
+          <p className="mt-2 text-zinc-500 dark:text-zinc-400">{t('subtitle')}</p>
         </div>
       </section>
 
       <div className="max-w-6xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10">
-          {/* Posts grid */}
           <section>
             {blogs.length === 0 ? (
-              <p className="text-zinc-500 dark:text-zinc-400 py-12 text-center">No posts published yet.</p>
+              <p className="text-zinc-500 dark:text-zinc-400 py-12 text-center">{t('noPostsFound')}</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {blogs.map((blog) => (
@@ -64,8 +64,6 @@ export default async function BlogListPage() {
               </div>
             )}
           </section>
-
-          {/* Sidebar */}
           <Sidebar {...sidebar} />
         </div>
       </div>

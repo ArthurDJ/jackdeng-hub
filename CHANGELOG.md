@@ -14,6 +14,49 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.8.0] — 2026-04-07
+
+### Added — i18n 双语支持 `/en` `/zh`（P2 任务）
+
+#### 路由架构
+- 所有前端页面迁移至 `src/app/[locale]/` 路由组（`(payload)/` admin 路由不受影响）
+- `src/middleware.ts`：基于 `next-intl`，自动检测浏览器语言并重定向 `/` → `/en` 或 `/zh`
+- `src/i18n/routing.ts`：locale 配置，支持 `en` / `zh`，默认 `en`，前缀模式 `always`
+- `src/i18n/navigation.ts`：typed `<Link>`、`useRouter`、`usePathname`（locale-aware）
+- `src/i18n/request.ts`：服务端 `getRequestConfig`，动态加载对应 locale 的 messages
+
+#### 翻译文件
+- `src/i18n/messages/en.json`：英文字符串（nav / home / blog / about / search / footer / notFound）
+- `src/i18n/messages/zh.json`：中文字符串，全量翻译覆盖
+
+#### 已本地化页面
+- 首页（`/[locale]/page.tsx`）：Hero 文案、CTA、Latest Posts、Projects 区块全部接入 `t()`
+- About 页（`/[locale]/about/page.tsx`）：Bio、Skills、Timeline（中英双版本描述）、Links、CTA
+- Blog 列表（`/[locale]/blog/page.tsx`）：标题、副标题、空状态文案
+- Blog 详情、Category、Tag、Archive 页：迁移至 `[locale]` 目录
+
+#### Navbar 语言切换
+- 右侧新增语言切换按钮：当前为英文时显示「中文」，当前为中文时显示「EN」
+- 使用 `next-intl` 的 `useRouter().replace(pathname, { locale })` 实现原地切换，保留当前路径
+
+#### Payload 字段级本地化
+- `payload.config.ts`：新增 `localization` 配置（`en` / `zh`，defaultLocale `en`，fallback `true`）
+- `Blogs` collection：`title`、`excerpt`、`content` 字段标记 `localized: true`
+- 所有 Payload 查询传入 `locale` 参数，服务端按请求语言返回对应内容
+
+#### 工程配置
+- `next.config.mjs`：包裹 `withNextIntl()` 插件
+- `src/app/layout.tsx`：精简为 root shell，前端布局移至 `[locale]/layout.tsx`
+- `[locale]/layout.tsx`：`<NextIntlClientProvider>` + `<ThemeProvider>` + `<CommandPalette>`
+
+#### 部署踩坑文档
+- 新建 `DEPLOY_ISSUES.md`：记录从初始部署到当前所有已知问题及解决方案（共 6 条 issue）
+
+### Fixed
+- `vercel.json` buildCommand 移除 `npm run migrate`，防止构建超时（Issue #5）
+
+---
+
 ## [0.7.0] — 2026-04-06
 
 ### Added — 评论系统（自建数据库 + 三层防 spam）（P2 任务）

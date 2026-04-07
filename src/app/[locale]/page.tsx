@@ -76,7 +76,7 @@ export default async function HomePage({ params }: Props) {
       sort: '-publishedAt',
       depth: 2,
       limit: 3,
-      locale: locale as 'en' | 'zh',
+      locale: locale as any,
     }),
     payload.find({
       collection: 'projects',

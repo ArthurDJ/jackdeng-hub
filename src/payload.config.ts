@@ -1,6 +1,7 @@
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import sharp from 'sharp'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -56,6 +57,15 @@ export const config = buildConfig({
   }),
   editor: lexicalEditor({}),
   sharp,
+  plugins: [
+    vercelBlobStorage({
+      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      token: process.env.BLOB_READ_WRITE_TOKEN || '',
+      collections: {
+        media: true,
+      },
+    }),
+  ],
   graphQL: {
     schemaOutputFile: path.resolve(dirname, 'schema.graphql'),
   },

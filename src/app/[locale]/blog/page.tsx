@@ -26,7 +26,7 @@ export default async function BlogListPage({ params }: Props) {
     sort: '-publishedAt',
     depth: 2,
     limit: 12,
-    locale: locale as 'en' | 'zh',
+    locale: locale as any,
   })
 
   const sidebar = await buildSidebarData()

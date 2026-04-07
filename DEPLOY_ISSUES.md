@@ -201,3 +201,41 @@ npm run i18n:check
 3. **客户端组件用 `useTranslations`，服务端用 `getTranslations`** — 不要混用，否则会有 hydration 错误。
 
 4. **`Link` 组件** — 项目内跳转一律用 `@/i18n/navigation` 的 `Link`，不要用 `next/link`，否则跳转会丢失 locale 前缀。
+
+---
+
+## Issue 7 — blogs_locales 表不存在（构建时数据库查询失败）
+**时间**：v0.8.0 i18n 上线后
+**症状**：Vercel 构建时 `generateStaticParams` 报错：
+```
+Failed query: ... from "blogs_locales" ...
+```
+**根本原因**：给 Blog 字段添加 `localized: true` 后，Payload 需要新建 `blogs_locales` 表，但未执行迁移
+
+**修复**：在本地（`.env.local` 含生产 `DATABASE_URI`）执行：
+```bash
+npx payload migrate
+```
+
+---
+
+## Issue 8 — Vercel 部署需要 Media Storage Adapter
+**时间**：v0.8.0
+**症状**：构建警告：
+```
+Collections with uploads enabled require a storage adapter when deploying to Vercel.
+Collection(s) without storage adapters: media.
+```
+**根本原因**：Vercel serverless 环境文件系统不持久，本地上传的图片每次部署后丢失
+
+**修复**：安装并配置 `@payloadcms/storage-vercel-blob`，在 `payload.config.ts` 注册插件：
+```ts
+plugins: [
+  vercelBlobStorage({
+    enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    token: process.env.BLOB_READ_WRITE_TOKEN || '',
+    collections: { media: true },
+  }),
+]
+```
+**新增环境变量**：`BLOB_READ_WRITE_TOKEN`（Vercel 控制台 → Storage → Blob → Create Store → 获取 token）

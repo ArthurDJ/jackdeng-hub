@@ -8,6 +8,8 @@ import { CategoryBadge } from '@/components/CategoryBadge'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
+import { CommentList } from '@/components/CommentList'
+import { CommentForm } from '@/components/CommentForm'
 
 export const revalidate = 3600
 
@@ -153,6 +155,26 @@ export default async function BlogDetailPage({ params }: Props) {
               >
                 ← Back to all posts
               </Link>
+            </div>
+
+            {/* ── Comments ── */}
+            <div className="mt-16 space-y-10">
+              {/* List — server component, shows approved comments */}
+              <CommentList postId={blog.id} />
+
+              {/* Divider */}
+              <div className="border-t border-zinc-200 dark:border-zinc-800" />
+
+              {/* Form — client component */}
+              <div>
+                <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-6">
+                  Leave a comment
+                </h2>
+                <CommentForm postId={blog.id} />
+                <p className="mt-3 text-xs text-zinc-400 dark:text-zinc-500">
+                  Comments are reviewed before appearing. No spam, no selling your email.
+                </p>
+              </div>
             </div>
           </article>
 

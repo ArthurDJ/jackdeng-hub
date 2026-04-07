@@ -14,6 +14,48 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.7.0] — 2026-04-06
+
+### Added — 评论系统（自建数据库 + 三层防 spam）（P2 任务）
+
+#### Comments Collection（`src/collections/Comments.ts`）
+- 字段：`authorName`、`authorEmail`（不公开）、`content`（最多 500 字）、`post`（relationship → blogs）、`status`（pending / approved / spam，默认 pending）、`ip`（自动注入）、`turnstileToken`、`honeypot`（存储但不展示）
+- **访问控制**：公开可 POST 创建；`status: approved` 的评论公开可读；update / delete 仅 admin
+- **三层防 spam**：
+  1. **Honeypot**：`beforeChange` hook 检测隐藏字段，机器人填写即丢弃
+  2. **IP 频率限制**：同 IP 每小时最多 5 条，超出抛出错误（`beforeChange` 查库实现，无需 Redis）
+  3. **Cloudflare Turnstile**：前端集成 invisible captcha，`POST /api/verify-turnstile` 服务端验证；未配置 `TURNSTILE_SECRET_KEY` 时自动跳过（开发模式友好）
+- **审核流程**：所有提交默认 `pending`，管理员在 Payload Admin 改为 `approved` 后才公开展示
+
+#### Turnstile 验证 API（`src/app/api/verify-turnstile/route.ts`）
+- `POST /api/verify-turnstile`，调用 Cloudflare siteverify 接口
+- 未配置 secret 时返回 `{ success: true }`（开发/测试友好）
+
+#### CommentForm（`src/components/CommentForm.tsx`）（新建，客户端组件）
+- 字段：Name、Email、Comment（字数计数器）
+- 动态加载 Turnstile widget（`onTurnstileLoad` 回调），`NEXT_PUBLIC_TURNSTILE_SITE_KEY` 未设置时跳过
+- 提交流程：Turnstile 验证 → POST `/api/comments` → 成功显示确认提示 + 重置表单
+- 错误状态展示、loading spinner、disabled 防重复提交
+
+#### CommentList（`src/components/CommentList.tsx`）（新建，服务端组件）
+- 直接通过 Payload Local API 查询当前文章 `approved` 评论
+- Avatar 组件：从姓名生成首字母 + 确定性 HSL 颜色（无需图片）
+- 评论数显示（"0 comments" / "1 comment" / "N comments"）
+
+#### 博客详情页更新（`src/app/blog/[slug]/page.tsx`）
+- 文章正文底部追加评论区：`<CommentList>` + 分割线 + `<CommentForm>`
+- 审核提示文字："Comments are reviewed before appearing."
+
+#### 配置更新
+- `src/payload.config.ts`：注册 `Comments` collection
+- `src/payload-types.ts`：新增 `Comment` interface、`CommentsSelect<T>`，注册到 `Config.collections` 和 `Config.collectionsSelect`
+
+#### 新增环境变量（可选，不填则跳过 Turnstile）
+- `TURNSTILE_SECRET_KEY` — Cloudflare Turnstile secret（服务端验证用）
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Cloudflare Turnstile site key（前端 widget 用）
+
+---
+
 ## [0.5.0] — 2026-04-06
 
 ### Added — About 页面 + 全局搜索 Command Palette（P1 任务）

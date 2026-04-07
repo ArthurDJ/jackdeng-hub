@@ -5,6 +5,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { Blogs } from './collections/Blogs'
 import { Categories } from './collections/Categories'
+import { Comments } from './collections/Comments'
 import { Tags } from './collections/Tags'
 import { Projects } from './collections/Projects'
 import { Tools } from './collections/Tools'
@@ -28,6 +29,7 @@ export const config = buildConfig({
       fields: [],
     },
     Categories,
+    Comments,
     Tags,
     Blogs,
     Projects,

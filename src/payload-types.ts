@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     categories: Category;
+    comments: Comment;
     tags: Tag;
     blogs: Blog;
     projects: Project;
@@ -83,6 +84,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    comments: CommentsSelect<false> | CommentsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     blogs: BlogsSelect<false> | BlogsSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
@@ -522,6 +524,34 @@ export interface Auth {
   [k: string]: unknown;
 }
 
+
+export interface Comment {
+  id: number;
+  authorName: string;
+  authorEmail: string;
+  content: string;
+  post: number | Blog;
+  status: 'pending' | 'approved' | 'spam';
+  ip?: string | null;
+  turnstileToken?: string | null;
+  honeypot?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface CommentsSelect<T extends boolean = true> {
+  authorName?: T;
+  authorEmail?: T;
+  content?: T;
+  post?: T;
+  status?: T;
+  ip?: T;
+  turnstileToken?: T;
+  honeypot?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  id?: T;
+}
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}

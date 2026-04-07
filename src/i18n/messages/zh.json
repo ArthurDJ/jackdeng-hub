@@ -1,10 +1,40 @@
 {
+  "_convention": {
+    "_note": "命名规范 — 添加 key 前请阅读：",
+    "_1": "key 使用 camelCase：commentSubmit 而非 comment_submit",
+    "_2": "按页面/功能分 namespace：nav、home、blog、about",
+    "_3": "通用 UI 基础文案放 common，不要放业务 namespace",
+    "_4": "en.json 是唯一真相来源，zh.json 结构必须与之完全一致",
+    "_5": "提交前运行 npm run i18n:check 检查僵尸 key"
+  },
+
+  "common": {
+    "loading": "加载中…",
+    "submit": "提交",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "back": "返回",
+    "close": "关闭",
+    "search": "搜索",
+    "viewAll": "查看全部 →",
+    "learnMore": "了解更多",
+    "required": "*",
+    "notDisplayed": "（不公开显示）",
+    "maxChars": "（最多 {count} 字）",
+    "copyright": "© {year} Jack Deng"
+  },
+
   "nav": {
     "blog": "文章",
     "about": "关于",
-    "search": "搜索",
-    "searchShortcut": "⌘K"
+    "searchPlaceholder": "搜索",
+    "searchShortcut": "⌘K",
+    "switchToZh": "中文",
+    "switchToEn": "EN"
   },
+
   "home": {
     "available": "正在寻找新机会",
     "title": "Jack Deng",
@@ -12,72 +42,70 @@
     "ctaBlog": "阅读文章",
     "ctaAbout": "了解我",
     "latestPosts": "最新文章",
-    "viewAll": "查看全部 →",
     "projects": "项目",
-    "active": "进行中",
-    "completed": "已完成",
-    "onHold": "暂停",
+    "projectStatus": {
+      "active": "进行中",
+      "completed": "已完成",
+      "onHold": "暂停"
+    },
     "viewProject": "查看项目 →"
   },
+
   "blog": {
     "title": "文章",
     "subtitle": "关于工程、系统与构建的思考。",
     "readMore": "阅读更多 →",
     "backToAll": "← 返回所有文章",
-    "category": "分类",
-    "tag": "标签",
-    "archive": "归档",
-    "featured": "精选",
     "noPostsFound": "暂无文章。",
+    "featured": "精选",
     "postedIn": "发布于",
-    "comments": "条评论",
-    "comment": "条评论",
-    "noComments": "暂无评论",
+    "commentCount": "{count, plural, =0 {暂无评论} other {# 条评论}}",
     "leaveComment": "发表评论",
     "commentDisclaimer": "评论经审核后显示，不会出售你的邮箱。",
-    "commentName": "名字",
-    "commentEmail": "邮箱",
-    "commentEmailNote": "（不公开显示）",
-    "commentContent": "评论内容",
-    "commentMaxChars": "（最多 500 字）",
-    "commentSubmit": "发表评论",
-    "commentSubmitting": "提交中…",
-    "commentSuccess": "评论已提交！",
-    "commentSuccessNote": "审核通过后将显示。感谢阅读。",
+    "commentSubmitSuccess": "评论已提交！",
+    "commentSubmitSuccessNote": "审核通过后将显示。感谢阅读。",
     "commentLeaveAnother": "再发一条评论",
-    "commentRequired": "*"
+    "commentNameLabel": "名字",
+    "commentEmailLabel": "邮箱",
+    "commentContentLabel": "评论内容",
+    "commentSubmitBtn": "发表评论",
+    "commentSubmitting": "提交中…"
   },
+
   "about": {
     "title": "Jack Deng",
     "subtitle": "软件工程师 · 创造者 · 写作者",
     "bio1": "你好，我是 Jack，一名在澳大利亚的软件工程师，热衷于端到端地构建产品。我尤其着迷于出色的开发者体验与精心设计的用户界面之间的交汇点。",
     "bio2": "这个网站是我的公开工作空间：用来写作、做实验，以及构建我出于兴趣或效率需求而开发的工具。它基于 {nextjs} + {payload} 构建，后端使用 PostgreSQL，托管于 {supabase}。",
     "bio3": "不在键盘前的时候，我大概在读书、爬山，或者研究今天的咖啡为什么又喝出了不一样的味道。",
-    "skills": "技能",
-    "experience": "经历与教育",
-    "findMe": "找到我",
-    "cta": "有合作意向，或者只是想打个招呼？",
-    "ctaButton": "发邮件给我",
-    "ctaNote": "或者看看我最近在{writing}。",
-    "ctaNoteLink": "写什么 →"
+    "skillsHeading": "技能",
+    "experienceHeading": "经历与教育",
+    "findMeHeading": "找到我",
+    "ctaText": "有合作意向，或者只是想打个招呼？",
+    "ctaBtn": "发邮件给我",
+    "ctaBlogLinkText": "写什么 →",
+    "ctaBlogNote": "或者看看我最近在{link}。"
   },
-  "footer": {
-    "builtWith": "基于 Next.js + Payload CMS 构建。"
-  },
+
   "search": {
-    "placeholder": "搜索文章、分类、标签…",
-    "navigate": "导航",
-    "open": "打开",
-    "close": "关闭",
+    "inputPlaceholder": "搜索文章、分类、标签…",
+    "keyNavigate": "导航",
+    "keyOpen": "打开",
+    "keyClose": "关闭",
     "noResults": "没有找到 \"{query}\" 的相关结果",
     "typePost": "文章",
     "typeCategory": "分类",
     "typeTag": "标签",
     "typePage": "页面"
   },
+
+  "footer": {
+    "builtWith": "基于 Next.js + Payload CMS 构建。"
+  },
+
   "notFound": {
     "title": "页面不存在",
     "message": "抱歉，找不到你访问的页面。",
-    "back": "返回首页"
+    "backHome": "返回首页"
   }
 }

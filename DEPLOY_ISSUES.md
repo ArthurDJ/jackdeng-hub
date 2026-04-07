@@ -137,3 +137,67 @@ npx payload migrate
 ```bash
 npx payload migrate
 ```
+
+---
+
+## i18n 规范与注意事项（v0.8.0+）
+
+### 命名规范
+
+| 规则 | 正确 | 错误 |
+|------|------|------|
+| key 使用 camelCase | `commentSubmit` | `comment_submit` / `CommentSubmit` |
+| 按页面/功能分 namespace | `blog.noPostsFound` | 顶层平铺 `noPostsFound` |
+| 通用 UI 文案放 common | `common.cancel` | `blog.cancel` / `home.cancel` |
+| 不使用动态拼接 key | `t('blog.commentSubmitBtn')` | `t('blog.comment' + action)` |
+
+### 文件结构
+
+```
+src/i18n/messages/
+  en.json   ← 唯一真相来源，新增 key 先在这里加
+  zh.json   ← 结构必须与 en.json 完全一致
+```
+
+**Namespaces：**
+- `common` — 通用 UI 原语（按钮文字、状态标签、版权等）
+- `nav` — 导航栏
+- `home` — 首页
+- `blog` — 博客相关（列表、详情、评论）
+- `about` — About 页
+- `search` — Command Palette 搜索
+- `footer` — 页脚
+- `notFound` — 404 页
+
+### 工具
+
+```bash
+# 提交前运行，检查 key 缺失、多余、僵尸 key
+npm run i18n:check
+```
+
+返回 ❌ Error = 存在缺失翻译，必须修复后才能提交。
+返回 ⚠️ Warning = 可能的僵尸 key，人工确认是否删除。
+
+### TypeScript 类型安全
+
+`src/i18n/types.ts` 通过全局 `IntlMessages` 声明让 `t()` 调用在编译时类型检查。
+写错 key（如 `t('nav.bolg')`）会在 `npm run build` 时报 TypeScript 错误，不需要等到运行时。
+
+### 常见陷阱
+
+1. **动态拼接 key** — `t('status.' + value)` 无法被静态分析，改用对象映射：
+   ```ts
+   const STATUS_LABELS = { active: t('home.projectStatus.active'), ... }
+   ```
+
+2. **`force-static` + `[locale]` 路由** — 静态页需改用 `generateStaticParams` 导出 locale 列表：
+   ```ts
+   export async function generateStaticParams() {
+     return [{ locale: 'en' }, { locale: 'zh' }]
+   }
+   ```
+
+3. **客户端组件用 `useTranslations`，服务端用 `getTranslations`** — 不要混用，否则会有 hydration 错误。
+
+4. **`Link` 组件** — 项目内跳转一律用 `@/i18n/navigation` 的 `Link`，不要用 `next/link`，否则跳转会丢失 locale 前缀。

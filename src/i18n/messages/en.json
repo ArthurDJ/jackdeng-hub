@@ -1,10 +1,40 @@
 {
+  "_convention": {
+    "_note": "KEY NAMING RULES — read before adding keys:",
+    "_1": "Use camelCase for keys: commentSubmit not comment_submit",
+    "_2": "Group by page/feature namespace: nav, home, blog, about",
+    "_3": "Shared UI primitives go in 'common', NOT in feature namespaces",
+    "_4": "en.json is source of truth — zh.json must mirror structure exactly",
+    "_5": "Run 'npm run i18n:check' before committing to catch zombie keys"
+  },
+
+  "common": {
+    "loading": "Loading…",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "close": "Close",
+    "search": "Search",
+    "viewAll": "View all →",
+    "learnMore": "Learn more",
+    "required": "*",
+    "notDisplayed": "(not displayed)",
+    "maxChars": "(max {count} chars)",
+    "copyright": "© {year} Jack Deng"
+  },
+
   "nav": {
     "blog": "Blog",
     "about": "About",
-    "search": "Search",
-    "searchShortcut": "⌘K"
+    "searchPlaceholder": "Search",
+    "searchShortcut": "⌘K",
+    "switchToZh": "中文",
+    "switchToEn": "EN"
   },
+
   "home": {
     "available": "Available for opportunities",
     "title": "Jack Deng",
@@ -12,72 +42,70 @@
     "ctaBlog": "Read the blog",
     "ctaAbout": "About me",
     "latestPosts": "Latest Posts",
-    "viewAll": "View all →",
     "projects": "Projects",
-    "active": "Active",
-    "completed": "Completed",
-    "onHold": "On Hold",
+    "projectStatus": {
+      "active": "Active",
+      "completed": "Completed",
+      "onHold": "On Hold"
+    },
     "viewProject": "View project →"
   },
+
   "blog": {
     "title": "Blog",
     "subtitle": "Thoughts on engineering, systems, and building things.",
     "readMore": "Read more →",
     "backToAll": "← Back to all posts",
-    "category": "Category",
-    "tag": "Tag",
-    "archive": "Archive",
-    "featured": "Featured",
     "noPostsFound": "No posts found.",
+    "featured": "Featured",
     "postedIn": "Posted in",
-    "comments": "comments",
-    "comment": "comment",
-    "noComments": "No comments yet",
+    "commentCount": "{count, plural, =0 {No comments yet} one {# comment} other {# comments}}",
     "leaveComment": "Leave a comment",
     "commentDisclaimer": "Comments are reviewed before appearing. No spam, no selling your email.",
-    "commentName": "Name",
-    "commentEmail": "Email",
-    "commentEmailNote": "(not displayed)",
-    "commentContent": "Comment",
-    "commentMaxChars": "(max 500 chars)",
-    "commentSubmit": "Post comment",
-    "commentSubmitting": "Submitting…",
-    "commentSuccess": "Comment submitted!",
-    "commentSuccessNote": "It will appear after review. Thanks for reading.",
+    "commentSubmitSuccess": "Comment submitted!",
+    "commentSubmitSuccessNote": "It will appear after review. Thanks for reading.",
     "commentLeaveAnother": "Leave another comment",
-    "commentRequired": "*"
+    "commentNameLabel": "Name",
+    "commentEmailLabel": "Email",
+    "commentContentLabel": "Comment",
+    "commentSubmitBtn": "Post comment",
+    "commentSubmitting": "Submitting…"
   },
+
   "about": {
     "title": "Jack Deng",
     "subtitle": "Software Engineer · Builder · Writer",
     "bio1": "Hi, I'm Jack — a software engineer based in Australia who loves building things end-to-end. I'm particularly drawn to the intersection of great developer experience and delightful user interfaces.",
     "bio2": "This site is my public workspace: a place for writing, experiments, and tools I build for fun or productivity. It runs on {nextjs} + {payload} with a PostgreSQL backend, self-hosted on {supabase}.",
     "bio3": "When I'm not at a keyboard I'm probably reading, hiking, or figuring out why the coffee tastes different today.",
-    "skills": "Skills",
-    "experience": "Experience & Education",
-    "findMe": "Find me online",
-    "cta": "Interested in working together or just want to say hi?",
-    "ctaButton": "Send me a message",
-    "ctaNote": "Or read what I've been {writing}.",
-    "ctaNoteLink": "writing lately →"
+    "skillsHeading": "Skills",
+    "experienceHeading": "Experience & Education",
+    "findMeHeading": "Find me online",
+    "ctaText": "Interested in working together or just want to say hi?",
+    "ctaBtn": "Send me a message",
+    "ctaBlogLinkText": "writing lately →",
+    "ctaBlogNote": "Or read what I've been {link}."
   },
-  "footer": {
-    "builtWith": "Built with Next.js + Payload CMS."
-  },
+
   "search": {
-    "placeholder": "Search posts, categories, tags…",
-    "navigate": "navigate",
-    "open": "open",
-    "close": "close",
+    "inputPlaceholder": "Search posts, categories, tags…",
+    "keyNavigate": "navigate",
+    "keyOpen": "open",
+    "keyClose": "close",
     "noResults": "No results for \"{query}\"",
     "typePost": "post",
     "typeCategory": "category",
     "typeTag": "tag",
     "typePage": "page"
   },
+
+  "footer": {
+    "builtWith": "Built with Next.js + Payload CMS."
+  },
+
   "notFound": {
     "title": "Page not found",
     "message": "Sorry, we couldn't find the page you're looking for.",
-    "back": "Go back home"
+    "backHome": "Go back home"
   }
 }

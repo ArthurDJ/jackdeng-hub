@@ -22,6 +22,6 @@ export const migrations = [
   {
     up: migration_20260407_002218_add_comments.up,
     down: migration_20260407_002218_add_comments.down,
-    name: '20260407_002218_add_comments'
+    name: '20260407_002218_add_comments',
   },
 ];

@@ -58,7 +58,7 @@ export const Blogs: CollectionConfig = {
     {
       name: 'excerpt',
       type: 'textarea',
-      required: true,
+      required: false,
       maxLength: 150,
       admin: {
         description: 'Short summary shown in blog cards. Max 150 characters.',
@@ -68,7 +68,7 @@ export const Blogs: CollectionConfig = {
       name: 'coverImage',
       type: 'upload',
       relationTo: 'media',
-      required: true,
+      required: false,
     },
     {
       name: 'content',
@@ -81,7 +81,7 @@ export const Blogs: CollectionConfig = {
       name: 'category',
       type: 'relationship',
       relationTo: 'categories',
-      required: true,
+      required: false,
       admin: {
         position: 'sidebar',
       },

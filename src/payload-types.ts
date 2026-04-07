@@ -173,7 +173,13 @@ export interface Category {
 export interface Tag {
   id: number;
   name: string;
+  /**
+   * URL-friendly identifier, auto-generated from name if left blank.
+   */
   slug: string;
+  /**
+   * Hex color code (e.g. #3B82F6) used to render the tag badge.
+   */
   color: string;
   description?: string | null;
   updatedAt: string;
@@ -186,8 +192,14 @@ export interface Tag {
 export interface Blog {
   id: number;
   title: string;
+  /**
+   * URL path — auto-generated from title if left blank.
+   */
   slug: string;
-  excerpt: string;
+  /**
+   * Short summary shown in blog cards. Max 150 characters.
+   */
+  excerpt?: string | null;
   coverImage?: (number | null) | Media;
   content: {
     root: {
@@ -205,15 +217,33 @@ export interface Blog {
     [k: string]: unknown;
   };
   category?: (number | null) | Category;
-  tags?: ((number | null) | Tag)[] | null;
+  /**
+   * Maximum 5 tags per post.
+   */
+  tags?: (number | Tag)[] | null;
   status: 'draft' | 'published';
+  /**
+   * Auto-set when status changes to Published.
+   */
   publishedAt?: string | null;
+  /**
+   * Pinned to homepage highlights.
+   */
   featured?: boolean | null;
   seo?: {
+    /**
+     * Defaults to post title if left blank.
+     */
     metaTitle?: string | null;
+    /**
+     * Defaults to excerpt if left blank. Max 160 chars.
+     */
     metaDescription?: string | null;
+    /**
+     * Defaults to cover image if left blank.
+     */
     ogImage?: (number | null) | Media;
-  } | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -224,6 +254,7 @@ export interface Blog {
 export interface Media {
   id: number;
   alt: string;
+  caption?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -235,6 +266,32 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -310,6 +367,14 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'tags';
+        value: number | Tag;
+      } | null)
+    | ({
         relationTo: 'blogs';
         value: number | Blog;
       } | null)
@@ -371,21 +436,6 @@ export interface PayloadMigration {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
-export interface CategoriesSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  description?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-export interface TagsSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  color?: T;
-  description?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
 export interface UsersSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
@@ -406,16 +456,49 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags_select".
+ */
+export interface TagsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  color?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blogs_select".
  */
 export interface BlogsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  excerpt?: T;
   coverImage?: T;
   content?: T;
   category?: T;
+  tags?: T;
   status?: T;
-  publishedDate?: T;
+  publishedAt?: T;
+  featured?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogImage?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -454,6 +537,7 @@ export interface ToolsSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -465,6 +549,40 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        hero?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

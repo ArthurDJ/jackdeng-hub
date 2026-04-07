@@ -44,7 +44,7 @@ const TIMELINE = [
 ]
 
 const LINKS = [
-  { label: 'GitHub',   href: 'https://github.com/JJackDeng' },
+  { label: 'GitHub',   href: 'https://github.com/ArthurDJ' },
   { label: 'LinkedIn', href: 'https://linkedin.com/in/jackdeng' },
   { label: 'Email',    href: 'mailto:hello@jackdeng.cc' },
 ]

@@ -101,7 +101,7 @@ export interface Config {
   fallbackLocale: null;
   globals: {};
   globalsSelect: {};
-  locale: null;
+  locale: 'en' | 'zh';
   widgets: {
     collections: CollectionsWidget;
   };

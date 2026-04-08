@@ -12,29 +12,29 @@
    ════════════════════════════════════════════════════ */
 @layer base {
 
-  /* ── Dark (default) ── */
+  /* ── Dark (default) — see DESIGN.md §3 ── */
   :root {
-    /* Backgrounds */
-    --bg-base:      #08090a;
-    --bg-panel:     #0f1011;
-    --bg-elevated:  #191a1b;
-    --bg-overlay:   #1f2022;
+    /* Backgrounds — Deep Tech Black scale */
+    --bg-base:      #0a0a0a;
+    --bg-panel:     #121212;
+    --bg-elevated:  #171717;
+    --bg-overlay:   #1e1e1e;
 
     /* Text */
-    --text-primary:   #f7f8f8;
-    --text-secondary: #d0d6e0;
-    --text-tertiary:  #8a8f98;
-    --text-disabled:  #4a4f58;
+    --text-primary:   #ededed;
+    --text-secondary: #a1a1aa;
+    --text-tertiary:  #71717a;
+    --text-disabled:  #52525b;
 
-    /* Borders — semi-transparent white overlays */
-    --border-subtle:  rgba(255, 255, 255, 0.05);
-    --border-default: rgba(255, 255, 255, 0.08);
-    --border-strong:  rgba(255, 255, 255, 0.12);
+    /* Borders */
+    --border-subtle:  rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.10);
+    --border-strong:  rgba(255, 255, 255, 0.15);
 
-    /* Accent */
-    --accent-primary: #5e6ad2;
-    --accent-hover:   #7170ff;
-    --accent-subtle:  rgba(94, 106, 210, 0.12);
+    /* Accent — blue (dark mode) */
+    --accent-primary: #3b82f6;
+    --accent-hover:   #60a5fa;
+    --accent-subtle:  rgba(59, 130, 246, 0.12);
 
     /* Status */
     --status-success: #10b981;
@@ -54,21 +54,26 @@
     --font-feature: "cv01", "ss03";
   }
 
-  /* ── Light mode overrides ── */
+  /* ── Light mode overrides — see DESIGN.md §3 ── */
   .light {
     --bg-base:      #ffffff;
-    --bg-panel:     #f8f9fa;
-    --bg-elevated:  #f1f3f5;
-    --bg-overlay:   #e8eaed;
+    --bg-panel:     #fafafa;
+    --bg-elevated:  #f5f5f5;
+    --bg-overlay:   #ebebeb;
 
-    --text-primary:   #0f1011;
-    --text-secondary: #3d4147;
-    --text-tertiary:  #7a8390;
-    --text-disabled:  #b0b8c4;
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+    --text-disabled:  #cccccc;
 
-    --border-subtle:  rgba(0, 0, 0, 0.06);
-    --border-default: rgba(0, 0, 0, 0.09);
-    --border-strong:  rgba(0, 0, 0, 0.14);
+    --border-subtle:  rgba(0, 0, 0, 0.05);
+    --border-default: rgba(0, 0, 0, 0.08);
+    --border-strong:  rgba(0, 0, 0, 0.13);
+
+    /* Accent — Develop Blue (light mode) */
+    --accent-primary: #0a72ef;
+    --accent-hover:   #1a7ff5;
+    --accent-subtle:  rgba(10, 114, 239, 0.10);
   }
 
   /* ── Base resets ── */
@@ -87,7 +92,8 @@
   body {
     background-color: var(--bg-base);
     color: var(--text-primary);
-    font-family: var(--font-inter, 'Inter Variable', 'Inter', system-ui, sans-serif);
+    /* Prefer Geist if available (see DESIGN.md §2); falls back to Inter Variable */
+    font-family: var(--font-geist-sans, var(--font-inter, 'Geist', 'Inter Variable', 'Inter', system-ui, sans-serif));
   }
 }
 
@@ -159,11 +165,11 @@
     font-family: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
   }
 
-  /* Cards */
+  /* Cards — rounded-xl (12px) per DESIGN.md §4 */
   .card {
     background-color: var(--bg-panel);
     border: 1px solid var(--border-default);
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 24px;
     transition: border-color var(--duration-base) var(--ease-default),
                 background-color var(--duration-base) var(--ease-default);

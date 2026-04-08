@@ -171,17 +171,25 @@ export default async function HomePage({ params }: Props) {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 8,
-                  padding: '9px 18px',
-                  borderRadius: 6,
+                  padding: '10px 24px',
+                  borderRadius: 9999,
                   background: 'var(--accent-primary)',
                   color: '#ffffff',
                   fontSize: 14,
-                  fontWeight: 510,
+                  fontWeight: 500,
                   textDecoration: 'none',
-                  transition: `background var(--duration-base) var(--ease-default)`,
+                  transition: `background var(--duration-base) var(--ease-default), transform var(--duration-base)`,
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--accent-hover)' }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--accent-primary)' }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement
+                  el.style.background = 'var(--accent-hover)'
+                  el.style.transform = 'scale(1.03)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement
+                  el.style.background = 'var(--accent-primary)'
+                  el.style.transform = 'scale(1)'
+                }}
               >
                 {t('ctaBlog')}
               </Link>
@@ -191,16 +199,18 @@ export default async function HomePage({ params }: Props) {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 8,
-                  padding: '9px 18px',
-                  borderRadius: 6,
-                  background: 'rgba(255,255,255,0.04)',
+                  padding: '10px 24px',
+                  borderRadius: 9999,
+                  background: 'transparent',
                   border: '1px solid var(--border-default)',
                   color: 'var(--text-secondary)',
                   fontSize: 14,
-                  fontWeight: 510,
+                  fontWeight: 500,
                   textDecoration: 'none',
                   transition: `background var(--duration-base) var(--ease-default)`,
                 }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--bg-elevated)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
               >
                 {t('ctaAbout')}
               </Link>
@@ -227,7 +237,7 @@ export default async function HomePage({ params }: Props) {
                 style={{
                   background: 'var(--bg-panel)',
                   border: '1px solid var(--border-default)',
-                  borderRadius: 8,
+                  borderRadius: 12,
                   padding: '20px 20px 18px',
                   transition: `border-color var(--duration-base) var(--ease-default), background var(--duration-base) var(--ease-default)`,
                   cursor: 'default',
@@ -313,7 +323,7 @@ export default async function HomePage({ params }: Props) {
               style={{
                 background: 'var(--bg-panel)',
                 border: '1px dashed var(--border-default)',
-                borderRadius: 8,
+                borderRadius: 12,
                 padding: '48px 32px',
                 textAlign: 'center',
               }}
@@ -381,7 +391,7 @@ function ProjectCard({ project, t }: { project: any; t: any }) {
       style={{
         background: 'var(--bg-panel)',
         border: '1px solid var(--border-default)',
-        borderRadius: 8,
+        borderRadius: 12,
         padding: '20px 24px',
         display: 'flex',
         flexDirection: 'column',

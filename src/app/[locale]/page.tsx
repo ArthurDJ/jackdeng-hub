@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { useTranslations } from 'next-intl'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
@@ -15,58 +14,67 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'home' })
   return {
     title: t('title'),
-    description: 'Software engineer building at the intersection of AI, data, and systems.',
+    description: 'Senior Database & Integration Administrator. NetSuite · Boomi · Supabase · Next.js.',
   }
 }
 
-function ProjectCard({
-  name, shortDescription, link, status, t,
-}: {
-  name: string
-  shortDescription: string
-  link?: string | null
-  status?: string | null
-  t: ReturnType<typeof useTranslations<'home'>>
-}) {
-  const statusColors: Record<string, string> = {
-    active:    'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400',
-    completed: 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400',
-    'on-hold': 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400',
-  }
-  const statusLabel: Record<string, string> = {
-    active:    t('active'),
-    completed: t('completed'),
-    'on-hold': t('onHold'),
-  }
+/* ─── Tech Stack data (static) ──────────────────────────────────────────── */
+const TECH_STACK = [
+  {
+    name: 'NetSuite',
+    description: 'ERP & financial data governance',
+    color: '#0077B6',
+    icon: (
+      <svg viewBox="0 0 40 40" fill="none" aria-hidden="true" className="w-8 h-8">
+        <rect width="40" height="40" rx="8" fill="#0077B6" fillOpacity="0.15"/>
+        <text x="20" y="26" textAnchor="middle" fontSize="13" fontWeight="700"
+          fill="#0077B6" fontFamily="system-ui,sans-serif">NS</text>
+      </svg>
+    ),
+  },
+  {
+    name: 'Boomi',
+    description: 'iPaaS integration & workflow automation',
+    color: '#00AAFF',
+    icon: (
+      <svg viewBox="0 0 40 40" fill="none" aria-hidden="true" className="w-8 h-8">
+        <rect width="40" height="40" rx="8" fill="#00AAFF" fillOpacity="0.12"/>
+        <circle cx="20" cy="20" r="7" stroke="#00AAFF" strokeWidth="2.5" fill="none"/>
+        <circle cx="20" cy="20" r="3" fill="#00AAFF"/>
+      </svg>
+    ),
+  },
+  {
+    name: 'Supabase',
+    description: 'Postgres-native backend & auth',
+    color: '#3ECF8E',
+    icon: (
+      <svg viewBox="0 0 40 40" fill="none" aria-hidden="true" className="w-8 h-8">
+        <rect width="40" height="40" rx="8" fill="#3ECF8E" fillOpacity="0.12"/>
+        <path d="M22 10L13 22h8l-3 8 10-13h-8l3-7z" fill="#3ECF8E" stroke="#3ECF8E" strokeWidth="0.5" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    name: 'Next.js',
+    description: 'Full-stack React for internal tools',
+    color: '#f7f8f8',
+    icon: (
+      <svg viewBox="0 0 40 40" fill="none" aria-hidden="true" className="w-8 h-8">
+        <rect width="40" height="40" rx="8" fill="rgba(247,248,248,0.08)"/>
+        <text x="20" y="26" textAnchor="middle" fontSize="14" fontWeight="700"
+          fill="currentColor" fontFamily="system-ui,sans-serif">N</text>
+      </svg>
+    ),
+  },
+]
 
-  return (
-    <div className="flex flex-col gap-3 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-base leading-snug">{name}</h3>
-        {status && (
-          <span className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${statusColors[status] ?? ''}`}>
-            {statusLabel[status] ?? status}
-          </span>
-        )}
-      </div>
-      <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed flex-1">{shortDescription}</p>
-      {link && (
-        <a href={link} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline mt-auto">
-          {t('viewProject')}
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-          </svg>
-        </a>
-      )}
-    </div>
-  )
-}
-
+/* ─── Page component ──────────────────────────────────────────────────────── */
 export default async function HomePage({ params }: Props) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'home' })
   const tFooter = await getTranslations({ locale, namespace: 'footer' })
+  const tCommon = await getTranslations({ locale, namespace: 'common' })
 
   const payload = await getPayload()
   const [blogsResult, projectsResult] = await Promise.all([
@@ -83,7 +91,7 @@ export default async function HomePage({ params }: Props) {
       where: { isPinned: { equals: true } },
       sort: '-createdAt',
       depth: 1,
-      limit: 2,
+      limit: 4,
     }),
   ])
 
@@ -91,48 +99,180 @@ export default async function HomePage({ params }: Props) {
   const projects = projectsResult.docs as any[]
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 flex flex-col">
+    <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }} className="min-h-screen flex flex-col">
       <Navbar />
+
       <main className="flex-1">
 
-        {/* Hero */}
-        <section className="max-w-6xl mx-auto px-4 pt-20 pb-16">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 mb-6 border border-zinc-200 dark:border-zinc-700">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              {t('available')}
+        {/* ── Hero ─────────────────────────────────────────────────────── */}
+        <section className="max-w-5xl mx-auto px-6 pt-24 pb-20">
+          <div className="max-w-3xl">
+
+            {/* Status pill */}
+            <div className="inline-flex items-center gap-2 mb-8"
+              style={{
+                background: 'rgba(16,185,129,0.10)',
+                border: '1px solid rgba(16,185,129,0.20)',
+                borderRadius: 9999,
+                padding: '4px 14px',
+              }}>
+              <span
+                className="animate-pulse"
+                style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', display: 'inline-block' }}
+              />
+              <span style={{ fontSize: 13, fontWeight: 510, color: '#10b981' }}>
+                {t('available')}
+              </span>
             </div>
-            <h1 className="text-5xl sm:text-6xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 leading-none mb-4">
+
+            {/* Title */}
+            <h1
+              className="mb-5"
+              style={{
+                fontSize: 'clamp(36px, 5vw, 56px)',
+                fontWeight: 590,
+                letterSpacing: '-1.2px',
+                lineHeight: 1.05,
+                color: 'var(--text-primary)',
+              }}
+            >
               {t('title')}
             </h1>
-            <p className="text-xl text-zinc-600 dark:text-zinc-400 leading-relaxed mb-8 max-w-xl">
+
+            {/* Subtitle */}
+            <p
+              className="mb-4"
+              style={{
+                fontSize: 20,
+                fontWeight: 300,
+                color: 'var(--text-tertiary)',
+                letterSpacing: '-0.2px',
+              }}
+            >
+              {t('subtitle')}
+            </p>
+
+            {/* Bio */}
+            <p
+              className="mb-10 max-w-2xl"
+              style={{ fontSize: 17, lineHeight: 1.7, color: 'var(--text-secondary)', fontWeight: 400 }}
+            >
               {t.rich('bio', {
-                ai:      (c) => <span className="text-zinc-900 dark:text-zinc-100 font-medium">{c}</span>,
-                data:    (c) => <span className="text-zinc-900 dark:text-zinc-100 font-medium">{c}</span>,
-                systems: (c) => <span className="text-zinc-900 dark:text-zinc-100 font-medium">{c}</span>,
+                netsuite: (c) => <span style={{ color: 'var(--text-primary)', fontWeight: 510 }}>{c}</span>,
+                boomi:    (c) => <span style={{ color: 'var(--text-primary)', fontWeight: 510 }}>{c}</span>,
               })}
             </p>
+
+            {/* CTAs */}
             <div className="flex flex-wrap gap-3">
-              <Link href="/blog"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-medium hover:opacity-90 transition-opacity">
+              <Link
+                href="/blog"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '9px 18px',
+                  borderRadius: 6,
+                  background: 'var(--accent-primary)',
+                  color: '#ffffff',
+                  fontSize: 14,
+                  fontWeight: 510,
+                  textDecoration: 'none',
+                  transition: `background var(--duration-base) var(--ease-default)`,
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--accent-hover)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--accent-primary)' }}
+              >
                 {t('ctaBlog')}
               </Link>
-              <Link href="/about"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+              <Link
+                href="/about"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '9px 18px',
+                  borderRadius: 6,
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid var(--border-default)',
+                  color: 'var(--text-secondary)',
+                  fontSize: 14,
+                  fontWeight: 510,
+                  textDecoration: 'none',
+                  transition: `background var(--duration-base) var(--ease-default)`,
+                }}
+              >
                 {t('ctaAbout')}
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Latest Posts */}
+        {/* ── Tech Stack ───────────────────────────────────────────────── */}
+        <section
+          className="max-w-5xl mx-auto px-6 py-14"
+          style={{ borderTop: '1px solid var(--border-subtle)' }}
+        >
+          <h2
+            className="mb-8"
+            style={{ fontSize: 13, fontWeight: 510, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}
+          >
+            {t('techStackHeading')}
+          </h2>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {TECH_STACK.map((tech) => (
+              <div
+                key={tech.name}
+                style={{
+                  background: 'var(--bg-panel)',
+                  border: '1px solid var(--border-default)',
+                  borderRadius: 8,
+                  padding: '20px 20px 18px',
+                  transition: `border-color var(--duration-base) var(--ease-default), background var(--duration-base) var(--ease-default)`,
+                  cursor: 'default',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLDivElement
+                  el.style.borderColor = 'var(--border-strong)'
+                  el.style.background = 'var(--bg-elevated)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLDivElement
+                  el.style.borderColor = 'var(--border-default)'
+                  el.style.background = 'var(--bg-panel)'
+                }}
+              >
+                <div className="mb-3">{tech.icon}</div>
+                <p style={{ fontSize: 14, fontWeight: 510, color: 'var(--text-primary)', marginBottom: 4 }}>
+                  {tech.name}
+                </p>
+                <p style={{ fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.5 }}>
+                  {tech.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Latest Posts ─────────────────────────────────────────────── */}
         {blogs.length > 0 && (
-          <section className="max-w-6xl mx-auto px-4 py-12 border-t border-zinc-100 dark:border-zinc-800">
-            <div className="flex items-baseline justify-between mb-6">
-              <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">{t('latestPosts')}</h2>
-              <Link href="/blog" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">{t('viewAll')}</Link>
+          <section
+            className="max-w-5xl mx-auto px-6 py-14"
+            style={{ borderTop: '1px solid var(--border-subtle)' }}
+          >
+            <div className="flex items-baseline justify-between mb-8">
+              <h2 style={{ fontSize: 20, fontWeight: 510, letterSpacing: '-0.3px', color: 'var(--text-primary)' }}>
+                {t('latestPosts')}
+              </h2>
+              <Link
+                href="/blog"
+                style={{ fontSize: 13, color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 510 }}
+              >
+                {tCommon('viewAll')}
+              </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {blogs.map((blog) => (
                 <BlogCard
                   key={blog.id}
@@ -141,7 +281,7 @@ export default async function HomePage({ params }: Props) {
                   excerpt={blog.excerpt}
                   coverImage={blog.coverImage}
                   category={typeof blog.category === 'object' ? blog.category : null}
-                  tags={Array.isArray(blog.tags) ? blog.tags.filter((t: any) => typeof t === 'object') : []}
+                  tags={Array.isArray(blog.tags) ? blog.tags.filter((tag: any) => typeof tag === 'object') : []}
                   publishedAt={blog.publishedAt}
                   featured={blog.featured}
                 />
@@ -150,25 +290,159 @@ export default async function HomePage({ params }: Props) {
           </section>
         )}
 
-        {/* Projects */}
-        {projects.length > 0 && (
-          <section className="max-w-6xl mx-auto px-4 py-12 border-t border-zinc-100 dark:border-zinc-800">
-            <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-6">{t('projects')}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {/* ── Latest Projects ──────────────────────────────────────────── */}
+        <section
+          className="max-w-5xl mx-auto px-6 py-14"
+          style={{ borderTop: '1px solid var(--border-subtle)' }}
+        >
+          <div className="flex items-baseline justify-between mb-8">
+            <h2 style={{ fontSize: 20, fontWeight: 510, letterSpacing: '-0.3px', color: 'var(--text-primary)' }}>
+              {t('latestProjects')}
+            </h2>
+          </div>
+
+          {projects.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {projects.map((project: any) => (
-                <ProjectCard key={project.id} name={project.name} shortDescription={project.shortDescription} link={project.link} status={project.status} t={t} />
+                <ProjectCard key={project.id} project={project} t={t} />
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            /* Placeholder state */
+            <div
+              style={{
+                background: 'var(--bg-panel)',
+                border: '1px dashed var(--border-default)',
+                borderRadius: 8,
+                padding: '48px 32px',
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 10,
+                  background: 'var(--accent-subtle)',
+                  border: '1px solid rgba(94,106,210,0.20)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px',
+                }}
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="7" height="7" rx="1"/>
+                  <rect x="14" y="3" width="7" height="7" rx="1"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1"/>
+                  <path d="M14 17.5h7M17.5 14v7"/>
+                </svg>
+              </div>
+              <p style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)', marginBottom: 6 }}>
+                {t('noProjectsYet')}
+              </p>
+              <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
+                {t('noProjectsNote')}
+              </p>
+            </div>
+          )}
+        </section>
+
       </main>
 
-      <footer className="border-t border-zinc-100 dark:border-zinc-800 py-6 px-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between text-xs text-zinc-400 dark:text-zinc-500">
-          <span>© {new Date().getFullYear()} Jack Deng</span>
+      {/* ── Footer ───────────────────────────────────────────────────────── */}
+      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '20px 24px' }}>
+        <div className="max-w-5xl mx-auto flex items-center justify-between"
+          style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
+          <span>{tCommon('copyright', { year: new Date().getFullYear() })}</span>
           <span>{tFooter('builtWith')}</span>
         </div>
       </footer>
+    </div>
+  )
+}
+
+/* ─── Project card sub-component ─────────────────────────────────────────── */
+function ProjectCard({ project, t }: { project: any; t: any }) {
+  const statusColors: Record<string, { bg: string; text: string; border: string }> = {
+    active:    { bg: 'rgba(16,185,129,0.10)', text: '#10b981', border: 'rgba(16,185,129,0.20)' },
+    completed: { bg: 'rgba(94,106,210,0.10)', text: '#7170ff', border: 'rgba(94,106,210,0.20)' },
+    'on-hold': { bg: 'rgba(245,158,11,0.10)', text: '#f59e0b', border: 'rgba(245,158,11,0.20)' },
+  }
+  const statusLabel: Record<string, string> = {
+    active:    t('projectStatus.active'),
+    completed: t('projectStatus.completed'),
+    'on-hold': t('projectStatus.onHold'),
+  }
+  const sc = statusColors[project.status] ?? statusColors['active']
+
+  return (
+    <div
+      style={{
+        background: 'var(--bg-panel)',
+        border: '1px solid var(--border-default)',
+        borderRadius: 8,
+        padding: '20px 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+        transition: `border-color var(--duration-base) var(--ease-default), background var(--duration-base) var(--ease-default)`,
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLDivElement
+        el.style.borderColor = 'var(--border-strong)'
+        el.style.background = 'var(--bg-elevated)'
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLDivElement
+        el.style.borderColor = 'var(--border-default)'
+        el.style.background = 'var(--bg-panel)'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+        <h3 style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)', lineHeight: 1.4 }}>
+          {project.name}
+        </h3>
+        {project.status && (
+          <span style={{
+            fontSize: 11,
+            fontWeight: 510,
+            padding: '2px 8px',
+            borderRadius: 9999,
+            whiteSpace: 'nowrap',
+            background: sc.bg,
+            color: sc.text,
+            border: `1px solid ${sc.border}`,
+          }}>
+            {statusLabel[project.status] ?? project.status}
+          </span>
+        )}
+      </div>
+      <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, flex: 1 }}>
+        {project.shortDescription}
+      </p>
+      {project.link && (
+        <a
+          href={project.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            fontSize: 12,
+            fontWeight: 510,
+            color: 'var(--accent-primary)',
+            textDecoration: 'none',
+            marginTop: 4,
+          }}
+        >
+          {t('viewProject')}
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </a>
+      )}
     </div>
   )
 }

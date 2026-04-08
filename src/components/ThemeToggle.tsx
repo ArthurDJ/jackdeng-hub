@@ -50,12 +50,31 @@ export function ThemeToggle() {
       onClick={() => setTheme(next.value)}
       title={`Current: ${current.label} — Click for ${next.label}`}
       aria-label={`Switch to ${next.label} mode`}
-      className="
-        relative flex items-center justify-center w-8 h-8 rounded-lg
-        text-zinc-500 dark:text-zinc-400
-        hover:bg-zinc-100 dark:hover:bg-zinc-800
-        transition-colors duration-150
-      "
+      style={{
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 30,
+        height: 30,
+        borderRadius: 6,
+        color: 'var(--text-tertiary)',
+        background: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        transition: 'background 150ms, color 150ms',
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLButtonElement
+        el.style.background = 'rgba(255,255,255,0.05)'
+        el.style.color = 'var(--text-secondary)'
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLButtonElement
+        el.style.background = 'transparent'
+        el.style.color = 'var(--text-tertiary)'
+      }}
+      className=""
     >
       {current.icon}
       <span className="sr-only">{current.label} mode</span>

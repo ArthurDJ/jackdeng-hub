@@ -6,18 +6,72 @@
 /* ── Typography plugin prose styles ── */
 @plugin "@tailwindcss/typography";
 
-/* ── CSS custom properties ── */
+/* ════════════════════════════════════════════════════
+   DESIGN TOKENS — Linear-inspired (see DESIGN.md)
+   Dark-mode-native. Light mode overrides via .light.
+   ════════════════════════════════════════════════════ */
 @layer base {
+
+  /* ── Dark (default) ── */
   :root {
-    --background: 255 255 255;
-    --foreground: 9 9 11;
+    /* Backgrounds */
+    --bg-base:      #08090a;
+    --bg-panel:     #0f1011;
+    --bg-elevated:  #191a1b;
+    --bg-overlay:   #1f2022;
+
+    /* Text */
+    --text-primary:   #f7f8f8;
+    --text-secondary: #d0d6e0;
+    --text-tertiary:  #8a8f98;
+    --text-disabled:  #4a4f58;
+
+    /* Borders — semi-transparent white overlays */
+    --border-subtle:  rgba(255, 255, 255, 0.05);
+    --border-default: rgba(255, 255, 255, 0.08);
+    --border-strong:  rgba(255, 255, 255, 0.12);
+
+    /* Accent */
+    --accent-primary: #5e6ad2;
+    --accent-hover:   #7170ff;
+    --accent-subtle:  rgba(94, 106, 210, 0.12);
+
+    /* Status */
+    --status-success: #10b981;
+    --status-warning: #f59e0b;
+    --status-error:   #ef4444;
+    --status-info:    #3b82f6;
+
+    /* Motion */
+    --duration-fast:  100ms;
+    --duration-base:  150ms;
+    --duration-slow:  250ms;
+    --ease-default:   cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in:        cubic-bezier(0.4, 0, 1, 1);
+    --ease-out:       cubic-bezier(0, 0, 0.2, 1);
+
+    /* Typography */
+    --font-feature: "cv01", "ss03";
   }
 
-  .dark {
-    --background: 9 9 11;
-    --foreground: 250 250 250;
+  /* ── Light mode overrides ── */
+  .light {
+    --bg-base:      #ffffff;
+    --bg-panel:     #f8f9fa;
+    --bg-elevated:  #f1f3f5;
+    --bg-overlay:   #e8eaed;
+
+    --text-primary:   #0f1011;
+    --text-secondary: #3d4147;
+    --text-tertiary:  #7a8390;
+    --text-disabled:  #b0b8c4;
+
+    --border-subtle:  rgba(0, 0, 0, 0.06);
+    --border-default: rgba(0, 0, 0, 0.09);
+    --border-strong:  rgba(0, 0, 0, 0.14);
   }
 
+  /* ── Base resets ── */
   * {
     box-sizing: border-box;
   }
@@ -25,10 +79,110 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: var(--font-feature);
+    background-color: var(--bg-base);
+    color: var(--text-primary);
   }
 
   body {
-    background-color: rgb(var(--background));
-    color: rgb(var(--foreground));
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-inter, 'Inter Variable', 'Inter', system-ui, sans-serif);
+  }
+}
+
+/* ── Tailwind utility aliases for design tokens ── */
+@layer utilities {
+  .bg-base      { background-color: var(--bg-base); }
+  .bg-panel     { background-color: var(--bg-panel); }
+  .bg-elevated  { background-color: var(--bg-elevated); }
+
+  .text-ds-primary   { color: var(--text-primary); }
+  .text-ds-secondary { color: var(--text-secondary); }
+  .text-ds-tertiary  { color: var(--text-tertiary); }
+
+  .border-subtle  { border-color: var(--border-subtle); }
+  .border-ds      { border-color: var(--border-default); }
+  .border-strong  { border-color: var(--border-strong); }
+
+  .accent         { color: var(--accent-primary); }
+  .bg-accent      { background-color: var(--accent-primary); }
+  .bg-accent-subtle { background-color: var(--accent-subtle); }
+
+  /* Typography scale */
+  .text-display-xl {
+    font-size: 72px;
+    font-weight: 590;
+    letter-spacing: -1.584px;
+    line-height: 1;
+  }
+  .text-display-lg {
+    font-size: 48px;
+    font-weight: 590;
+    letter-spacing: -1.056px;
+    line-height: 1.1;
+  }
+  .text-display-md {
+    font-size: 36px;
+    font-weight: 510;
+    letter-spacing: -0.72px;
+    line-height: 1.15;
+  }
+  .text-heading-lg {
+    font-size: 24px;
+    font-weight: 510;
+    letter-spacing: -0.36px;
+  }
+  .text-heading-md {
+    font-size: 18px;
+    font-weight: 510;
+    letter-spacing: -0.18px;
+  }
+  .text-body-lg {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.65;
+  }
+  .text-body-md {
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  .text-body-sm {
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.1px;
+  }
+  .text-mono {
+    font-size: 13px;
+    font-weight: 400;
+    font-family: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  /* Cards */
+  .card {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 24px;
+    transition: border-color var(--duration-base) var(--ease-default),
+                background-color var(--duration-base) var(--ease-default);
+  }
+  .card:hover {
+    border-color: var(--border-strong);
+    background-color: var(--bg-elevated);
+  }
+
+  /* Tag/pill */
+  .pill {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-default);
+    border-radius: 9999px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 510;
+  }
+  .light .pill {
+    background-color: rgba(0, 0, 0, 0.04);
   }
 }

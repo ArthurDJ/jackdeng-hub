@@ -23,23 +23,75 @@ export function Navbar() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-sm">
-      <nav className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+    <header
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        width: '100%',
+        height: 52,
+        background: 'rgba(8,9,10,0.80)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
+      {/* Light-mode override via CSS — background becomes rgba(255,255,255,0.85) */}
+      <style>{`
+        .light header[data-navbar] {
+          background: rgba(255,255,255,0.85) !important;
+          border-bottom-color: rgba(0,0,0,0.07) !important;
+        }
+      `}</style>
+      <nav
+        data-navbar
+        className="max-w-5xl mx-auto px-6 h-full flex items-center justify-between gap-4"
+      >
         {/* Logo */}
         <Link
           href="/"
-          className="font-semibold text-zinc-900 dark:text-zinc-100 hover:opacity-75 transition-opacity text-sm tracking-tight"
+          style={{
+            fontSize: 14,
+            fontWeight: 590,
+            color: 'var(--text-primary)',
+            textDecoration: 'none',
+            letterSpacing: '-0.2px',
+            opacity: 1,
+            transition: 'opacity 150ms',
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.opacity = '0.7' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.opacity = '1' }}
         >
           Jack Deng
         </Link>
 
         {/* Centre nav */}
-        <ul className="hidden sm:flex items-center gap-1">
+        <ul className="hidden sm:flex items-center gap-1" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {NAV_LINKS.map(({ href, label }) => (
             <li key={href}>
               <Link
                 href={href}
-                className="px-3 py-1.5 rounded-md text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  fontSize: 14,
+                  fontWeight: 510,
+                  color: 'var(--text-tertiary)',
+                  textDecoration: 'none',
+                  transition: 'color 150ms, background 150ms',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement
+                  el.style.color = 'var(--text-primary)'
+                  el.style.background = 'rgba(255,255,255,0.05)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement
+                  el.style.color = 'var(--text-tertiary)'
+                  el.style.background = 'transparent'
+                }}
               >
                 {label}
               </Link>
@@ -48,27 +100,69 @@ export function Navbar() {
         </ul>
 
         {/* Right actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+
           {/* Search — desktop */}
           <button
             onClick={commandPaletteStore.open}
             aria-label={`${t('search')} (${t('searchShortcut')})`}
-            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-400 dark:text-zinc-500 hover:border-zinc-300 dark:hover:border-zinc-600 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors bg-white dark:bg-zinc-900"
+            className="hidden sm:flex items-center gap-2"
+            style={{
+              padding: '5px 10px',
+              borderRadius: 6,
+              border: '1px solid var(--border-default)',
+              background: 'rgba(255,255,255,0.03)',
+              color: 'var(--text-tertiary)',
+              fontSize: 12,
+              fontWeight: 400,
+              cursor: 'pointer',
+              transition: 'border-color 150ms, color 150ms',
+              gap: 6,
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLButtonElement
+              el.style.borderColor = 'var(--border-strong)'
+              el.style.color = 'var(--text-secondary)'
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLButtonElement
+              el.style.borderColor = 'var(--border-default)'
+              el.style.color = 'var(--text-tertiary)'
+            }}
           >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <span>{t('search')}</span>
-            <kbd className="text-[10px] font-mono opacity-70">{t('searchShortcut')}</kbd>
+            <kbd style={{ fontSize: 10, opacity: 0.6, fontFamily: 'monospace' }}>{t('searchShortcut')}</kbd>
           </button>
 
           {/* Search — mobile */}
           <button
             onClick={commandPaletteStore.open}
             aria-label={t('search')}
-            className="sm:hidden p-1.5 rounded-md text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="sm:hidden"
+            style={{
+              padding: 6,
+              borderRadius: 6,
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-tertiary)',
+              cursor: 'pointer',
+              transition: 'background 150ms, color 150ms',
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLButtonElement
+              el.style.background = 'rgba(255,255,255,0.05)'
+              el.style.color = 'var(--text-secondary)'
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLButtonElement
+              el.style.background = 'transparent'
+              el.style.color = 'var(--text-tertiary)'
+            }}
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
           </button>
@@ -77,7 +171,28 @@ export function Navbar() {
           <button
             onClick={switchLocale}
             aria-label={`Switch to ${otherLocale === 'zh' ? '中文' : 'English'}`}
-            className="px-2 py-1 rounded-md text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors border border-zinc-200 dark:border-zinc-700"
+            style={{
+              padding: '4px 9px',
+              borderRadius: 6,
+              border: '1px solid var(--border-default)',
+              background: 'rgba(255,255,255,0.03)',
+              color: 'var(--text-tertiary)',
+              fontSize: 11,
+              fontWeight: 510,
+              cursor: 'pointer',
+              transition: 'border-color 150ms, color 150ms',
+              letterSpacing: '0.02em',
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLButtonElement
+              el.style.borderColor = 'var(--border-strong)'
+              el.style.color = 'var(--text-primary)'
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLButtonElement
+              el.style.borderColor = 'var(--border-default)'
+              el.style.color = 'var(--text-tertiary)'
+            }}
           >
             {otherLocale === 'zh' ? '中文' : 'EN'}
           </button>

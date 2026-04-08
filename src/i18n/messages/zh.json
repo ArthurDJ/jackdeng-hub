@@ -29,6 +29,7 @@
   "nav": {
     "blog": "文章",
     "about": "关于",
+    "search": "搜索",
     "searchPlaceholder": "搜索",
     "searchShortcut": "⌘K",
     "switchToZh": "中文",
@@ -36,13 +37,18 @@
   },
 
   "home": {
-    "available": "正在寻找新机会",
-    "title": "Jack Deng",
-    "bio": "软件工程师，专注于 {ai}、{data} 与 {systems} 的交汇处。",
+    "available": "开放机会",
+    "title": "高级数据库与集成管理员",
+    "subtitle": "连接系统。管理数据。自动化复杂流程。",
+    "bio": "我负责设计和维护 {netsuite}、{boomi} 与现代数据平台之间的企业级集成——保持关键业务流程的可靠性、可观测性与高性能。",
     "ctaBlog": "阅读文章",
     "ctaAbout": "了解我",
+    "techStackHeading": "技术栈",
     "latestPosts": "最新文章",
+    "latestProjects": "最新项目",
     "projects": "项目",
+    "noProjectsYet": "项目即将上线。",
+    "noProjectsNote": "目前正在开发新内容，敬请期待。",
     "projectStatus": {
       "active": "进行中",
       "completed": "已完成",

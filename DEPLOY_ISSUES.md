@@ -239,3 +239,13 @@ plugins: [
 ]
 ```
 **新增环境变量**：`BLOB_READ_WRITE_TOKEN`（Vercel 控制台 → Storage → Blob → Create Store → 获取 token）
+
+## 3. Server Component Serialization Error with `next-intl` (HTTP 500)
+**Issue:** `GET /en` and `GET /en/about` returning HTTP 500 in Vercel/production, logging `Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server"`.
+**Root Cause:**
+In `next-intl`, the `t.rich('key', { var: (c) => <span>{c}</span> })` method is used to interpolate React components into translation strings. If the translation key in the JSON file is defined with `{curly_braces}` instead of `<xml_tags>`, Next.js 14 Server Components will fail to serialize the function passed into `t.rich`, causing the entire page to crash with a 500 error.
+**Fix:**
+Ensure the translation JSON uses XML tags instead of curly braces for `t.rich` elements.
+*Wrong (`en.json`):* `"bio": "I use {netsuite}"`
+*Correct (`en.json`):* `"bio": "I use <netsuite>NetSuite</netsuite>"`
+*Corresponding React code:* `{t.rich('bio', { netsuite: (c) => <span className="font-bold">{c}</span> })}`

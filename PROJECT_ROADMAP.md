@@ -63,6 +63,9 @@
 - [x] **Vercel Speed Insights 接入** — `@vercel/speed-insights@2.0.0`，`<SpeedInsights />` 注入 layout ✅ v0.9.2
 - [x] **Turnstile keys 配置** — `.env.example` 新建，`.env.local` 写入 sitekey + secret，Vercel 需手动添加 ✅ v0.9.2
 - [x] **生产环境 3 项 bug 修复** — proxy 重命名、locale 查询 try/catch、about generateStaticParams ✅ v0.9.2
+- [x] **修复 RSC 序列化错误** — `next-intl` `t.rich()` 参数格式修复，解决首页与 About 页面的 HTTP 500 报错 ✅ v0.9.4
+- [x] **生产数据库 Schema 同步** — 本地执行 `DATABASE_URI="..." npx payload migrate` 完成表结构同步。
+- [x] **测试数据填充 (Seed)** — 编写并执行 `scripts/seed.ts`，创建 3 篇中英双语博客数据，验证前端数据渲染连通性。
 - [x] **OpenClaw v0.9.2 验收指令已生成** — 待执行
 - [x] **HTTP 500 修复（首页 + About）** — `t.rich()` 消息格式从 `{var}` 改为 `<tag>` XML 标签 ✅ v0.9.4
 - [x] **重复 const 声明修复** — 远程热修 commit 引入的 duplicate `const tCommon` ✅ v0.9.4

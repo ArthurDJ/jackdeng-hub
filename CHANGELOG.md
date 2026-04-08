@@ -6,6 +6,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.9.5] — 2026-04-08
+
+### Added
+- **Production Database Migration**: Ran `npx payload migrate` against the production Supabase PostgreSQL database to sync Schema changes and create `blogs_locales` tables.
+- **Data Seeding**: Wrote and executed `scripts/seed.ts` to automatically populate 3 bilingual test blog posts (2 featured) into the production database to verify live UI rendering.
 ## [0.9.4] — 2026-04-08
 
 ### Fixed — `t.rich()` XML tag format → fixes HTTP 500 on homepage + about

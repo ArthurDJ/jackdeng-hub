@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { TagBadge } from './TagBadge'
 import { CategoryBadge } from './CategoryBadge'
+import { readingTime } from '@/lib/readingTime'
 
 interface Tag     { id: string; name: string; slug: string; color: string }
 interface Category { id: string; name: string; slug: string }
@@ -22,6 +24,7 @@ export interface BlogCardProps {
   tags?: Tag[]
   publishedAt?: string | null
   featured?: boolean
+  content?: unknown
 }
 
 function formatDate(iso: string) {
@@ -30,8 +33,12 @@ function formatDate(iso: string) {
   })
 }
 
-export function BlogCard({ title, slug, excerpt, coverImage, category, tags = [], publishedAt, featured }: BlogCardProps) {
+export async function BlogCard({ title, slug, excerpt, coverImage, category, tags = [], publishedAt, featured, content }: BlogCardProps) {
   const imageUrl = coverImage?.sizes?.card?.url ?? coverImage?.sizes?.thumbnail?.url ?? coverImage?.url
+
+  const locale = await getLocale()
+  const t = await getTranslations({ locale, namespace: 'blog' })
+  const minutes = content != null ? readingTime(content) : null
 
   return (
     <article
@@ -85,6 +92,11 @@ export function BlogCard({ title, slug, excerpt, coverImage, category, tags = []
             <time style={{ fontSize: 12, color: 'var(--text-tertiary)', marginLeft: 'auto', fontFamily: 'var(--font-geist-mono, monospace)' }}>
               {formatDate(publishedAt)}
             </time>
+          )}
+          {minutes != null && (
+            <span style={{ fontSize: 12, color: 'var(--text-disabled)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+              {t('minRead', { count: minutes })}
+            </span>
           )}
         </div>
 

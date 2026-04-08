@@ -78,7 +78,8 @@
     "commentSubmitting": "Submitting…",
     "archive": "Archive",
     "post": "post",
-    "posts": "posts"
+    "posts": "posts",
+    "minRead": "{count} min read"
   },
 
   "about": {

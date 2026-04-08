@@ -7,6 +7,7 @@ import { TagBadge } from '@/components/TagBadge'
 import { CategoryBadge } from '@/components/CategoryBadge'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
 import { Sidebar } from '@/components/Sidebar'
+import { readingTime } from '@/lib/readingTime'
 import { buildSidebarData } from '@/lib/sidebarData'
 import { CommentList } from '@/components/CommentList'
 import { CommentForm } from '@/components/CommentForm'
@@ -102,6 +103,7 @@ export default async function BlogDetailPage({ params }: Props) {
     : []
 
   const sidebar = await buildSidebarData({ activeCategory: category?.slug })
+  const readMins = readingTime(blog.content)
 
   // ── JSON-LD structured data ──────────────────────────────────────────────
   const canonicalUrl = `${BASE}/${locale}/blog/${slug}`
@@ -215,6 +217,9 @@ export default async function BlogDetailPage({ params }: Props) {
                     {formatDate(blog.publishedAt)}
                   </time>
                 )}
+                <span style={{ fontSize: 13, color: 'var(--text-disabled)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+                  {readMins} min read
+                </span>
               </div>
 
               <h1 style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 590, letterSpacing: '-0.8px', lineHeight: 1.2, color: 'var(--text-primary)', marginBottom: 16 }}>

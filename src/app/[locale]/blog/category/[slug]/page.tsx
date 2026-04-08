@@ -106,6 +106,7 @@ export default async function CategoryPage({ params }: Props) {
                     tags={Array.isArray(blog.tags) ? blog.tags.filter((t: any) => typeof t === 'object') : []}
                     publishedAt={blog.publishedAt}
                     featured={blog.featured}
+                    content={blog.content}
                   />
                 ))}
               </div>

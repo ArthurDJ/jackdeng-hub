@@ -40,7 +40,7 @@
 **P1 — 专业感与 SEO 功能（Week 2 - 进行中）**
 - [x] **SEO 核心**: `sitemap.ts` (动态查询, 24h revalidate) + `robots.ts` (Block /admin /api) + `canonical/hreflang` 注入（首页/博客列表/博客详情/about）✅
 - [x] **结构化数据**: 注入 JSON-LD `BlogPosting` 与 `BreadcrumbList` schema（blog detail 页，服务端渲染）✅
-- [ ] **阅读体验**: `readingTime.ts` 实现 + 博客卡片/详情页时长展示。
+- [x] **阅读体验**: `readingTime.ts` 实现 + 博客卡片/详情页时长展示。✅
 - [ ] **博客分页**: `Pagination.tsx` 组件封装 + Payload 翻页逻辑对接。
 - [ ] **日期标准化**: 全站 `formatDate` locale 感知重构（消除硬编码 en-US）。
 
@@ -68,4 +68,4 @@
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-04-08 (P1.5 JSON-LD BlogPosting + BreadcrumbList schema 完成)*
+*最后更新：2026-04-08 (P1.3 readingTime 阅读时长展示完成)*

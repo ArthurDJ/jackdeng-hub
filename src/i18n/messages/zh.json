@@ -78,7 +78,8 @@
     "commentSubmitting": "提交中…",
     "archive": "归档",
     "post": "篇文章",
-    "posts": "篇文章"
+    "posts": "篇文章",
+    "minRead": "{count} 分钟阅读"
   },
 
   "about": {

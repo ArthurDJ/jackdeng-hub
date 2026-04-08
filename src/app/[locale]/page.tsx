@@ -281,6 +281,7 @@ export default async function HomePage({ params }: Props) {
                   tags={Array.isArray(blog.tags) ? blog.tags.filter((tag: any) => typeof tag === 'object') : []}
                   publishedAt={blog.publishedAt}
                   featured={blog.featured}
+                  content={blog.content}
                 />
               ))}
             </div>

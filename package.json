@@ -22,6 +22,7 @@
     "@payloadcms/ui": "^3.81.0",
     "@tailwindcss/postcss": "^4.2.2",
     "@tailwindcss/typography": "^0.5.19",
+    "@vercel/speed-insights": "^2.0.0",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.0",
     "geist": "^1.7.0",

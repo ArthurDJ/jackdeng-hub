@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { routing } from '@/i18n/routing'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { CommandPalette } from '@/components/CommandPalette'
@@ -46,6 +47,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             <CommandPalette />
           </ThemeProvider>
         </NextIntlClientProvider>
+        <SpeedInsights />
       </body>
     </html>
   )

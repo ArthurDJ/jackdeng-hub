@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { BlogCard } from '@/components/BlogCard'
-import { Navbar } from '@/components/Navbar'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
 
@@ -39,7 +38,6 @@ export default async function BlogListPage({ params }: Props) {
 
   return (
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
 
       {/* Page header */}
       <section style={{ borderBottom: '1px solid var(--border-subtle)', padding: '48px 24px 40px' }}>

@@ -14,12 +14,13 @@ interface TagBadgeProps {
  */
 export function TagBadge({ name, slug, color = '#3B82F6', static: isStatic }: TagBadgeProps) {
   const hex = color.replace('#', '')
-  const r = parseInt(hex.slice(0, 2), 16)
-  const g = parseInt(hex.slice(2, 4), 16)
-  const b = parseInt(hex.slice(4, 6), 16)
+  const r = parseInt(hex.slice(0, 2), 16) || 59
+  const g = parseInt(hex.slice(2, 4), 16) || 130
+  const b = parseInt(hex.slice(4, 6), 16) || 246
+
+  const isDarkBase = r < 50 && g < 50 && b < 50
 
   const style = {
-    color,
     backgroundColor: `rgba(${r},${g},${b},0.12)`,
     borderColor: `rgba(${r},${g},${b},0.35)`,
   }
@@ -27,14 +28,14 @@ export function TagBadge({ name, slug, color = '#3B82F6', static: isStatic }: Ta
   const inner = (
     <span
       style={style}
-      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border"
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${isDarkBase ? 'text-zinc-800 dark:text-zinc-300' : ''}`}
     >
       <span
         className="w-1.5 h-1.5 rounded-full"
-        style={{ backgroundColor: color }}
+        style={{ backgroundColor: isDarkBase ? 'currentColor' : color }}
         aria-hidden
       />
-      {name}
+      <span style={!isDarkBase ? { color } : undefined}>{name}</span>
     </span>
   )
 

@@ -6,7 +6,6 @@ import { getPayload } from '@/lib/payload'
 import { TagBadge } from '@/components/TagBadge'
 import { CategoryBadge } from '@/components/CategoryBadge'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
-import { Navbar } from '@/components/Navbar'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
 import { CommentList } from '@/components/CommentList'
@@ -14,7 +13,7 @@ import { CommentForm } from '@/components/CommentForm'
 
 export const revalidate = 3600
 
-type Props = { params: Promise<{ slug: string }> }
+type Props = { params: Promise<{ slug: string; locale: string }> }
 
 export async function generateStaticParams() {
   const payload = await getPayload()
@@ -28,13 +27,14 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const { slug, locale } = await params
   const payload = await getPayload()
   const { docs } = await payload.find({
     collection: 'blogs',
     where: { slug: { equals: slug } },
     depth: 1,
     limit: 1,
+    locale: locale as any,
   })
   const blog = docs[0] as any
   if (!blog) return { title: 'Not Found' }
@@ -61,7 +61,7 @@ function formatDate(iso: string) {
 }
 
 export default async function BlogDetailPage({ params }: Props) {
-  const { slug } = await params
+  const { slug, locale } = await params
   const payload = await getPayload()
 
   const { docs } = await payload.find({
@@ -69,6 +69,7 @@ export default async function BlogDetailPage({ params }: Props) {
     where: { slug: { equals: slug }, status: { equals: 'published' } },
     depth: 2,
     limit: 1,
+    locale: locale as any,
   })
 
   const blog = docs[0] as any
@@ -86,7 +87,6 @@ export default async function BlogDetailPage({ params }: Props) {
 
   return (
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
 
       {/* Hero image */}
       {heroUrl && (

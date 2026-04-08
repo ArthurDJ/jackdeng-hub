@@ -23,7 +23,14 @@ export async function generateStaticParams() {
     limit: 1000,
     depth: 0,
   })
-  return (docs as any[]).map((b) => ({ slug: b.slug }))
+
+  const paths = []
+  for (const doc of docs as any[]) {
+    for (const locale of ['en', 'zh']) {
+      paths.push({ locale, slug: doc.slug })
+    }
+  }
+  return paths
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

@@ -14,11 +14,21 @@ interface TagBadgeProps {
  */
 export function TagBadge({ name, slug, color = '#3B82F6', static: isStatic }: TagBadgeProps) {
   const hex = color.replace('#', '')
-  const r = parseInt(hex.slice(0, 2), 16) || 59
-  const g = parseInt(hex.slice(2, 4), 16) || 130
-  const b = parseInt(hex.slice(4, 6), 16) || 246
+  
+  let r = 59, g = 130, b = 246
+  if (hex.length === 3) {
+    r = parseInt(hex[0] + hex[0], 16)
+    g = parseInt(hex[1] + hex[1], 16)
+    b = parseInt(hex[2] + hex[2], 16)
+  } else if (hex.length === 6) {
+    r = parseInt(hex.slice(0, 2), 16)
+    g = parseInt(hex.slice(2, 4), 16)
+    b = parseInt(hex.slice(4, 6), 16)
+  }
 
-  const isDarkBase = r < 50 && g < 50 && b < 50
+  // Calculate perceived luminance (ITU-R BT.709)
+  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
+  const isDarkBase = luminance < 0.3
 
   const style = {
     backgroundColor: `rgba(${r},${g},${b},0.12)`,
@@ -28,14 +38,14 @@ export function TagBadge({ name, slug, color = '#3B82F6', static: isStatic }: Ta
   const inner = (
     <span
       style={style}
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${isDarkBase ? 'text-zinc-800 dark:text-zinc-300' : ''}`}
+      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border"
     >
       <span
         className="w-1.5 h-1.5 rounded-full"
-        style={{ backgroundColor: isDarkBase ? 'currentColor' : color }}
+        style={{ backgroundColor: color }}
         aria-hidden
       />
-      <span style={!isDarkBase ? { color } : undefined}>{name}</span>
+      <span style={{ color: isDarkBase ? 'inherit' : color }}>{name}</span>
     </span>
   )
 

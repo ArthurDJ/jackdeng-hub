@@ -7,21 +7,29 @@ import { buildSidebarData } from '@/lib/sidebarData'
 
 export const revalidate = 3600
 
-type Props = { params: Promise<{ slug: string }> }
+type Props = { params: Promise<{ slug: string; locale: string }> }
 
 export async function generateStaticParams() {
   const payload = await getPayload()
   const { docs } = await payload.find({ collection: 'categories', limit: 200, depth: 0 })
-  return (docs as any[]).map((c) => ({ slug: c.slug }))
+  
+  const paths = []
+  for (const doc of docs as any[]) {
+    for (const locale of ['en', 'zh']) {
+      paths.push({ locale, slug: doc.slug })
+    }
+  }
+  return paths
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const { slug, locale } = await params
   const payload = await getPayload()
   const { docs } = await payload.find({
     collection: 'categories',
     where: { slug: { equals: slug } },
     limit: 1,
+    locale: locale as any,
   })
   const cat = docs[0] as any
   if (!cat) return { title: 'Category not found' }
@@ -32,11 +40,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CategoryPage({ params }: Props) {
-  const { slug } = await params
+  const { slug, locale } = await params
   const payload = await getPayload()
 
   const [catResult, blogsResult] = await Promise.all([
-    payload.find({ collection: 'categories', where: { slug: { equals: slug } }, limit: 1 }),
+    payload.find({ collection: 'categories', where: { slug: { equals: slug } }, limit: 1, locale: locale as any }),
     payload.find({
       collection: 'blogs',
       where: {
@@ -46,6 +54,7 @@ export default async function CategoryPage({ params }: Props) {
       sort: '-publishedAt',
       depth: 2,
       limit: 50,
+      locale: locale as any,
     }),
   ])
 

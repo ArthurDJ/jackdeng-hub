@@ -275,3 +275,14 @@ Ensure the translation JSON uses XML tags instead of curly braces for `t.rich` e
 1. Removed `<Navbar />` calls from `src/app/[locale]/blog/page.tsx` and `src/app/[locale]/blog/[slug]/page.tsx`.
 2. Updated `TagBadge` to calculate RGB luminance. If the color is very dark (`r<50, g<50, b<50`), it now falls back to `text-zinc-800 dark:text-zinc-300` instead of forcing the hex.
 3. Injected `locale: locale as any` into the Payload query parameters within `generateMetadata` and the main `BlogDetailPage` component.
+
+## 6. Blog Detail 500 (DYNAMIC_SERVER_USAGE) & Tag Visibility v2 (v0.9.6)
+**Issue:**
+1. Blog detail pages (`/zh/blog/[slug]`) still returned 500 in production with `DYNAMIC_SERVER_USAGE` error.
+2. Next.js tag was still hard to see in dark mode.
+**Root Cause:**
+- *500 Error*: `generateStaticParams` for localized routes must return the `locale` segment in addition to the `slug`. Omitting `locale` forced Next.js to treat the page as dynamic during static site generation (SSG), triggering the `DYNAMIC_SERVER_USAGE` error when `next-intl` or other server components accessed route params or messages.
+- *Tag Visibility*: Hex color parsing for 3-digit codes (like `#000`) was buggy, and the contrast logic didn't account for the project's dark-default theme correctly.
+**Fix:**
+1. Updated `generateStaticParams` in `[slug]/page.tsx`, `tag/[slug]/page.tsx`, and `category/[slug]/page.tsx` to return a cross-product of all supported locales and slugs.
+2. Refactored `TagBadge.tsx` with robust 3/6-digit hex parsing and perceivable luminance calculation (ITU-R BT.709). If a tag color is too dark, it now defaults to `inherit` (using the theme's primary text color) instead of forcing the dark hex.

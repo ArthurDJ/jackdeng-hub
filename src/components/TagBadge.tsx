@@ -28,7 +28,8 @@ export function TagBadge({ name, slug, color = '#3B82F6', static: isStatic }: Ta
 
   // Calculate perceived luminance (ITU-R BT.709)
   const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
-  const isDarkBase = luminance < 0.3
+  // If the luminance is too low, the color is effectively black and invisible on dark mode
+  const isTooDark = luminance < 0.2
 
   const style = {
     backgroundColor: `rgba(${r},${g},${b},0.12)`,
@@ -38,14 +39,16 @@ export function TagBadge({ name, slug, color = '#3B82F6', static: isStatic }: Ta
   const inner = (
     <span
       style={style}
-      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border"
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+        isTooDark ? 'text-zinc-900 dark:text-zinc-200' : ''
+      }`}
     >
       <span
         className="w-1.5 h-1.5 rounded-full"
-        style={{ backgroundColor: color }}
+        style={{ backgroundColor: isTooDark ? 'currentColor' : color }}
         aria-hidden
       />
-      <span style={{ color: isDarkBase ? 'inherit' : color }}>{name}</span>
+      <span style={!isTooDark ? { color } : undefined}>{name}</span>
     </span>
   )
 

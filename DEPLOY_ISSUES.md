@@ -294,3 +294,16 @@ Ensure the translation JSON uses XML tags instead of curly braces for `t.rich` e
 - The project uses `vercelBlobStorage` for media. While Payload handles the upload, Next.js's `<Image />` component requires an explicit `remotePatterns` configuration in `next.config.mjs` to allow external hostnames (Vercel Blob storage domains) for image optimization.
 **Fix:**
 - Added the Vercel Blob storage hostname pattern (`**.public.blob.vercel-storage.com`) to the `images.remotePatterns` array in `next.config.mjs`.
+
+## 8. React Hydration Error #418 & Admin UI Blank (v0.9.8)
+**Issue:**
+- Payload Admin panel loads a black/blank screen.
+- Browser console reports `Uncaught Error: Minified React error #418` (Hydration failure).
+- No errors logged in Vercel server-side logs.
+**Root Cause:**
+- **Inconsistent Import Map**: Modifications to `payload.config.ts` (adding `serverURL`) and collection schemas (adding `name` field to `Users`) caused the client-side component registry (`importMap.js`) to become out of sync with the server-rendered tree.
+- **Hydration Conflict**: React expects the server-rendered HTML and client-side JavaScript to match exactly. A mismatch in component mapping or unexpected DOM mutations (like browser auto-translate or language detectors) triggers #418, causing React to bail out of rendering.
+**Fix:**
+1. **Regenerate Import Map**: Ran `npx payload generate:importmap` locally to sync the admin component manifest with the updated config.
+2. **Environment Sync**: Verified `PAYLOAD_SECRET` and `NEXT_PUBLIC_SERVER_URL` consistency across the local `.env` and Vercel environment.
+3. **Hard Refresh**: Advised a browser cache clear (`Cmd+Shift+R`) to ensure the latest `importMap.js` and JS chunks are fetched, aligning the client-side state with the new deployment.

@@ -77,6 +77,9 @@ export default async function HomePage({ params }: Props) {
   const tCommon = await getTranslations({ locale, namespace: 'common' })
 
   const payload = await getPayload()
+
+  // blogs_locales table may not exist yet (run: npx payload migrate)
+  // Fall back to empty array rather than crashing the page
   const [blogsResult, projectsResult] = await Promise.all([
     payload.find({
       collection: 'blogs',
@@ -85,14 +88,14 @@ export default async function HomePage({ params }: Props) {
       depth: 2,
       limit: 3,
       locale: locale as any,
-    }),
+    }).catch(() => ({ docs: [] })),
     payload.find({
       collection: 'projects',
       where: { isPinned: { equals: true } },
       sort: '-createdAt',
       depth: 1,
       limit: 4,
-    }),
+    }).catch(() => ({ docs: [] })),
   ])
 
   const blogs = blogsResult.docs as any[]

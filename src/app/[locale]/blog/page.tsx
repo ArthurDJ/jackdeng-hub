@@ -21,16 +21,20 @@ export default async function BlogListPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'blog' })
 
   const payload = await getPayload()
-  const blogsResult = await payload.find({
-    collection: 'blogs',
-    where: { status: { equals: 'published' } },
-    sort: '-publishedAt',
-    depth: 2,
-    limit: 12,
-    locale: locale as any,
-  })
 
-  const sidebar = await buildSidebarData()
+  // blogs_locales table may not exist until `npx payload migrate` is run
+  const [blogsResult, sidebar] = await Promise.all([
+    payload.find({
+      collection: 'blogs',
+      where: { status: { equals: 'published' } },
+      sort: '-publishedAt',
+      depth: 2,
+      limit: 12,
+      locale: locale as any,
+    }).catch(() => ({ docs: [] })),
+    buildSidebarData().catch(() => ({})),
+  ])
+
   const blogs = blogsResult.docs as any[]
 
   return (

@@ -3,7 +3,10 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
 
-export const dynamic = 'force-static'
+// Static per locale — generated at build time
+export async function generateStaticParams() {
+  return [{ locale: 'en' }, { locale: 'zh' }]
+}
 
 type Props = { params: Promise<{ locale: string }> }
 

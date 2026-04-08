@@ -8,3 +8,14 @@ node_modules
 dev.log
 tunnel-temp.log
 
+# Logs and runtime artifacts
+*.log
+server*.log
+
+# Claude/Agent specific context
+.claude/
+
+# Temporary or scripts to be ignored
+check-slugs.ts
+
+.vercel

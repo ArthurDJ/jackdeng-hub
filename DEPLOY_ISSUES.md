@@ -307,3 +307,16 @@ Ensure the translation JSON uses XML tags instead of curly braces for `t.rich` e
 1. **Regenerate Import Map**: Ran `npx payload generate:importmap` locally to sync the admin component manifest with the updated config.
 2. **Environment Sync**: Verified `PAYLOAD_SECRET` and `NEXT_PUBLIC_SERVER_URL` consistency across the local `.env` and Vercel environment.
 3. **Hard Refresh**: Advised a browser cache clear (`Cmd+Shift+R`) to ensure the latest `importMap.js` and JS chunks are fetched, aligning the client-side state with the new deployment.
+
+## 9. Admin Login "A server error occurred" — Missing users.name Column (v0.9.9)
+**Issue:**
+- `/admin/login` displays "This page couldn't load. A server error occurred. Reload to try again."
+- Vercel runtime logs show: `error: column users.name does not exist (code: 42703)`
+**Root Cause:**
+- Commit `9b7960df` added a `name` field to the `users` collection in `payload.config.ts`, but no corresponding database migration was generated or executed at that time.
+- Every request to `/admin/login` triggers a Payload `findOne` on the `users` table which includes `"users"."name"` in the SELECT — the column missing in production Supabase caused the query to fail immediately, rendering the admin panel completely inaccessible.
+**Fix:**
+1. Generated new migration: `npx payload migrate:create --name add_users_name` → produced `src/migrations/20260408_215850.ts` with `ALTER TABLE "users" ADD COLUMN "name" varchar`.
+2. Executed against production: `echo "y" | DATABASE_URI="..." npx payload migrate` → `Migrated: 20260408_215850 (204ms)`.
+3. Committed migration files (`20260408_215850.ts`, `.json`, updated `index.ts`, `payload-types.ts`) and pushed to trigger Vercel redeploy.
+**Lesson:** When adding fields to existing Payload collections, always run `npx payload migrate:create` immediately and include the generated migration file in the same commit as the schema change.

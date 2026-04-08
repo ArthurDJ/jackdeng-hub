@@ -25,6 +25,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 **Affected pages now resolved:** `/en`, `/zh`, `/en/about`, `/zh/about`
 
+**OpenClaw v0.9.4 验收结果（全线通过）：**
+- `GET /en` → ✅ 200
+- `GET /zh` → ✅ 200
+- `GET /en/about` → ✅ 200
+- `GET /zh/about` → ✅ 200
+- `GET /en/blog` → ✅ 200（未回退）
+- `GET /zh/blog` → ✅ 200（未回退）
+
 ---
 
 ## [0.9.3] — 2026-04-08

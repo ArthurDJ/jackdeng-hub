@@ -66,7 +66,8 @@
 - [x] **OpenClaw v0.9.2 验收指令已生成** — 待执行
 - [x] **HTTP 500 修复（首页 + About）** — `t.rich()` 消息格式从 `{var}` 改为 `<tag>` XML 标签 ✅ v0.9.4
 - [x] **重复 const 声明修复** — 远程热修 commit 引入的 duplicate `const tCommon` ✅ v0.9.4
-- [ ] **🔴 运行 `npx payload migrate`（生产环境）** — `blogs_locales` 表缺失，双语博客功能锁死
+- [x] **OpenClaw v0.9.4 验收全线通过** — 6/6 URL 返回 200，无 500 阻断 ✅
+- [ ] **🔴 运行 `npx payload migrate`（本地 + 生产 DATABASE_URI）** — `blogs_locales` 表缺失，双语博客 / Latest Posts 锁死
 - [ ] 在 Vercel 添加 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` 环境变量
 - [ ] 在 `/admin` 发布第一篇双语博客，验证 `/en/blog` 与 `/zh/blog` 数据隔离
 - [ ] 在 `/admin` 创建首批项目条目，验证首页 Projects 区块渲染
@@ -105,4 +106,4 @@
 
 ---
 *注：本文件将作为项目的唯一核心规划源（Single Source of Truth），随项目迭代持续更新状态。*
-*最后更新：2026-04-08 (v0.9.4)*
+*最后更新：2026-04-08 (v0.9.4 验收通过)*

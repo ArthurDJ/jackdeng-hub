@@ -296,9 +296,9 @@ export default async function AboutPage({ params }: Props) {
           </a>
           <p style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
             {t.rich('ctaBlogNote', {
-              link: () => (
+              link: (chunks) => (
                 <Link href="/blog" style={{ color: 'var(--accent-primary)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
-                  {t('ctaBlogLinkText')}
+                  {chunks}
                 </Link>
               ),
             })}

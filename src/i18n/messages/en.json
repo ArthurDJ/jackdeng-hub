@@ -40,7 +40,7 @@
     "available": "Open to opportunities",
     "title": "Senior Database & Integration Administrator",
     "subtitle": "Connecting systems. Governing data. Automating complexity.",
-    "bio": "I design and maintain enterprise integrations between {netsuite}, {boomi}, and modern data platforms — keeping critical business processes reliable, observable, and fast.",
+    "bio": "I design and maintain enterprise integrations between <netsuite>NetSuite</netsuite>, <boomi>Boomi</boomi>, and modern data platforms — keeping critical business processes reliable, observable, and fast.",
     "ctaBlog": "Read the blog",
     "ctaAbout": "About me",
     "techStackHeading": "Tech Stack",
@@ -82,7 +82,7 @@
     "title": "Jack Deng",
     "subtitle": "Senior Database & Integration Administrator",
     "bio1": "Hi, I'm Jack — a database and integration specialist based in Australia, focused on designing reliable enterprise data systems. I bridge business operations and technical infrastructure through clean integrations and governed data pipelines.",
-    "bio2": "This site is my public workspace: engineering notes, integration patterns, and tools I build along the way. It runs on {nextjs} + {payload} with a {supabase} PostgreSQL backend.",
+    "bio2": "This site is my public workspace: engineering notes, integration patterns, and tools I build along the way. It runs on <nextjs>Next.js</nextjs> + <payload>Payload CMS</payload> with a <supabase>Supabase</supabase> PostgreSQL backend.",
     "bio3": "Outside of work I'm probably debugging a flow, reading systems-design docs, or figuring out why the ETL ran 3 seconds slower than yesterday.",
     "skillsHeading": "Skills & Stack",
     "experienceHeading": "Experience",
@@ -90,7 +90,7 @@
     "ctaText": "Interested in working together or have an integration challenge?",
     "ctaBtn": "Get in touch",
     "ctaBlogLinkText": "writing lately →",
-    "ctaBlogNote": "Or read what I've been {link}."
+    "ctaBlogNote": "Or read what I've been <link>writing lately →</link>."
   },
 
   "search": {

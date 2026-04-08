@@ -9,10 +9,19 @@ export const revalidate = 3600
 
 type Props = { params: Promise<{ locale: string }> }
 
+const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'blog' })
-  return { title: t('title'), description: t('subtitle') }
+  return {
+    title: t('title'),
+    description: t('subtitle'),
+    alternates: {
+      canonical: `${BASE}/${locale}/blog`,
+      languages: { en: `${BASE}/en/blog`, zh: `${BASE}/zh/blog` },
+    },
+  }
 }
 
 export default async function BlogListPage({ params }: Props) {

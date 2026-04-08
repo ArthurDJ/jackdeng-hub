@@ -11,124 +11,61 @@
 - **数据库 (Database)**: Supabase PostgreSQL + Drizzle ORM，确保 100% 数据主权。
 - **部署方案 (Deployment)**: Vercel 用于全站边缘网络托管，并配置自动化 CI/CD。
 
-### 2. 核心功能模块 (Features)
-- **内容聚合 (Content Management)**
-  - 博客模块 (Blogs)：支持 Markdown/Rich Text 编辑，分类标签，阅读量统计。
-  - 项目展示 (Projects)：作品集陈列、外链与技术栈标签。
-- **互动系统 (Interactions)**
-  - 评论系统：自定义 Comments Collection。
-  - 防 Spam 机制（三层防护）：Honeypot 隐藏字段拦截、同 IP 频率限制、Cloudflare Turnstile 验证。
-  - 评论审核流程：提交后默认 Pending，管理员后台变更为 Approved 后前端展示。
-- **动态工具沙盒 (Tools Engine)**
-  - 后台统筹外部 API 或 Serverless 脚本，管理员可随时切换某工具的“公开/私有”状态与权限。
-
 ---
 
 ## 📈 开发进度与排期 (Progress & Roadmap)
 
-### ✅ Phase 1: 基础设施搭建 (Done)
-- [x] 初始化 Next.js 项目并集成 Payload CMS 3.0。
-- [x] 配置 Supabase Postgres 数据库连接。
-- [x] 确立本地开发环境与 `.env` 配置标准。
-
-### ✅ Phase 2: 后端集合与业务逻辑 (Done)
-- [x] 建立 Users 管理员体系。
-- [x] 创建 Blogs 与 Projects 的 CMS Collection 结构。
-- [x] 评论系统 (Comments) 数据库设计及 API 开发。
-- [x] 评论系统三层防 Spam 机制研发与测试 (Turnstile, IP限流, Honeypot)。
-
-### ✅ Phase 3: 自动化与部署配置 (Done)
-- [x] 配置 `vercel.json` 及自动化构建指令。
-- [x] 完成线上 Vercel 生产环境的基础集成测试。
-- [x] 编写 `CHANGELOG.md` 及 `AI_DEPLOY.md`。
-
-### ✅ Phase 4: 前端 UI/UX 深度开发 (Done — v0.7.0 ~ v0.9.1)
-- [x] 首页 (Home) 完全重建：Hero（职位标题 + 状态 pill）、Tech Stack 网格、Latest Posts、Projects 空状态占位。
-- [x] 博客列表页 UI 对接 Payload API，响应式 auto-fill 网格布局。
-- [x] 博客详情页：Hero 图渐变、Breadcrumb、文章正文、评论区前端组件。
-- [x] 评论区前端组件（CommentForm + CommentList）封装，Turnstile invisible captcha 对接。
-- [x] 深色/浅色模式全局应用：`DESIGN.md` token 层，CSS 自定义属性，`.light` 类覆盖，全站无 `dark:` Tailwind 类依赖。
-- [x] Geist 字体（`geist@1.7.0`）全站落地，`--font-geist-sans` / `--font-geist-mono` 变量注入。
-- [x] About 页面完全重构：DB & Integration 专业技能栈，竖向时间线，pill 外链，accent CTA。
-- [x] BlogCard / Sidebar 全面重写，消除 zinc 类，改用 CSS token 变量。
-
-### ✅ Phase 5 (Partial): i18n 双语支持 (Done — v0.8.0)
-- [x] `next-intl` v4.9.0 接入，`[locale]` 子路径路由（`/en` / `/zh`）。
-- [x] Payload CMS 字段级本地化（`title`、`excerpt`、`content` 标记 `localized: true`）。
-- [x] TypeScript 类型安全（`IntlMessages` 全局声明）。
-- [x] Zombie key 检测脚本（`npm run i18n:check`）。
-- [x] Navbar 语言切换按钮。
+### ✅ Phase 1 - 5 (Infrastructure, Backend, i18n)
+*已完成基础搭建、Payload CMS 集成、防 Spam 机制、双语支持 (v0.8.0) 及全站 Geist 字体落地。详情请参考 `CHANGELOG.md`。*
 
 ### 🔄 Phase 6: 内容填充与生产验收 (In Progress)
-- [x] **Vercel Speed Insights 接入** — `@vercel/speed-insights@2.0.0`，`<SpeedInsights />` 注入 layout ✅ v0.9.2
-- [x] **Turnstile keys 配置** — `.env.example` 新建，`.env.local` 写入 sitekey + secret，Vercel 需手动添加 ✅ v0.9.2
-- [x] **生产环境 3 项 bug 修复** — proxy 重命名、locale 查询 try/catch、about generateStaticParams ✅ v0.9.2
-- [x] **修复 RSC 序列化错误** — `next-intl` `t.rich()` 参数格式修复，解决首页与 About 页面的 HTTP 500 报错 ✅ v0.9.4
-- [x] **生产数据库 Schema 同步** — 本地执行 `DATABASE_URI="..." npx payload migrate` 完成表结构同步。
-- [x] **测试数据填充 (Seed)** — 编写并执行 `scripts/seed.ts`，创建 3 篇中英双语博客数据，验证前端数据渲染连通性。
-- [x] **OpenClaw v0.9.2 验收指令已生成** — 待执行
-- [x] **HTTP 500 修复（首页 + About）** — `t.rich()` 消息格式从 `{var}` 改为 `<tag>` XML 标签 ✅ v0.9.4
-- [x] **重复 const 声明修复** — 远程热修 commit 引入的 duplicate `const tCommon` ✅ v0.9.4
-- [x] **OpenClaw v0.9.4 验收全线通过** — 6/6 URL 返回 200，无 500 阻断 ✅
-- [x] **`users.name` 列迁移修复** — admin login 500 根本原因，生成并执行 migration `20260408_215850` ✅ v0.9.9
-- [ ] 在 `/admin` 发布第一篇双语博客，验证 `/en/blog` 与 `/zh/blog` 数据隔离
-- [ ] 在 `/admin` 创建首批项目条目，验证首页 Projects 区块渲染
-- [ ] 端对端评论提交测试（含 Turnstile 验证流程）
+- [x] **Vercel Speed Insights 接入** ✅
+- [x] **生产环境 500 错误深度排查与修复** (t.rich XML 格式 & users.name 迁移) ✅
+- [x] **测试数据填充 (Seed)** — 验证前端双语渲染连通性 ✅
+- [ ] **内容发布**: 在 `/admin` 发布第一篇正式双语博客，验证数据隔离。
+- [ ] **项目集**: 创建首批项目条目，验证首页 Projects 区块。
+- [ ] **评论验收**: 端对端评论提交测试（含 Turnstile 流程）。
 
-### 🔄 Phase 7: 细节打磨 (In Progress — v1.0 冲刺)
+### 🔄 Phase 7: v1.0 细节打磨冲刺 (Week 1-3)
 
-> 全面代码审计后制定的 v1.0 冲刺计划，分 P0/P1/P2 三个优先级，目标 2-3 周内完成。
+> 基于 Claude 审计计划 `zany-floating-engelbart.md` 整合，作为当前最高优先级的执行文档。
 
-**P0 — 视觉一致性（Week 1）**
-- [x] `CategoryBadge` 消除 zinc 类，改用 CSS token ✅
-- [x] Blog 子页（layout/archive/category/tag）统一设计系统（bg-base、token 文字色、i18n footer）✅
-- [x] `LexicalRenderer` prose 排版 — 新增 `.prose-ds` CSS utility，替换 `prose-zinc dark:prose-invert` ✅
-- [x] 自定义 404 页面（`[locale]/not-found.tsx` + 根级回退）✅
-- [x] `CommandPalette` 全面 token 迁移 + locale 感知（搜索 API 追加 locale 参数）✅
+**P0 — 视觉一致性与基础设施（Week 1 - 已完成）**
+- [x] **CategoryBadge**: 消除 zinc 类，改用 CSS token ✅
+- [x] **Blog 子页统一**: `archive/category/tag` 视觉对齐，补全 i18n footer ✅
+- [x] **排版系统**: 实现 `.prose-ds` utility，通过 CSS 变量深度接管 Lexical 渲染样式 ✅
+- [x] **自定义 404**: 完成 `[locale]/not-found.tsx` 全设计系统适配 ✅
+- [x] **CommandPalette**: Token 迁移 + 搜索 Locale 感知 ✅
 
-**P1 — 专业感功能（Week 2）**
-- [ ] SEO 基础设施：`sitemap.ts`、`robots.ts`、canonical/hreflang
-- [ ] JSON-LD Article + BreadcrumbList schema（blog detail 页）
-- [ ] 阅读时长计算（`readingTime.ts` + BlogCard + detail 页展示）
-- [ ] 博客列表分页（`Pagination.tsx` + blog list page `?page=N`）
-- [ ] locale 感知日期格式（`formatDate.ts`，修复 6 处硬编码 `'en-US'`）
+**P1 — 专业感与 SEO 功能（Week 2 - 进行中）**
+- [x] **SEO 核心**: `sitemap.ts` (动态查询, 24h revalidate) + `robots.ts` (Block /admin /api) + `canonical/hreflang` 注入（首页/博客列表/博客详情/about）✅
+- [ ] **结构化数据**: 注入 JSON-LD `BlogPosting` 与 `BreadcrumbList` schema。
+- [ ] **阅读体验**: `readingTime.ts` 实现 + 博客卡片/详情页时长展示。
+- [ ] **博客分页**: `Pagination.tsx` 组件封装 + Payload 翻页逻辑对接。
+- [ ] **日期标准化**: 全站 `formatDate` locale 感知重构（消除硬编码 en-US）。
 
-**P2 — 品质提升（Week 3）**
-- [ ] `Footer.tsx` 统一组件（替换 4 处散落 footer 代码，含导航链接）
-- [ ] 博客详情”相关文章”（同分类 2-3 篇，文章正文下方）
-- [ ] Phase 6 内容验收：发布博客、创建项目、Turnstile E2E 测试
+**P2 — 品质提升与收尾（Week 3）**
+- [ ] **Footer 统一**: 封装全局 `Footer.tsx` 组件，替换 4 处冗余代码。
+- [ ] **相关文章**: 博客详情页下方展示 2-3 篇同分类推荐。
+- [ ] **环境清理**: 确认 `.gitignore` 生效，移除残留的未追踪日志与临时文件。
 
 ### ⏳ Phase 8: 动态工具引擎 (Pending)
 - [ ] 设计 Tools Collection（配置 API Endpoint、鉴权规则等）。
 - [ ] 前端渲染公开可用的”在线工具”列表（Tools 目录）。
-- [ ] 核心内部工具迁移至该引擎（如有）。
-
-### ⏳ Phase 9: SEO 与性能优化 (Pending — 部分已提前到 Phase 7 P1)
-- [ ] 动态 Sitemap + Robots.txt（已移至 Phase 7 P1）
-- [ ] Metadata / OpenGraph 标签全局自动注入。
-- [ ] 性能审计（Lighthouse 全绿目标）。
 
 ---
 
 ## 📋 技术债清单 (Tech Debt)
 
-| 项目 | 优先级 | 说明 |
-|------|--------|------|
-| ~~`blogs_locales` DB 迁移~~ | ~~🔴 高~~ | ~~✅ 已修复 (2026-04-08)~~ |
-| ~~Vercel 添加 Turnstile env vars~~ | ~~🔴 高~~ | ~~✅ 已配置~~ |
-| ~~middleware → proxy 重命名~~ | ~~🔴 高~~ | ~~✅ 已修复 v0.9.2~~ |
-| ~~locale 查询 500 崩溃~~ | ~~🔴 高~~ | ~~✅ 已修复 v0.9.2~~ |
-| ~~t.rich() XML 格式问题~~ | ~~🔴 高~~ | ~~✅ 已修复 v0.9.4 — 首页/About 500 根本原因~~ |
-| ~~TagBadge 样式深色对比度~~ | ~~🟡 中~~ | ~~✅ 已修复深色背景文字可读性~~ |
-| ~~LexicalRenderer prose~~ | ~~🟡 中~~ | ~~✅ prose-ds token utility 已实现~~ |
-| ~~CommandPalette 样式~~ | ~~🟡 中~~ | ~~✅ 全面 token 迁移 + locale 感知~~ |
-| ~~CategoryBadge zinc 类~~ | ~~🟡 中~~ | ~~✅ 已改用 CSS token~~ |
-| Blog 子页视觉一致性 | ~~🟡 中~~ | ~~✅ archive/category/tag 已统一设计系统~~ |
-| 404 页设计系统 | 🟡 中 | ~~✅ [locale]/not-found.tsx 已创建~~ |
-| SEO sitemap/robots | 🟠 高 | Phase 7 P1，尚未实现 |
-| 博客分页 | 🟡 中 | Phase 7 P1，硬限制 12 篇 |
-| 阅读时长 | 🟡 中 | Phase 7 P1，尚未实现 |
+| 项目 | 优先级 | 状态 | 说明 |
+|------|--------|------|------|
+| Git PAT 安全性 | 🔴 高 | ✅ 已修复 | 已从 Remote URL 移除明文 Token，改用 Keychain 管理。 |
+| t.rich() XML 格式 | 🔴 高 | ✅ 已修复 | 解决首页/About 500 报错。 |
+| users.name 迁移 | 🔴 高 | ✅ 已修复 | 解决 Admin 登录 500 报错。 |
+| `.gitignore` 漏点 | 🟡 中 | ✅ 已修复 | 已排除 `.log`, `.claude/` 等干扰项。 |
+| 搜索 Locale 硬编码 | 🟡 中 | ✅ 已修复 | 现在搜索结果能正确返回当前语言内容。 |
+| 分页硬限制 | 🟡 中 | 🔄 处理中 | 待完成 P1.4 分页组件。 |
 
 ---
-*注：本文件将作为项目的唯一核心规划源（Single Source of Truth），随项目迭代持续更新状态。*
-*最后更新：2026-04-08 (v1.0 冲刺 Week 1 完成：P0 全部修复)*
+*注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
+*最后更新：2026-04-08 (P1.1 SEO 基础设施完成：sitemap + robots + canonical/hreflang)*

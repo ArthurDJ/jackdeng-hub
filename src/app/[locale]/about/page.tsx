@@ -10,12 +10,18 @@ export async function generateStaticParams() {
 
 type Props = { params: Promise<{ locale: string }> }
 
+const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'about' })
   return {
     title: 'About',
     description: `${t('subtitle')} — ${t('title')}`,
+    alternates: {
+      canonical: `${BASE}/${locale}/about`,
+      languages: { en: `${BASE}/en/about`, zh: `${BASE}/zh/about` },
+    },
   }
 }
 

@@ -9,12 +9,18 @@ export const revalidate = 3600
 
 type Props = { params: Promise<{ locale: string }> }
 
+const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'home' })
   return {
     title: t('title'),
     description: 'Senior Database & Integration Administrator. NetSuite · Boomi · Supabase · Next.js.',
+    alternates: {
+      canonical: `${BASE}/${locale}`,
+      languages: { en: `${BASE}/en`, zh: `${BASE}/zh` },
+    },
   }
 }
 

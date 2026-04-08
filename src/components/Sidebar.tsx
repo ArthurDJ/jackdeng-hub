@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { getLocale } from 'next-intl/server'
 import { TagBadge } from './TagBadge'
+import { formatDate } from '@/lib/formatDate'
 
 interface Category    { id: string; name: string; slug: string; _count?: number }
 interface Tag         { id: string; name: string; slug: string; color: string }

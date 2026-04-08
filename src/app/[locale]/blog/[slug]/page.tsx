@@ -8,6 +8,7 @@ import { CategoryBadge } from '@/components/CategoryBadge'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
 import { Sidebar } from '@/components/Sidebar'
 import { readingTime } from '@/lib/readingTime'
+import { formatDate } from '@/lib/formatDate'
 import { buildSidebarData } from '@/lib/sidebarData'
 import { CommentList } from '@/components/CommentList'
 import { CommentForm } from '@/components/CommentForm'
@@ -130,6 +131,10 @@ export default async function BlogDetailPage({ params }: Props) {
     ...(imageUrl ? { image: imageUrl } : {}),
     ...(category ? { articleSection: category.name } : {}),
     inLanguage: locale,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+    },
   }
 
   const breadcrumbItems: Array<{ name: string; url: string }> = [
@@ -178,7 +183,7 @@ export default async function BlogDetailPage({ params }: Props) {
         </div>
       )}
 
-      <div style={{ maxWidth: 1024, margin: '0 auto', padding: '40px 24px', flex: 1, width: '100%' }}>
+      <div className="ds-container py-10 flex-1">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 48 }} className="article-layout">
           <style>{`
             @media (min-width: 1024px) {
@@ -214,7 +219,7 @@ export default async function BlogDetailPage({ params }: Props) {
                 {category && <CategoryBadge name={category.name} slug={category.slug} static />}
                 {blog.publishedAt && (
                   <time style={{ fontSize: 13, color: 'var(--text-tertiary)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
-                    {formatDate(blog.publishedAt)}
+                    {formatDate(blog.publishedAt, locale)}
                   </time>
                 )}
                 <span style={{ fontSize: 13, color: 'var(--text-disabled)', fontFamily: 'var(--font-geist-mono, monospace)' }}>

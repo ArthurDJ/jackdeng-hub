@@ -227,11 +227,87 @@
     background-color: rgba(0, 0, 0, 0.04);
   }
 
+  /* ── Layout container — consistent max-width + horizontal padding ── */
+  .ds-container {
+    max-width: 1024px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+    width: 100%;
+  }
+
   /* ── Generic link hover (color transition to accent) ── */
   .ds-link-hover {
     transition: color var(--duration-base) var(--ease-default);
   }
   .ds-link-hover:hover { color: var(--accent-primary); }
+
+  /* ── Layout Containers ── */
+  .ds-container {
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 0 24px;
+    width: 100%;
+  }
+
+  .ds-section-padding {
+    padding-top: 48px;
+    padding-bottom: 40px;
+  }
+
+  /* ── Pagination Styles ── */
+  .ds-pagination-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 400;
+    text-decoration: none;
+    border: 1px solid var(--border-default);
+    background: transparent;
+    color: var(--text-secondary);
+    transition: all var(--duration-base) var(--ease-default);
+  }
+
+  .ds-pagination-item:hover:not(.disabled) {
+    border-color: var(--border-strong);
+    background-color: var(--bg-elevated);
+    color: var(--text-primary);
+  }
+
+  .ds-pagination-item.active {
+    font-weight: 510;
+    border-color: var(--accent-primary);
+    background-color: var(--accent-primary);
+    color: #ffffff;
+  }
+
+  .ds-pagination-item.disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* ── Pagination page button ── */
+  .ds-page-btn {
+    transition:
+      border-color var(--duration-base) var(--ease-default),
+      background-color var(--duration-base) var(--ease-default),
+      color var(--duration-base) var(--ease-default);
+  }
+  .ds-page-btn:not([aria-current="page"]):hover {
+    border-color: var(--border-strong);
+    background-color: var(--bg-elevated);
+    color: var(--text-primary);
+  }
+  .ds-page-btn[aria-current="page"]:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
 
   /* ── Prose design-system override ──────────────────────────────────────
      Overrides Tailwind Typography's --tw-prose-* palette variables so that

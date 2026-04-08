@@ -60,8 +60,8 @@ export default async function BlogListPage({ params, searchParams }: Props) {
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
       {/* Page header */}
-      <section style={{ borderBottom: '1px solid var(--border-subtle)', padding: '48px 24px 40px' }}>
-        <div style={{ maxWidth: 1024, margin: '0 auto' }}>
+      <section className="border-b border-subtle ds-section-padding">
+        <div className="ds-container">
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 590, letterSpacing: '-0.8px', color: 'var(--text-primary)', marginBottom: 8 }}>
             {t('title')}
           </h1>
@@ -72,7 +72,7 @@ export default async function BlogListPage({ params, searchParams }: Props) {
       </section>
 
       {/* Content */}
-      <div style={{ maxWidth: 1024, margin: '0 auto', padding: '40px 24px', flex: 1, width: '100%' }}>
+      <div className="ds-container py-10 flex-1">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 40 }} className="blog-layout">
           <style>{`
             @media (min-width: 1024px) {

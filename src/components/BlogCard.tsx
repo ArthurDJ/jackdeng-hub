@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from 'next-intl/server'
 import { TagBadge } from './TagBadge'
 import { CategoryBadge } from './CategoryBadge'
 import { readingTime } from '@/lib/readingTime'
+import { formatDate } from '@/lib/formatDate'
 
 interface Tag     { id: string; name: string; slug: string; color: string }
 interface Category { id: string; name: string; slug: string }
@@ -27,11 +28,6 @@ export interface BlogCardProps {
   content?: unknown
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', {
-    year: 'numeric', month: 'short', day: 'numeric',
-  })
-}
 
 export async function BlogCard({ title, slug, excerpt, coverImage, category, tags = [], publishedAt, featured, content }: BlogCardProps) {
   const imageUrl = coverImage?.sizes?.card?.url ?? coverImage?.sizes?.thumbnail?.url ?? coverImage?.url
@@ -90,7 +86,7 @@ export async function BlogCard({ title, slug, excerpt, coverImage, category, tag
           {category && <CategoryBadge name={category.name} slug={category.slug} static />}
           {publishedAt && (
             <time style={{ fontSize: 12, color: 'var(--text-tertiary)', marginLeft: 'auto', fontFamily: 'var(--font-geist-mono, monospace)' }}>
-              {formatDate(publishedAt)}
+              {formatDate(publishedAt, locale)}
             </time>
           )}
           {minutes != null && (

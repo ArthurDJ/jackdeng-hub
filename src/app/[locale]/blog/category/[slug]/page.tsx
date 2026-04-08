@@ -66,8 +66,8 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <main>
       {/* Header */}
-      <section style={{ borderBottom: '1px solid var(--border-subtle)', padding: '48px 24px 40px' }}>
-        <div style={{ maxWidth: 1024, margin: '0 auto' }}>
+      <section className="border-b border-subtle ds-section-padding">
+        <div className="ds-container">
           <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-tertiary)', marginBottom: 8 }}>
             Category
           </p>
@@ -84,7 +84,7 @@ export default async function CategoryPage({ params }: Props) {
       </section>
 
       {/* Content */}
-      <div style={{ maxWidth: 1024, margin: '0 auto', padding: '40px 24px' }}>
+      <div className="ds-container py-10">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 40 }} className="blog-layout">
           <style>{`@media (min-width: 1024px) { .blog-layout { grid-template-columns: 1fr 260px !important; } }`}</style>
 

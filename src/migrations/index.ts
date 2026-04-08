@@ -4,6 +4,7 @@ import * as migration_20260406_175247_v030_cats from './20260406_175247_v030_cat
 import * as migration_20260407_002218_add_comments from './20260407_002218_add_comments';
 import * as migration_20260408_003804 from './20260408_003804';
 import * as migration_20260408_215850 from './20260408_215850';
+import * as migration_20260408_233949 from './20260408_233949';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20260408_215850.up,
     down: migration_20260408_215850.down,
-    name: '20260408_215850'
+    name: '20260408_215850',
+  },
+  {
+    up: migration_20260408_233949.up,
+    down: migration_20260408_233949.down,
+    name: '20260408_233949'
   },
 ];

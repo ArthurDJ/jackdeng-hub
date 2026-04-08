@@ -42,7 +42,10 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
-      required: true,
+      required: false,
+      admin: {
+        description: 'Descriptive text for accessibility and SEO. Highly recommended but optional.',
+      },
     },
     {
       name: 'caption',

@@ -263,7 +263,10 @@ export interface Blog {
  */
 export interface Media {
   id: number;
-  alt: string;
+  /**
+   * Descriptive text for accessibility and SEO. Highly recommended but optional.
+   */
+  alt?: string | null;
   caption?: string | null;
   updatedAt: string;
   createdAt: string;

@@ -37,15 +37,16 @@
 - [x] **自定义 404**: 完成 `[locale]/not-found.tsx` 全设计系统适配 ✅
 - [x] **CommandPalette**: Token 迁移 + 搜索 Locale 感知 ✅
 
-**P1 — 专业感与 SEO 功能（Week 2 - 进行中）**
-- [x] **SEO 核心**: `sitemap.ts` (动态查询, 24h revalidate) + `robots.ts` (Block /admin /api) + `canonical/hreflang` 注入（首页/博客列表/博客详情/about）✅
-- [x] **结构化数据**: 注入 JSON-LD `BlogPosting` 与 `BreadcrumbList` schema（blog detail 页，服务端渲染）✅
-- [x] **阅读体验**: `readingTime.ts` 实现 + 博客卡片/详情页时长展示。✅
-- [x] **博客分页**: `Pagination.tsx` 组件封装 + Payload 翻页逻辑对接。✅
-- [ ] **日期标准化**: 全站 `formatDate` locale 感知重构（消除硬编码 en-US）。
+**P1 — 专业感与 SEO 功能（Week 2 - 完成）**
+- [x] **SEO 核心**: `sitemap.ts` (动态查询, 24h revalidate) + `robots.ts` + `canonical/hreflang` 注入 ✅
+- [x] **结构化数据**: 注入 JSON-LD `BlogPosting` 与 `BreadcrumbList` schema ✅
+- [x] **阅读体验**: `readingTime.ts` 实现 + 博客卡片/详情页时长展示 ✅
+- [x] **博客分页**: `Pagination.tsx` 组件封装 + Payload 翻页逻辑对接 ✅
+- [x] **日期标准化**: 全站 `formatDate` locale 感知重构 ✅
 
-**P2 — 品质提升与收尾（Week 3）**
-- [ ] **Footer 统一**: 封装全局 `Footer.tsx` 组件，替换 4 处冗余代码。
+**P2 — 品质提升与收尾（Week 3 - 进行中）**
+- [x] **Footer 统一**: 封装全局 `Footer.tsx` 组件，替换全站冗余代码 ✅
+- [x] **布局抽象**: 封装 `.ds-container` 等 Utility 类，移除大量 inline-style ✅
 - [ ] **相关文章**: 博客详情页下方展示 2-3 篇同分类推荐。
 - [ ] **环境清理**: 确认 `.gitignore` 生效，移除残留的未追踪日志与临时文件。
 

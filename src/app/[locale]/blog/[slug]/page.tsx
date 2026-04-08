@@ -91,6 +91,8 @@ export default async function BlogDetailPage({ params }: Props) {
   const blog = docs[0] as any
   if (!blog) notFound()
 
+  const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
+
   const heroUrl =
     (blog.coverImage as any)?.sizes?.hero?.url ?? (blog.coverImage as any)?.url
 
@@ -101,8 +103,63 @@ export default async function BlogDetailPage({ params }: Props) {
 
   const sidebar = await buildSidebarData({ activeCategory: category?.slug })
 
+  // ── JSON-LD structured data ──────────────────────────────────────────────
+  const canonicalUrl = `${BASE}/${locale}/blog/${slug}`
+  const imageUrl = heroUrl ?? null
+
+  const blogPostingSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: blog.title,
+    description: blog.excerpt ?? '',
+    datePublished: blog.publishedAt ?? blog.createdAt,
+    dateModified: blog.updatedAt ?? blog.publishedAt ?? blog.createdAt,
+    url: canonicalUrl,
+    author: {
+      '@type': 'Person',
+      name: 'Jack Deng',
+      url: `${BASE}/${locale}/about`,
+    },
+    publisher: {
+      '@type': 'Person',
+      name: 'Jack Deng',
+      url: BASE,
+    },
+    ...(imageUrl ? { image: imageUrl } : {}),
+    ...(category ? { articleSection: category.name } : {}),
+    inLanguage: locale,
+  }
+
+  const breadcrumbItems: Array<{ name: string; url: string }> = [
+    { name: 'Blog', url: `${BASE}/${locale}/blog` },
+  ]
+  if (category) {
+    breadcrumbItems.push({ name: category.name, url: `${BASE}/${locale}/blog/category/${category.slug}` })
+  }
+  breadcrumbItems.push({ name: blog.title, url: canonicalUrl })
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems.map((item, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  }
+
   return (
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
 
       {/* Hero image */}
       {heroUrl && (

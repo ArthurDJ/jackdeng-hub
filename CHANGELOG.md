@@ -6,6 +6,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.6.1] — 2026-04-07
+
+### Added
+- **Design System** (`DESIGN.md`) — Added Vercel/Linear inspired UI specs and Tailwind component structures for AI coding agents.
+- **Project Roadmap** (`PROJECT_ROADMAP.md`) — Created single source of truth for tracking project phases and requirements.
+
+### Changed
+- Removed local Cloudflare Tunnel configurations and transitioned to Vercel global edge routing.
+
+---
+
 ## [0.6.0] — 2026-04-06
 
 ### Added

@@ -79,7 +79,11 @@
     "archive": "Archive",
     "post": "post",
     "posts": "posts",
-    "minRead": "{count} min read"
+    "minRead": "{count} min read",
+    "pagination": {
+      "previous": "← Previous",
+      "next": "Next →"
+    }
   },
 
   "about": {

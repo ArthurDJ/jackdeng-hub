@@ -2,12 +2,18 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { BlogCard } from '@/components/BlogCard'
+import { Pagination } from '@/components/Pagination'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
 
 export const revalidate = 3600
 
-type Props = { params: Promise<{ locale: string }> }
+const POSTS_PER_PAGE = 12
+
+type Props = {
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ page?: string }>
+}
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
 
@@ -24,26 +30,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function BlogListPage({ params }: Props) {
+export default async function BlogListPage({ params, searchParams }: Props) {
   const { locale } = await params
+  const { page: pageParam } = await searchParams
   const t = await getTranslations({ locale, namespace: 'blog' })
+
+  // Clamp to a valid positive integer
+  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
 
   const payload = await getPayload()
 
-  // blogs_locales table may not exist until `npx payload migrate` is run
   const [blogsResult, sidebar] = await Promise.all([
     payload.find({
       collection: 'blogs',
       where: { status: { equals: 'published' } },
       sort: '-publishedAt',
       depth: 1,
-      limit: 12,
+      limit: POSTS_PER_PAGE,
+      page,
       locale: locale as any,
-    }).catch(() => ({ docs: [] })),
+    }).catch(() => ({ docs: [], totalPages: 1 })),
     buildSidebarData().catch(() => ({})),
   ])
 
   const blogs = blogsResult.docs as any[]
+  const totalPages = (blogsResult as any).totalPages ?? 1
 
   return (
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -69,29 +80,33 @@ export default async function BlogListPage({ params }: Props) {
             }
           `}</style>
 
-          {/* Posts grid */}
+          {/* Posts grid + pagination */}
           <section>
             {blogs.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '64px 0' }}>
                 <p style={{ fontSize: 15, color: 'var(--text-tertiary)' }}>{t('noPostsFound')}</p>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-                {blogs.map((blog) => (
-                  <BlogCard
-                    key={blog.id}
-                    title={blog.title}
-                    slug={blog.slug}
-                    excerpt={blog.excerpt}
-                    coverImage={blog.coverImage}
-                    category={typeof blog.category === 'object' ? blog.category : null}
-                    tags={Array.isArray(blog.tags) ? blog.tags.filter((t: any) => typeof t === 'object') : []}
-                    publishedAt={blog.publishedAt}
-                    featured={blog.featured}
-                    content={blog.content}
-                  />
-                ))}
-              </div>
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                  {blogs.map((blog) => (
+                    <BlogCard
+                      key={blog.id}
+                      title={blog.title}
+                      slug={blog.slug}
+                      excerpt={blog.excerpt}
+                      coverImage={blog.coverImage}
+                      category={typeof blog.category === 'object' ? blog.category : null}
+                      tags={Array.isArray(blog.tags) ? blog.tags.filter((t: any) => typeof t === 'object') : []}
+                      publishedAt={blog.publishedAt}
+                      featured={blog.featured}
+                      content={blog.content}
+                    />
+                  ))}
+                </div>
+
+                <Pagination page={page} totalPages={totalPages} basePath="/blog" />
+              </>
             )}
           </section>
 

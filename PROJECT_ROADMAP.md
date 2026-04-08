@@ -41,7 +41,7 @@
 - [x] **SEO 核心**: `sitemap.ts` (动态查询, 24h revalidate) + `robots.ts` (Block /admin /api) + `canonical/hreflang` 注入（首页/博客列表/博客详情/about）✅
 - [x] **结构化数据**: 注入 JSON-LD `BlogPosting` 与 `BreadcrumbList` schema（blog detail 页，服务端渲染）✅
 - [x] **阅读体验**: `readingTime.ts` 实现 + 博客卡片/详情页时长展示。✅
-- [ ] **博客分页**: `Pagination.tsx` 组件封装 + Payload 翻页逻辑对接。
+- [x] **博客分页**: `Pagination.tsx` 组件封装 + Payload 翻页逻辑对接。✅
 - [ ] **日期标准化**: 全站 `formatDate` locale 感知重构（消除硬编码 en-US）。
 
 **P2 — 品质提升与收尾（Week 3）**
@@ -64,8 +64,8 @@
 | users.name 迁移 | 🔴 高 | ✅ 已修复 | 解决 Admin 登录 500 报错。 |
 | `.gitignore` 漏点 | 🟡 中 | ✅ 已修复 | 已排除 `.log`, `.claude/` 等干扰项。 |
 | 搜索 Locale 硬编码 | 🟡 中 | ✅ 已修复 | 现在搜索结果能正确返回当前语言内容。 |
-| 分页硬限制 | 🟡 中 | 🔄 处理中 | 待完成 P1.4 分页组件。 |
+| 分页硬限制 | 🟡 中 | ✅ 已修复 | Pagination.tsx + Payload page 参数对接。 |
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-04-08 (P1.3 readingTime 阅读时长展示完成)*
+*最后更新：2026-04-08 (P1.4 Pagination.tsx 博客列表分页完成)*

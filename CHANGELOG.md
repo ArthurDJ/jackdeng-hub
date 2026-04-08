@@ -6,6 +6,93 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.9.1] — 2026-04-07
+
+### Added — Geist 字体 + 全站页面设计系统对齐
+
+#### 字体系统
+- 安装 `geist@1.7.0`（Vercel 官方开源字体，与 DESIGN.md §2 完全对应）
+- `[locale]/layout.tsx`：从 Inter Variable 切换至 `GeistSans` + `GeistMono`，CSS 变量 `--font-geist-sans` / `--font-geist-mono` 全局注入
+- `globals.css`：`font-family` 使用 `var(--font-geist-sans)`，代码/数字/日期元素使用 `--font-geist-mono`
+
+#### About 页面完全重构（`src/app/[locale]/about/page.tsx`）
+- 个人介绍更新：职位改为 **Senior Database & Integration Administrator**，Bio 内容对齐实际专业方向
+- Skills 栈重组为四组：Database（NetSuite、PostgreSQL、SQL Server、Supabase）/ Integration（Boomi、REST APIs、EDI/SFTP、Webhooks）/ Development / Tools
+- Timeline：角色和描述更新为数据库与集成管理方向的职业路径
+- Avatar：纯 CSS 字母 `JD`，accent 蓝色圆形，替代 emoji 占位
+- 竖向时间线：accent 蓝色 dot + 细线连接
+- 所有链接样式改为 pill 形，hover 通过 CSS 变量过渡
+- i18n key 名全部修正（`ctaBtn`、`skillsHeading`、`experienceHeading`、`findMeHeading` 等与 en.json 对齐）
+
+#### Blog 列表页（`src/app/[locale]/blog/page.tsx`）
+- 注入 Navbar，移除对 blog/layout.tsx 的隐式依赖
+- 页面 header 使用 CSS token 变量（`var(--bg-base)`、`var(--text-primary)` 等）
+- 改用 `auto-fill minmax(280px, 1fr)` 响应式网格，消除固定列数限制
+
+#### Blog 详情页（`src/app/[locale]/blog/[slug]/page.tsx`）
+- Hero 图叠加渐变由 `rgba(0,0,0,x)` 改为 `var(--bg-base)` 色调，深/浅双模式自动适配
+- Breadcrumb hover 改为 accent 蓝色过渡
+- 文章正文字体颜色使用 `var(--text-secondary)`，`excerpt` 使用 `font-weight: 300`
+- 返回链接从文字链接改为 SVG 箭头 + accent 色按钮
+- 评论区、分割线全部改用 `var(--border-subtle)`
+
+#### BlogCard 组件完全重写（`src/components/BlogCard.tsx`）
+- 消除所有 `zinc-*` Tailwind 类，改用 CSS 变量 token
+- 卡片边框 radius 12px，hover 通过 `onMouseEnter/Leave` 更新 `var(--border-strong)` + `var(--bg-elevated)`
+- 日期使用 `font-family: var(--font-geist-mono, monospace)`
+- 文章摘要用 `-webkit-line-clamp: 3` 截断
+
+#### Sidebar 组件完全重写（`src/components/Sidebar.tsx`）
+- 消除所有 `zinc-*` Tailwind 类，改用 CSS 变量 token
+- 激活分类高亮：`var(--accent-subtle)` 背景 + `var(--accent-primary)` 文字
+- 计数徽章使用 Geist Mono 字体
+- 最新文章缩略图 border-radius 6px，无图时使用 `var(--bg-elevated)` 占位
+
+#### i18n 更新
+- `en.json` / `zh.json` `about` 命名空间：内容更新为 Senior DB & Integration 职位文案，修正所有 key 名
+
+### Changed
+- `globals.css` `font-family` 更新为优先使用 `--font-geist-sans`
+
+---
+
+## [0.9.0] — 2026-04-07
+
+### Added — Linear/Vercel 设计系统全站落地
+
+#### globals.css 设计 Token 层（完全重写）
+- 基于 `DESIGN.md` 建立完整 CSS 自定义属性系统，Dark 默认、`.light` 覆盖：
+  - **背景**：`--bg-base: #0a0a0a` → `--bg-panel: #121212` → `--bg-elevated: #171717`（Deep Tech Black 层级）
+  - **文字**：`--text-primary: #ededed` / `--text-secondary: #a1a1aa` / `--text-tertiary: #71717a`
+  - **边框**：`rgba(255,255,255,0.10)` 半透明白色叠层，替代实色 border
+  - **Accent**：`--accent-primary: #3b82f6`（暗色）/ `#0a72ef`（亮色，Develop Blue）
+  - **Motion**：`--duration-fast/base/slow`、`--ease-default`（spring-like）
+  - **Light 覆盖**：`.light` 类完整覆盖所有 token，无需额外 Tailwind `dark:` 类
+- 新增 utility 类：`.bg-base`、`.bg-panel`、`.card`（12px radius）、`.pill`（9999px）
+- 新增字体比例 utility：`.text-display-xl` 到 `.text-body-sm`
+
+#### 首页完全重建（`src/app/[locale]/page.tsx`）
+- **Hero 区**：标题改为 `Senior Database & Integration Administrator`，weight-590，字号自适应 `clamp(36px, 5vw, 56px)`；emerald 状态 pill（animate-pulse）；bio 使用 `t.rich()` 高亮 NetSuite/Boomi 关键词；CTA 按钮改为 pill 形（`border-radius: 9999px`）+ scale hover
+- **Tech Stack 网格**：NetSuite / Boomi / Supabase / Next.js，含内联 SVG 图标，2 列 → 4 列响应式；hover 提升边框至 `--border-strong`
+- **Latest Posts**：保留数据层，全部样式改用 CSS 变量
+- **Latest Projects**：新增空状态占位（accent icon + 文字提示），项目卡片改用 token 颜色
+- **Footer**：使用 `--border-subtle` 分隔线，`--text-tertiary` 文字
+
+#### Navbar 重写（`src/components/Navbar.tsx`）
+- 52px 高度，`backdrop-blur(12px)` 毛玻璃，`rgba(8,9,10,0.80)` 暗色背景
+- 亮色模式下自动切换为 `rgba(255,255,255,0.85)` + dark border
+- 链接 weight-510，hover 通过 inline style + `onMouseEnter/Leave` 实现 token 过渡
+- 搜索按钮改为细边框 ghost 样式
+
+#### ThemeToggle 更新（`src/components/ThemeToggle.tsx`）
+- hover 状态改用 CSS 变量（`rgba(255,255,255,0.05)`），消除 Tailwind zinc 依赖
+
+#### i18n 新增（`en.json` / `zh.json`）
+- `home` 命名空间新增：`subtitle`、`techStackHeading`、`latestProjects`、`noProjectsYet`、`noProjectsNote`
+- `nav` 命名空间新增：`search`（修复 Navbar `t('search')` key 缺失 bug）
+
+---
+
 ## [0.6.1] — 2026-04-07
 
 ### Added
@@ -324,10 +411,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - [x] **关于我页面（`/about`）** — 静态 SSG，个人简介 / 技能栈 / 工作经历时间线 ✅ v0.5.0
 - [x] **全局搜索 — Command Palette** — `Cmd/Ctrl + K`，覆盖博客 / 分类 / 标签 / 工具 ✅ v0.5.0
 
-### 🟢 P2 — 中期规划（扩展能力）
-- [ ] **i18n 双语（`/zh` / `/en`）** — 子路径路由 + `Accept-Language` 自动重定向
+### 🟢 P2 — 完成 ✅
+- [x] **i18n 双语（`/zh` / `/en`）** — next-intl，`[locale]` 子路径路由，TypeScript 类型安全，zombie key 检测 ✅ v0.8.0
+- [x] **评论系统** — 自建数据库 + 三层防 spam（Turnstile / IP 限流 / Honeypot）✅ v0.7.0
+- [x] **全站设计系统** — Linear/Vercel DESIGN.md token 层 + Geist 字体，全页面覆盖 ✅ v0.9.0–0.9.1
+
+### 🟣 P3 — 待办（功能完善）
+- [ ] **TagBadge / CategoryBadge 样式对齐** — 消除残留 zinc 类，改用 CSS token
+- [ ] **LexicalRenderer prose 对齐** — 文章正文排版使用 Geist + 设计 token
+- [ ] **CommandPalette 样式更新** — 搜索弹窗适配新设计系统
+- [ ] **Turnstile 生产配置验收** — 配置 `CLOUDFLARE_TURNSTILE_SECRET`，端对端测试评论提交流程
+
+### ⏳ P4 — 后续扩展（工具引擎 + SEO）
 - [ ] **工具引擎 + RBAC** — 公开工具 vs 私有工具动态渲染，Supabase 审计日志
-- [ ] **评论系统** — 推荐 [Giscus](https://giscus.app/)（GitHub Discussions，零成本）
+- [ ] **动态 Sitemap 与 Robots.txt**
+- [ ] **Metadata / OpenGraph 标签全局自动注入**
+- [ ] **Lighthouse 性能审计**（目标全绿）
 
 ### Verified — OpenClaw 2026-04-06 (v0.5.0)
 - [x] `GET /about` -> 200, 包含 `<h1>Jack Deng</h1>` & Skills

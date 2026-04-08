@@ -42,21 +42,58 @@
 - [x] 完成线上 Vercel 生产环境的基础集成测试。
 - [x] 编写 `CHANGELOG.md` 及 `AI_DEPLOY.md`。
 
-### 🔄 Phase 4: 前端 UI/UX 深度开发 (In Progress)
-- [ ] 首页 (Home) 个人品牌展示模块重构与动画打磨。
-- [ ] 博客列表页与文章详情页 UI 渲染（对接 Payload API）。
-- [ ] 评论区前端组件封装与 Turnstile 验证码前端对接。
-- [ ] 深色/浅色模式 (Dark/Light Mode) 全局应用。
+### ✅ Phase 4: 前端 UI/UX 深度开发 (Done — v0.7.0 ~ v0.9.1)
+- [x] 首页 (Home) 完全重建：Hero（职位标题 + 状态 pill）、Tech Stack 网格、Latest Posts、Projects 空状态占位。
+- [x] 博客列表页 UI 对接 Payload API，响应式 auto-fill 网格布局。
+- [x] 博客详情页：Hero 图渐变、Breadcrumb、文章正文、评论区前端组件。
+- [x] 评论区前端组件（CommentForm + CommentList）封装，Turnstile invisible captcha 对接。
+- [x] 深色/浅色模式全局应用：`DESIGN.md` token 层，CSS 自定义属性，`.light` 类覆盖，全站无 `dark:` Tailwind 类依赖。
+- [x] Geist 字体（`geist@1.7.0`）全站落地，`--font-geist-sans` / `--font-geist-mono` 变量注入。
+- [x] About 页面完全重构：DB & Integration 专业技能栈，竖向时间线，pill 外链，accent CTA。
+- [x] BlogCard / Sidebar 全面重写，消除 zinc 类，改用 CSS token 变量。
 
-### ⏳ Phase 5: 动态工具引擎 (Pending)
+### ✅ Phase 5 (Partial): i18n 双语支持 (Done — v0.8.0)
+- [x] `next-intl` v4.9.0 接入，`[locale]` 子路径路由（`/en` / `/zh`）。
+- [x] Payload CMS 字段级本地化（`title`、`excerpt`、`content` 标记 `localized: true`）。
+- [x] TypeScript 类型安全（`IntlMessages` 全局声明）。
+- [x] Zombie key 检测脚本（`npm run i18n:check`）。
+- [x] Navbar 语言切换按钮。
+
+### 🔄 Phase 6: 内容填充与生产验收 (In Progress)
+- [ ] **🔴 运行 `npx payload migrate`（生产环境）** — `blogs_locales` 表缺失，双语博客功能锁死。
+- [ ] **配置 `CLOUDFLARE_TURNSTILE_SECRET`** — Vercel 环境变量，激活评论第三层防护。
+- [ ] 在 `/admin` 发布第一篇双语博客，验证 `/en/blog` 与 `/zh/blog` 数据隔离正确。
+- [ ] 在 `/admin` 创建首批项目条目，验证首页 Projects 区块渲染。
+- [ ] 端对端评论提交测试（含 Turnstile 验证流程）。
+
+### ⏳ Phase 7: 细节打磨 (Pending)
+- [ ] `TagBadge` / `CategoryBadge` 组件样式对齐设计 token（消除残留 zinc 类）。
+- [ ] `LexicalRenderer` prose 排版对齐 Geist 字体 + 设计 token。
+- [ ] `CommandPalette` 弹窗样式适配新设计系统。
+- [ ] OpenClaw 对 v0.9.1 进行自动化验收。
+
+### ⏳ Phase 8: 动态工具引擎 (Pending)
 - [ ] 设计 Tools Collection（配置 API Endpoint、鉴权规则等）。
-- [ ] 前端渲染公开可用的“在线工具”列表（Tools 目录）。
+- [ ] 前端渲染公开可用的”在线工具”列表（Tools 目录）。
 - [ ] 核心内部工具迁移至该引擎（如有）。
 
-### ⏳ Phase 6: SEO 与性能优化 (Pending)
+### ⏳ Phase 9: SEO 与性能优化 (Pending)
 - [ ] 配置动态 Sitemap 与 Robots.txt。
 - [ ] Metadata / OpenGraph 标签全局自动注入。
 - [ ] 性能审计（Lighthouse 全绿目标）。
 
 ---
+
+## 📋 技术债清单 (Tech Debt)
+
+| 项目 | 优先级 | 说明 |
+|------|--------|------|
+| `blogs_locales` DB 迁移 | 🔴 高 | 本地执行 `npx payload migrate`（生产 DATABASE_URI）|
+| Turnstile secret 配置 | 🔴 高 | Vercel env var `CLOUDFLARE_TURNSTILE_SECRET` |
+| TagBadge/CategoryBadge 样式 | 🟡 中 | 残留 zinc-* 类，与设计系统不一致 |
+| LexicalRenderer prose | 🟡 中 | 文章正文排版未使用 Geist + token |
+| CommandPalette 样式 | 🟡 中 | 搜索弹窗未适配新设计系统 |
+
+---
 *注：本文件将作为项目的唯一核心规划源（Single Source of Truth），随项目迭代持续更新状态。*
+*最后更新：2026-04-07 (v0.9.1)*

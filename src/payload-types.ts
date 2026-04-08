@@ -98,7 +98,7 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  fallbackLocale: null;
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'zh') | ('en' | 'zh')[];
   globals: {};
   globalsSelect: {};
   locale: 'en' | 'zh';
@@ -167,21 +167,30 @@ export interface Category {
   createdAt: string;
 }
 /**
+ * Blog post comments. Approve or mark as spam before they appear publicly.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags".
+ * via the `definition` "comments".
  */
-export interface Tag {
+export interface Comment {
   id: number;
-  name: string;
+  authorName: string;
   /**
-   * URL-friendly identifier, auto-generated from name if left blank.
+   * Not displayed publicly.
    */
-  slug: string;
+  authorEmail: string;
+  content: string;
+  post: number | Blog;
+  status?: ('pending' | 'approved' | 'spam') | null;
   /**
-   * Hex color code (e.g. #3B82F6) used to render the tag badge.
+   * Auto-captured for rate limiting.
    */
-  color: string;
-  description?: string | null;
+  ip?: string | null;
+  /**
+   * Cloudflare Turnstile verification token.
+   */
+  turnstileToken?: string | null;
+  honeypot?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -295,6 +304,25 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  name: string;
+  /**
+   * URL-friendly identifier, auto-generated from name if left blank.
+   */
+  slug: string;
+  /**
+   * Hex color code (e.g. #3B82F6) used to render the tag badge.
+   */
+  color: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projects".
  */
 export interface Project {
@@ -369,6 +397,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'categories';
         value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'comments';
+        value: number | Comment;
       } | null)
     | ({
         relationTo: 'tags';
@@ -462,6 +494,22 @@ export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments_select".
+ */
+export interface CommentsSelect<T extends boolean = true> {
+  authorName?: T;
+  authorEmail?: T;
+  content?: T;
+  post?: T;
+  status?: T;
+  ip?: T;
+  turnstileToken?: T;
+  honeypot?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -642,34 +690,6 @@ export interface Auth {
   [k: string]: unknown;
 }
 
-
-export interface Comment {
-  id: number;
-  authorName: string;
-  authorEmail: string;
-  content: string;
-  post: number | Blog;
-  status: 'pending' | 'approved' | 'spam';
-  ip?: string | null;
-  turnstileToken?: string | null;
-  honeypot?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-
-export interface CommentsSelect<T extends boolean = true> {
-  authorName?: T;
-  authorEmail?: T;
-  content?: T;
-  post?: T;
-  status?: T;
-  ip?: T;
-  turnstileToken?: T;
-  honeypot?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  id?: T;
-}
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}

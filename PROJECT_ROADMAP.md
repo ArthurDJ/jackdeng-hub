@@ -70,25 +70,41 @@
 - [x] **HTTP 500 修复（首页 + About）** — `t.rich()` 消息格式从 `{var}` 改为 `<tag>` XML 标签 ✅ v0.9.4
 - [x] **重复 const 声明修复** — 远程热修 commit 引入的 duplicate `const tCommon` ✅ v0.9.4
 - [x] **OpenClaw v0.9.4 验收全线通过** — 6/6 URL 返回 200，无 500 阻断 ✅
-- [ ] **🔴 运行 `npx payload migrate`（本地 + 生产 DATABASE_URI）** — `blogs_locales` 表缺失，双语博客 / Latest Posts 锁死
-- [ ] 在 Vercel 添加 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` 环境变量
+- [x] **`users.name` 列迁移修复** — admin login 500 根本原因，生成并执行 migration `20260408_215850` ✅ v0.9.9
 - [ ] 在 `/admin` 发布第一篇双语博客，验证 `/en/blog` 与 `/zh/blog` 数据隔离
 - [ ] 在 `/admin` 创建首批项目条目，验证首页 Projects 区块渲染
 - [ ] 端对端评论提交测试（含 Turnstile 验证流程）
 
-### ⏳ Phase 7: 细节打磨 (Pending)
-- [ ] `TagBadge` / `CategoryBadge` 组件样式对齐设计 token（消除残留 zinc 类）。
-- [ ] `LexicalRenderer` prose 排版对齐 Geist 字体 + 设计 token。
-- [ ] `CommandPalette` 弹窗样式适配新设计系统。
-- [ ] OpenClaw 对 v0.9.1 进行自动化验收。
+### 🔄 Phase 7: 细节打磨 (In Progress — v1.0 冲刺)
+
+> 全面代码审计后制定的 v1.0 冲刺计划，分 P0/P1/P2 三个优先级，目标 2-3 周内完成。
+
+**P0 — 视觉一致性（Week 1）**
+- [x] `CategoryBadge` 消除 zinc 类，改用 CSS token ✅
+- [x] Blog 子页（layout/archive/category/tag）统一设计系统（bg-base、token 文字色、i18n footer）✅
+- [x] `LexicalRenderer` prose 排版 — 新增 `.prose-ds` CSS utility，替换 `prose-zinc dark:prose-invert` ✅
+- [x] 自定义 404 页面（`[locale]/not-found.tsx` + 根级回退）✅
+- [x] `CommandPalette` 全面 token 迁移 + locale 感知（搜索 API 追加 locale 参数）✅
+
+**P1 — 专业感功能（Week 2）**
+- [ ] SEO 基础设施：`sitemap.ts`、`robots.ts`、canonical/hreflang
+- [ ] JSON-LD Article + BreadcrumbList schema（blog detail 页）
+- [ ] 阅读时长计算（`readingTime.ts` + BlogCard + detail 页展示）
+- [ ] 博客列表分页（`Pagination.tsx` + blog list page `?page=N`）
+- [ ] locale 感知日期格式（`formatDate.ts`，修复 6 处硬编码 `'en-US'`）
+
+**P2 — 品质提升（Week 3）**
+- [ ] `Footer.tsx` 统一组件（替换 4 处散落 footer 代码，含导航链接）
+- [ ] 博客详情”相关文章”（同分类 2-3 篇，文章正文下方）
+- [ ] Phase 6 内容验收：发布博客、创建项目、Turnstile E2E 测试
 
 ### ⏳ Phase 8: 动态工具引擎 (Pending)
 - [ ] 设计 Tools Collection（配置 API Endpoint、鉴权规则等）。
 - [ ] 前端渲染公开可用的”在线工具”列表（Tools 目录）。
 - [ ] 核心内部工具迁移至该引擎（如有）。
 
-### ⏳ Phase 9: SEO 与性能优化 (Pending)
-- [ ] 配置动态 Sitemap 与 Robots.txt。
+### ⏳ Phase 9: SEO 与性能优化 (Pending — 部分已提前到 Phase 7 P1)
+- [ ] 动态 Sitemap + Robots.txt（已移至 Phase 7 P1）
 - [ ] Metadata / OpenGraph 标签全局自动注入。
 - [ ] 性能审计（Lighthouse 全绿目标）。
 
@@ -104,9 +120,15 @@
 | ~~locale 查询 500 崩溃~~ | ~~🔴 高~~ | ~~✅ 已修复 v0.9.2~~ |
 | ~~t.rich() XML 格式问题~~ | ~~🔴 高~~ | ~~✅ 已修复 v0.9.4 — 首页/About 500 根本原因~~ |
 | ~~TagBadge 样式深色对比度~~ | ~~🟡 中~~ | ~~✅ 已修复深色背景文字可读性~~ |
-| LexicalRenderer prose | 🟡 中 | 文章正文排版未使用 Geist + token |
-| CommandPalette 样式 | 🟡 中 | 搜索弹窗未适配新设计系统 |
+| ~~LexicalRenderer prose~~ | ~~🟡 中~~ | ~~✅ prose-ds token utility 已实现~~ |
+| ~~CommandPalette 样式~~ | ~~🟡 中~~ | ~~✅ 全面 token 迁移 + locale 感知~~ |
+| ~~CategoryBadge zinc 类~~ | ~~🟡 中~~ | ~~✅ 已改用 CSS token~~ |
+| Blog 子页视觉一致性 | ~~🟡 中~~ | ~~✅ archive/category/tag 已统一设计系统~~ |
+| 404 页设计系统 | 🟡 中 | ~~✅ [locale]/not-found.tsx 已创建~~ |
+| SEO sitemap/robots | 🟠 高 | Phase 7 P1，尚未实现 |
+| 博客分页 | 🟡 中 | Phase 7 P1，硬限制 12 篇 |
+| 阅读时长 | 🟡 中 | Phase 7 P1，尚未实现 |
 
 ---
 *注：本文件将作为项目的唯一核心规划源（Single Source of Truth），随项目迭代持续更新状态。*
-*最后更新：2026-04-08 (v0.9.9 admin login 修复)*
+*最后更新：2026-04-08 (v1.0 冲刺 Week 1 完成：P0 全部修复)*

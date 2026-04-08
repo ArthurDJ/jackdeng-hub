@@ -1,29 +1,40 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
 import { getPayload } from '@/lib/payload'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
 
 export const revalidate = 3600
 
-export const metadata: Metadata = {
-  title: 'Archive — Blog — Jack Deng',
-  description: 'All blog posts organized by year and month.',
+type Props = {
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ year?: string; month?: string }>
 }
 
 const MONTHS = ['January','February','March','April','May','June',
   'July','August','September','October','November','December']
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+function formatDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
+    year: 'numeric', month: 'short', day: 'numeric',
+  })
 }
 
-export default async function ArchivePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ year?: string; month?: string }>
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'blog' })
+  return {
+    title: `${t('archive')} — Jack Deng`,
+    description: 'All blog posts organized by year and month.',
+  }
+}
+
+export default async function ArchivePage({ params, searchParams }: Props) {
+  const { locale } = await params
   const sp = await searchParams
+  const t = await getTranslations({ locale, namespace: 'blog' })
+
   const filterYear = sp.year ? parseInt(sp.year, 10) : null
   const filterMonth = sp.month ? parseInt(sp.month, 10) : null
 
@@ -33,7 +44,7 @@ export default async function ArchivePage({
     collection: 'blogs',
     where: { status: { equals: 'published' } },
     sort: '-publishedAt',
-    depth: 1,
+    depth: 0,
     limit: 1000,
   })
 
@@ -51,43 +62,41 @@ export default async function ArchivePage({
     grouped[y][m].push(blog)
   }
 
-  const years = Object.keys(grouped)
-    .map(Number)
-    .sort((a, b) => b - a)
-
-  // If a year/month filter is active, only show that bucket
+  const years = Object.keys(grouped).map(Number).sort((a, b) => b - a)
   const displayYears = filterYear ? [filterYear] : years
   const totalCount = (all as any[]).length
 
   return (
-    <main className="min-h-screen bg-white dark:bg-zinc-950">
-      <section className="border-b border-zinc-200 dark:border-zinc-800 py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">Archive</h1>
-          <p className="mt-2 text-zinc-500 dark:text-zinc-400">
-            {totalCount} post{totalCount !== 1 ? 's' : ''} in total
+    <main>
+      {/* Header */}
+      <section style={{ borderBottom: '1px solid var(--border-subtle)', padding: '48px 24px 40px' }}>
+        <div style={{ maxWidth: 1024, margin: '0 auto' }}>
+          <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 590, letterSpacing: '-0.8px', color: 'var(--text-primary)', marginBottom: 8 }}>
+            {t('archive')}
+          </h1>
+          <p style={{ fontSize: 14, color: 'var(--text-tertiary)' }}>
+            {totalCount} {totalCount !== 1 ? t('posts') : t('post')}
           </p>
           {(filterYear || filterMonth) && (
-            <div className="mt-3 flex items-center gap-2 text-sm">
-              <span className="text-zinc-500">Showing:</span>
-              <span className="font-medium text-zinc-800 dark:text-zinc-200">
-                {filterMonth ? MONTHS[filterMonth - 1] : ''}{' '}
-                {filterYear ?? ''}
+            <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              <span style={{ color: 'var(--text-tertiary)' }}>Showing:</span>
+              <span style={{ fontWeight: 510, color: 'var(--text-primary)' }}>
+                {filterMonth ? MONTHS[filterMonth - 1] : ''}{' '}{filterYear ?? ''}
               </span>
-              <Link
-                href="/blog/archive"
-                className="ml-2 text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                Clear filter
+              <Link href="/blog/archive" style={{ color: 'var(--accent-primary)', marginLeft: 8, textDecoration: 'none' }}>
+                ✕ Clear
               </Link>
             </div>
           )}
         </div>
       </section>
 
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10">
-          <div className="space-y-12">
+      {/* Content */}
+      <div style={{ maxWidth: 1024, margin: '0 auto', padding: '40px 24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 40 }} className="blog-layout">
+          <style>{`@media (min-width: 1024px) { .blog-layout { grid-template-columns: 1fr 260px !important; } }`}</style>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
             {displayYears.map((year) => {
               const monthsInYear = Object.keys(grouped[year] ?? {})
                 .map(Number)
@@ -98,32 +107,43 @@ export default async function ArchivePage({
 
               return (
                 <section key={year}>
-                  <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-6 pb-2 border-b border-zinc-200 dark:border-zinc-800">
+                  <h2 style={{
+                    fontSize: 20, fontWeight: 590, letterSpacing: '-0.3px',
+                    color: 'var(--text-primary)', marginBottom: 20, paddingBottom: 12,
+                    borderBottom: '1px solid var(--border-subtle)',
+                  }}>
                     {year}
                   </h2>
-                  <div className="space-y-8">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                     {monthsInYear.map((month) => {
                       const posts = grouped[year][month]
                       return (
                         <div key={month}>
                           <Link
                             href={`/blog/archive?year=${year}&month=${month}`}
-                            className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-3"
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 6,
+                              fontSize: 11, fontWeight: 600, textTransform: 'uppercase',
+                              letterSpacing: '0.08em', color: 'var(--text-tertiary)',
+                              textDecoration: 'none', marginBottom: 10,
+                            }}
+                            className="ds-link-hover"
                           >
                             {MONTHS[month - 1]}
-                            <span className="font-normal normal-case text-xs tabular-nums">
+                            <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11, letterSpacing: 0 }}>
                               ({posts.length})
                             </span>
                           </Link>
-                          <ul className="space-y-2 pl-1">
+                          <ul style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 4, listStyle: 'none', margin: 0 }}>
                             {posts.map((blog: any) => (
-                              <li key={blog.id} className="flex items-start gap-3">
-                                <time className="text-xs text-zinc-400 dark:text-zinc-500 tabular-nums pt-0.5 w-24 flex-shrink-0">
-                                  {formatDate(blog.publishedAt)}
+                              <li key={blog.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                                <time style={{ fontSize: 12, color: 'var(--text-tertiary)', fontVariantNumeric: 'tabular-nums', paddingTop: 2, width: 90, flexShrink: 0 }}>
+                                  {formatDate(blog.publishedAt, locale)}
                                 </time>
                                 <Link
                                   href={`/blog/${blog.slug}`}
-                                  className="text-sm text-zinc-800 dark:text-zinc-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-snug"
+                                  style={{ fontSize: 14, color: 'var(--text-secondary)', textDecoration: 'none', lineHeight: 1.5 }}
+                                  className="ds-link-hover"
                                 >
                                   {blog.title}
                                 </Link>
@@ -138,7 +158,9 @@ export default async function ArchivePage({
               )
             })}
             {years.length === 0 && (
-              <p className="text-zinc-500 dark:text-zinc-400 text-center py-12">No published posts yet.</p>
+              <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '48px 0', fontSize: 15 }}>
+                {t('noPostsFound')}
+              </p>
             )}
           </div>
 

@@ -226,4 +226,51 @@
   .light .pill {
     background-color: rgba(0, 0, 0, 0.04);
   }
+
+  /* ── Generic link hover (color transition to accent) ── */
+  .ds-link-hover {
+    transition: color var(--duration-base) var(--ease-default);
+  }
+  .ds-link-hover:hover { color: var(--accent-primary); }
+
+  /* ── Prose design-system override ──────────────────────────────────────
+     Overrides Tailwind Typography's --tw-prose-* palette variables so that
+     blog post body text follows the CSS design tokens (dark + light mode).
+     Keep `prose max-w-none` for structural rhythm; swap `prose-zinc` for this.
+  ── */
+  .prose-ds {
+    --tw-prose-body:           var(--text-secondary);
+    --tw-prose-headings:       var(--text-primary);
+    --tw-prose-lead:           var(--text-secondary);
+    --tw-prose-links:          var(--accent-primary);
+    --tw-prose-bold:           var(--text-primary);
+    --tw-prose-counters:       var(--text-tertiary);
+    --tw-prose-bullets:        var(--border-strong);
+    --tw-prose-hr:             var(--border-default);
+    --tw-prose-quotes:         var(--text-primary);
+    --tw-prose-quote-borders:  var(--accent-primary);
+    --tw-prose-captions:       var(--text-tertiary);
+    --tw-prose-code:           var(--text-primary);
+    --tw-prose-pre-code:       var(--text-secondary);
+    --tw-prose-pre-bg:         var(--bg-elevated);
+    --tw-prose-th-borders:     var(--border-default);
+    --tw-prose-td-borders:     var(--border-subtle);
+    /* invert = same tokens (they already adapt to .light theme) */
+    --tw-prose-invert-body:          var(--text-secondary);
+    --tw-prose-invert-headings:      var(--text-primary);
+    --tw-prose-invert-lead:          var(--text-secondary);
+    --tw-prose-invert-links:         var(--accent-primary);
+    --tw-prose-invert-bold:          var(--text-primary);
+    --tw-prose-invert-counters:      var(--text-tertiary);
+    --tw-prose-invert-bullets:       var(--border-strong);
+    --tw-prose-invert-hr:            var(--border-default);
+    --tw-prose-invert-quotes:        var(--text-primary);
+    --tw-prose-invert-quote-borders: var(--accent-primary);
+    --tw-prose-invert-captions:      var(--text-tertiary);
+    --tw-prose-invert-code:          var(--text-primary);
+    --tw-prose-invert-pre-code:      var(--text-secondary);
+    --tw-prose-invert-pre-bg:        var(--bg-elevated);
+    --tw-prose-invert-th-borders:    var(--border-default);
+    --tw-prose-invert-td-borders:    var(--border-subtle);
+  }
 }

@@ -22,11 +22,11 @@ export function LexicalRenderer({ content, className }: LexicalRendererProps) {
   return (
     <div
       className={`
-        prose prose-zinc dark:prose-invert max-w-none
+        prose prose-ds max-w-none
         prose-headings:font-semibold
-        prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+        prose-a:no-underline hover:prose-a:underline
         prose-code:before:content-none prose-code:after:content-none
-        prose-code:bg-zinc-100 dark:prose-code:bg-zinc-800
+        prose-code:bg-[var(--bg-elevated)]
         prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
         ${className ?? ''}
       `}

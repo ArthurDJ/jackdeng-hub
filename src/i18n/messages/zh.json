@@ -75,7 +75,10 @@
     "commentEmailLabel": "邮箱",
     "commentContentLabel": "评论内容",
     "commentSubmitBtn": "发表评论",
-    "commentSubmitting": "提交中…"
+    "commentSubmitting": "提交中…",
+    "archive": "归档",
+    "post": "篇文章",
+    "posts": "篇文章"
   },
 
   "about": {

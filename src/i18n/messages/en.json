@@ -75,7 +75,10 @@
     "commentEmailLabel": "Email",
     "commentContentLabel": "Comment",
     "commentSubmitBtn": "Post comment",
-    "commentSubmitting": "Submitting…"
+    "commentSubmitting": "Submitting…",
+    "archive": "Archive",
+    "post": "post",
+    "posts": "posts"
   },
 
   "about": {

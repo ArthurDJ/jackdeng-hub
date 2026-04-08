@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { BlogCard } from '@/components/BlogCard'
 import { Sidebar } from '@/components/Sidebar'
@@ -13,7 +14,7 @@ type Props = { params: Promise<{ slug: string; locale: string }> }
 export async function generateStaticParams() {
   const payload = await getPayload()
   const { docs } = await payload.find({ collection: 'tags', limit: 500, depth: 0 })
-  
+
   const paths = []
   for (const doc of docs as any[]) {
     for (const locale of ['en', 'zh']) {
@@ -42,18 +43,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function TagPage({ params }: Props) {
   const { slug, locale } = await params
+  const t = await getTranslations({ locale, namespace: 'blog' })
   const payload = await getPayload()
 
   const [tagResult, blogsResult] = await Promise.all([
     payload.find({ collection: 'tags', where: { slug: { equals: slug } }, limit: 1, locale: locale as any }),
     payload.find({
       collection: 'blogs',
-      where: {
-        status: { equals: 'published' },
-        'tags.slug': { in: [slug] },
-      },
+      where: { status: { equals: 'published' }, 'tags.slug': { in: [slug] } },
       sort: '-publishedAt',
-      depth: 2,
+      depth: 1,
       limit: 50,
       locale: locale as any,
     }),
@@ -66,32 +65,40 @@ export default async function TagPage({ params }: Props) {
   const blogs = blogsResult.docs as any[]
 
   return (
-    <main className="min-h-screen bg-white dark:bg-zinc-950">
-      <section className="border-b border-zinc-200 dark:border-zinc-800 py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-2 uppercase tracking-widest">Tag</p>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+    <main>
+      {/* Header */}
+      <section style={{ borderBottom: '1px solid var(--border-subtle)', padding: '48px 24px 40px' }}>
+        <div style={{ maxWidth: 1024, margin: '0 auto' }}>
+          <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-tertiary)', marginBottom: 8 }}>
+            Tag
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+            <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 590, letterSpacing: '-0.8px', color: 'var(--text-primary)' }}>
               #{tag.name}
             </h1>
             <TagBadge name={tag.name} slug={tag.slug} color={tag.color} static />
           </div>
           {tag.description && (
-            <p className="text-zinc-500 dark:text-zinc-400 max-w-xl">{tag.description}</p>
+            <p style={{ fontSize: 15, color: 'var(--text-secondary)', maxWidth: 560 }}>{tag.description}</p>
           )}
-          <p className="mt-3 text-sm text-zinc-400 dark:text-zinc-500">
-            {blogsResult.totalDocs} post{blogsResult.totalDocs !== 1 ? 's' : ''}
+          <p style={{ marginTop: 12, fontSize: 13, color: 'var(--text-tertiary)' }}>
+            {blogsResult.totalDocs} {blogsResult.totalDocs !== 1 ? t('posts') : t('post')}
           </p>
         </div>
       </section>
 
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10">
+      {/* Content */}
+      <div style={{ maxWidth: 1024, margin: '0 auto', padding: '40px 24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 40 }} className="blog-layout">
+          <style>{`@media (min-width: 1024px) { .blog-layout { grid-template-columns: 1fr 260px !important; } }`}</style>
+
           <section>
             {blogs.length === 0 ? (
-              <p className="text-zinc-500 dark:text-zinc-400 py-12 text-center">No posts with this tag yet.</p>
+              <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '48px 0', fontSize: 15 }}>
+                {t('noPostsFound')}
+              </p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
                 {blogs.map((blog) => (
                   <BlogCard
                     key={blog.id}

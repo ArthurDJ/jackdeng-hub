@@ -18,9 +18,6 @@ interface SidebarProps {
   activeTag?: string
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
 
 function SidebarHeading({ children }: { children: React.ReactNode }) {
   return (
@@ -37,7 +34,8 @@ function SidebarHeading({ children }: { children: React.ReactNode }) {
   )
 }
 
-export function Sidebar({ categories = [], tags = [], recentPosts = [], archives = [], activeCategory, activeTag }: SidebarProps) {
+export async function Sidebar({ categories = [], tags = [], recentPosts = [], archives = [], activeCategory, activeTag }: SidebarProps) {
+  const locale = await getLocale()
   return (
     <aside style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
 
@@ -126,7 +124,7 @@ export function Sidebar({ categories = [], tags = [], recentPosts = [], archives
                       </p>
                       {post.publishedAt && (
                         <time style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
-                          {formatDate(post.publishedAt)}
+                          {formatDate(post.publishedAt, locale)}
                         </time>
                       )}
                     </div>

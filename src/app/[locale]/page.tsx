@@ -75,7 +75,6 @@ export default async function HomePage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'home' })
   const tFooter = await getTranslations({ locale, namespace: 'footer' })
   const tCommon = await getTranslations({ locale, namespace: 'common' })
-  const tCommon = await getTranslations({ locale, namespace: 'common' })
 
   const payload = await getPayload()
 

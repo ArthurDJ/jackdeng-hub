@@ -72,11 +72,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', {
-    year: 'numeric', month: 'long', day: 'numeric',
-  })
-}
 
 export default async function BlogDetailPage({ params }: Props) {
   const { slug, locale } = await params

@@ -261,3 +261,17 @@ Ensure the translation JSON uses XML tags instead of curly braces for `t.rich` e
 1. **Sync Schema**: Ran `npm run migrate` (pointing to production `DATABASE_URI`) to push Payload schema changes (locales, rels) to Supabase.
 2. **Secure Database (RLS)**: Executed a PostgreSQL script in Supabase to enable RLS on all `public` tables *without* adding policies (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`). This acts as a "Deny All" for the Supabase REST API, closing the security loophole while allowing Payload's backend (which uses a privileged connection) to function normally.
 3. **Data Hydration**: Opened existing posts in Payload Admin (`/admin`) and clicked "Save" to force data to be written into the newly created `_locales` tables, resolving the 500 null pointer exceptions.
+
+## 5. UI Glitches & 404s on Localized Blog Pages (v0.9.5)
+**Issue:**
+1. Dual Navbars appeared on the blog listing and blog detail pages.
+2. In dark mode, tags with very dark brand colors (like Next.js `#000000`) became illegible because the font color inherited the dark hex.
+3. Accessing a specific blog post (e.g., `/en/blog/my-post`) resulted in a 404 Not Found error despite the post existing.
+**Root Cause:**
+- *Navbar*: `<Navbar />` was accidentally left in the page components after it had been moved to the shared `blog/layout.tsx`.
+- *Contrast*: The `TagBadge` component strictly applied the hex color to text without checking the relative luminance against the user's active theme (dark mode).
+- *Routing*: The Payload `find()` query inside `blog/[slug]/page.tsx` was missing the `locale` parameter. In Payload 3.0 with localization enabled, if `locale` is not passed, the API may default to 'all' or fail to match localized slugs correctly depending on the schema structure.
+**Fix:**
+1. Removed `<Navbar />` calls from `src/app/[locale]/blog/page.tsx` and `src/app/[locale]/blog/[slug]/page.tsx`.
+2. Updated `TagBadge` to calculate RGB luminance. If the color is very dark (`r<50, g<50, b<50`), it now falls back to `text-zinc-800 dark:text-zinc-300` instead of forcing the hex.
+3. Injected `locale: locale as any` into the Payload query parameters within `generateMetadata` and the main `BlogDetailPage` component.

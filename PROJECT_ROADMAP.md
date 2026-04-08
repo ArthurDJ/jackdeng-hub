@@ -103,7 +103,7 @@
 | ~~middleware → proxy 重命名~~ | ~~🔴 高~~ | ~~✅ 已修复 v0.9.2~~ |
 | ~~locale 查询 500 崩溃~~ | ~~🔴 高~~ | ~~✅ 已修复 v0.9.2~~ |
 | ~~t.rich() XML 格式问题~~ | ~~🔴 高~~ | ~~✅ 已修复 v0.9.4 — 首页/About 500 根本原因~~ |
-| TagBadge/CategoryBadge 样式 | 🟡 中 | 残留 zinc-* 类，与设计系统不一致 |
+| ~~TagBadge 样式深色对比度~~ | ~~🟡 中~~ | ~~✅ 已修复深色背景文字可读性~~ |
 | LexicalRenderer prose | 🟡 中 | 文章正文排版未使用 Geist + token |
 | CommandPalette 样式 | 🟡 中 | 搜索弹窗未适配新设计系统 |
 

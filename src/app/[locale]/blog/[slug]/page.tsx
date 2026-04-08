@@ -115,9 +115,8 @@ export default async function BlogDetailPage({ params }: Props) {
           <article>
             {/* Breadcrumb */}
             <nav style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-tertiary)', marginBottom: 24 }}>
-              <Link href="/blog" style={{ color: 'var(--text-tertiary)', textDecoration: 'none', transition: 'color 150ms' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent-primary)' }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-tertiary)' }}
+              <Link href="/blog" className="ds-breadcrumb"
+                style={{ color: 'var(--text-tertiary)', textDecoration: 'none' }}
               >
                 Blog
               </Link>
@@ -125,9 +124,8 @@ export default async function BlogDetailPage({ params }: Props) {
                 <>
                   <span style={{ opacity: 0.4 }}>/</span>
                   <Link href={`/blog/category/${category.slug}`}
-                    style={{ color: 'var(--text-tertiary)', textDecoration: 'none', transition: 'color 150ms' }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent-primary)' }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-tertiary)' }}
+                    className="ds-breadcrumb"
+                    style={{ color: 'var(--text-tertiary)', textDecoration: 'none' }}
                   >
                     {category.name}
                   </Link>

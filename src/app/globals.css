@@ -165,6 +165,41 @@
     font-family: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
   }
 
+  /* ── CSS-only hover utilities (safe in Server Components) ── */
+  .ds-card-hover,
+  .ds-accent-btn,
+  .ds-ghost-btn,
+  .ds-link-pill,
+  .ds-breadcrumb,
+  .ds-logo {
+    transition:
+      border-color var(--duration-base) var(--ease-default),
+      background-color var(--duration-base) var(--ease-default),
+      color var(--duration-base) var(--ease-default),
+      transform var(--duration-base) var(--ease-default),
+      opacity var(--duration-base) var(--ease-default);
+  }
+  .ds-card-hover:hover {
+    border-color: var(--border-strong);
+    background-color: var(--bg-elevated);
+  }
+  .ds-accent-btn:hover {
+    background-color: var(--accent-hover);
+    transform: scale(1.03);
+  }
+  .ds-ghost-btn:hover {
+    background-color: var(--bg-elevated);
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+  }
+  .ds-link-pill:hover {
+    border-color: var(--border-strong);
+    background-color: var(--bg-elevated);
+    color: var(--text-primary);
+  }
+  .ds-breadcrumb:hover { color: var(--accent-primary); }
+  .ds-logo:hover       { opacity: 0.7; }
+
   /* Cards — rounded-xl (12px) per DESIGN.md §4 */
   .card {
     background-color: var(--bg-panel);

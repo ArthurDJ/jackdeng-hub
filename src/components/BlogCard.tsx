@@ -35,6 +35,7 @@ export function BlogCard({ title, slug, excerpt, coverImage, category, tags = []
 
   return (
     <article
+      className="ds-card-hover"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -42,17 +43,6 @@ export function BlogCard({ title, slug, excerpt, coverImage, category, tags = []
         border: '1px solid var(--border-default)',
         borderRadius: 12,
         overflow: 'hidden',
-        transition: 'border-color 150ms, background 150ms',
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget as HTMLElement
-        el.style.borderColor = 'var(--border-strong)'
-        el.style.background = 'var(--bg-elevated)'
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget as HTMLElement
-        el.style.borderColor = 'var(--border-default)'
-        el.style.background = 'var(--bg-panel)'
       }}
     >
       {/* Cover */}

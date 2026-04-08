@@ -237,6 +237,7 @@ export default async function AboutPage({ params }: Props) {
               <a
                 key={label}
                 href={href}
+                className="ds-link-pill"
                 target={href.startsWith('http') ? '_blank' : undefined}
                 rel={href.startsWith('http') ? 'noreferrer' : undefined}
                 style={{
@@ -251,19 +252,6 @@ export default async function AboutPage({ params }: Props) {
                   fontSize: 13,
                   fontWeight: 510,
                   textDecoration: 'none',
-                  transition: 'border-color 150ms, color 150ms, background 150ms',
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLAnchorElement
-                  el.style.borderColor = 'var(--border-strong)'
-                  el.style.color = 'var(--text-primary)'
-                  el.style.background = 'var(--bg-elevated)'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLAnchorElement
-                  el.style.borderColor = 'var(--border-default)'
-                  el.style.color = 'var(--text-secondary)'
-                  el.style.background = 'transparent'
                 }}
               >
                 {ICON_MAP[icon]}
@@ -290,6 +278,7 @@ export default async function AboutPage({ params }: Props) {
           </p>
           <a
             href="mailto:hello@jackdeng.cc"
+            className="ds-accent-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -301,17 +290,6 @@ export default async function AboutPage({ params }: Props) {
               fontSize: 14,
               fontWeight: 500,
               textDecoration: 'none',
-              transition: 'background 150ms, transform 150ms',
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLAnchorElement
-              el.style.background = 'var(--accent-hover)'
-              el.style.transform = 'scale(1.03)'
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLAnchorElement
-              el.style.background = 'var(--accent-primary)'
-              el.style.transform = 'scale(1)'
             }}
           >
             {t('ctaBtn')}

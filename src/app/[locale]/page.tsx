@@ -170,6 +170,7 @@ export default async function HomePage({ params }: Props) {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/blog"
+                className="ds-accent-btn"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -181,23 +182,13 @@ export default async function HomePage({ params }: Props) {
                   fontSize: 14,
                   fontWeight: 500,
                   textDecoration: 'none',
-                  transition: `background var(--duration-base) var(--ease-default), transform var(--duration-base)`,
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLAnchorElement
-                  el.style.background = 'var(--accent-hover)'
-                  el.style.transform = 'scale(1.03)'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLAnchorElement
-                  el.style.background = 'var(--accent-primary)'
-                  el.style.transform = 'scale(1)'
                 }}
               >
                 {t('ctaBlog')}
               </Link>
               <Link
                 href="/about"
+                className="ds-ghost-btn"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -210,10 +201,7 @@ export default async function HomePage({ params }: Props) {
                   fontSize: 14,
                   fontWeight: 500,
                   textDecoration: 'none',
-                  transition: `background var(--duration-base) var(--ease-default)`,
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--bg-elevated)' }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
               >
                 {t('ctaAbout')}
               </Link>
@@ -237,23 +225,13 @@ export default async function HomePage({ params }: Props) {
             {TECH_STACK.map((tech) => (
               <div
                 key={tech.name}
+                className="ds-card-hover"
                 style={{
                   background: 'var(--bg-panel)',
                   border: '1px solid var(--border-default)',
                   borderRadius: 12,
                   padding: '20px 20px 18px',
-                  transition: `border-color var(--duration-base) var(--ease-default), background var(--duration-base) var(--ease-default)`,
                   cursor: 'default',
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLDivElement
-                  el.style.borderColor = 'var(--border-strong)'
-                  el.style.background = 'var(--bg-elevated)'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLDivElement
-                  el.style.borderColor = 'var(--border-default)'
-                  el.style.background = 'var(--bg-panel)'
                 }}
               >
                 <div className="mb-3">{tech.icon}</div>
@@ -391,6 +369,7 @@ function ProjectCard({ project, t }: { project: any; t: any }) {
 
   return (
     <div
+      className="ds-card-hover"
       style={{
         background: 'var(--bg-panel)',
         border: '1px solid var(--border-default)',
@@ -399,17 +378,6 @@ function ProjectCard({ project, t }: { project: any; t: any }) {
         display: 'flex',
         flexDirection: 'column',
         gap: 10,
-        transition: `border-color var(--duration-base) var(--ease-default), background var(--duration-base) var(--ease-default)`,
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget as HTMLDivElement
-        el.style.borderColor = 'var(--border-strong)'
-        el.style.background = 'var(--bg-elevated)'
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget as HTMLDivElement
-        el.style.borderColor = 'var(--border-default)'
-        el.style.background = 'var(--bg-panel)'
       }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>

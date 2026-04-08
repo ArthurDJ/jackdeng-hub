@@ -98,8 +98,8 @@
 
 | 项目 | 优先级 | 说明 |
 |------|--------|------|
-| `blogs_locales` DB 迁移 | 🔴 高 | 本地执行 `npx payload migrate`（生产 DATABASE_URI）|
-| Vercel 添加 Turnstile env vars | 🔴 高 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` |
+| ~~`blogs_locales` DB 迁移~~ | ~~🔴 高~~ | ~~✅ 已修复 (2026-04-08)~~ |
+| ~~Vercel 添加 Turnstile env vars~~ | ~~🔴 高~~ | ~~✅ 已配置~~ |
 | ~~middleware → proxy 重命名~~ | ~~🔴 高~~ | ~~✅ 已修复 v0.9.2~~ |
 | ~~locale 查询 500 崩溃~~ | ~~🔴 高~~ | ~~✅ 已修复 v0.9.2~~ |
 | ~~t.rich() XML 格式问题~~ | ~~🔴 高~~ | ~~✅ 已修复 v0.9.4 — 首页/About 500 根本原因~~ |

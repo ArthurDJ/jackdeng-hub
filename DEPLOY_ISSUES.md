@@ -249,3 +249,15 @@ Ensure the translation JSON uses XML tags instead of curly braces for `t.rich` e
 *Wrong (`en.json`):* `"bio": "I use {netsuite}"`
 *Correct (`en.json`):* `"bio": "I use <netsuite>NetSuite</netsuite>"`
 *Corresponding React code:* `{t.rich('bio', { netsuite: (c) => <span className="font-bold">{c}</span> })}`
+
+## 4. Supabase RLS Warnings & Blank Blog Pages (Data Vacuum)
+**Issue:**
+1. Supabase database linter reported high-risk errors: `RLS Disabled in Public` for all Payload-managed tables.
+2. Blog frontend pages returned HTTP 500, and recent post sidebars rendered blank titles/dates.
+**Root Cause:**
+- Payload CMS operates auth at the Node.js layer and bypasses RLS using the `postgres` superuser connection string. However, Supabase auto-exposes the `public` schema via PostgREST, leaving data vulnerable if RLS is off.
+- The blank pages/500 errors were caused by migration lag. The new `blogs_locales` table for `next-intl` was missing or empty in production.
+**Fix:**
+1. **Sync Schema**: Ran `npm run migrate` (pointing to production `DATABASE_URI`) to push Payload schema changes (locales, rels) to Supabase.
+2. **Secure Database (RLS)**: Executed a PostgreSQL script in Supabase to enable RLS on all `public` tables *without* adding policies (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`). This acts as a "Deny All" for the Supabase REST API, closing the security loophole while allowing Payload's backend (which uses a privileged connection) to function normally.
+3. **Data Hydration**: Opened existing posts in Payload Admin (`/admin`) and clicked "Save" to force data to be written into the newly created `_locales` tables, resolving the 500 null pointer exceptions.

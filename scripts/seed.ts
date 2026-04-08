@@ -5,10 +5,11 @@ dotenvConfig({ path: '.env.local' })
 import { getPayload } from 'payload'
 import configPromise from '../src/payload.config'
 
-const createParagraph = (text: string) => ({
+const createParagraph = (text: string): any => ({
   root: {
     type: 'root',
     format: '',
+    direction: 'ltr' as const,
     indent: 0,
     version: 1,
     children: [

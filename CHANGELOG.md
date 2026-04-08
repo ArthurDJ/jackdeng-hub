@@ -6,6 +6,41 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.9.2] — 2026-04-08
+
+### Fixed — 3 项生产环境错误修复
+
+#### 1. `middleware.ts` → `proxy.ts`（Next.js 16 Breaking Change）
+- Next.js 16 废弃了 `middleware` 文件约定，要求改用 `proxy`
+- 旧文件保留时中间件**静默失效**，`next-intl` 路由中间件不运行
+- 结果：`/` 不再重定向至 `/en` / `/zh`，所有 locale 路由失效
+- 修复：`src/middleware.ts` → `src/proxy.ts`（内容不变）
+
+#### 2. 首页 + 博客列表：locale 查询 `.catch()` 保护
+- `blogs_locales` 表在执行 `npx payload migrate` 之前不存在
+- `payload.find({ locale })` 触发 SQL 查询该表 → 抛出未捕获异常 → 500 "A server error occurred"
+- 修复：为所有带 `locale` 参数的 `payload.find()` 加 `.catch(() => ({ docs: [] }))`
+- 效果：迁移执行前页面正常渲染（博客区块为空），不再崩溃
+
+#### 3. About 页：`force-static` → `generateStaticParams()`
+- `[locale]` 动态路由段下使用 `force-static` 但缺少 `generateStaticParams`
+- Next.js 16 下产生构建/运行时冲突，导致 `/en/about` 和 `/zh/about` 报错
+- 修复：替换为 `generateStaticParams()` 显式返回 `[{ locale: 'en' }, { locale: 'zh' }]`
+
+### Added
+
+#### Vercel Speed Insights（merge PR vercel-bot）
+- 安装 `@vercel/speed-insights@2.0.0`
+- `[locale]/layout.tsx` 注入 `<SpeedInsights />` 组件
+- 部署后自动在 Vercel Dashboard → Speed Insights 收集 Core Web Vitals
+
+#### Cloudflare Turnstile 配置
+- `.env.example`：新建，记录所有环境变量（含 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` sitekey）
+- `.env.local`（本地，不提交）：写入 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY`
+- Vercel 生产环境需手动添加两个变量后评论防护全部激活
+
+---
+
 ## [0.9.1] — 2026-04-07
 
 ### Added — Geist 字体 + 全站页面设计系统对齐

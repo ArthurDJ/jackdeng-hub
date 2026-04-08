@@ -24,6 +24,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.0",
+    "geist": "^1.7.0",
     "graphql": "^16.13.2",
     "lucide-react": "^1.7.0",
     "next": "^16.2.2",

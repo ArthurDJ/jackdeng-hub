@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { BlogCard } from '@/components/BlogCard'
+import { Navbar } from '@/components/Navbar'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
 
@@ -33,21 +34,38 @@ export default async function BlogListPage({ params }: Props) {
   const blogs = blogsResult.docs as any[]
 
   return (
-    <main>
-      <section className="border-b border-zinc-200 dark:border-zinc-800 py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">{t('title')}</h1>
-          <p className="mt-2 text-zinc-500 dark:text-zinc-400">{t('subtitle')}</p>
+    <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Navbar />
+
+      {/* Page header */}
+      <section style={{ borderBottom: '1px solid var(--border-subtle)', padding: '48px 24px 40px' }}>
+        <div style={{ maxWidth: 1024, margin: '0 auto' }}>
+          <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 590, letterSpacing: '-0.8px', color: 'var(--text-primary)', marginBottom: 8 }}>
+            {t('title')}
+          </h1>
+          <p style={{ fontSize: 15, color: 'var(--text-tertiary)', fontWeight: 400 }}>
+            {t('subtitle')}
+          </p>
         </div>
       </section>
 
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10">
+      {/* Content */}
+      <div style={{ maxWidth: 1024, margin: '0 auto', padding: '40px 24px', flex: 1, width: '100%' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 40 }} className="blog-layout">
+          <style>{`
+            @media (min-width: 1024px) {
+              .blog-layout { grid-template-columns: 1fr 260px !important; }
+            }
+          `}</style>
+
+          {/* Posts grid */}
           <section>
             {blogs.length === 0 ? (
-              <p className="text-zinc-500 dark:text-zinc-400 py-12 text-center">{t('noPostsFound')}</p>
+              <div style={{ textAlign: 'center', padding: '64px 0' }}>
+                <p style={{ fontSize: 15, color: 'var(--text-tertiary)' }}>{t('noPostsFound')}</p>
+              </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
                 {blogs.map((blog) => (
                   <BlogCard
                     key={blog.id}
@@ -64,9 +82,10 @@ export default async function BlogListPage({ params }: Props) {
               </div>
             )}
           </section>
+
           <Sidebar {...sidebar} />
         </div>
       </div>
-    </main>
+    </div>
   )
 }

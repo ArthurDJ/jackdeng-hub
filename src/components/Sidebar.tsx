@@ -2,9 +2,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { TagBadge } from './TagBadge'
 
-interface Category { id: string; name: string; slug: string; _count?: number }
-interface Tag { id: string; name: string; slug: string; color: string }
-interface RecentPost { title: string; slug: string; publishedAt?: string | null; coverImage?: { url?: string; sizes?: { thumbnail?: { url?: string } }; alt?: string } | null }
+interface Category    { id: string; name: string; slug: string; _count?: number }
+interface Tag         { id: string; name: string; slug: string; color: string }
+interface RecentPost  { title: string; slug: string; publishedAt?: string | null; coverImage?: { url?: string; sizes?: { thumbnail?: { url?: string } }; alt?: string } | null }
 interface ArchiveEntry { year: number; month: number; label: string; count: number }
 
 interface SidebarProps {
@@ -20,32 +20,60 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
+function SidebarHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{
+      fontSize: 11,
+      fontWeight: 510,
+      letterSpacing: '0.1em',
+      textTransform: 'uppercase',
+      color: 'var(--text-tertiary)',
+      marginBottom: 12,
+    }}>
+      {children}
+    </p>
+  )
+}
+
 export function Sidebar({ categories = [], tags = [], recentPosts = [], archives = [], activeCategory, activeTag }: SidebarProps) {
   return (
-    <aside className="flex flex-col gap-8">
+    <aside style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
 
       {/* Categories */}
       {categories.length > 0 && (
         <section>
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-3">Categories</h3>
-          <ul className="space-y-1">
-            {categories.map((cat) => (
-              <li key={cat.id}>
-                <Link
-                  href={`/blog/category/${cat.slug}`}
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
-                    activeCategory === cat.slug
-                      ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-medium'
-                      : 'hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
-                  }`}
-                >
-                  <span>{cat.name}</span>
-                  {cat._count != null && (
-                    <span className="text-xs text-zinc-400 dark:text-zinc-500 tabular-nums">{cat._count}</span>
-                  )}
-                </Link>
-              </li>
-            ))}
+          <SidebarHeading>Categories</SidebarHeading>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+            {categories.map((cat) => {
+              const isActive = activeCategory === cat.slug
+              return (
+                <li key={cat.id}>
+                  <Link
+                    href={`/blog/category/${cat.slug}`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '6px 10px',
+                      borderRadius: 6,
+                      fontSize: 13,
+                      fontWeight: isActive ? 510 : 400,
+                      color: isActive ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                      background: isActive ? 'var(--accent-subtle)' : 'transparent',
+                      textDecoration: 'none',
+                      transition: 'background 150ms, color 150ms',
+                    }}
+                  >
+                    <span>{cat.name}</span>
+                    {cat._count != null && (
+                      <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+                        {cat._count}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
         </section>
       )}
@@ -53,10 +81,10 @@ export function Sidebar({ categories = [], tags = [], recentPosts = [], archives
       {/* Tags */}
       {tags.length > 0 && (
         <section>
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-3">Tags</h3>
-          <div className="flex flex-wrap gap-2">
+          <SidebarHeading>Tags</SidebarHeading>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {tags.map((tag) => (
-              <div key={tag.id} className={activeTag === tag.slug ? 'ring-2 ring-offset-1 ring-blue-400 rounded-full' : ''}>
+              <div key={tag.id} style={activeTag === tag.slug ? { outline: '2px solid var(--accent-primary)', outlineOffset: 2, borderRadius: 9999 } : {}}>
                 <TagBadge name={tag.name} slug={tag.slug} color={tag.color} />
               </div>
             ))}
@@ -67,26 +95,37 @@ export function Sidebar({ categories = [], tags = [], recentPosts = [], archives
       {/* Recent Posts */}
       {recentPosts.length > 0 && (
         <section>
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-3">Recent Posts</h3>
-          <ul className="space-y-3">
+          <SidebarHeading>Recent Posts</SidebarHeading>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {recentPosts.map((post) => {
               const thumb = post.coverImage?.sizes?.thumbnail?.url ?? post.coverImage?.url
               return (
                 <li key={post.slug}>
-                  <Link href={`/blog/${post.slug}`} className="flex items-center gap-3 group">
+                  <Link href={`/blog/${post.slug}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
                     {thumb ? (
-                      <div className="relative w-14 h-10 flex-shrink-0 rounded overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                        <Image src={thumb} alt={post.coverImage?.alt ?? post.title} fill className="object-cover" sizes="56px" />
+                      <div style={{ position: 'relative', width: 48, height: 34, flexShrink: 0, borderRadius: 6, overflow: 'hidden', background: 'var(--bg-elevated)' }}>
+                        <Image src={thumb} alt={post.coverImage?.alt ?? post.title} fill className="object-cover" sizes="48px" />
                       </div>
                     ) : (
-                      <div className="w-14 h-10 flex-shrink-0 rounded bg-zinc-100 dark:bg-zinc-800" />
+                      <div style={{ width: 48, height: 34, flexShrink: 0, borderRadius: 6, background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }} />
                     )}
-                    <div className="min-w-0">
-                      <p className="text-sm text-zinc-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{
+                        fontSize: 13,
+                        fontWeight: 400,
+                        color: 'var(--text-secondary)',
+                        lineHeight: 1.4,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}>
                         {post.title}
                       </p>
                       {post.publishedAt && (
-                        <time className="text-xs text-zinc-400 dark:text-zinc-500">{formatDate(post.publishedAt)}</time>
+                        <time style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+                          {formatDate(post.publishedAt)}
+                        </time>
                       )}
                     </div>
                   </Link>
@@ -100,16 +139,28 @@ export function Sidebar({ categories = [], tags = [], recentPosts = [], archives
       {/* Archive */}
       {archives.length > 0 && (
         <section>
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-3">Archive</h3>
-          <ul className="space-y-1">
+          <SidebarHeading>Archive</SidebarHeading>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
             {archives.map((entry) => (
               <li key={`${entry.year}-${entry.month}`}>
                 <Link
                   href={`/blog/archive?year=${entry.year}&month=${entry.month}`}
-                  className="flex items-center justify-between px-3 py-1.5 rounded-lg text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '6px 10px',
+                    borderRadius: 6,
+                    fontSize: 13,
+                    color: 'var(--text-secondary)',
+                    textDecoration: 'none',
+                    transition: 'background 150ms, color 150ms',
+                  }}
                 >
                   <span>{entry.label}</span>
-                  <span className="text-xs text-zinc-400 dark:text-zinc-500 tabular-nums">{entry.count}</span>
+                  <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+                    {entry.count}
+                  </span>
                 </Link>
               </li>
             ))}

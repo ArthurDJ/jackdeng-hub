@@ -80,15 +80,15 @@
 
   "about": {
     "title": "Jack Deng",
-    "subtitle": "Software Engineer · Builder · Writer",
-    "bio1": "Hi, I'm Jack — a software engineer based in Australia who loves building things end-to-end. I'm particularly drawn to the intersection of great developer experience and delightful user interfaces.",
-    "bio2": "This site is my public workspace: a place for writing, experiments, and tools I build for fun or productivity. It runs on {nextjs} + {payload} with a PostgreSQL backend, self-hosted on {supabase}.",
-    "bio3": "When I'm not at a keyboard I'm probably reading, hiking, or figuring out why the coffee tastes different today.",
-    "skillsHeading": "Skills",
-    "experienceHeading": "Experience & Education",
+    "subtitle": "Senior Database & Integration Administrator",
+    "bio1": "Hi, I'm Jack — a database and integration specialist based in Australia, focused on designing reliable enterprise data systems. I bridge business operations and technical infrastructure through clean integrations and governed data pipelines.",
+    "bio2": "This site is my public workspace: engineering notes, integration patterns, and tools I build along the way. It runs on {nextjs} + {payload} with a {supabase} PostgreSQL backend.",
+    "bio3": "Outside of work I'm probably debugging a flow, reading systems-design docs, or figuring out why the ETL ran 3 seconds slower than yesterday.",
+    "skillsHeading": "Skills & Stack",
+    "experienceHeading": "Experience",
     "findMeHeading": "Find me online",
-    "ctaText": "Interested in working together or just want to say hi?",
-    "ctaBtn": "Send me a message",
+    "ctaText": "Interested in working together or have an integration challenge?",
+    "ctaBtn": "Get in touch",
     "ctaBlogLinkText": "writing lately →",
     "ctaBlogNote": "Or read what I've been {link}."
   },

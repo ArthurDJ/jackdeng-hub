@@ -17,91 +17,178 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const SKILLS = [
-  { group: 'Languages',      items: ['TypeScript', 'Python', 'Go', 'SQL'] },
-  { group: 'Frontend',       items: ['React', 'Next.js', 'Tailwind CSS', 'Framer Motion'] },
-  { group: 'Backend',        items: ['Node.js', 'Payload CMS', 'PostgreSQL', 'Redis'] },
-  { group: 'Infra / DevOps', items: ['Docker', 'Supabase', 'Vercel', 'GitHub Actions'] },
+  { group: 'Database',     items: ['PostgreSQL', 'NetSuite', 'SQL Server', 'Supabase'] },
+  { group: 'Integration',  items: ['Boomi', 'REST APIs', 'EDI / SFTP', 'Webhooks'] },
+  { group: 'Development',  items: ['TypeScript', 'Python', 'Node.js', 'Next.js'] },
+  { group: 'Tools',        items: ['Docker', 'Vercel', 'GitHub Actions', 'CI/CD'] },
 ]
 
 const TIMELINE = [
   {
-    year: '2024 – present',
-    role: { en: 'Full-Stack Engineer', zh: '全栈工程师' },
-    place: 'Independent',
+    year: '2023 – present',
+    role: { en: 'Senior Database & Integration Administrator', zh: '高级数据库与集成管理员' },
+    place: 'Value Wholesaler',
     desc: {
-      en: 'Building jackdeng.cc — a personal platform combining a CMS-backed blog, tooling layer, and public portfolio.',
-      zh: '构建 jackdeng.cc — 一个集 CMS 博客、工具层与个人作品集于一体的个人平台。',
+      en: 'Owns the NetSuite ERP data layer and Boomi integration platform. Designs and maintains pipelines that keep inventory, finance, and fulfillment systems in sync across the business.',
+      zh: '负责 NetSuite ERP 数据层与 Boomi 集成平台，设计并维护保持库存、财务和履约系统同步的数据管道。',
     },
   },
   {
-    year: '2022 – 2024',
-    role: { en: 'Software Engineer', zh: '软件工程师' },
+    year: '2021 – 2023',
+    role: { en: 'Database Administrator', zh: '数据库管理员' },
     place: 'Previous Role',
     desc: {
-      en: 'Designed and shipped internal tooling, data pipelines, and customer-facing features at scale.',
-      zh: '设计并交付内部工具、数据管道及规模化面向用户的功能。',
+      en: 'Managed PostgreSQL and SQL Server instances at scale. Designed ETL pipelines, implemented data governance policies, and reduced query latency by 40%.',
+      zh: '管理规模化的 PostgreSQL 和 SQL Server 实例，设计 ETL 管道，落地数据治理策略，查询延迟降低 40%。',
     },
   },
   {
-    year: '2018 – 2022',
-    role: { en: 'Computer Science', zh: '计算机科学' },
+    year: '2017 – 2021',
+    role: { en: 'Information Technology', zh: '信息技术' },
     place: 'University',
     desc: {
-      en: 'Bachelor of Computer Science. Focused on distributed systems and algorithms.',
-      zh: '计算机科学学士，专注于分布式系统与算法。',
+      en: 'Bachelor of Information Technology. Majored in database systems and enterprise architecture.',
+      zh: '信息技术学士，主修数据库系统与企业架构。',
     },
   },
 ]
 
 const LINKS = [
-  { label: 'GitHub',   href: 'https://github.com/ArthurDJ' },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/jackdeng' },
-  { label: 'Email',    href: 'mailto:hello@jackdeng.cc' },
+  { label: 'GitHub',    href: 'https://github.com/ArthurDJ', icon: 'github' },
+  { label: 'LinkedIn',  href: 'https://linkedin.com/in/jackdeng', icon: 'linkedin' },
+  { label: 'Email',     href: 'mailto:hello@jackdeng.cc', icon: 'email' },
 ]
+
+/* ── inline icon helpers ── */
+function GithubIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+    </svg>
+  )
+}
+function LinkedInIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+    </svg>
+  )
+}
+function EmailIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+      <polyline points="22,6 12,13 2,6"/>
+    </svg>
+  )
+}
+
+const ICON_MAP: Record<string, React.ReactNode> = {
+  github: <GithubIcon />,
+  linkedin: <LinkedInIcon />,
+  email: <EmailIcon />,
+}
+
+/* ── section heading helper ── */
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{
+      fontSize: 11,
+      fontWeight: 510,
+      letterSpacing: '0.1em',
+      textTransform: 'uppercase',
+      color: 'var(--text-tertiary)',
+      marginBottom: 20,
+    }}>
+      {children}
+    </p>
+  )
+}
 
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'about' })
   const tFooter = await getTranslations({ locale, namespace: 'footer' })
+  const tCommon = await getTranslations({ locale, namespace: 'common' })
   const lang = locale as 'en' | 'zh'
 
   return (
-    <>
+    <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
-      <main className="max-w-3xl mx-auto px-4 py-16 space-y-16">
 
-        {/* Bio */}
-        <section className="space-y-5">
-          <div className="flex items-start justify-between gap-6">
-            <div className="space-y-1">
-              <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">{t('title')}</h1>
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm">{t('subtitle')}</p>
+      <main style={{ flex: 1, maxWidth: 720, margin: '0 auto', padding: '64px 24px', display: 'flex', flexDirection: 'column', gap: 56 }}>
+
+        {/* ── Bio ─────────────────────────────────────────────────────── */}
+        <section style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
+            <div>
+              <h1 style={{ fontSize: 28, fontWeight: 590, letterSpacing: '-0.5px', color: 'var(--text-primary)', marginBottom: 6 }}>
+                {t('title')}
+              </h1>
+              <p style={{ fontSize: 14, color: 'var(--text-tertiary)', fontWeight: 400 }}>
+                {t('subtitle')}
+              </p>
             </div>
-            <div className="w-16 h-16 rounded-full bg-zinc-200 dark:bg-zinc-700 shrink-0 flex items-center justify-center text-2xl select-none">👤</div>
+            {/* Avatar — initials */}
+            <div style={{
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              background: 'var(--accent-subtle)',
+              border: '1px solid var(--border-default)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 18,
+              fontWeight: 590,
+              color: 'var(--accent-primary)',
+              flexShrink: 0,
+              letterSpacing: '-0.5px',
+            }}>
+              JD
+            </div>
           </div>
-          <div className="space-y-3 text-zinc-600 dark:text-zinc-300 leading-relaxed text-sm">
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, color: 'var(--text-secondary)', fontSize: 15, lineHeight: 1.7 }}>
             <p>{t('bio1')}</p>
             <p>
               {t.rich('bio2', {
-                nextjs:  (c) => <a href="https://nextjs.org" target="_blank" rel="noreferrer" className="text-zinc-900 dark:text-zinc-100 underline underline-offset-2 hover:no-underline">{c}</a>,
-                payload: (c) => <a href="https://payloadcms.com" target="_blank" rel="noreferrer" className="text-zinc-900 dark:text-zinc-100 underline underline-offset-2 hover:no-underline">{c}</a>,
-                supabase:(c) => <a href="https://supabase.com" target="_blank" rel="noreferrer" className="text-zinc-900 dark:text-zinc-100 underline underline-offset-2 hover:no-underline">{c}</a>,
+                nextjs:   (c) => <a href="https://nextjs.org" target="_blank" rel="noreferrer" style={{ color: 'var(--text-primary)', textDecoration: 'underline', textUnderlineOffset: 3 }}>{c}</a>,
+                payload:  (c) => <a href="https://payloadcms.com" target="_blank" rel="noreferrer" style={{ color: 'var(--text-primary)', textDecoration: 'underline', textUnderlineOffset: 3 }}>{c}</a>,
+                supabase: (c) => <a href="https://supabase.com" target="_blank" rel="noreferrer" style={{ color: 'var(--text-primary)', textDecoration: 'underline', textUnderlineOffset: 3 }}>{c}</a>,
               })}
             </p>
             <p>{t('bio3')}</p>
           </div>
         </section>
 
-        {/* Skills */}
+        {/* ── Skills ──────────────────────────────────────────────────── */}
         <section>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{t('skills')}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <SectionLabel>{t('skillsHeading')}</SectionLabel>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
             {SKILLS.map(({ group, items }) => (
-              <div key={group} className="rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 space-y-2">
-                <p className="text-xs font-medium uppercase tracking-widest text-zinc-400 dark:text-zinc-500">{group}</p>
-                <div className="flex flex-wrap gap-1.5">
+              <div key={group} style={{
+                background: 'var(--bg-panel)',
+                border: '1px solid var(--border-default)',
+                borderRadius: 12,
+                padding: '16px 18px',
+              }}>
+                <p style={{ fontSize: 11, fontWeight: 510, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>
+                  {group}
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {items.map((item) => (
-                    <span key={item} className="text-xs px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">{item}</span>
+                    <span key={item} style={{
+                      fontSize: 12,
+                      fontWeight: 400,
+                      padding: '3px 10px',
+                      borderRadius: 9999,
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid var(--border-default)',
+                      color: 'var(--text-secondary)',
+                    }}>
+                      {item}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -109,62 +196,142 @@ export default async function AboutPage({ params }: Props) {
           </div>
         </section>
 
-        {/* Timeline */}
+        {/* ── Timeline ────────────────────────────────────────────────── */}
         <section>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{t('experience')}</h2>
-          <ol className="relative border-l border-zinc-200 dark:border-zinc-700 space-y-8 ml-2">
-            {TIMELINE.map(({ year, role, place, desc }) => (
-              <li key={year} className="ml-6">
-                <span className="absolute -left-1.5 mt-1.5 w-3 h-3 rounded-full bg-zinc-300 dark:bg-zinc-600 border-2 border-white dark:border-zinc-900" />
-                <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-0.5">{year}</p>
-                <p className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm">
-                  {role[lang]} <span className="font-normal text-zinc-500">@ {place}</span>
-                </p>
-                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{desc[lang]}</p>
+          <SectionLabel>{t('experienceHeading')}</SectionLabel>
+          <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {TIMELINE.map(({ year, role, place, desc }, i) => (
+              <li key={year} style={{ display: 'flex', gap: 20, position: 'relative', paddingBottom: i < TIMELINE.length - 1 ? 32 : 0 }}>
+                {/* Spine */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, width: 16 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-primary)', marginTop: 6, flexShrink: 0 }} />
+                  {i < TIMELINE.length - 1 && (
+                    <div style={{ width: 1, flex: 1, background: 'var(--border-default)', marginTop: 6 }} />
+                  )}
+                </div>
+                <div style={{ paddingBottom: i < TIMELINE.length - 1 ? 0 : 0 }}>
+                  <p style={{ fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 4, fontFamily: 'var(--font-geist-mono, monospace)' }}>
+                    {year}
+                  </p>
+                  <p style={{ fontSize: 14, fontWeight: 510, color: 'var(--text-primary)', marginBottom: 4 }}>
+                    {role[lang]}{' '}
+                    <span style={{ fontWeight: 400, color: 'var(--text-tertiary)' }}>@ {place}</span>
+                  </p>
+                  <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.65 }}>
+                    {desc[lang]}
+                  </p>
+                </div>
               </li>
             ))}
           </ol>
         </section>
 
-        {/* Links */}
+        {/* ── Links ───────────────────────────────────────────────────── */}
         <section>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{t('findMe')}</h2>
-          <div className="flex flex-wrap gap-3">
-            {LINKS.map(({ label, href }) => (
-              <a key={label} href={href}
+          <SectionLabel>{t('findMeHeading')}</SectionLabel>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {LINKS.map(({ label, href, icon }) => (
+              <a
+                key={label}
+                href={href}
                 target={href.startsWith('http') ? '_blank' : undefined}
                 rel={href.startsWith('http') ? 'noreferrer' : undefined}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 7,
+                  padding: '8px 16px',
+                  borderRadius: 9999,
+                  border: '1px solid var(--border-default)',
+                  background: 'transparent',
+                  color: 'var(--text-secondary)',
+                  fontSize: 13,
+                  fontWeight: 510,
+                  textDecoration: 'none',
+                  transition: 'border-color 150ms, color 150ms, background 150ms',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement
+                  el.style.borderColor = 'var(--border-strong)'
+                  el.style.color = 'var(--text-primary)'
+                  el.style.background = 'var(--bg-elevated)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement
+                  el.style.borderColor = 'var(--border-default)'
+                  el.style.color = 'var(--text-secondary)'
+                  el.style.background = 'transparent'
+                }}
+              >
+                {ICON_MAP[icon]}
                 {label}
-                {href.startsWith('http') && (
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 opacity-50">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                    <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-                  </svg>
-                )}
               </a>
             ))}
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-8 text-center space-y-4">
-          <p className="text-zinc-700 dark:text-zinc-300">{t('cta')}</p>
-          <a href="mailto:hello@jackdeng.cc"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-medium hover:opacity-85 transition-opacity">
-            {t('ctaButton')}
+        {/* ── CTA ─────────────────────────────────────────────────────── */}
+        <section style={{
+          background: 'var(--bg-panel)',
+          border: '1px solid var(--border-default)',
+          borderRadius: 12,
+          padding: '40px 32px',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 16,
+        }}>
+          <p style={{ fontSize: 15, color: 'var(--text-secondary)', maxWidth: 380 }}>
+            {t('ctaText')}
+          </p>
+          <a
+            href="mailto:hello@jackdeng.cc"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 24px',
+              borderRadius: 9999,
+              background: 'var(--accent-primary)',
+              color: '#ffffff',
+              fontSize: 14,
+              fontWeight: 500,
+              textDecoration: 'none',
+              transition: 'background 150ms, transform 150ms',
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLAnchorElement
+              el.style.background = 'var(--accent-hover)'
+              el.style.transform = 'scale(1.03)'
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLAnchorElement
+              el.style.background = 'var(--accent-primary)'
+              el.style.transform = 'scale(1)'
+            }}
+          >
+            {t('ctaBtn')}
           </a>
-          <p className="text-xs text-zinc-400 dark:text-zinc-500">
-            {t.rich('ctaNote', {
-              writing: () => <Link href="/blog" className="underline underline-offset-2 hover:no-underline">{t('ctaNoteLink')}</Link>,
+          <p style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
+            {t.rich('ctaBlogNote', {
+              link: () => (
+                <Link href="/blog" style={{ color: 'var(--accent-primary)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
+                  {t('ctaBlogLinkText')}
+                </Link>
+              ),
             })}
           </p>
         </section>
+
       </main>
 
-      <footer className="border-t border-zinc-200 dark:border-zinc-800 py-8 text-center text-xs text-zinc-400 dark:text-zinc-600">
-        © {new Date().getFullYear()} Jack Deng. {tFooter('builtWith')}
+      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '20px 24px' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-tertiary)' }}>
+          <span>{tCommon('copyright', { year: new Date().getFullYear() })}</span>
+          <span>{tFooter('builtWith')}</span>
+        </div>
       </footer>
-    </>
+    </div>
   )
 }

@@ -92,8 +92,8 @@
   body {
     background-color: var(--bg-base);
     color: var(--text-primary);
-    /* Prefer Geist if available (see DESIGN.md §2); falls back to Inter Variable */
-    font-family: var(--font-geist-sans, var(--font-inter, 'Geist', 'Inter Variable', 'Inter', system-ui, sans-serif));
+    /* Geist Sans — Vercel's font, matches DESIGN.md §2 */
+    font-family: var(--font-geist-sans, 'Geist', system-ui, sans-serif);
   }
 }
 

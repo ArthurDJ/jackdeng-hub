@@ -6,6 +6,7 @@ import { getPayload } from '@/lib/payload'
 import { TagBadge } from '@/components/TagBadge'
 import { CategoryBadge } from '@/components/CategoryBadge'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
+import { Navbar } from '@/components/Navbar'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
 import { CommentList } from '@/components/CommentList'
@@ -84,10 +85,12 @@ export default async function BlogDetailPage({ params }: Props) {
   const sidebar = await buildSidebarData({ activeCategory: category?.slug })
 
   return (
-    <main className="min-h-screen bg-white dark:bg-zinc-950">
+    <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Navbar />
+
       {/* Hero image */}
       {heroUrl && (
-        <div className="relative w-full aspect-[21/9] max-h-[520px] overflow-hidden bg-zinc-100 dark:bg-zinc-900">
+        <div style={{ position: 'relative', width: '100%', aspectRatio: '21/9', maxHeight: 480, overflow: 'hidden', background: 'var(--bg-elevated)' }}>
           <Image
             src={heroUrl}
             alt={(blog.coverImage as any)?.alt ?? blog.title}
@@ -96,21 +99,36 @@ export default async function BlogDetailPage({ params }: Props) {
             className="object-cover"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,10,0.5), transparent)' }} />
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12">
+      <div style={{ maxWidth: 1024, margin: '0 auto', padding: '40px 24px', flex: 1, width: '100%' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 48 }} className="article-layout">
+          <style>{`
+            @media (min-width: 1024px) {
+              .article-layout { grid-template-columns: 1fr 260px !important; }
+            }
+          `}</style>
+
           {/* Article */}
           <article>
             {/* Breadcrumb */}
-            <nav className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-              <Link href="/blog" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Blog</Link>
+            <nav style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-tertiary)', marginBottom: 24 }}>
+              <Link href="/blog" style={{ color: 'var(--text-tertiary)', textDecoration: 'none', transition: 'color 150ms' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent-primary)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-tertiary)' }}
+              >
+                Blog
+              </Link>
               {category && (
                 <>
-                  <span>/</span>
-                  <Link href={`/blog/category/${category.slug}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                  <span style={{ opacity: 0.4 }}>/</span>
+                  <Link href={`/blog/category/${category.slug}`}
+                    style={{ color: 'var(--text-tertiary)', textDecoration: 'none', transition: 'color 150ms' }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent-primary)' }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-tertiary)' }}
+                  >
                     {category.name}
                   </Link>
                 </>
@@ -118,25 +136,28 @@ export default async function BlogDetailPage({ params }: Props) {
             </nav>
 
             {/* Header */}
-            <header className="mb-8">
-              <div className="flex flex-wrap items-center gap-2 mb-3">
+            <header style={{ marginBottom: 40 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                 {category && <CategoryBadge name={category.name} slug={category.slug} static />}
                 {blog.publishedAt && (
-                  <time className="text-sm text-zinc-500 dark:text-zinc-400">
+                  <time style={{ fontSize: 13, color: 'var(--text-tertiary)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
                     {formatDate(blog.publishedAt)}
                   </time>
                 )}
               </div>
-              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 leading-tight">
+
+              <h1 style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 590, letterSpacing: '-0.8px', lineHeight: 1.2, color: 'var(--text-primary)', marginBottom: 16 }}>
                 {blog.title}
               </h1>
+
               {blog.excerpt && (
-                <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                <p style={{ fontSize: 17, color: 'var(--text-secondary)', lineHeight: 1.7, fontWeight: 300 }}>
                   {blog.excerpt}
                 </p>
               )}
+
               {tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 16 }}>
                   {tags.map((tag) => (
                     <TagBadge key={tag.id} name={tag.name} slug={tag.slug} color={tag.color} />
                   ))}
@@ -144,34 +165,47 @@ export default async function BlogDetailPage({ params }: Props) {
               )}
             </header>
 
-            {/* Body */}
-            <LexicalRenderer content={blog.content} />
+            {/* Divider */}
+            <div style={{ height: 1, background: 'var(--border-subtle)', marginBottom: 32 }} />
 
-            {/* Footer nav */}
-            <div className="mt-12 pt-6 border-t border-zinc-200 dark:border-zinc-800">
+            {/* Body */}
+            <div style={{ color: 'var(--text-secondary)' }}>
+              <LexicalRenderer content={blog.content} />
+            </div>
+
+            {/* Back link */}
+            <div style={{ marginTop: 48, paddingTop: 24, borderTop: '1px solid var(--border-subtle)' }}>
               <Link
                 href="/blog"
-                className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 13,
+                  fontWeight: 510,
+                  color: 'var(--accent-primary)',
+                  textDecoration: 'none',
+                }}
               >
-                ← Back to all posts
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5M12 5l-7 7 7 7"/>
+                </svg>
+                Back to all posts
               </Link>
             </div>
 
             {/* ── Comments ── */}
-            <div className="mt-16 space-y-10">
-              {/* List — server component, shows approved comments */}
+            <div style={{ marginTop: 64, display: 'flex', flexDirection: 'column', gap: 40 }}>
               <CommentList postId={blog.id} />
 
-              {/* Divider */}
-              <div className="border-t border-zinc-200 dark:border-zinc-800" />
+              <div style={{ height: 1, background: 'var(--border-subtle)' }} />
 
-              {/* Form — client component */}
               <div>
-                <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-6">
+                <h2 style={{ fontSize: 16, fontWeight: 510, color: 'var(--text-primary)', marginBottom: 24 }}>
                   Leave a comment
                 </h2>
                 <CommentForm postId={blog.id} />
-                <p className="mt-3 text-xs text-zinc-400 dark:text-zinc-500">
+                <p style={{ marginTop: 12, fontSize: 12, color: 'var(--text-tertiary)' }}>
                   Comments are reviewed before appearing. No spam, no selling your email.
                 </p>
               </div>
@@ -182,6 +216,6 @@ export default async function BlogDetailPage({ params }: Props) {
           <Sidebar {...sidebar} />
         </div>
       </div>
-    </main>
+    </div>
   )
 }

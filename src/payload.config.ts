@@ -17,6 +17,7 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export const config = buildConfig({
+  serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
   admin: {
     autoLogin: {
       email: 'dev@payloadcms.com',
@@ -28,7 +29,12 @@ export const config = buildConfig({
     {
       slug: 'users',
       auth: true,
-      fields: [],
+      fields: [
+        {
+          name: 'name',
+          type: 'text',
+        },
+      ],
     },
     Categories,
     Comments,

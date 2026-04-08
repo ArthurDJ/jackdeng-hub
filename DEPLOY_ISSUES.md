@@ -286,3 +286,11 @@ Ensure the translation JSON uses XML tags instead of curly braces for `t.rich` e
 **Fix:**
 1. Updated `generateStaticParams` in `[slug]/page.tsx`, `tag/[slug]/page.tsx`, and `category/[slug]/page.tsx` to return a cross-product of all supported locales and slugs.
 2. Refactored `TagBadge.tsx` with robust 3/6-digit hex parsing and perceivable luminance calculation (ITU-R BT.709). If a tag color is too dark, it now defaults to `inherit` (using the theme's primary text color) instead of forcing the dark hex.
+
+## 7. Media Images Not Rendering (v0.9.7)
+**Issue:**
+- Blog posts were accessible, but images (Hero images, thumbnails) failed to render on the production site.
+**Root Cause:**
+- The project uses `vercelBlobStorage` for media. While Payload handles the upload, Next.js's `<Image />` component requires an explicit `remotePatterns` configuration in `next.config.mjs` to allow external hostnames (Vercel Blob storage domains) for image optimization.
+**Fix:**
+- Added the Vercel Blob storage hostname pattern (`**.public.blob.vercel-storage.com`) to the `images.remotePatterns` array in `next.config.mjs`.

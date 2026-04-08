@@ -6,6 +6,39 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.9.4] — 2026-04-08
+
+### Fixed — `t.rich()` XML tag format → fixes HTTP 500 on homepage + about
+
+**Root cause:** `en.json` / `zh.json` used `{variable}` placeholder syntax in messages that were called via `t.rich()`. `next-intl`'s `t.rich()` requires XML-style `<tag>text</tag>` syntax for component interpolation. When `t.rich()` received a React component factory as a `{variable}` value, it embedded the function into the rendered string, causing React to throw during RSC serialisation → HTTP 500 on every page calling `t.rich()`.
+
+#### Changed in `en.json` and `zh.json`
+- `home.bio`: `{netsuite}` / `{boomi}` → `<netsuite>NetSuite</netsuite>` / `<boomi>Boomi</boomi>`
+- `about.bio2`: `{nextjs}` / `{payload}` / `{supabase}` → `<nextjs>Next.js</nextjs>` / `<payload>Payload CMS</payload>` / `<supabase>Supabase</supabase>`
+- `about.ctaBlogNote`: `{link}` → `<link>writing lately →</link>` (zh: `<link>写什么 →</link>`)
+
+#### Changed in `src/app/[locale]/about/page.tsx`
+- `ctaBlogNote` link callback updated from `() => …` to `(chunks) => …` so message content renders correctly through the tag
+
+#### Fixed in `src/app/[locale]/page.tsx`
+- Removed duplicate `const tCommon` declaration introduced by a remote hotfix commit (caused TypeScript build error)
+
+**Affected pages now resolved:** `/en`, `/zh`, `/en/about`, `/zh/about`
+
+---
+
+## [0.9.3] — 2026-04-08
+
+### Fixed — Event handlers in Server Components → HTTP 500
+
+- Removed all `onMouseEnter` / `onMouseLeave` event handler props from Server Component files (`page.tsx`, `BlogCard.tsx`, `Sidebar.tsx`, `blog/page.tsx`, `blog/[slug]/page.tsx`, `about/page.tsx`)
+- RSC payload serialisation fails silently on event handler props even though SSR HTML renders — manifests as 500 on client navigation / full page hydration
+- Replaced with CSS-only hover utilities (`.ds-card-hover`, `.ds-accent-btn`, `.ds-ghost-btn`, `.ds-link-pill`, `.ds-breadcrumb`) defined in `globals.css`
+
+**Partially resolved:** `/en/blog`, `/zh/blog` → 200 ✅ (homepage/about remained 500 until v0.9.4)
+
+---
+
 ## [0.9.2] — 2026-04-08
 
 ### Fixed — 3 项生产环境错误修复

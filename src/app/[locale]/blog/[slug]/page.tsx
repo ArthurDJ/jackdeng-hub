@@ -74,7 +74,7 @@ export default async function BlogDetailPage({ params }: Props) {
   const { docs } = await payload.find({
     collection: 'blogs',
     where: { slug: { equals: slug }, status: { equals: 'published' } },
-    depth: 2,
+    depth: 1,
     limit: 1,
     locale: locale as any,
   })

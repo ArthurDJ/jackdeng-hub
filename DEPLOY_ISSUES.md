@@ -320,3 +320,16 @@ Ensure the translation JSON uses XML tags instead of curly braces for `t.rich` e
 2. Executed against production: `echo "y" | DATABASE_URI="..." npx payload migrate` → `Migrated: 20260408_215850 (204ms)`.
 3. Committed migration files (`20260408_215850.ts`, `.json`, updated `index.ts`, `payload-types.ts`) and pushed to trigger Vercel redeploy.
 **Lesson:** When adding fields to existing Payload collections, always run `npx payload migrate:create` immediately and include the generated migration file in the same commit as the schema change.
+
+## 10. Slow Page Load — Unoptimized DB Queries & No Caching (v0.9.9)
+**Issue:**
+- All pages with sidebar experienced slow load times.
+- No data caching in place; every request re-ran all DB queries.
+**Root Cause:**
+1. `sidebarData.ts` made 4 DB queries per request including a `limit: 1000` query fetching all published blogs just to compute category counts and archive grouping.
+2. All `payload.find()` calls used `depth: 2` (double nested resolution) where `depth: 1` is sufficient.
+3. No `unstable_cache` wrapping anywhere — sidebar queries ran on every ISR revalidation.
+**Fix:**
+1. Wrapped `sidebarData.ts` core fetch with `unstable_cache` (revalidate: 3600) — sidebar data now fetched at most once per hour per deployment.
+2. Replaced `limit: 1000` allPublished query with `limit: 200` and added `select` projection to fetch only `publishedAt` and `category` fields.
+3. Reduced `depth: 2 → depth: 1` in homepage, blog list, and blog detail page queries.

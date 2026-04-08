@@ -85,7 +85,7 @@ export default async function HomePage({ params }: Props) {
       collection: 'blogs',
       where: { status: { equals: 'published' } },
       sort: '-publishedAt',
-      depth: 2,
+      depth: 1,
       limit: 3,
       locale: locale as any,
     }).catch(() => ({ docs: [] })),

@@ -27,7 +27,7 @@ export default async function BlogListPage({ params }: Props) {
       collection: 'blogs',
       where: { status: { equals: 'published' } },
       sort: '-publishedAt',
-      depth: 2,
+      depth: 1,
       limit: 12,
       locale: locale as any,
     }).catch(() => ({ docs: [] })),

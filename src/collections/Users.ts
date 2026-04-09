@@ -21,44 +21,7 @@ export const Users: CollectionConfig = {
   hooks: {
     beforeLogin: [
       async ({ req, user }) => {
-        // 1. Turnstile Check (Existing logic)
-        if (process.env.NODE_ENV !== 'development') {
-          let token = (req as any).body?.turnstileToken || 
-                        (req.headers && typeof req.headers.get === 'function' ? req.headers.get('x-turnstile-token') : (req.headers as any)?.['x-turnstile-token'])
-          
-          if (!token) {
-            let cookieHeader = '';
-            if (req.headers && typeof req.headers.get === 'function') {
-              cookieHeader = req.headers.get('cookie') || '';
-            } else if ((req as any).headers && (req as any).headers.cookie) {
-              cookieHeader = (req as any).headers.cookie;
-            } else if ((req as any).cookies && (req as any).cookies.turnstileToken) {
-              token = (req as any).cookies.turnstileToken;
-            }
-            if (!token && cookieHeader) {
-              const match = cookieHeader.match(/turnstileToken=([^;]+)/);
-              if (match) token = match[1];
-            }
-          }
-
-          if (!token) {
-             console.error('[Turnstile Error] No token found in body or headers. Body keys:', Object.keys((req as any).body || {}))
-             throw new Error('Missing Turnstile token')
-          }
-          
-          const secret = process.env.TURNSTILE_SECRET_KEY
-          if (secret) {
-            const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: `secret=${secret}&response=${token}`,
-            })
-            const data = await response.json()
-            if (!data.success) throw new Error('Invalid Turnstile token')
-          }
-        }
-
-        // 2. MFA Logic
+        // MFA Logic
         // In a real Payload 3.0 setup, if mfa: true is supported in auth, 
         // it would handle the second step. If not, we'd need a custom endpoint/hook.
         // For now, we ensure the fields exist for the UI to consume.

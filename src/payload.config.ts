@@ -24,7 +24,7 @@ export const config = buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
   admin: {
     components: {
-      beforeLogin: ['@/components/TurnstileLogin#TurnstileLogin'],
+      beforeLogin: ['/components/TurnstileLogin#TurnstileLogin'],
     },
     autoLogin: {
       email: 'dev@payloadcms.com',

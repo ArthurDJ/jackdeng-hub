@@ -1,13 +1,13 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { TagBadge } from './TagBadge'
 import { formatDate } from '@/lib/formatDate'
 
 interface Category    { id: string; name: string; slug: string; _count?: number }
 interface Tag         { id: string; name: string; slug: string; color: string }
-interface RecentPost  { title: string; slug: string; publishedAt?: string | null; coverImage?: { url?: string; sizes?: { thumbnail?: { url?: string } }; alt?: string } | null }
-interface ArchiveEntry { year: number; month: number; label: string; count: number }
+interface RecentPost  { title: string; slug: string; publishedAt?: string | null; coverImage?: any }
+interface ArchiveEntry { year: number; month: number; count: number }
 
 interface SidebarProps {
   categories?: Category[]
@@ -34,15 +34,26 @@ function SidebarHeading({ children }: { children: React.ReactNode }) {
   )
 }
 
+/* ── archive label helper ── */
+const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December']
+const MONTHS_ZH = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']
+
+function getArchiveLabel(year: number, month: number, locale: string) {
+  if (locale === 'zh') return `${year}年${MONTHS_ZH[month - 1]}`
+  return `${MONTHS_EN[month - 1]} ${year}`
+}
+
 export async function Sidebar({ categories = [], tags = [], recentPosts = [], archives = [], activeCategory, activeTag }: SidebarProps) {
   const locale = await getLocale()
+  const t = await getTranslations({ locale, namespace: 'sidebar' })
+
   return (
     <aside style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
 
       {/* Categories */}
       {categories.length > 0 && (
         <section>
-          <SidebarHeading>Categories</SidebarHeading>
+          <SidebarHeading>{t('categories')}</SidebarHeading>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
             {categories.map((cat) => {
               const isActive = activeCategory === cat.slug
@@ -81,7 +92,7 @@ export async function Sidebar({ categories = [], tags = [], recentPosts = [], ar
       {/* Tags */}
       {tags.length > 0 && (
         <section>
-          <SidebarHeading>Tags</SidebarHeading>
+          <SidebarHeading>{t('tags')}</SidebarHeading>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {tags.map((tag) => (
               <div key={tag.id} style={activeTag === tag.slug ? { outline: '2px solid var(--accent-primary)', outlineOffset: 2, borderRadius: 9999 } : {}}>
@@ -95,7 +106,7 @@ export async function Sidebar({ categories = [], tags = [], recentPosts = [], ar
       {/* Recent Posts */}
       {recentPosts.length > 0 && (
         <section>
-          <SidebarHeading>Recent Posts</SidebarHeading>
+          <SidebarHeading>{t('recentPosts')}</SidebarHeading>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {recentPosts.map((post) => {
               const thumb = post.coverImage?.sizes?.thumbnail?.url ?? post.coverImage?.url
@@ -139,7 +150,7 @@ export async function Sidebar({ categories = [], tags = [], recentPosts = [], ar
       {/* Archive */}
       {archives.length > 0 && (
         <section>
-          <SidebarHeading>Archive</SidebarHeading>
+          <SidebarHeading>{t('archive')}</SidebarHeading>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
             {archives.map((entry) => (
               <li key={`${entry.year}-${entry.month}`}>
@@ -157,7 +168,7 @@ export async function Sidebar({ categories = [], tags = [], recentPosts = [], ar
                     transition: 'background 150ms, color 150ms',
                   }}
                 >
-                  <span>{entry.label}</span>
+                  <span>{getArchiveLabel(entry.year, entry.month, locale)}</span>
                   <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
                     {entry.count}
                   </span>

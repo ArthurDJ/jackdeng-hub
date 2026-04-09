@@ -1,11 +1,12 @@
+import { getLocale, getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 
 type Props = {
   postId: string
 }
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-AU', {
+function formatDate(dateStr: string, locale: string) {
+  return new Date(dateStr).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -34,6 +35,8 @@ function Avatar({ name }: { name: string }) {
 }
 
 export async function CommentList({ postId }: Props) {
+  const locale = await getLocale()
+  const t = await getTranslations({ locale, namespace: 'blog' })
   const payload = await getPayload()
 
   const { docs: comments, totalDocs } = await payload.find({
@@ -55,14 +58,12 @@ export async function CommentList({ postId }: Props) {
         id="comments-heading"
         className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-6"
       >
-        {totalDocs === 0
-          ? 'No comments yet'
-          : `${totalDocs} comment${totalDocs === 1 ? '' : 's'}`}
+        {t('commentCount', { count: totalDocs })}
       </h2>
 
       {totalDocs === 0 ? (
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Be the first to leave a comment below.
+          {t('commentPlaceholder')}
         </p>
       ) : (
         <ol className="space-y-6">
@@ -81,7 +82,7 @@ export async function CommentList({ postId }: Props) {
                     dateTime={comment.createdAt}
                     className="text-xs text-zinc-400 dark:text-zinc-500"
                   >
-                    {formatDate(comment.createdAt)}
+                    {formatDate(comment.createdAt, locale)}
                   </time>
                 </div>
                 <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words">

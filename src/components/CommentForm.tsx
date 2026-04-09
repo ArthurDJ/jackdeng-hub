@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 
 type Props = {
   postId: string
@@ -20,6 +21,8 @@ declare global {
 }
 
 export function CommentForm({ postId }: Props) {
+  const t = useTranslations('blog')
+  const tCommon = useTranslations('common')
   const [state, setState]     = useState<FormState>('idle')
   const [errorMsg, setErrorMsg] = useState('')
   const [name, setName]       = useState('')
@@ -117,22 +120,22 @@ export function CommentForm({ postId }: Props) {
       }
     } catch (err) {
       setState('error')
-      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.')
+      setErrorMsg(err instanceof Error ? err.message : tCommon('errorSomething'))
     }
   }
 
   if (state === 'success') {
     return (
       <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 p-6 text-center space-y-1">
-        <p className="font-medium text-emerald-700 dark:text-emerald-400">Comment submitted!</p>
+        <p className="font-medium text-emerald-700 dark:text-emerald-400">{t('commentSubmitSuccess')}</p>
         <p className="text-sm text-emerald-600 dark:text-emerald-500">
-          It will appear after review. Thanks for reading.
+          {t('commentSubmitSuccessNote')}
         </p>
         <button
           onClick={() => setState('idle')}
           className="mt-3 text-xs text-emerald-600 dark:text-emerald-400 underline underline-offset-2 hover:no-underline"
         >
-          Leave another comment
+          {t('commentLeaveAnother')}
         </button>
       </div>
     )
@@ -148,7 +151,7 @@ export function CommentForm({ postId }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <label htmlFor="comment-name" className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            Name <span className="text-red-400">*</span>
+            {t('commentNameLabel')} <span className="text-red-400">*</span>
           </label>
           <input
             id="comment-name"
@@ -157,14 +160,14 @@ export function CommentForm({ postId }: Props) {
             maxLength={60}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Your name"
+            placeholder={t('commentNamePlaceholder')}
             className="w-full px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
           />
         </div>
         <div className="space-y-1.5">
           <label htmlFor="comment-email" className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            Email <span className="text-red-400">*</span>
-            <span className="ml-1 font-normal text-zinc-400">(not displayed)</span>
+            {t('commentEmailLabel')} <span className="text-red-400">*</span>
+            <span className="ml-1 font-normal text-zinc-400">{tCommon('notDisplayed')}</span>
           </label>
           <input
             id="comment-email"
@@ -180,8 +183,8 @@ export function CommentForm({ postId }: Props) {
 
       <div className="space-y-1.5">
         <label htmlFor="comment-content" className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-          Comment <span className="text-red-400">*</span>
-          <span className="ml-1 font-normal text-zinc-400">(max 500 chars)</span>
+          {t('commentContentLabel')} <span className="text-red-400">*</span>
+          <span className="ml-1 font-normal text-zinc-400">{tCommon('maxChars', { count: 500 })}</span>
         </label>
         <textarea
           id="comment-content"
@@ -191,7 +194,7 @@ export function CommentForm({ postId }: Props) {
           rows={4}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Share your thoughts…"
+          placeholder={t('commentContentPlaceholder')}
           className="w-full px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500 resize-none"
         />
         <p className="text-right text-xs text-zinc-400">{content.length} / 500</p>
@@ -217,10 +220,10 @@ export function CommentForm({ postId }: Props) {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
             </svg>
-            Submitting…
+            {tCommon('submitting')}
           </>
         ) : (
-          'Post comment'
+          t('commentSubmitBtn')
         )}
       </button>
     </form>

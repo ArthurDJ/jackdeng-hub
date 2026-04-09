@@ -23,6 +23,8 @@
     "required": "*",
     "notDisplayed": "（不公开显示）",
     "maxChars": "（最多 {count} 字）",
+    "submitting": "提交中…",
+    "errorSomething": "出错了，请稍后再试。",
     "copyright": "© {year} Jack Deng"
   },
 
@@ -66,14 +68,17 @@
     "featured": "精选",
     "postedIn": "发布于",
     "commentCount": "{count, plural, =0 {暂无评论} other {# 条评论}}",
+    "commentPlaceholder": "成为第一个发表评论的人吧。",
     "leaveComment": "发表评论",
     "commentDisclaimer": "评论经审核后显示，不会出售你的邮箱。",
     "commentSubmitSuccess": "评论已提交！",
     "commentSubmitSuccessNote": "审核通过后将显示。感谢阅读。",
     "commentLeaveAnother": "再发一条评论",
     "commentNameLabel": "名字",
+    "commentNamePlaceholder": "你的名字",
     "commentEmailLabel": "邮箱",
     "commentContentLabel": "评论内容",
+    "commentContentPlaceholder": "分享你的想法…",
     "commentSubmitBtn": "发表评论",
     "commentSubmitting": "提交中…",
     "archive": "归档",
@@ -122,5 +127,12 @@
     "title": "页面不存在",
     "message": "抱歉，找不到你访问的页面。",
     "backHome": "返回首页"
+  },
+
+  "sidebar": {
+    "categories": "文章分类",
+    "tags": "热门标签",
+    "recentPosts": "最新文章",
+    "archive": "文章归档"
   }
 }

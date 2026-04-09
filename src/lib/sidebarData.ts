@@ -27,7 +27,7 @@ const getCachedSidebarBase = unstable_cache(
         collection: 'blogs',
         where: { status: { equals: 'published' } },
         sort: '-publishedAt',
-        depth: 0,
+        depth: 1,
         limit: 5,
         select: { title: true, slug: true, publishedAt: true, coverImage: true } as any,
       }),
@@ -54,7 +54,7 @@ const getCachedSidebarBase = unstable_cache(
     const archives = Object.entries(monthCounts)
       .map(([key, count]) => {
         const [y, m] = key.split('-').map(Number)
-        return { year: y, month: m, label: `${MONTHS[m - 1]} ${y}`, count }
+        return { year: y, month: m, count }
       })
       .sort((a, b) => b.year - a.year || b.month - a.month)
       .slice(0, 12)

@@ -23,6 +23,8 @@
     "required": "*",
     "notDisplayed": "(not displayed)",
     "maxChars": "(max {count} chars)",
+    "submitting": "Submitting…",
+    "errorSomething": "Something went wrong.",
     "copyright": "© {year} Jack Deng"
   },
 
@@ -66,14 +68,17 @@
     "featured": "Featured",
     "postedIn": "Posted in",
     "commentCount": "{count, plural, =0 {No comments yet} one {# comment} other {# comments}}",
+    "commentPlaceholder": "Be the first to leave a comment below.",
     "leaveComment": "Leave a comment",
     "commentDisclaimer": "Comments are reviewed before appearing. No spam, no selling your email.",
     "commentSubmitSuccess": "Comment submitted!",
     "commentSubmitSuccessNote": "It will appear after review. Thanks for reading.",
     "commentLeaveAnother": "Leave another comment",
     "commentNameLabel": "Name",
+    "commentNamePlaceholder": "Your name",
     "commentEmailLabel": "Email",
     "commentContentLabel": "Comment",
+    "commentContentPlaceholder": "Share your thoughts…",
     "commentSubmitBtn": "Post comment",
     "commentSubmitting": "Submitting…",
     "archive": "Archive",
@@ -122,5 +127,12 @@
     "title": "Page not found",
     "message": "Sorry, we couldn't find the page you're looking for.",
     "backHome": "Go back home"
+  },
+
+  "sidebar": {
+    "categories": "Categories",
+    "tags": "Tags",
+    "recentPosts": "Recent Posts",
+    "archive": "Archive"
   }
 }

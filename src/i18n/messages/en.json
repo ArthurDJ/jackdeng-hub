@@ -80,6 +80,7 @@
     "post": "post",
     "posts": "posts",
     "minRead": "{count} min read",
+    "readIn": "Read in {lang}",
     "pagination": {
       "previous": "← Previous",
       "next": "Next →"

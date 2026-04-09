@@ -22,8 +22,8 @@
 - [x] **Vercel Speed Insights 接入** ✅
 - [x] **生产环境 500 错误深度排查与修复** (t.rich XML 格式 & users.name 迁移) ✅
 - [x] **测试数据填充 (Seed)** — 验证前端双语渲染连通性 ✅
-- [ ] **内容发布**: 在 `/admin` 发布第一篇正式双语博客，验证数据隔离。
-- [ ] **项目集**: 创建首批项目条目，验证首页 Projects 区块。
+- [x] **内容发布**: 在 `/admin` 发布第一篇正式双语博客，验证数据隔离。 ✅
+- [x] **项目集**: 创建首批项目条目，验证首页 Projects 区块。 ✅
 - [ ] **评论验收**: 端对端评论提交测试（含 Turnstile 流程）。
 
 ### 🔄 Phase 7: v1.0 细节打磨冲刺 (Week 1-3)
@@ -50,8 +50,8 @@
 - [x] **Pagination 覆盖**: category/tag 页面同步接入分页，统一 12 条/页 ✅
 - [x] **Hover 补全**: Pagination 等交互组件补全 hover 态（`.ds-pagination-item` CSS 伪类） ✅
 - [x] **JSON-LD 补完**: BlogPosting 补充 `mainEntityOfPage` 声明 ✅
-- [ ] **相关文章**: 博客详情页下方展示 2-3 篇同分类推荐。
-- [ ] **环境清理**: 确认 `.gitignore` 生效，移除残留的未追踪日志与临时文件。
+- [x] **相关文章**: 博客详情页下方展示 2-3 篇同分类推荐。 ✅
+- [x] **环境清理**: 确认 `.gitignore` 生效，移除残留的未追踪日志与临时文件。 ✅
 
 ### ⏳ Phase 8: 动态工具引擎 (Pending)
 - [ ] 设计 Tools Collection（配置 API Endpoint、鉴权规则等）。

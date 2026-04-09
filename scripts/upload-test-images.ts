@@ -9,6 +9,9 @@ import fs from 'fs'
 
 async function run() {
   console.log('Initializing payload...')
+  const uri = process.env.DATABASE_URI
+  console.log(`Using Database URI: ${uri ? uri.substring(0, 20) + '...' : 'MISSING'}`)
+  
   const payload = await getPayload({ config: configPromise })
 
   const imagesDir = path.resolve(process.cwd(), 'public/test-images/batch-1')

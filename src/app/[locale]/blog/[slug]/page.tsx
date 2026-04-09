@@ -2,11 +2,13 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { TagBadge } from '@/components/TagBadge'
 import { CategoryBadge } from '@/components/CategoryBadge'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
 import { Sidebar } from '@/components/Sidebar'
+import { BlogCard } from '@/components/BlogCard'
 import { readingTime } from '@/lib/readingTime'
 import { formatDate } from '@/lib/formatDate'
 import { buildSidebarData } from '@/lib/sidebarData'
@@ -99,7 +101,24 @@ export default async function BlogDetailPage({ params }: Props) {
     : []
 
   const sidebar = await buildSidebarData({ activeCategory: category?.slug })
+  const t = await getTranslations({ locale, namespace: 'blog' })
   const readMins = readingTime(blog.content)
+
+  // ── Related Posts ──────────────────────────────────────────────────────────
+  const { docs: relatedDocs } = await payload.find({
+    collection: 'blogs',
+    where: {
+      status: { equals: 'published' },
+      and: [
+        { 'category.slug': { equals: category?.slug } },
+        { slug: { not_equals: slug } },
+      ]
+    },
+    limit: 2,
+    sort: '-publishedAt',
+    depth: 1,
+    locale: locale as any,
+  }).catch(() => ({ docs: [] }))
 
   // ── JSON-LD structured data ──────────────────────────────────────────────
   const canonicalUrl = `${BASE}/${locale}/blog/${slug}`
@@ -193,7 +212,7 @@ export default async function BlogDetailPage({ params }: Props) {
               <Link href="/blog" className="ds-breadcrumb"
                 style={{ color: 'var(--text-tertiary)', textDecoration: 'none' }}
               >
-                Blog
+                {t('title')}
               </Link>
               {category && (
                 <>
@@ -218,8 +237,24 @@ export default async function BlogDetailPage({ params }: Props) {
                   </time>
                 )}
                 <span style={{ fontSize: 13, color: 'var(--text-disabled)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
-                  {readMins} min read
+                  {t('minRead', { count: readMins })}
                 </span>
+                <Link
+                  href={locale === 'en' ? `/zh/blog/${slug}` : `/en/blog/${slug}`}
+                  style={{
+                    fontSize: 12,
+                    padding: '2px 8px',
+                    borderRadius: 4,
+                    background: 'var(--bg-panel)',
+                    border: '1px solid var(--border-default)',
+                    color: 'var(--text-tertiary)',
+                    textDecoration: 'none',
+                    marginLeft: 'auto'
+                  }}
+                  className="ds-link-hover"
+                >
+                  {t('readIn', { lang: locale === 'en' ? '中文' : 'English' })}
+                </Link>
               </div>
 
               <h1 style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 590, letterSpacing: '-0.8px', lineHeight: 1.2, color: 'var(--text-primary)', marginBottom: 16 }}>
@@ -266,9 +301,34 @@ export default async function BlogDetailPage({ params }: Props) {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 12H5M12 5l-7 7 7 7"/>
                 </svg>
-                Back to all posts
+                {t('backToAll')}
               </Link>
             </div>
+
+            {/* Related Posts */}
+            {relatedDocs.length > 0 && (
+              <div style={{ marginTop: 64, paddingTop: 48, borderTop: '1px solid var(--border-subtle)' }}>
+                <h3 style={{ fontSize: 13, fontWeight: 510, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 24 }}>
+                  {locale === 'zh' ? '相关文章' : 'Related Posts'}
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                  {relatedDocs.map((related: any) => (
+                    <BlogCard
+                      key={related.id}
+                      title={related.title}
+                      slug={related.slug}
+                      excerpt={related.excerpt}
+                      coverImage={related.coverImage}
+                      category={typeof related.category === 'object' ? related.category : null}
+                      tags={Array.isArray(related.tags) ? related.tags.filter((tag: any) => typeof tag === 'object') : []}
+                      publishedAt={related.publishedAt}
+                      featured={related.featured}
+                      content={related.content}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* ── Comments ── */}
             <div style={{ marginTop: 64, display: 'flex', flexDirection: 'column', gap: 40 }}>
@@ -278,11 +338,11 @@ export default async function BlogDetailPage({ params }: Props) {
 
               <div>
                 <h2 style={{ fontSize: 16, fontWeight: 510, color: 'var(--text-primary)', marginBottom: 24 }}>
-                  Leave a comment
+                  {t('leaveComment')}
                 </h2>
                 <CommentForm postId={blog.id} />
                 <p style={{ marginTop: 12, fontSize: 12, color: 'var(--text-tertiary)' }}>
-                  Comments are reviewed before appearing. No spam, no selling your email.
+                  {t('commentDisclaimer')}
                 </p>
               </div>
             </div>

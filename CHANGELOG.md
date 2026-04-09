@@ -6,6 +6,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.3] — 2026-04-09
+
+### Fixed — 后台管理登录报错：修复缺失的 MFA 数据库列
+
+- **数据库迁移 (Migration)**: 针对生产环境报错 `column users.mfa_enabled does not exist`，创建并执行了新的迁移文件 `20260409_204519_add_mfa_fields.ts`。
+- **Schema 同步**: 在 `users` 表中补齐了以下缺失字段：
+  - `mfa_enabled`: 存储 TOTP 开启状态。
+  - `mfa_secret`: 存储 TOTP 密钥。
+  - `email_mfa_enabled`: 存储邮件验证开启状态。
+- **Git 同步**: 迁移文件及更新后的 `payload-types.ts` 已同步推送到远程仓库，触发生产环境自动部署修复。
+
+---
+
 ## [1.1.2] — 2026-04-09
 
 ### Fixed — Payload CMS 3.0 类型错误修复与构建恢复

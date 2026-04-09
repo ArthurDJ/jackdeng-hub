@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
+import { Footer } from '@/components/Footer'
 import { BlogCard } from '@/components/BlogCard'
 import { getPayload } from '@/lib/payload'
 
@@ -79,7 +80,6 @@ const TECH_STACK = [
 export default async function HomePage({ params }: Props) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'home' })
-  const tFooter = await getTranslations({ locale, namespace: 'footer' })
   const tCommon = await getTranslations({ locale, namespace: 'common' })
 
   const payload = await getPayload()
@@ -348,14 +348,7 @@ export default async function HomePage({ params }: Props) {
 
       </main>
 
-      {/* ── Footer ───────────────────────────────────────────────────────── */}
-      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '20px 24px' }}>
-        <div className="max-w-5xl mx-auto flex items-center justify-between"
-          style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
-          <span>{tCommon('copyright', { year: new Date().getFullYear() })}</span>
-          <span>{tFooter('builtWith')}</span>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

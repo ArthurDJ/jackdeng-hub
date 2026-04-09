@@ -23,7 +23,7 @@ export async function Footer({ className }: FooterProps) {
               Jack Deng
             </Link>
             <p className="text-body-sm text-ds-tertiary">
-              © {new Date().getFullYear()} {t('copyright')}
+              {t('copyright', { year: new Date().getFullYear() })}
             </p>
           </div>
 

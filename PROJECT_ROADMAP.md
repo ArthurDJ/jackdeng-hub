@@ -45,8 +45,11 @@
 - [x] **日期标准化**: 全站 `formatDate` locale 感知重构 ✅
 
 **P2 — 品质提升与收尾（Week 3 - 进行中）**
-- [x] **Footer 统一**: 封装全局 `Footer.tsx` 组件，替换全站冗余代码 ✅
-- [x] **布局抽象**: 封装 `.ds-container` 等 Utility 类，移除大量 inline-style ✅
+- [x] **Footer 统一**: 封装全局 `Footer.tsx` 组件，替换首页/About/blog layout/blog detail 四处冗余代码 ✅
+- [x] **布局抽象**: 封装 `.ds-container` / `.ds-section-padding` / `.ds-pagination-item` Utility 类 ✅
+- [x] **Pagination 覆盖**: category/tag 页面同步接入分页，统一 12 条/页 ✅
+- [x] **Hover 补全**: Pagination 等交互组件补全 hover 态（`.ds-pagination-item` CSS 伪类） ✅
+- [x] **JSON-LD 补完**: BlogPosting 补充 `mainEntityOfPage` 声明 ✅
 - [ ] **相关文章**: 博客详情页下方展示 2-3 篇同分类推荐。
 - [ ] **环境清理**: 确认 `.gitignore` 生效，移除残留的未追踪日志与临时文件。
 
@@ -69,4 +72,4 @@
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-04-08 (P1.4 Pagination.tsx 博客列表分页完成)*
+*最后更新：2026-04-09 (P2 批量完成：Footer 统一、布局抽象、分页覆盖、Hover 补全、JSON-LD mainEntityOfPage)*

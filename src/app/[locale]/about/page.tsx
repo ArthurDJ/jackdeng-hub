@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
+import { Footer } from '@/components/Footer'
 
 // Static per locale — generated at build time
 export async function generateStaticParams() {
@@ -117,8 +118,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'about' })
-  const tFooter = await getTranslations({ locale, namespace: 'footer' })
-  const tCommon = await getTranslations({ locale, namespace: 'common' })
   const lang = locale as 'en' | 'zh'
 
   return (
@@ -313,12 +312,7 @@ export default async function AboutPage({ params }: Props) {
 
       </main>
 
-      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '20px 24px' }}>
-        <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-tertiary)' }}>
-          <span>{tCommon('copyright', { year: new Date().getFullYear() })}</span>
-          <span>{tFooter('builtWith')}</span>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

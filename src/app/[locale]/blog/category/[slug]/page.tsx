@@ -3,12 +3,18 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { BlogCard } from '@/components/BlogCard'
+import { Pagination } from '@/components/Pagination'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
 
 export const revalidate = 3600
 
-type Props = { params: Promise<{ slug: string; locale: string }> }
+const POSTS_PER_PAGE = 12
+
+type Props = {
+  params: Promise<{ slug: string; locale: string }>
+  searchParams: Promise<{ page?: string }>
+}
 
 export async function generateStaticParams() {
   const payload = await getPayload()
@@ -40,10 +46,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function CategoryPage({ params }: Props) {
+export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug, locale } = await params
+  const { page: pageParam } = await searchParams
   const t = await getTranslations({ locale, namespace: 'blog' })
   const payload = await getPayload()
+
+  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
 
   const [catResult, blogsResult] = await Promise.all([
     payload.find({ collection: 'categories', where: { slug: { equals: slug } }, limit: 1, locale: locale as any }),
@@ -52,7 +61,8 @@ export default async function CategoryPage({ params }: Props) {
       where: { status: { equals: 'published' }, 'category.slug': { equals: slug } },
       sort: '-publishedAt',
       depth: 1,
-      limit: 50,
+      limit: POSTS_PER_PAGE,
+      page,
       locale: locale as any,
     }),
   ])
@@ -62,6 +72,7 @@ export default async function CategoryPage({ params }: Props) {
 
   const sidebar = await buildSidebarData({ activeCategory: slug })
   const blogs = blogsResult.docs as any[]
+  const totalPages = (blogsResult as any).totalPages ?? 1
 
   return (
     <main>
@@ -94,22 +105,25 @@ export default async function CategoryPage({ params }: Props) {
                 {t('noPostsFound')}
               </p>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-                {blogs.map((blog) => (
-                  <BlogCard
-                    key={blog.id}
-                    title={blog.title}
-                    slug={blog.slug}
-                    excerpt={blog.excerpt}
-                    coverImage={blog.coverImage}
-                    category={typeof blog.category === 'object' ? blog.category : null}
-                    tags={Array.isArray(blog.tags) ? blog.tags.filter((t: any) => typeof t === 'object') : []}
-                    publishedAt={blog.publishedAt}
-                    featured={blog.featured}
-                    content={blog.content}
-                  />
-                ))}
-              </div>
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                  {blogs.map((blog) => (
+                    <BlogCard
+                      key={blog.id}
+                      title={blog.title}
+                      slug={blog.slug}
+                      excerpt={blog.excerpt}
+                      coverImage={blog.coverImage}
+                      category={typeof blog.category === 'object' ? blog.category : null}
+                      tags={Array.isArray(blog.tags) ? blog.tags.filter((t: any) => typeof t === 'object') : []}
+                      publishedAt={blog.publishedAt}
+                      featured={blog.featured}
+                      content={blog.content}
+                    />
+                  ))}
+                </div>
+                <Pagination page={page} totalPages={totalPages} basePath={`/blog/category/${slug}`} />
+              </>
             )}
           </section>
           <Sidebar {...sidebar} activeCategory={slug} />

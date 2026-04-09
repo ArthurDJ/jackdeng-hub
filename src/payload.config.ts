@@ -2,6 +2,8 @@ import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { en } from '@payloadcms/translations/languages/en'
+import { zh } from '@payloadcms/translations/languages/zh'
 import sharp from 'sharp'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -24,6 +26,11 @@ export const config = buildConfig({
       password: 'test',
       prefillOnly: true,
     },
+  },
+  // Admin UI 双语：英文 + 简体中文
+  i18n: {
+    supportedLanguages: { en, zh },
+    fallbackLanguage: 'en',
   },
   collections: [
     {

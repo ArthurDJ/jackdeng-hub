@@ -10,6 +10,17 @@ export const Media: CollectionConfig = {
   access: {
     read: () => true,
   },
+  hooks: {
+    // 上传时若 alt 为空，自动使用文件名（去掉扩展名）作为默认 alt
+    beforeChange: [
+      ({ data }) => {
+        if (!data.alt && data.filename) {
+          data.alt = (data.filename as string).replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
+        }
+        return data
+      },
+    ],
+  },
   upload: {
     staticDir: path.resolve(dirname, '../../public/media'),
     // Auto-generate WebP variants at 3 responsive sizes

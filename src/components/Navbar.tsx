@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslations, useLocale } from 'next-intl'
+import { useState } from 'react'
 import { Link, usePathname, useRouter } from '@/i18n/navigation'
 import { ThemeToggle } from './ThemeToggle'
 import { commandPaletteStore } from '@/store/commandPaletteStore'
@@ -10,6 +11,7 @@ export function Navbar() {
   const locale = useLocale()
   const pathname = usePathname()
   const router = useRouter()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const otherLocale = locale === 'en' ? 'zh' : 'en'
 
@@ -29,11 +31,12 @@ export function Navbar() {
         top: 0,
         zIndex: 50,
         width: '100%',
-        height: 52,
+        height: isMenuOpen ? 'auto' : 52,
         background: 'rgba(8,9,10,0.80)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
+        transition: 'height 200ms var(--ease-default)',
       }}
     >
       {/* Light-mode override via CSS — background becomes rgba(255,255,255,0.85) */}
@@ -45,7 +48,7 @@ export function Navbar() {
       `}</style>
       <nav
         data-navbar
-        className="max-w-5xl mx-auto px-6 h-full flex items-center justify-between gap-4"
+        className="max-w-5xl mx-auto px-6 h-[52px] flex items-center justify-between gap-4"
       >
         {/* Logo */}
         <Link
@@ -100,7 +103,7 @@ export function Navbar() {
         </ul>
 
         {/* Right actions */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
 
           {/* Search — desktop */}
           <button
@@ -198,8 +201,60 @@ export function Navbar() {
           </button>
 
           <ThemeToggle />
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="sm:hidden"
+            aria-label="Toggle menu"
+            style={{
+              padding: 6,
+              borderRadius: 6,
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-tertiary)',
+              cursor: 'pointer',
+            }}
+          >
+            {isMenuOpen ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            )}
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Menu Dropdown */}
+      {isMenuOpen && (
+        <div className="sm:hidden px-6 py-4 border-t border-[rgba(255,255,255,0.06)] bg-[rgba(8,9,10,0.95)] backdrop-blur-md">
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {NAV_LINKS.map(({ href, label }) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '10px 0',
+                    fontSize: 15,
+                    fontWeight: 510,
+                    color: 'var(--text-secondary)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </header>
   )
 }

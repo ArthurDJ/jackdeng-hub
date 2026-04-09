@@ -112,11 +112,11 @@ export default async function HomePage({ params }: Props) {
       <Navbar />
 
       <main className="flex-1">
-        <section className="max-w-5xl mx-auto px-6 pt-24 pb-20">
+        <section className="max-w-5xl mx-auto px-6 pt-20 pb-16 sm:pt-24 sm:pb-20">
           <div className="max-w-3xl">
 
             {/* Status pill */}
-            <div className="inline-flex items-center gap-2 mb-8"
+            <div className="inline-flex items-center gap-2 mb-6 sm:mb-8"
               style={{
                 background: 'rgba(16,185,129,0.10)',
                 border: '1px solid rgba(16,185,129,0.20)',
@@ -171,10 +171,10 @@ export default async function HomePage({ params }: Props) {
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3">
               <Link
                 href="/blog"
-                className="ds-accent-btn"
+                className="ds-accent-btn w-full sm:w-auto text-center justify-center"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -192,7 +192,7 @@ export default async function HomePage({ params }: Props) {
               </Link>
               <Link
                 href="/about"
-                className="ds-ghost-btn"
+                className="ds-ghost-btn w-full sm:w-auto text-center justify-center"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',

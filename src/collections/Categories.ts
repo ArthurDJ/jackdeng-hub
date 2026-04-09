@@ -5,6 +5,10 @@ export const Categories: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'slug', 'description'],
+    labels: {
+      singular: { en: 'Category', zh: '分类' },
+      plural: { en: 'Categories', zh: '分类' },
+    },
   },
   access: {
     read: () => true, // Public read
@@ -13,12 +17,14 @@ export const Categories: CollectionConfig = {
     {
       name: 'name',
       type: 'text',
+      label: { en: 'Name', zh: '名称' },
       required: true,
       unique: true,
     },
     {
       name: 'slug',
       type: 'text',
+      label: { en: 'Slug', zh: '别名' },
       required: true,
       unique: true,
       hooks: {
@@ -38,6 +44,7 @@ export const Categories: CollectionConfig = {
     {
       name: 'description',
       type: 'textarea',
+      label: { en: 'Description', zh: '描述' },
     },
   ],
 }

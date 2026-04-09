@@ -14,6 +14,10 @@ export const Users: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'email',
+    labels: {
+      singular: { en: 'User', zh: '用户' },
+      plural: { en: 'Users', zh: '用户' },
+    },
   },
   hooks: {
     beforeLogin: [
@@ -49,11 +53,12 @@ export const Users: CollectionConfig = {
     {
       name: 'name',
       type: 'text',
+      label: { en: 'Name', zh: '姓名' },
     },
     {
       name: 'mfaEnabled',
       type: 'checkbox',
-      label: 'Enable 2FA (TOTP)',
+      label: { en: 'Enable 2FA (TOTP)', zh: '启用 2FA (TOTP)' },
       defaultValue: false,
       admin: {
         position: 'sidebar',
@@ -70,7 +75,7 @@ export const Users: CollectionConfig = {
     {
       name: 'emailMfaEnabled',
       type: 'checkbox',
-      label: 'Enable Email 2FA',
+      label: { en: 'Enable Email 2FA', zh: '启用邮件 2FA' },
       defaultValue: false,
       admin: {
         position: 'sidebar',

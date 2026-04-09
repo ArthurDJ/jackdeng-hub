@@ -4,44 +4,55 @@ export const Projects: CollectionConfig = {
   slug: 'projects',
   admin: {
     useAsTitle: 'name',
+    labels: {
+      singular: { en: 'Project', zh: '项目' },
+      plural: { en: 'Projects', zh: '项目' },
+    },
   },
   fields: [
     {
       name: 'name',
       type: 'text',
+      label: { en: 'Name', zh: '名称' },
       required: true,
     },
     {
       name: 'logo',
       type: 'upload',
       relationTo: 'media',
+      label: { en: 'Logo', zh: '标志' },
     },
     {
       name: 'shortDescription',
       type: 'text',
+      label: { en: 'Short Description', zh: '简短描述' },
       required: true,
     },
     {
       name: 'longDescription',
       type: 'richText',
+      label: { en: 'Long Description', zh: '详细描述' },
     },
     {
       name: 'link',
       type: 'text',
+      label: { en: 'Link', zh: '链接' },
     },
     {
       name: 'status',
       type: 'select',
+      label: { en: 'Status', zh: '状态' },
       defaultValue: 'active',
       options: [
-        { label: 'Active', value: 'active' },
-        { label: 'Completed', value: 'completed' },
-        { label: 'On Hold', value: 'on-hold' },
+        { label: { en: 'Active', zh: '进行中' }, value: 'active' },
+        { label: { en: 'Completed', zh: '已完成' }, value: 'completed' },
+        { label: { en: 'On Hold', zh: '挂起' }, value: 'on-hold' },
       ],
     },
     {
       name: 'isPinned',
       type: 'checkbox',
+      label: { en: 'Pinned', zh: '置顶' },
       defaultValue: false,
     },
   ],

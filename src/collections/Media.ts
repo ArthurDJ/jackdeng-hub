@@ -7,6 +7,12 @@ const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  admin: {
+    labels: {
+      singular: { en: 'Media', zh: '媒体' },
+      plural: { en: 'Media', zh: '媒体' },
+    },
+  },
   access: {
     read: () => true,
   },
@@ -53,14 +59,19 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
+      label: { en: 'Alt Text', zh: '替代文本' },
       required: false,
       admin: {
-        description: 'Descriptive text for accessibility and SEO. Highly recommended but optional.',
+        description: {
+          en: 'Descriptive text for accessibility and SEO. Highly recommended but optional.',
+          zh: '用于辅助功能和 SEO 的描述性文本。强烈建议但可选。',
+        },
       },
     },
     {
       name: 'caption',
       type: 'text',
+      label: { en: 'Caption', zh: '标题' },
     },
   ],
 }

@@ -5,7 +5,14 @@ export const Comments: CollectionConfig = {
   admin: {
     useAsTitle: 'authorName',
     defaultColumns: ['authorName', 'post', 'status', 'createdAt'],
-    description: 'Blog post comments. Approve or mark as spam before they appear publicly.',
+    description: {
+      en: 'Blog post comments. Approve or mark as spam before they appear publicly.',
+      zh: '博客文章评论。在公开显示之前批准或标记为垃圾评论。',
+    },
+    labels: {
+      singular: { en: 'Comment', zh: '评论' },
+      plural: { en: 'Comments', zh: '评论' },
+    },
   },
   access: {
     // Public can create (submit a comment)
@@ -87,7 +94,7 @@ export const Comments: CollectionConfig = {
     {
       name: 'authorName',
       type: 'text',
-      label: 'Name',
+      label: { en: 'Name', zh: '姓名' },
       required: true,
       minLength: 1,
       maxLength: 60,
@@ -95,16 +102,16 @@ export const Comments: CollectionConfig = {
     {
       name: 'authorEmail',
       type: 'email',
-      label: 'Email',
+      label: { en: 'Email', zh: '邮箱' },
       required: true,
       admin: {
-        description: 'Not displayed publicly.',
+        description: { en: 'Not displayed publicly.', zh: '不会公开显示。' },
       },
     },
     {
       name: 'content',
       type: 'textarea',
-      label: 'Comment',
+      label: { en: 'Comment', zh: '评论内容' },
       required: true,
       minLength: 2,
       maxLength: 500,
@@ -114,19 +121,19 @@ export const Comments: CollectionConfig = {
       type: 'relationship',
       relationTo: 'blogs',
       required: true,
-      label: 'Post',
+      label: { en: 'Post', zh: '所属文章' },
     },
 
     // ── Moderation ────────────────────────────────────────────────────────
     {
       name: 'status',
       type: 'select',
-      label: 'Status',
+      label: { en: 'Status', zh: '状态' },
       defaultValue: 'pending',
       options: [
-        { label: '⏳ Pending',  value: 'pending' },
-        { label: '✅ Approved', value: 'approved' },
-        { label: '🚫 Spam',     value: 'spam' },
+        { label: { en: '⏳ Pending', zh: '⏳ 待审核' }, value: 'pending' },
+        { label: { en: '✅ Approved', zh: '✅ 已批准' }, value: 'approved' },
+        { label: { en: '🚫 Spam', zh: '🚫 垃圾评论' }, value: 'spam' },
       ],
       admin: {
         position: 'sidebar',
@@ -137,21 +144,21 @@ export const Comments: CollectionConfig = {
     {
       name: 'ip',
       type: 'text',
-      label: 'IP Address',
+      label: { en: 'IP Address', zh: 'IP 地址' },
       admin: {
         position: 'sidebar',
         readOnly: true,
-        description: 'Auto-captured for rate limiting.',
+        description: { en: 'Auto-captured for rate limiting.', zh: '自动获取用于频率限制。' },
       },
     },
     {
       name: 'turnstileToken',
       type: 'text',
-      label: 'Turnstile Token',
+      label: { en: 'Turnstile Token', zh: 'Turnstile 令牌' },
       admin: {
         position: 'sidebar',
         readOnly: true,
-        description: 'Cloudflare Turnstile verification token.',
+        description: { en: 'Cloudflare Turnstile verification token.', zh: 'Cloudflare Turnstile 验证令牌。' },
       },
     },
 
@@ -159,7 +166,7 @@ export const Comments: CollectionConfig = {
     {
       name: 'honeypot',
       type: 'text',
-      label: 'Leave blank',
+      label: { en: 'Leave blank', zh: '请留空' },
       admin: {
         hidden: true,
       },

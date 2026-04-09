@@ -6,6 +6,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.1] — 2026-04-09
+
+### Fixed — 后台管理界面 (Admin UI) 国际化翻译修复
+
+- **Collection 标签双语化**: 为所有核心集合（Blogs, Categories, Comments, Tags, Projects, Tools, Media, Users）添加了 `admin.labels` 配置，支持中英文双语显示。
+- **字段标签双语化**:
+  - 修复了所有 Collection 字段的 `label` 为对象格式，支持 `en` 和 `zh`（例如 `label: { en: 'Name', zh: '姓名' }`）。
+  - 为 `Users` 集合中新加的 MFA 相关字段（Enable 2FA, Enable Email 2FA）添加了对应的中文翻译（启用 2FA (TOTP), 启用邮件 2FA）。
+- **描述与验证消息双语化**:
+  - 将所有字段的 `admin.description` 修改为双语支持。
+  - 将 `Tags` 集合中的颜色校验错误消息修改为双语支持。
+- **核心配置引用**: 确保了 Payload CMS 正确引用 `payload.config.ts` 中的 `i18n` 配置，使得后台侧边栏和列表页表头能根据语言切换正确显示。
+
+---
+
 ## [1.1.0] — 2026-04-09
 
 ### Added — 安全加固：双重验证 (2FA/MFA) 集成

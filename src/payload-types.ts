@@ -136,6 +136,9 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   name?: string | null;
+  mfaEnabled?: boolean | null;
+  mfaSecret?: string | null;
+  emailMfaEnabled?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -474,6 +477,9 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  mfaEnabled?: T;
+  mfaSecret?: T;
+  emailMfaEnabled?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

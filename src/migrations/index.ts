@@ -5,6 +5,7 @@ import * as migration_20260407_002218_add_comments from './20260407_002218_add_c
 import * as migration_20260408_003804 from './20260408_003804';
 import * as migration_20260408_215850 from './20260408_215850';
 import * as migration_20260408_233949 from './20260408_233949';
+import * as migration_20260409_204519_add_mfa_fields from './20260409_204519_add_mfa_fields';
 
 export const migrations = [
   {
@@ -40,6 +41,11 @@ export const migrations = [
   {
     up: migration_20260408_233949.up,
     down: migration_20260408_233949.down,
-    name: '20260408_233949'
+    name: '20260408_233949',
+  },
+  {
+    up: migration_20260409_204519_add_mfa_fields.up,
+    down: migration_20260409_204519_add_mfa_fields.down,
+    name: '20260409_204519_add_mfa_fields'
   },
 ];

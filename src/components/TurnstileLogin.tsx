@@ -38,6 +38,12 @@ export const TurnstileLogin: React.FC = () => {
           loginForm.appendChild(input)
         }
         input.value = token
+        
+        // Payload 3.0 uses client-side state for form submission. 
+        // We need to trigger an input event so the state updates if they are watching it,
+        // although standard form submission might still pick up the hidden input.
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+        input.dispatchEvent(new Event('change', { bubbles: true }))
       } else {
         console.warn('[Turnstile] Login form not found in DOM')
         // Fallback: attach to window for any other scripts

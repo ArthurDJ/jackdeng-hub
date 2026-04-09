@@ -1,71 +1,97 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 export const TurnstileLogin: React.FC = () => {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const widgetIdRef = useRef<string | null>(null)
+
   useEffect(() => {
-    // Add Turnstile script
-    if (!document.getElementById('cf-turnstile-script')) {
-      const script = document.createElement('script')
-      script.id = 'cf-turnstile-script'
-      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
-      script.async = true
-      script.defer = true
-      document.head.appendChild(script)
-    }
+    const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
-    // Patch window.fetch to include the token
-    const originalFetch = window.fetch
-    window.fetch = async (...args) => {
-      let resource = args[0]
-      let config = args[1]
-
-      let url = ''
-      if (typeof resource === 'string') {
-        url = resource
-      } else if (resource instanceof Request) {
-        url = resource.url
-      }
-
-      if (url.includes('/api/users/login')) {
-        console.log('[Turnstile Client Debug] Intercepting login request');
-        const currentToken = (window as any).__turnstileToken
-        console.log('[Turnstile Client Debug] Current Token:', currentToken);
-        if (currentToken) {
-          if (resource instanceof Request) {
-            resource.headers.set('x-turnstile-token', currentToken)
-          } else {
-            config = config || {}
-            config.headers = {
-              ...config.headers,
-              'x-turnstile-token': currentToken
-            }
-            args[1] = config
-          }
+    // Define the success callback globally so Turnstile can find it if needed,
+    // though we'll use the explicit render callback.
+    ;(window as any).onTurnstileSuccess = (token: string) => {
+      console.log('[Turnstile] Token generated')
+      
+      // Find the Payload login form. 
+      // Payload 3.0 login forms usually have a specific structure.
+      // We look for a form that contains an input with name="email" or "password"
+      const forms = document.querySelectorAll('form')
+      let loginForm: HTMLFormElement | null = null
+      
+      for (const form of Array.from(forms)) {
+        if (form.querySelector('input[name="email"]') || form.querySelector('input[name="password"]')) {
+          loginForm = form
+          break
         }
       }
-      return originalFetch(...args)
+
+      if (loginForm) {
+        console.log('[Turnstile] Found login form, injecting hidden input')
+        // Check if input already exists
+        let input = loginForm.querySelector('input[name="turnstileToken"]') as HTMLInputElement
+        if (!input) {
+          input = document.createElement('input')
+          input.type = 'hidden'
+          input.name = 'turnstileToken'
+          loginForm.appendChild(input)
+        }
+        input.value = token
+      } else {
+        console.warn('[Turnstile] Login form not found in DOM')
+        // Fallback: attach to window for any other scripts
+        ;(window as any).__turnstileToken = token
+      }
     }
 
+    const loadTurnstile = () => {
+      if (!(window as any).turnstile) {
+        if (!document.getElementById('cf-turnstile-script')) {
+          const script = document.createElement('script')
+          script.id = 'cf-turnstile-script'
+          script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
+          script.async = true
+          script.defer = true
+          document.head.appendChild(script)
+          
+          script.onload = () => {
+            renderWidget()
+          }
+        }
+      } else {
+        renderWidget()
+      }
+    }
+
+    const renderWidget = () => {
+      if (containerRef.current && (window as any).turnstile && !widgetIdRef.current) {
+        try {
+          widgetIdRef.current = (window as any).turnstile.render(containerRef.current, {
+            sitekey: siteKey,
+            callback: (window as any).onTurnstileSuccess,
+            theme: 'light',
+          })
+          console.log('[Turnstile] Widget rendered successfully')
+        } catch (err) {
+          console.error('[Turnstile] Render error:', err)
+        }
+      }
+    }
+
+    loadTurnstile()
+
     return () => {
-      window.fetch = originalFetch
+      if (widgetIdRef.current && (window as any).turnstile) {
+        // (window as any).turnstile.remove(widgetIdRef.current)
+        // widgetIdRef.current = null
+      }
     }
   }, [])
 
   return (
-    <div style={{ marginBottom: '1rem' }}>
-      <div 
-        className="cf-turnstile" 
-        data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-        data-callback="onTurnstileSuccess"
-      ></div>
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          function onTurnstileSuccess(token) {
-            window.__turnstileToken = token;
-          }
-        `
-      }} />
+    <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+      <div ref={containerRef}></div>
     </div>
   )
 }

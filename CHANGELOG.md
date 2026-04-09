@@ -6,6 +6,38 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0-rc] — 2026-04-09
+
+### Added — Week 2–3 v1.0 冲刺功能（P0–P2 全线完成）
+
+#### 设计系统对齐 (P0)
+- **Blog 子页视觉统一**: `archive` / `category/[slug]` / `tag/[slug]` 页面全部迁移至 CSS token inline style，消除 `bg-zinc-*` / `text-zinc-*` / `text-blue-*` 等旧 Tailwind 类
+- **CategoryBadge**: 替换 zinc hardcode → `var(--bg-elevated)` / `var(--text-tertiary)` / `var(--border-default)`
+- **LexicalRenderer**: `prose prose-zinc dark:prose-invert` → `prose prose-ds max-w-none`；新增 `.prose-ds` utility 覆盖全部 `--tw-prose-*` 变量指向 design token
+- **自定义 404**: 新建 `src/app/[locale]/not-found.tsx`（含 Navbar + i18n + accent CTA）与根级 `src/app/not-found.tsx` 兜底
+- **CommandPalette**: 20+ 处 zinc className → CSS token inline style；`fetchResults` 追加 `&locale=${locale}`，修复中文模式下搜索结果错语言问题
+
+#### SEO 基础设施 (P1)
+- **Sitemap**: 新建 `src/app/sitemap.ts`，动态查询已发布博客 / 分类 / 标签，为 `en` + `zh` 各生成条目并附 `alternates.languages` hreflang，`revalidate = 86400`
+- **Robots**: 新建 `src/app/robots.ts`，`Disallow: /admin /admin/ /api/`，指向 `/sitemap.xml`
+- **Canonical / hreflang**: 首页、博客列表、博客详情、About 页 `generateMetadata` 全部注入 `alternates.canonical` + `alternates.languages`
+- **JSON-LD 结构化数据**: 博客详情页注入 `BlogPosting`（含 `mainEntityOfPage`）+ `BreadcrumbList` 两个 `<script type="application/ld+json">` 块
+
+#### 阅读体验 (P1)
+- **Reading time**: 新建 `src/lib/readingTime.ts`，递归遍历 Lexical JSON tree 统计词数 ÷ 200 wpm；BlogCard + 博客详情页均展示 `{n} min read` / `{n} 分钟阅读`
+- **Blog 列表分页**: 新建 `src/components/Pagination.tsx`（智能省略号算法，active/disabled/hover 完整状态）；`blog/page.tsx` / `category/[slug]` / `tag/[slug]` 全部接入，统一 12 条/页
+
+#### 代码质量 (P2)
+- **Footer 统一**: 新建 `src/components/Footer.tsx`（async Server Component，含双语 nav 链接 + copyright + builtWith），替换首页 / About / blog layout / blog detail 四处冗余内联代码
+- **Layout 工具类**: `globals.css` 新增 `.ds-container` / `.ds-section-padding` / `.ds-pagination-item` / `.ds-page-btn`，减少重复 inline style
+- **日期格式标准化**: 新建 `src/lib/formatDate.ts`，locale 参数驱动 `en-US` / `zh-CN`；BlogCard / Sidebar / archive / blog detail 等六处硬编码 `'en-US'` 全部替换
+
+### Fixed
+- **Vercel Blob private store 报错**: 旧 Blob store 类型为 private，`vercelBlobStorage` 插件默认 public access 导致上传失败；重建 public store 并更新 `BLOB_READ_WRITE_TOKEN`
+- **Media URL 404**: 旧 deployment 未读取新 token，图片保存为 `/api/media/file/xxx` 路径（本地路径，Serverless 下 404）；重新部署后 URL 正确写入 Blob CDN
+
+---
+
 ## [0.9.5] — 2026-04-08
 
 ### Added

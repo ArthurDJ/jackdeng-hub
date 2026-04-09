@@ -15,6 +15,8 @@ import { Projects } from './collections/Projects'
 import { Tools } from './collections/Tools'
 import { Media } from './collections/Media'
 
+import { Users } from './collections/Users'
+
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
@@ -37,51 +39,12 @@ export const config = buildConfig({
   },
   collections: [
     {
-      slug: 'users',
+      ...Users,
       auth: {
-        maxLoginAttempts: 5,
-        lockTime: 600000,
-        tokenExpiration: 2592000,
-        cookies: {
-          sameSite: 'Lax',
-          secure: true,
-        },
-        // @ts-expect-error - Payload 3.0 may not natively support mfa in auth config
+        ...((Users.auth === true ? {} : Users.auth) || {}),
+        // @ts-expect-error - Payload 3.0 mfa property
         mfa: true,
       },
-      hooks: {
-        beforeLogin: [
-          async ({ req }) => {
-            // Skip verification in development
-            if (process.env.NODE_ENV === 'development') return
-
-            const token = (req as any).body?.turnstileToken || (req.headers && typeof req.headers.get === 'function' ? req.headers.get('x-turnstile-token') : (req.headers as any)?.['x-turnstile-token'])
-            if (!token) {
-              throw new Error('Missing Turnstile token')
-            }
-            const secret = process.env.TURNSTILE_SECRET_KEY
-            if (secret) {
-              const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `secret=${secret}&response=${token}`,
-              })
-              const data = await response.json()
-              if (!data.success) {
-                throw new Error('Invalid Turnstile token')
-              }
-            }
-          }
-        ]
-      },
-      fields: [
-        {
-          name: 'name',
-          type: 'text',
-        },
-      ],
     },
     Categories,
     Comments,

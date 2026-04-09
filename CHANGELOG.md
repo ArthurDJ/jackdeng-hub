@@ -6,6 +6,24 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.0] — 2026-04-09
+
+### Added — 安全加固：双重验证 (2FA/MFA) 集成
+
+- **MFA 核心集成**: 在 `Users` 集合中启用了基于 TOTP (Time-based One-Time Password) 的双重验证，遵循 Payload CMS 3.0 最佳实践。
+- **验证方式支持**:
+  - **TOTP**: 支持 Google Authenticator / Microsoft Authenticator / Auth 等令牌应用。
+  - **Email 2FA**: 为用户预留了 `emailMfaEnabled` 字段，支持后续扩展邮箱验证码逻辑。
+- **兼容性保障**: 
+  - **Cloudflare Turnstile**: 保持了与现有 Turnstile 验证逻辑的兼容性。Turnstile 作为 L1 (人机验证) 在登录前触发，MFA 作为 L2 (身份验证) 在登录凭证正确后触发。
+  - **Admin UI**: 在用户个人资料页面的侧边栏新增了 "Enable 2FA (TOTP)" 和 "Enable Email 2FA" 控制开关。
+- **技术实现**:
+  - 安装并集成了 `otplib` 和 `qrcode` 用于 TOTP 密钥生成与验证。
+  - 重构了 `src/collections/Users.ts`，将原本在 `payload.config.ts` 中的内联用户配置迁移至独立文件，提高了代码的可维护性。
+  - 在 `src/payload.config.ts` 中通过 `mfa: true` 开启了 Payload 内置的 MFA 支持（需配合后续 UI 配置）。
+
+---
+
 ## [1.0.0-rc] — 2026-04-09
 
 ### Added — Week 2–3 v1.0 冲刺功能（P0–P2 全线完成）

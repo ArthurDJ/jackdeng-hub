@@ -38,14 +38,7 @@ export const config = buildConfig({
     fallbackLanguage: 'en',
   },
   collections: [
-    {
-      ...Users,
-      auth: {
-        ...((Users.auth === true ? {} : Users.auth) || {}),
-        // @ts-expect-error - Payload 3.0 mfa property
-        mfa: true,
-      },
-    },
+    Users,
     Categories,
     Comments,
     Tags,

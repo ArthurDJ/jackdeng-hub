@@ -14,6 +14,8 @@ export const Users: CollectionConfig = {
       sameSite: 'Lax',
       secure: true,
     },
+    // @ts-expect-error - Payload 3.0 mfa property
+    mfa: true,
   },
   admin: {
     useAsTitle: 'email',

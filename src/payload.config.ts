@@ -75,7 +75,11 @@ export const config = buildConfig({
       enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
       token: process.env.BLOB_READ_WRITE_TOKEN || '',
       collections: {
-        media: true,
+        // disablePayloadAccessControl: true — media 是全公开 collection（read: () => true），
+        // 无需通过 Payload 的 /api/media/file/xxx 代理，直接返回 Blob CDN URL
+        media: {
+          disablePayloadAccessControl: true,
+        },
       },
     }),
   ],

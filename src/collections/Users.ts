@@ -7,6 +7,7 @@ export const Users: CollectionConfig = {
     plural: { en: 'Users', zh: '用户' },
   },
   auth: {
+    verify: true,
     maxLoginAttempts: 5,
     lockTime: 600000,
     tokenExpiration: 2592000,

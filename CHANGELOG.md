@@ -6,6 +6,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.2] — 2026-04-09
+
+### Fixed — Payload CMS 3.0 类型错误修复与构建恢复
+
+- **Collection 配置修复**: 修复了所有 Collection (Blogs, Categories, Comments, Tags, Projects, Tools, Media, Users) 中 `labels` 配置项位置错误的问题。在 Payload CMS 3.0 中，`labels` 必须位于根层级，而非 `admin` 内部。
+- **字段验证修复**: 
+  - 修复了 `Blogs` 和 `Tags` 集合中 `validate` 函数的返回类型。Payload 要求验证失败时返回字符串而非对象，已统一修改为返回英文错误信息字符串。
+- **代码清理**: 
+  - 删除了 `Users` 集合中未使用的 `otplib` 引用，解决了因 `otplib` 版本升级导致的导出成员不匹配问题。
+- **构建成功**: 经过上述修复，项目已能成功通过 `npm run build` 和 `npx tsc --noEmit` 类型检查。
+
+---
+
 ## [1.1.1] — 2026-04-09
 
 ### Fixed — 后台管理界面 (Admin UI) 国际化翻译修复

@@ -2,12 +2,12 @@ import type { CollectionConfig } from 'payload'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
+  labels: {
+    singular: { en: 'Project', zh: '项目' },
+    plural: { en: 'Projects', zh: '项目' },
+  },
   admin: {
     useAsTitle: 'name',
-    labels: {
-      singular: { en: 'Project', zh: '项目' },
-      plural: { en: 'Projects', zh: '项目' },
-    },
   },
   fields: [
     {

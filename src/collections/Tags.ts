@@ -2,13 +2,13 @@ import type { CollectionConfig } from 'payload'
 
 export const Tags: CollectionConfig = {
   slug: 'tags',
+  labels: {
+    singular: { en: 'Tag', zh: '标签' },
+    plural: { en: 'Tags', zh: '标签' },
+  },
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'slug', 'color'],
-    labels: {
-      singular: { en: 'Tag', zh: '标签' },
-      plural: { en: 'Tags', zh: '标签' },
-    },
   },
   access: {
     read: () => true, // Public read
@@ -59,13 +59,10 @@ export const Tags: CollectionConfig = {
           zh: '用于渲染标签徽章的十六进制颜色代码（例如 #3B82F6）。',
         },
       },
-      validate: (value: string | null | undefined) => {
-        if (!value) return { en: 'Color is required', zh: '颜色是必填项' }
-        if (!/^#[0-9A-Fa-f]{6}$/.test(value)) {
-          return {
-            en: 'Must be a valid hex color (e.g. #3B82F6)',
-            zh: '必须是有效的十六进制颜色（例如 #3B82F6）',
-          }
+      validate: (value: any) => {
+        if (!value) return 'Color is required'
+        if (typeof value !== 'string' || !/^#[0-9A-Fa-f]{6}$/.test(value)) {
+          return 'Must be a valid hex color (e.g. #3B82F6)'
         }
         return true
       },

@@ -2,16 +2,16 @@ import type { CollectionConfig } from 'payload'
 
 export const Comments: CollectionConfig = {
   slug: 'comments',
+  labels: {
+    singular: { en: 'Comment', zh: '评论' },
+    plural: { en: 'Comments', zh: '评论' },
+  },
   admin: {
     useAsTitle: 'authorName',
     defaultColumns: ['authorName', 'post', 'status', 'createdAt'],
     description: {
       en: 'Blog post comments. Approve or mark as spam before they appear publicly.',
       zh: '博客文章评论。在公开显示之前批准或标记为垃圾评论。',
-    },
-    labels: {
-      singular: { en: 'Comment', zh: '评论' },
-      plural: { en: 'Comments', zh: '评论' },
     },
   },
   access: {

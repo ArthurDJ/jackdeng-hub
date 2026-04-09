@@ -2,13 +2,13 @@ import type { CollectionConfig } from 'payload'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
+  labels: {
+    singular: { en: 'Category', zh: '分类' },
+    plural: { en: 'Categories', zh: '分类' },
+  },
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'slug', 'description'],
-    labels: {
-      singular: { en: 'Category', zh: '分类' },
-      plural: { en: 'Categories', zh: '分类' },
-    },
   },
   access: {
     read: () => true, // Public read

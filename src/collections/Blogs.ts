@@ -2,14 +2,14 @@ import type { CollectionConfig } from 'payload'
 
 export const Blogs: CollectionConfig = {
   slug: 'blogs',
+  labels: {
+    singular: { en: 'Blog', zh: '博客' },
+    plural: { en: 'Blogs', zh: '博客' },
+  },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'status', 'category', 'publishedAt'],
     preview: (doc) => `${process.env.NEXT_PUBLIC_SERVER_URL}/blog/${doc.slug}`,
-    labels: {
-      singular: { en: 'Blog', zh: '博客' },
-      plural: { en: 'Blogs', zh: '博客' },
-    },
   },
   access: {
     read: ({ req }) => {
@@ -120,10 +120,7 @@ export const Blogs: CollectionConfig = {
       },
       validate: (value: unknown) => {
         if (Array.isArray(value) && value.length > 5) {
-          return {
-            en: 'Maximum 5 tags allowed per post.',
-            zh: '每篇文章最多允许 5 个标签。',
-          }
+          return 'Maximum 5 tags allowed per post.'
         }
         return true
       },

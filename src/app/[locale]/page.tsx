@@ -112,8 +112,6 @@ export default async function HomePage({ params }: Props) {
       <Navbar />
 
       <main className="flex-1">
-
-        {/* ── Hero ─────────────────────────────────────────────────────── */}
         <section className="max-w-5xl mx-auto px-6 pt-24 pb-20">
           <div className="max-w-3xl">
 
@@ -347,8 +345,6 @@ export default async function HomePage({ params }: Props) {
         </section>
 
       </main>
-
-      <Footer />
     </div>
   )
 }

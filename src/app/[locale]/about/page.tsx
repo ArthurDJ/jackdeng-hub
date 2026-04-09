@@ -311,8 +311,6 @@ export default async function AboutPage({ params }: Props) {
         </section>
 
       </main>
-
-      <Footer />
     </div>
   )
 }

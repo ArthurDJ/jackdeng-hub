@@ -11,7 +11,6 @@ export default async function BlogLayout({ children }: Props) {
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
       <div style={{ flex: 1 }}>{children}</div>
-      <Footer />
     </div>
   )
 }

@@ -15,7 +15,6 @@ export const Projects: CollectionConfig = {
       type: 'text',
       label: { en: 'Name', zh: '名称' },
       required: true,
-      localized: true,
     },
     {
       name: 'logo',
@@ -28,13 +27,11 @@ export const Projects: CollectionConfig = {
       type: 'text',
       label: { en: 'Short Description', zh: '简短描述' },
       required: true,
-      localized: true,
     },
     {
       name: 'longDescription',
       type: 'richText',
       label: { en: 'Long Description', zh: '详细描述' },
-      localized: true,
     },
     {
       name: 'link',

@@ -21,6 +21,9 @@ const dirname = path.dirname(filename)
 export const config = buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
   admin: {
+    components: {
+      beforeLogin: ['@/components/TurnstileLogin#TurnstileLogin'],
+    },
     autoLogin: {
       email: 'dev@payloadcms.com',
       password: 'test',
@@ -35,7 +38,41 @@ export const config = buildConfig({
   collections: [
     {
       slug: 'users',
-      auth: true,
+      auth: {
+        maxLoginAttempts: 5,
+        lockTime: 600000,
+        tokenExpiration: 2592000,
+        cookies: {
+          sameSite: 'Lax',
+          secure: true,
+        },
+        // @ts-expect-error - Payload 3.0 may not natively support mfa in auth config
+        mfa: true,
+      },
+      hooks: {
+        beforeLogin: [
+          async ({ req }) => {
+            const token = (req as any).body?.turnstileToken || (req.headers && typeof req.headers.get === 'function' ? req.headers.get('x-turnstile-token') : (req.headers as any)?.['x-turnstile-token'])
+            if (!token) {
+              throw new Error('Missing Turnstile token')
+            }
+            const secret = process.env.TURNSTILE_SECRET_KEY
+            if (secret) {
+              const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `secret=${secret}&response=${token}`,
+              })
+              const data = await response.json()
+              if (!data.success) {
+                throw new Error('Invalid Turnstile token')
+              }
+            }
+          }
+        ]
+      },
       fields: [
         {
           name: 'name',

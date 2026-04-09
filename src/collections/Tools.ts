@@ -15,6 +15,7 @@ export const Tools: CollectionConfig = {
       type: 'text',
       label: { en: 'Name', zh: '名称' },
       required: true,
+      localized: true,
     },
     {
       name: 'slug',
@@ -27,6 +28,7 @@ export const Tools: CollectionConfig = {
       name: 'description',
       type: 'textarea',
       label: { en: 'Description', zh: '描述' },
+      localized: true,
     },
     {
       name: 'status',

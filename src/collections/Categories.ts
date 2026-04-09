@@ -20,6 +20,7 @@ export const Categories: CollectionConfig = {
       label: { en: 'Name', zh: '名称' },
       required: true,
       unique: true,
+      localized: true,
     },
     {
       name: 'slug',
@@ -45,6 +46,7 @@ export const Categories: CollectionConfig = {
       name: 'description',
       type: 'textarea',
       label: { en: 'Description', zh: '描述' },
+      localized: true,
     },
   ],
 }

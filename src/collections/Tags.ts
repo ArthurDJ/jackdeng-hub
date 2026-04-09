@@ -20,6 +20,7 @@ export const Tags: CollectionConfig = {
       label: { en: 'Name', zh: '名称' },
       required: true,
       unique: true,
+      localized: true,
     },
     {
       name: 'slug',
@@ -71,6 +72,7 @@ export const Tags: CollectionConfig = {
       name: 'description',
       type: 'textarea',
       label: { en: 'Description', zh: '描述' },
+      localized: true,
     },
   ],
 }

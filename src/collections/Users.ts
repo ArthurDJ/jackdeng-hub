@@ -16,7 +16,8 @@ export const Users: CollectionConfig = {
     },
   },
   admin: {
-    useAsTitle: 'email',
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'email', 'mfaEnabled'],
   },
   hooks: {
     beforeLogin: [

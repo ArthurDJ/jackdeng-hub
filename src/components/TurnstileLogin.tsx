@@ -28,7 +28,9 @@ export const TurnstileLogin: React.FC = () => {
       }
 
       if (url.includes('/api/users/login')) {
+        console.log('[Turnstile Client Debug] Intercepting login request');
         const currentToken = (window as any).__turnstileToken
+        console.log('[Turnstile Client Debug] Current Token:', currentToken);
         if (currentToken) {
           if (resource instanceof Request) {
             resource.headers.set('x-turnstile-token', currentToken)

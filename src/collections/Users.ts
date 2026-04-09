@@ -26,6 +26,9 @@ export const Users: CollectionConfig = {
           const token = (req as any).body?.turnstileToken || 
                         (req.headers && typeof req.headers.get === 'function' ? req.headers.get('x-turnstile-token') : (req.headers as any)?.['x-turnstile-token'])
           
+          console.log('[Turnstile Debug] Body Token:', (req as any).body?.turnstileToken)
+          console.log('[Turnstile Debug] Header Token:', (req.headers && typeof req.headers.get === 'function' ? req.headers.get('x-turnstile-token') : (req.headers as any)?.['x-turnstile-token']))
+
           if (!token) throw new Error('Missing Turnstile token')
           
           const secret = process.env.TURNSTILE_SECRET_KEY

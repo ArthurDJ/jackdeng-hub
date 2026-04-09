@@ -14,6 +14,9 @@ export const TurnstileLogin: React.FC = () => {
     ;(window as any).onTurnstileSuccess = (token: string) => {
       console.log('[Turnstile] Token generated')
       
+      // Store token in cookie as a reliable fallback
+      document.cookie = `turnstileToken=${token}; path=/; max-age=300; SameSite=Lax`;
+      
       // Find the Payload login form. 
       // Payload 3.0 login forms usually have a specific structure.
       // We look for a form that contains an input with name="email" or "password"

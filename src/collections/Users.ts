@@ -23,9 +23,24 @@ export const Users: CollectionConfig = {
       async ({ req, user }) => {
         // 1. Turnstile Check (Existing logic)
         if (process.env.NODE_ENV !== 'development') {
-          const token = (req as any).body?.turnstileToken || 
+          let token = (req as any).body?.turnstileToken || 
                         (req.headers && typeof req.headers.get === 'function' ? req.headers.get('x-turnstile-token') : (req.headers as any)?.['x-turnstile-token'])
           
+          if (!token) {
+            let cookieHeader = '';
+            if (req.headers && typeof req.headers.get === 'function') {
+              cookieHeader = req.headers.get('cookie') || '';
+            } else if ((req as any).headers && (req as any).headers.cookie) {
+              cookieHeader = (req as any).headers.cookie;
+            } else if ((req as any).cookies && (req as any).cookies.turnstileToken) {
+              token = (req as any).cookies.turnstileToken;
+            }
+            if (!token && cookieHeader) {
+              const match = cookieHeader.match(/turnstileToken=([^;]+)/);
+              if (match) token = match[1];
+            }
+          }
+
           if (!token) {
              console.error('[Turnstile Error] No token found in body or headers. Body keys:', Object.keys((req as any).body || {}))
              throw new Error('Missing Turnstile token')

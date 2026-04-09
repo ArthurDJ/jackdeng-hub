@@ -52,6 +52,9 @@ export const config = buildConfig({
       hooks: {
         beforeLogin: [
           async ({ req }) => {
+            // Skip verification in development
+            if (process.env.NODE_ENV === 'development') return
+
             const token = (req as any).body?.turnstileToken || (req.headers && typeof req.headers.get === 'function' ? req.headers.get('x-turnstile-token') : (req.headers as any)?.['x-turnstile-token'])
             if (!token) {
               throw new Error('Missing Turnstile token')

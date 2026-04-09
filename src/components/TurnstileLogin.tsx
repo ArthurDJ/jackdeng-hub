@@ -17,24 +17,28 @@ export const TurnstileLogin: React.FC = () => {
     // Patch window.fetch to include the token
     const originalFetch = window.fetch
     window.fetch = async (...args) => {
-      const [resource, config] = args
-      let isLogin = false
-      if (typeof resource === 'string' && resource.includes('/api/users/login')) {
-        isLogin = true
-      } else if (resource instanceof Request && resource.url.includes('/api/users/login')) {
-        isLogin = true
+      let resource = args[0]
+      let config = args[1]
+
+      let url = ''
+      if (typeof resource === 'string') {
+        url = resource
+      } else if (resource instanceof Request) {
+        url = resource.url
       }
 
-      if (isLogin) {
+      if (url.includes('/api/users/login')) {
         const currentToken = (window as any).__turnstileToken
         if (currentToken) {
-          if (config) {
+          if (resource instanceof Request) {
+            resource.headers.set('x-turnstile-token', currentToken)
+          } else {
+            config = config || {}
             config.headers = {
               ...config.headers,
               'x-turnstile-token': currentToken
             }
-          } else if (args.length === 1 && resource instanceof Request) {
-            resource.headers.set('x-turnstile-token', currentToken)
+            args[1] = config
           }
         }
       }

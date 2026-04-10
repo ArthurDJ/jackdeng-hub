@@ -6,6 +6,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.9] — 2026-04-09
+
+### Added — 动态 OG 图（社交分享预览图）
+
+- **OG 图生成路由**: 新建 `src/app/og/route.tsx`（Edge Runtime），接受 `?title=` 和 `?type=blog|default` 参数，使用 `next/og` `ImageResponse` 动态生成 1200×630 暗色风格预览图，包含标题、蓝色 accent 线、作者头像和域名。
+- **博客详情页**: `generateMetadata` 新增 `openGraph.images` 和 `twitter.card` 字段。有手动上传 OG 图时使用上传图，否则自动指向 `/og?title=<标题>&type=blog`。
+- **全站默认 OG**: `[locale]/layout.tsx` 的 `metadata` 新增默认 `openGraph.images` 和 `twitter` 配置，指向 `/og?title=Jack+Deng`。
+
+---
+
 ## [1.1.8] — 2026-04-09
 
 ### Added — RSS Feed

@@ -11,13 +11,23 @@ import { ThemeProvider } from '@/components/ThemeProvider'
 import { CommandPalette } from '@/components/CommandPalette'
 import '../globals.css'
 
+const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
+
 export const metadata: Metadata = {
   title: {
     default: 'Jack Deng',
     template: '%s — Jack Deng',
   },
   description: 'Senior Database & Integration Administrator. NetSuite · Boomi · Supabase · Next.js.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'),
+  metadataBase: new URL(BASE),
+  openGraph: {
+    siteName: 'Jack Deng',
+    images: [{ url: `${BASE}/og?title=Jack+Deng`, width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: [`${BASE}/og?title=Jack+Deng`],
+  },
 }
 
 type Props = {

@@ -59,11 +59,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     (blog.coverImage as any)?.url
 
   const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
+  const ogImage = ogImageUrl
+    ? ogImageUrl
+    : `${BASE}/og?title=${encodeURIComponent(title)}&type=blog`
 
   return {
     title: `${title} — Jack Deng`,
     description,
-    openGraph: ogImageUrl ? { images: [{ url: ogImageUrl }] } : undefined,
+    openGraph: {
+      title: `${title} — Jack Deng`,
+      description,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: [ogImage],
+    },
     alternates: {
       canonical: `${BASE}/${locale}/blog/${slug}`,
       languages: {

@@ -6,6 +6,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.12] — 2026-04-10
+
+### Removed — 清理无效 2FA 字段与 no-op email adapter
+
+- **删除 MFA 字段**: 移除 `Users` 集合中 `mfaEnabled`、`mfaSecret`、`emailMfaEnabled` 三个无实际作用的字段及相关 `beforeLogin` hook 占位逻辑。
+- **数据库迁移**: 生成 `20260410_004448.ts`，执行后 DROP `users` 表中对应三列。
+- **No-op email adapter**: 添加最简 email adapter 函数满足 Payload 3.x 要求（CLI migrate 需要），不发送任何邮件。
+
+---
+
 ## [1.1.11] — 2026-04-09
 
 ### Added — Admin 侧边栏 UI 语言切换器

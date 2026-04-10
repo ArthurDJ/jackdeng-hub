@@ -55,6 +55,13 @@ export const config = buildConfig({
     fallback: true,
   },
   secret: process.env.PAYLOAD_SECRET || 'YOUR_SECRET_HERE',
+  // No email service needed — admin uses Google OAuth only
+  email: (() => ({
+    name: 'noop',
+    defaultFromName: 'Jack Deng',
+    defaultFromAddress: 'no-reply@jackdeng.cc',
+    sendEmail: async () => {},
+  })) as any,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

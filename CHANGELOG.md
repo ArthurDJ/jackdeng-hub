@@ -6,6 +6,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.7] — 2026-04-09
+
+### Added — 前后台互通导航链接
+
+- **前台 Footer → Admin**: 在 `Footer.tsx` 导航栏右侧新增低调的 "Admin" 链接（`--text-tertiary` 颜色），直接跳转 `/admin`。
+- **后台 Admin → 前台**: 新建 `AdminViewSiteLink.tsx` 组件，通过 Payload `afterNavLinks` 注入侧边栏底部，显示带外链图标的 "View Site" 按钮，新窗口打开 `jackdeng.cc`。
+
+---
+
 ## [1.1.6] — 2026-04-09
 
 ### Fixed — 登录页 UI 优化与安全加固

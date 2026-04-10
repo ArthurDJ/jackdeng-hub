@@ -25,7 +25,10 @@ export const config = buildConfig({
   admin: {
     components: {
       beforeLogin: ['@/components/GoogleLoginButton#GoogleLoginButton'],
-      afterNavLinks: ['@/components/AdminViewSiteLink#AdminViewSiteLink'],
+      afterNavLinks: [
+        '@/components/AdminLangSwitcher#AdminLangSwitcher',
+        '@/components/AdminViewSiteLink#AdminViewSiteLink',
+      ],
     },
   },
   // Admin UI 双语：英文 + 简体中文，默认中文

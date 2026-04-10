@@ -6,6 +6,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.10] — 2026-04-09
+
+### Fixed — Admin UI 默认语言改为中文
+
+- 将 `payload.config.ts` 的 `i18n.fallbackLanguage` 从 `en` 改为 `zh`，Admin 界面默认显示中文。
+- 说明：右上角 "Locale" 下拉是内容语言（编辑哪个语言版本的内容），UI 界面语言通过 Account → Language 或此处 fallbackLanguage 控制，两者独立。
+
+---
+
 ## [1.1.9] — 2026-04-09
 
 ### Added — 动态 OG 图（社交分享预览图）

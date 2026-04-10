@@ -28,10 +28,10 @@ export const config = buildConfig({
       afterNavLinks: ['@/components/AdminViewSiteLink#AdminViewSiteLink'],
     },
   },
-  // Admin UI 双语：英文 + 简体中文
+  // Admin UI 双语：英文 + 简体中文，默认中文
   i18n: {
     supportedLanguages: { en, zh },
-    fallbackLanguage: 'en',
+    fallbackLanguage: 'zh',
   },
   collections: [
     Users,

@@ -6,6 +6,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.14] — 2026-04-10
+
+### Added — Taxonomy seed: full-stack engineer edition
+
+- **6 categories**: Frontend / Backend / Database / Algorithms / DevOps & Tools / Career & Thoughts
+- **20 tags**: 编程语言（JS/TS/Python/SQL/Go）+ 前端框架 + 后端/数据库 + 算法细分（Data Structures / Dynamic Programming / LeetCode）+ 工具链 + 集成
+- 新增 `src/scripts/seed-taxonomy.ts` 与 `verify-taxonomy.ts` 脚本，支持清空重建与验证。
+
+---
+
 ## [1.1.13] — 2026-04-10
 
 ### Added — Admin 自定义 Logo

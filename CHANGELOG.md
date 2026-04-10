@@ -6,6 +6,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.13] — 2026-04-10
+
+### Added — Admin 自定义 Logo
+
+- 新建 `AdminLogo.tsx`，包含两个组件：`AdminLogo`（侧边栏展开时显示 JD 徽标 + "Jack Deng" 文字）和 `AdminIcon`（折叠时显示 JD 方形徽标）。
+- 通过 `admin.components.graphics.Logo/Icon` 注册，替换 Payload 默认 logo。
+- 设计：蓝紫渐变（`#3b82f6 → #6366f1`）圆角方块 + 白色 JD 字样，与前台 accent 色系一致。
+
+---
+
 ## [1.1.12] — 2026-04-10
 
 ### Removed — 清理无效 2FA 字段与 no-op email adapter

@@ -29,6 +29,10 @@ export const config = buildConfig({
         '@/components/AdminLangSwitcher#AdminLangSwitcher',
         '@/components/AdminViewSiteLink#AdminViewSiteLink',
       ],
+      graphics: {
+        Logo: '@/components/AdminLogo#AdminLogo',
+        Icon: '@/components/AdminLogo#AdminIcon',
+      },
     },
   },
   // Admin UI 双语：英文 + 简体中文，默认中文

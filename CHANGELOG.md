@@ -6,6 +6,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.5] — 2026-04-09
+
+### Fixed — 移除无效的邮箱验证配置，修复构建类型错误
+
+- **构建错误修复**: 删除 `payload.config.ts` 中的 `email.transportOptions` 配置块。Payload CMS 3.0 的 `EmailAdapter` 类型不包含 `transportOptions` 属性，导致 TypeScript 编译失败。
+- **邮箱验证移除**: 删除 `src/collections/Users.ts` 中的 `verify: true`。
+  - **决策依据**: 站点仅通过 Google OAuth 登录（白名单限制为 `dj3013158@gmail.com`），Google 已在 OAuth 流程中完成邮箱归属验证，Payload 原生邮箱验证对此场景无意义且依赖未配置的 SMTP 服务。
+
+---
+
 ## [1.1.4] — 2026-04-09
 
 ### Added — 身份验证升级：Google OAuth 集成与安全加固

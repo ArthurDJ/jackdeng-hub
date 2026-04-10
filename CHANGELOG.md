@@ -6,6 +6,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.2.1] — 2026-04-10
+
+### Added — Tools 前台页面（列表 + 详情）
+
+- **`/[locale]/tools`**: 工具箱列表页，从 Payload 查询 `status=online, accessControl=public, toolType=interactive` 的工具，以卡片网格展示（icon emoji、名称、描述、状态徽章）。
+- **`/[locale]/tools/[slug]`**: 工具详情页，支持三种嵌入方式：
+  - `iframe`: 将 `embedUrl` 以全宽 iframe 渲染（700px 高），适合独立部署的外部工具。
+  - `script`: Web Component / 脚本嵌入，注入 `<script>` 标签并挂载到容器。
+  - `builtin` / 无 embedUrl: 显示"建设中"占位页面。
+- 非公开工具（automation / private / offline）访问详情页时返回 404。
+- 包含面包屑导航、SEO metadata、返回链接，与全站设计语言一致。
+
+---
+
 ## [1.2.0] — 2026-04-10
 
 ### Added — Phase 8: Automation Tool 基础框架（Visa Monitor 接收侧）

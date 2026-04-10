@@ -6,6 +6,28 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.4] — 2026-04-09
+
+### Added — 身份验证升级：Google OAuth 集成与安全加固
+
+- **Google 登录集成**: 
+  - 引入了 `next-auth` 框架，在后台登录页面新增了 **"Sign in with Google"** 按钮。
+  - 实现了基于 OAuth 2.0 的第三方身份验证流程，简化了管理员登录体验。
+- **安全白名单 (Email Whitelisting)**:
+  - 在 `signIn` 回调中实施了严格的准入控制：**仅允许** `dj3013158@gmail.com` 登录或自动注册后台。
+  - 拦截并记录所有非白名单账号的登录尝试，防止未授权访问。
+- **邮箱验证功能**:
+  - 在 `Users` 集合中开启了 `verify: true` 选项，为原生账号登录增加了邮箱激活环节。
+  - 在 `payload.config.ts` 中集成了标准 SMTP 配置接口，支持通过环境变量（`SMTP_HOST`, `SMTP_USER` 等）动态配置邮件服务。
+- **移动端访问优化 (UI/UX)**:
+  - **响应式导航**: 为移动端新增了带毛玻璃效果的汉堡菜单（Hamburger Menu）。
+  - **Hero 区域调整**: 优化了手机端的间距，并将 CTA 按钮（Blog/About）调整为全宽触摸友好布局。
+- **后台国际化完善**:
+  - 开启了 `Projects`, `Categories`, `Tags`, `Tools` 等集合的字段级多语言支持（`localized: true`）。
+  - 优化了管理后台的列表列展示，`Users` 列表现在优先显示姓名并展示 2FA 状态。
+
+---
+
 ## [1.1.3] — 2026-04-09
 
 ### Fixed — 后台管理登录报错：修复缺失的 MFA 数据库列

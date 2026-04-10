@@ -6,6 +6,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.2.3] — 2026-04-10
+
+### Added — Visa Monitor 前台 Dashboard + Admin detail 展开
+
+- **`VisaMonitorDashboard`** 新组件：前台私有工具页，NextAuth 鉴权保护（未登录显示锁屏 + Google 登录按钮）。展示：状态 header（运行中脉冲动画）、最新 metadata 卡片、重要事件摘要、完整运行记录列表，点击任意行展开 `detail` 日志 + 结构化 metadata。每 30 秒自动刷新。
+- **`tools/[slug]/page.tsx`** 更新：automation 工具不再 404，渲染 `VisaMonitorDashboard`；public interactive 工具保持 iframe/script/builtin 嵌入逻辑。
+- **`VisaMonitorPanel`** 更新（Admin 版）：补充 `detail` 字段，列表行点击展开，显示 metadata 卡片 + detail 日志文本。
+
+---
+
+## [1.2.2] — 2026-04-10
+
+### Fixed — 添加 next-intl middleware 修复 admin 登录跳转
+
+- 新建 `src/middleware.ts`，配置 next-intl locale 路由拦截，matcher 排除 `/admin`、`/api` 和静态文件。
+- 修复：未登录访问 `/admin/tools/create` 返回 404 → 现在正确跳转 `/admin/login`。
+
+---
+
 ## [1.2.1] — 2026-04-10
 
 ### Added — Tools 前台页面（列表 + 详情）

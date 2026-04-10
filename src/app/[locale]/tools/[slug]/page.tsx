@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
+import { VisaMonitorDashboard } from '@/components/VisaMonitorDashboard'
 
 export const revalidate = 3600
 
@@ -38,27 +39,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-// ── Status badge colours ────────────────────────────────────────────────────
-const STATUS_COLOR: Record<string, string> = {
+const TOOL_STATUS_COLOR: Record<string, string> = {
   online:      '#10b981',
   offline:     '#71717a',
   maintenance: '#f59e0b',
 }
 
-// ── Main page ───────────────────────────────────────────────────────────────
 export default async function ToolDetailPage({ params }: Props) {
   const { locale, slug } = await params
   const isZh = locale === 'zh'
 
   const payload = await getPayload()
+
+  // 查询工具（不过滤 accessControl/toolType，权限在渲染层处理）
   const { docs } = await payload.find({
     collection: 'tools',
     where: {
       and: [
         { slug: { equals: slug } },
-        { status: { equals: 'online' } },
-        { accessControl: { equals: 'public' } },
-        { toolType: { equals: 'interactive' } },
+        { status: { not_equals: 'offline' } },
       ],
     },
     depth: 0,
@@ -68,9 +67,10 @@ export default async function ToolDetailPage({ params }: Props) {
   const tool = docs[0]
   if (!tool) notFound()
 
-  const statusColor = STATUS_COLOR[tool.status] ?? STATUS_COLOR.online
-  const hasEmbed = Boolean(tool.embedUrl) && tool.embedType === 'iframe'
-  const isScript = Boolean(tool.embedUrl) && tool.embedType === 'script'
+  const statusColor = TOOL_STATUS_COLOR[tool.status] ?? TOOL_STATUS_COLOR.online
+  const isAutomation = tool.toolType === 'automation'
+  const hasIframe = Boolean(tool.embedUrl) && tool.embedType === 'iframe'
+  const hasScript = Boolean(tool.embedUrl) && tool.embedType === 'script'
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-base)' }}>
@@ -88,13 +88,7 @@ export default async function ToolDetailPage({ params }: Props) {
         </nav>
 
         {/* ── Header ──────────────────────────────────────────────────── */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '16px',
-          marginBottom: '32px',
-          flexWrap: 'wrap',
-        }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '32px', flexWrap: 'wrap' }}>
           {tool.icon && (
             <span style={{ fontSize: '48px', lineHeight: 1 }}>{tool.icon}</span>
           )}
@@ -110,14 +104,11 @@ export default async function ToolDetailPage({ params }: Props) {
                 {tool.name}
               </h1>
               <span style={{
-                fontSize: '11px',
-                fontWeight: 600,
+                fontSize: '11px', fontWeight: 600,
                 color: statusColor,
                 background: statusColor + '18',
                 border: `1px solid ${statusColor}30`,
-                borderRadius: '4px',
-                padding: '2px 8px',
-                whiteSpace: 'nowrap',
+                borderRadius: '4px', padding: '2px 8px',
               }}>
                 {tool.status === 'online'
                   ? (isZh ? '在线' : 'Online')
@@ -125,22 +116,31 @@ export default async function ToolDetailPage({ params }: Props) {
                     ? (isZh ? '维护中' : 'Maintenance')
                     : (isZh ? '离线' : 'Offline')}
               </span>
+              {isAutomation && (
+                <span style={{
+                  fontSize: '11px', fontWeight: 600,
+                  color: '#a78bfa',
+                  background: '#a78bfa18',
+                  border: '1px solid #a78bfa30',
+                  borderRadius: '4px', padding: '2px 8px',
+                }}>
+                  {isZh ? '自动化' : 'Automation'}
+                </span>
+              )}
             </div>
             {tool.description && (
-              <p style={{
-                fontSize: '16px',
-                color: 'var(--text-secondary)',
-                lineHeight: '1.6',
-                margin: 0,
-              }}>
+              <p style={{ fontSize: '16px', color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0 }}>
                 {tool.description}
               </p>
             )}
           </div>
         </div>
 
-        {/* ── Embed area ──────────────────────────────────────────────── */}
-        {hasEmbed ? (
+        {/* ── Content ──────────────────────────────────────────────────── */}
+        {isAutomation ? (
+          // Automation 工具：客户端鉴权 + 运行 Dashboard
+          <VisaMonitorDashboard slug={slug} />
+        ) : hasIframe ? (
           <div style={{
             borderRadius: '12px',
             overflow: 'hidden',
@@ -151,21 +151,14 @@ export default async function ToolDetailPage({ params }: Props) {
             <iframe
               src={tool.embedUrl}
               title={tool.name}
-              style={{
-                width: '100%',
-                height: '700px',
-                border: 'none',
-                display: 'block',
-              }}
+              style={{ width: '100%', height: '700px', border: 'none', display: 'block' }}
               loading="lazy"
               allow="clipboard-write"
             />
           </div>
-        ) : isScript ? (
-          /* Script / Web Component embed — inject at runtime */
+        ) : hasScript ? (
           <ScriptEmbed url={tool.embedUrl} name={tool.name} />
         ) : (
-          /* Built-in or no embed URL → placeholder */
           <div style={{
             borderRadius: '12px',
             border: '1px dashed var(--border-default)',
@@ -182,17 +175,10 @@ export default async function ToolDetailPage({ params }: Props) {
 
         {/* ── Back link ───────────────────────────────────────────────── */}
         <div style={{ marginTop: '40px' }}>
-          <a
-            href={`/${locale}/tools`}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '14px',
-              color: 'var(--text-secondary)',
-              textDecoration: 'none',
-            }}
-          >
+          <a href={`/${locale}/tools`} style={{
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
+            fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none',
+          }}>
             ← {isZh ? '返回工具箱' : 'Back to Tools'}
           </a>
         </div>
@@ -202,9 +188,6 @@ export default async function ToolDetailPage({ params }: Props) {
   )
 }
 
-// ── Script embed helper (client component) ─────────────────────────────────
-// Rendered server-side as a placeholder; actual script injection requires
-// a client component. Here we render a container + a noscript fallback.
 function ScriptEmbed({ url, name }: { url: string; name: string }) {
   return (
     <div style={{

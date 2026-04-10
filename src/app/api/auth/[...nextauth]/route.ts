@@ -10,9 +10,13 @@ export const authOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // 可以在这里限制只有您的邮箱能登录后台
-      // if (user.email !== 'your-email@gmail.com') return false
-      return true
+      // 白名单限制：仅允许您的官方邮箱登录或注册
+      const allowedEmail = 'dj3013158@gmail.com'
+      if (user.email === allowedEmail) {
+        return true
+      }
+      console.warn(`[Auth Denied] Unauthorized login attempt from: ${user.email}`)
+      return false
     },
     async session({ session, token }) {
       return session

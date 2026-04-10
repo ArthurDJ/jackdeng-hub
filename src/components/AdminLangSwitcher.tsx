@@ -9,7 +9,7 @@ export const AdminLangSwitcher: React.FC = () => {
   const isZh = current === 'zh'
 
   const toggle = () => {
-    i18n.changeLanguage(isZh ? 'en' : 'zh')
+    ;(i18n as any).changeLanguage(isZh ? 'en' : 'zh')
   }
 
   return (

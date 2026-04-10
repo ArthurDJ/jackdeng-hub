@@ -74,6 +74,7 @@ export interface Config {
     blogs: Blog;
     projects: Project;
     tools: Tool;
+    'tool-runs': ToolRun;
     media: Media;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -89,6 +90,7 @@ export interface Config {
     blogs: BlogsSelect<false> | BlogsSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     tools: ToolsSelect<false> | ToolsSelect<true>;
+    'tool-runs': ToolRunsSelect<false> | ToolRunsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -363,10 +365,67 @@ export interface Tool {
   id: number;
   name: string;
   slug: string;
+  /**
+   * e.g. 🛠️ 🔍 📊
+   */
+  icon?: string | null;
   description?: string | null;
-  status?: ('online' | 'offline' | 'maintenance') | null;
+  toolType: 'interactive' | 'automation';
   accessControl?: ('public' | 'private') | null;
-  apiRoute: string;
+  status?: ('online' | 'offline' | 'maintenance') | null;
+  /**
+   * External URL of the standalone tool (e.g. https://tool.jackdeng.cc)
+   */
+  embedUrl?: string | null;
+  embedType?: ('iframe' | 'script' | 'builtin') | null;
+  /**
+   * e.g. 0 * /6 * * * (every 6h)
+   */
+  cronSchedule?: string | null;
+  /**
+   * Tool-specific configuration (stored as JSON, visible only to admins)
+   */
+  config?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  lastRunAt?: string | null;
+  lastRunStatus?: ('running' | 'found' | 'booked' | 'heartbeat' | 'error' | 'exited') | null;
+  /**
+   * POST to this URL when a notable event occurs (e.g. slot found)
+   */
+  notifyWebhook?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tool-runs".
+ */
+export interface ToolRun {
+  id: number;
+  tool: number | Tool;
+  status: 'running' | 'found' | 'booked' | 'heartbeat' | 'error' | 'exited';
+  summary?: string | null;
+  detail?: string | null;
+  /**
+   * Raw payload from the callback (dates found, current appointment, etc.)
+   */
+  metadata?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  runAt: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -421,6 +480,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tools';
         value: number | Tool;
+      } | null)
+    | ({
+        relationTo: 'tool-runs';
+        value: number | ToolRun;
       } | null)
     | ({
         relationTo: 'media';
@@ -577,10 +640,32 @@ export interface ProjectsSelect<T extends boolean = true> {
 export interface ToolsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
+  icon?: T;
   description?: T;
-  status?: T;
+  toolType?: T;
   accessControl?: T;
-  apiRoute?: T;
+  status?: T;
+  embedUrl?: T;
+  embedType?: T;
+  cronSchedule?: T;
+  config?: T;
+  lastRunAt?: T;
+  lastRunStatus?: T;
+  notifyWebhook?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tool-runs_select".
+ */
+export interface ToolRunsSelect<T extends boolean = true> {
+  tool?: T;
+  status?: T;
+  summary?: T;
+  detail?: T;
+  metadata?: T;
+  runAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

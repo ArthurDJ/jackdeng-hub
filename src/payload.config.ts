@@ -56,18 +56,6 @@ export const config = buildConfig({
     fallback: true,
   },
   secret: process.env.PAYLOAD_SECRET || 'YOUR_SECRET_HERE',
-  email: {
-    transportOptions: {
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT) || 587,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    },
-    fromName: 'Jack Deng',
-    fromAddress: process.env.SMTP_USER || 'no-reply@jackdeng.cc',
-  },
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

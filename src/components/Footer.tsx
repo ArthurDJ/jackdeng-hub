@@ -35,13 +35,20 @@ export async function Footer({ className }: FooterProps) {
             <Link href="/about" className="text-body-sm text-ds-secondary ds-link-hover no-underline">
               {tNav('about')}
             </Link>
-            <a 
-              href="https://github.com/ArthurDJ" 
-              target="_blank" 
+            <a
+              href="https://github.com/ArthurDJ"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-body-sm text-ds-secondary ds-link-hover no-underline"
             >
               GitHub
+            </a>
+            <a
+              href="/admin"
+              className="text-body-sm ds-link-hover no-underline"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
+              Admin
             </a>
           </nav>
         </div>

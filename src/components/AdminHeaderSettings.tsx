@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { useTranslation, useTheme } from '@payloadcms/ui'
+import { useTranslation, useTheme, useLocale } from '@payloadcms/ui'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 export const AdminHeaderSettings: React.FC = () => {
@@ -9,9 +10,14 @@ export const AdminHeaderSettings: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { i18n } = useTranslation()
   const { theme, setTheme } = useTheme()
+  const locale = useLocale()
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   const currentLang = i18n.language ?? 'zh'
   const isZh = currentLang === 'zh'
+  const currentLocale = locale?.code ?? 'en'
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -143,25 +149,66 @@ export const AdminHeaderSettings: React.FC = () => {
             <span style={{ fontSize: '12px', opacity: 0.7 }}>{theme === 'dark' ? (isZh ? '深色' : 'Dark') : (isZh ? '浅色' : 'Light')}</span>
           </button>
 
+          {/* Content Locale */}
+          <button
+            onClick={() => {
+              const next = currentLocale === 'en' ? 'zh' : 'en'
+              const params = new URLSearchParams(searchParams.toString())
+              params.set('locale', next)
+              router.push(`${pathname}?${params.toString()}`)
+            }}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              width: '100%', padding: '8px 12px',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              color: 'var(--theme-elevation-800)', fontSize: '14px', borderRadius: '4px', textAlign: 'left',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--theme-elevation-50)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 5h7M9 3v2c0 4.418-2.239 8-5 8"/>
+                <path d="M11 8c0 2.21-2.239 6-5 6M15 15l5 5m-5 0l5-5M20 4l-5 8h10L20 4z"/>
+              </svg>
+              <span>{isZh ? 'Content Locale' : '内容语言'}</span>
+            </div>
+            <span style={{ fontSize: '12px', opacity: 0.7 }}>
+              {currentLocale === 'en' ? 'English' : '中文'}
+            </span>
+          </button>
+
           <div style={{ height: '1px', background: 'var(--theme-elevation-100)', margin: '4px 0' }} />
 
-          {/* Quick Access to Main Site */}
+          {/* Account */}
+          <Link
+            href="/admin/account"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              width: '100%', padding: '8px 12px',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              color: 'var(--theme-elevation-800)', fontSize: '14px', borderRadius: '4px', textDecoration: 'none',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--theme-elevation-50)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+            onClick={() => setIsOpen(false)}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>{isZh ? 'Account' : '账户设置'}</span>
+          </Link>
+
+          {/* View Site */}
           <Link
             href="/"
             target="_blank"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              width: '100%',
-              padding: '8px 12px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--theme-elevation-800)',
-              fontSize: '14px',
-              borderRadius: '4px',
-              textDecoration: 'none',
+              display: 'flex', alignItems: 'center', gap: '8px',
+              width: '100%', padding: '8px 12px',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              color: 'var(--theme-elevation-800)', fontSize: '14px', borderRadius: '4px', textDecoration: 'none',
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--theme-elevation-50)')}
             onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
@@ -170,7 +217,7 @@ export const AdminHeaderSettings: React.FC = () => {
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
-            <span>{isZh ? 'View Site' : '返回前台'}</span>
+            <span>{isZh ? 'View Site' : '访问前台'}</span>
           </Link>
         </div>
       )}

@@ -6,6 +6,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.8] — 2026-04-09
+
+### Added — RSS Feed
+
+- **RSS 路由**: 新建 `src/app/feed.xml/route.ts`，支持 `?locale=en|zh` 参数，查询最新 20 篇已发布博客，返回标准 RSS 2.0 XML，24h 缓存。
+- **Footer RSS 链接**: Footer 导航栏新增 "RSS" 链接，自动跟随当前语言（`/feed.xml?locale=en` 或 `zh`）。
+- **Autodiscovery**: 在 `[locale]/layout.tsx` 的 `<head>` 注入两个 `<link rel="alternate">` 标签，RSS 阅读器可自动发现订阅源。
+
+---
+
 ## [1.1.7] — 2026-04-09
 
 ### Added — 前后台互通导航链接

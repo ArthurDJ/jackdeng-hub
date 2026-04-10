@@ -44,6 +44,14 @@ export async function Footer({ className }: FooterProps) {
               GitHub
             </a>
             <a
+              href={`/feed.xml?locale=${locale}`}
+              className="text-body-sm ds-link-hover no-underline"
+              style={{ color: 'var(--text-tertiary)' }}
+              title="RSS Feed"
+            >
+              RSS
+            </a>
+            <a
               href="/admin"
               className="text-body-sm ds-link-hover no-underline"
               style={{ color: 'var(--text-tertiary)' }}

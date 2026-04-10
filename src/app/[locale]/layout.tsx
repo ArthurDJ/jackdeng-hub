@@ -41,6 +41,20 @@ export default async function LocaleLayout({ children, params }: Props) {
       suppressHydrationWarning
       className={`${GeistSans.variable} ${GeistMono.variable}`}
     >
+      <head>
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="Jack Deng's Blog (EN)"
+          href="/feed.xml?locale=en"
+        />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="Jack Deng 的博客 (中文)"
+          href="/feed.xml?locale=zh"
+        />
+      </head>
       <body>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>

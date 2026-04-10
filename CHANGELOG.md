@@ -6,6 +6,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.11] — 2026-04-09
+
+### Added — Admin 侧边栏 UI 语言切换器
+
+- 新建 `AdminLangSwitcher.tsx`，通过 Payload `useTranslation` hook 读取当前界面语言并支持一键切换中文/英文，注入到侧边栏 `afterNavLinks`。
+- 现在后台有两个独立切换器：侧边栏的"界面语言"（UI 文字）+ 右上角"Locale"（内容编辑语言），互不干扰。
+
+---
+
 ## [1.1.10] — 2026-04-09
 
 ### Fixed — Admin UI 默认语言改为中文

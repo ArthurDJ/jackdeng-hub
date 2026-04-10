@@ -13,8 +13,8 @@ import { Comments } from './collections/Comments'
 import { Tags } from './collections/Tags'
 import { Projects } from './collections/Projects'
 import { Tools } from './collections/Tools'
+import { ToolRuns } from './collections/ToolRuns'
 import { Media } from './collections/Media'
-
 import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
@@ -48,6 +48,7 @@ export const config = buildConfig({
     Blogs,
     Projects,
     Tools,
+    ToolRuns,
     Media,
   ],
   localization: {

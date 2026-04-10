@@ -6,6 +6,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.2.0] — 2026-04-10
+
+### Added — Phase 8: Automation Tool 基础框架（Visa Monitor 接收侧）
+
+**架构决策**: 小工具（public interactive）独立 repo + iframe/script 微服务嵌入；自动化工具（private automation）后台持久运行，通过 callback API 将状态写入 Payload。
+
+- **ToolRuns 集合**: 新建运行记录表，存储每次工具执行的状态、摘要、详情和元数据（如找到的签证日期）。
+- **Tools schema 重构**: 新增 `toolType`（interactive/automation）、`embedUrl`、`embedType`、`cronSchedule`、`config`、`lastRunAt`、`lastRunStatus`、`notifyWebhook`、`icon` 字段；删除无意义的 `apiRoute` 字段。
+- **Callback API**: 新建 `POST /api/tools/[slug]/callback`，通过 `x-cron-secret` 鉴权，接收 Python 脚本推送的运行状态，写入 ToolRuns 并更新 Tool 最后运行状态，找到名额时自动转发到 `notifyWebhook`。
+- **VisaMonitorPanel 组件**: Admin 后台签证监控面板，展示最新运行状态、元数据卡片、历史记录列表，每 30 秒自动刷新。
+- **数据库迁移**: `20260410_021800` 创建 `tool_runs` 表并更新 `tools` 表字段。
+
+---
+
 ## [1.1.14] — 2026-04-10
 
 ### Added — Taxonomy seed: full-stack engineer edition

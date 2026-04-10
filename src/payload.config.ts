@@ -26,11 +26,6 @@ export const config = buildConfig({
     components: {
       beforeLogin: ['@/components/GoogleLoginButton#GoogleLoginButton'],
     },
-    autoLogin: {
-      email: 'dev@payloadcms.com',
-      password: 'test',
-      prefillOnly: true,
-    },
   },
   // Admin UI 双语：英文 + 简体中文
   i18n: {

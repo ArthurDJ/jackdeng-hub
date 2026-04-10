@@ -6,6 +6,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.6] — 2026-04-09
+
+### Fixed — 登录页 UI 优化与安全加固
+
+- **GoogleLoginButton 重设计**: 按钮适配 Payload Admin 暗色主题（`rgba` 半透明背景），修复 OR 分隔线使用 `var(--bg-base)` 在 Admin 环境中不生效的问题；新增 hover 态、loading 动画（旋转圈）与禁用态。
+- **移除 autoLogin**: 删除 `payload.config.ts` 中的 `autoLogin`（`dev@payloadcms.com / test`），消除生产环境凭证预填安全隐患。
+- **双语验证**: 确认全部 8 个 Collection（Blogs/Categories/Comments/Tags/Projects/Tools/Media/Users）均已配置 `en`/`zh` 双语 labels，Admin i18n 切换正常。
+
+---
+
 ## [1.1.5] — 2026-04-09
 
 ### Fixed — 移除无效的邮箱验证配置，修复构建类型错误

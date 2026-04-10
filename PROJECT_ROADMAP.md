@@ -52,6 +52,7 @@
 - [x] **JSON-LD 补完**: BlogPosting 补充 `mainEntityOfPage` 声明 ✅
 - [x] **相关文章**: 博客详情页下方展示 2-3 篇同分类推荐。 ✅
 - [x] **环境清理**: 确认 `.gitignore` 生效，移除残留的未追踪日志与临时文件。 ✅
+- [x] **Admin UI 优化**: 合并 Header 设置面板 (AdminHeaderSettings)，修复 /admin/account 路由未找到问题。 ✅
 
 ### ⏳ Phase 8: 动态工具引擎 (Pending)
 - [ ] 设计 Tools Collection（配置 API Endpoint、鉴权规则等）。

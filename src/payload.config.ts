@@ -23,12 +23,10 @@ const dirname = path.dirname(filename)
 export const config = buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
   admin: {
+    user: 'users',
     components: {
+      actions: ['@/components/AdminHeaderSettings#AdminHeaderSettings'],
       beforeLogin: ['@/components/GoogleLoginButton#GoogleLoginButton'],
-      afterNavLinks: [
-        '@/components/AdminLangSwitcher#AdminLangSwitcher',
-        '@/components/AdminViewSiteLink#AdminViewSiteLink',
-      ],
       graphics: {
         Logo: '@/components/AdminLogo#AdminLogo',
         Icon: '@/components/AdminLogo#AdminIcon',

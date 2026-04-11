@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { useTranslation, useTheme, useLocale } from '@payloadcms/ui'
-import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { useTranslation, useTheme } from '@payloadcms/ui'
 import Link from 'next/link'
 
 export const AdminHeaderSettings: React.FC = () => {
@@ -10,14 +9,9 @@ export const AdminHeaderSettings: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { i18n } = useTranslation()
   const { theme, setTheme } = useTheme()
-  const locale = useLocale()
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
 
   const currentLang = i18n.language ?? 'zh'
   const isZh = currentLang === 'zh'
-  const currentLocale = locale?.code ?? 'en'
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -147,35 +141,6 @@ export const AdminHeaderSettings: React.FC = () => {
               <span>{isZh ? 'Theme' : '主题颜色'}</span>
             </div>
             <span style={{ fontSize: '12px', opacity: 0.7 }}>{theme === 'dark' ? (isZh ? '深色' : 'Dark') : (isZh ? '浅色' : 'Light')}</span>
-          </button>
-
-          {/* Content Locale */}
-          <button
-            onClick={() => {
-              const next = currentLocale === 'en' ? 'zh' : 'en'
-              const params = new URLSearchParams(searchParams.toString())
-              params.set('locale', next)
-              router.push(`${pathname}?${params.toString()}`)
-            }}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              width: '100%', padding: '8px 12px',
-              background: 'transparent', border: 'none', cursor: 'pointer',
-              color: 'var(--theme-elevation-800)', fontSize: '14px', borderRadius: '4px', textAlign: 'left',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--theme-elevation-50)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 5h7M9 3v2c0 4.418-2.239 8-5 8"/>
-                <path d="M11 8c0 2.21-2.239 6-5 6M15 15l5 5m-5 0l5-5M20 4l-5 8h10L20 4z"/>
-              </svg>
-              <span>{isZh ? 'Content Locale' : '内容语言'}</span>
-            </div>
-            <span style={{ fontSize: '12px', opacity: 0.7 }}>
-              {currentLocale === 'en' ? 'English' : '中文'}
-            </span>
           </button>
 
           <div style={{ height: '1px', background: 'var(--theme-elevation-100)', margin: '4px 0' }} />

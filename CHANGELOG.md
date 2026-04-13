@@ -6,6 +6,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.2.5] — 2026-04-13
+
+### Changed — Admin header 语言切换重构
+
+- 将界面语言切换从设置齿轮内移至 header 常驻胶囊按钮 `中 | EN`，当前语言高亮，与原生 `Locale` 下拉框并排，两个语言控件位置统一。
+- 设置齿轮简化为仅含：主题切换、账户设置、访问前台。
+
+---
+
 ## [1.2.4] — 2026-04-11
 
 ### Fixed — Admin 后台子页面全白 + 设置 UI 文案修正

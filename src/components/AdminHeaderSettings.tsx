@@ -95,9 +95,9 @@ export const AdminHeaderSettings: React.FC = () => {
                 <line x1="2" y1="12" x2="22" y2="12"></line>
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
               </svg>
-              <span>{isZh ? 'Language' : '界面语言'}</span>
+              <span>{isZh ? '界面语言' : 'Language'}</span>
             </div>
-            <span style={{ fontSize: '12px', opacity: 0.7 }}>{isZh ? '中文' : 'EN'}</span>
+            <span style={{ fontSize: '12px', opacity: 0.7 }}>{isZh ? 'EN →' : '中文 →'}</span>
           </button>
 
           {/* Theme Switcher */}
@@ -138,7 +138,7 @@ export const AdminHeaderSettings: React.FC = () => {
                   <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
               )}
-              <span>{isZh ? 'Theme' : '主题颜色'}</span>
+              <span>{isZh ? '主题' : 'Theme'}</span>
             </div>
             <span style={{ fontSize: '12px', opacity: 0.7 }}>{theme === 'dark' ? (isZh ? '深色' : 'Dark') : (isZh ? '浅色' : 'Light')}</span>
           </button>
@@ -162,7 +162,7 @@ export const AdminHeaderSettings: React.FC = () => {
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-            <span>{isZh ? 'Account' : '账户设置'}</span>
+            <span>{isZh ? '账户设置' : 'Account'}</span>
           </Link>
 
           {/* View Site */}
@@ -182,7 +182,7 @@ export const AdminHeaderSettings: React.FC = () => {
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
-            <span>{isZh ? 'View Site' : '访问前台'}</span>
+            <span>{isZh ? '访问前台' : 'View Site'}</span>
           </Link>
         </div>
       )}

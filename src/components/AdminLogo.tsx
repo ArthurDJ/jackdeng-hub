@@ -25,7 +25,7 @@ export const AdminLogo: React.FC = () => {
       </div>
       <span
         style={{
-          color: '#ededed',
+          color: 'var(--theme-elevation-1000)',
           fontSize: '15px',
           fontWeight: 600,
           letterSpacing: '-0.02em',

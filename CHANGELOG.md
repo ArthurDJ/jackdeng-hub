@@ -6,6 +6,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.2.4] — 2026-04-11
+
+### Fixed — Admin 后台子页面全白 + 设置 UI 文案修正
+
+- **数据库迁移 `20260411_000001_add_tool_runs_rels`**：`20260410_021800` 手动创建 `tool_runs` 表时漏加 `tool_runs_id` 到 `payload_locked_documents_rels`。Payload 打开任意 collection 详情页（`/admin/collections/X/:id`）时都会查这张关系表做文档锁定检查，缺列导致 SQL 报错，所有详情页白屏。新迁移添加该列、外键约束与索引，部署后自动执行。
+- **`AdminHeaderSettings.tsx`**：
+  - 移除冗余的"内容语言"按钮（Payload 原生 header 已有 `Locale` 下拉框）。
+  - 修正所有标签三元运算符方向错误（`isZh ? 英文 : 中文` → `isZh ? 中文 : 英文`），中文 UI 下不再错误显示英文标签。
+  - Language 按钮右侧改为显示目标语言 `EN →` / `中文 →`，语义更清晰。
+  - 移除未使用的 `useLocale`、`useRouter`、`usePathname`、`useSearchParams` import。
+- **`AdminLogo.tsx`**：将 "Jack Deng" 文字颜色从硬编码 `#ededed`（浅色主题下不可见）改为 `var(--theme-elevation-1000)`，自适应深色/浅色主题。
+
+---
+
 ## [1.2.3] — 2026-04-10
 
 ### Added — Visa Monitor 前台 Dashboard + Admin detail 展开

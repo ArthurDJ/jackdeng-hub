@@ -45,6 +45,24 @@ When the user asks to "add a new tool":
 ## 🚨 Troubleshooting Guidelines
 - **500 Errors on `/admin` during Local Dev (Cloudflare Tunnel):** Check `next.config.mjs`. Payload strictly enforces CORS and origin checks. Ensure `allowedDevOrigins` includes the active Cloudflare Tunnel hostname.
 - **Database Connection Failures:** Ensure `DATABASE_URI` uses IPv4 pooling (`aws-1...pooler.supabase.com:6543`) with `?pgbouncer=true`. Native IPv6 (`db.xxx.supabase.co:5432`) will silently fail on local machines without IPv6 ISP support.
+- **Admin collection detail pages all blank (白屏)**：根因是 `payload_locked_documents_rels` 缺少某个 collection 对应的 `_id` 列。手动创建新 collection 表时必须同步向该表添加 FK 列（参考 `20260411_000001_add_tool_runs_rels.ts` 的写法）。症状：Vercel 日志中 INFO 级别出现 `column xxx_id does not exist`，页面返回 200 但内容空白。
+
+## 📋 Operation Log
+
+### 2026-04-11 — Claude (v1.2.4)
+
+**问题排查**：用户反馈所有 admin 子页面（`/admin/collections/X/:id`）空白，无法访问。
+
+**根因定位**（通过 Vercel REST API 获取完整日志）：
+- `payload_locked_documents_rels` 表缺少 `tool_runs_id` 列
+- 错误信息：`column d20fa3bd_...tool_runs_id does not exist`
+- 原因：`20260410_021800.ts` 手动创建 `tool_runs` 表时未同步更新 Payload 内部关系表
+
+**变更列表**（2 次 commit，均已 push）：
+1. `src/migrations/20260411_000001_add_tool_runs_rels.ts` — 新增迁移，部署时自动执行
+2. `src/migrations/index.ts` — 注册新迁移
+3. `src/components/AdminHeaderSettings.tsx` — 移除冗余 Locale 按钮；修正所有标签 i18n 三元方向错误
+4. `src/components/AdminLogo.tsx` — 修复 "Jack Deng" 文字浅色模式不可见（`#ededed` → CSS 变量）
 
 ## 📝 Changelog Protocol (Mandatory for AI Agents)
 

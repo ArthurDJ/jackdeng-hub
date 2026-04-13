@@ -34,9 +34,14 @@ export const config = buildConfig({
     },
   },
   // Admin UI 双语：英文 + 简体中文，默认中文
+  // 覆盖 general.locale 翻译，将 "Locale / 语言环境" 改为 "语言 / Language"
   i18n: {
     supportedLanguages: { en, zh },
     fallbackLanguage: 'zh',
+    translations: {
+      zh: { general: { locale: '语言' } },
+      en: { general: { locale: 'Language' } },
+    },
   },
   collections: [
     Users,
@@ -54,7 +59,7 @@ export const config = buildConfig({
       { label: 'English', code: 'en' },
       { label: '中文',     code: 'zh' },
     ],
-    defaultLocale: 'en',
+    defaultLocale: 'zh',
     fallback: true,
   },
   secret: process.env.PAYLOAD_SECRET || 'YOUR_SECRET_HERE',

@@ -6,6 +6,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.2.6] — 2026-04-13
+
+### Changed — Admin 语言控件统一为单一入口
+
+- **`AdminHeaderSettings`**：删除自定义 `中|EN` 胶囊按钮；改为监听 Payload 原生 locale 变化（`useLocale()`），自动同步 admin UI 语言（`i18n.changeLanguage()`），切一次等于两者同步。设置齿轮只剩主题 / 账户 / 访问前台。
+- **`payload.config.ts`**：覆盖 `general.locale` 翻译，header 显示"语言 ∨"（zh）/ "Language ∨"（en），替代原本不直观的"Locale / 语言环境"。`defaultLocale` 由 `en` 改为 `zh`，与中文作者习惯一致。
+
+---
+
 ## [1.2.5] — 2026-04-13
 
 ### Changed — Admin header 语言切换重构

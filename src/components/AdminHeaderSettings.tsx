@@ -15,7 +15,7 @@ import Link from 'next/link'
 export const AdminHeaderSettings: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { i18n } = useTranslation()
+  const { i18n, switchLanguage } = useTranslation()
   const { theme, setTheme } = useTheme()
   const locale = useLocale()
 
@@ -23,14 +23,16 @@ export const AdminHeaderSettings: React.FC = () => {
   const isZh = currentLang === 'zh'
 
   // Auto-sync admin UI language with content locale so one control does both.
+  // Uses Payload's switchLanguage (sets cookie + router.refresh) instead of
+  // i18next's changeLanguage (which doesn't exist on Payload's i18n object).
   useEffect(() => {
     const localeCode = locale?.code
     if (!localeCode) return
     const target = localeCode === 'zh' ? 'zh' : 'en'
-    if (i18n.language !== target) {
-      ;(i18n as any).changeLanguage(target)
+    if (i18n.language !== target && switchLanguage) {
+      void switchLanguage(target)
     }
-  }, [locale?.code])  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [locale?.code, i18n.language])  // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -64,6 +64,29 @@ When the user asks to "add a new tool":
 3. `src/components/AdminHeaderSettings.tsx` — 移除冗余 Locale 按钮；修正所有标签 i18n 三元方向错误
 4. `src/components/AdminLogo.tsx` — 修复 "Jack Deng" 文字浅色模式不可见（`#ededed` → CSS 变量）
 
+### 2026-04-13 — Claude (v1.2.5 → v1.2.6)
+
+**问题**：用户反馈 admin header 语言控件混乱——"Locale" 标签不清晰，界面语言和内容语言两个独立控件令人困惑。
+
+**变更列表**（3 次 commit）：
+
+v1.2.5（语言切换重构第一版）：
+- `AdminHeaderSettings.tsx` — 将界面语言从设置齿轮移至 header 常驻胶囊按钮 `中|EN`
+
+v1.2.6（最终方案，合并为单一控件）：
+- `AdminHeaderSettings.tsx` — 删除自定义胶囊按钮；改用 `useLocale()` + `useEffect` 监听 Payload 原生 locale 变化并自动同步 `i18n.changeLanguage()`，一个控件同时切换 UI 语言和内容语言
+- `payload.config.ts` — 覆盖翻译 `general.locale`：`'语言环境/Locale'` → `'语言/Language'`；`defaultLocale` 由 `'en'` 改为 `'zh'`
+
+**结果**：Header 只有一个"语言: 中文 ∨"按钮，切换后 UI 语言自动跟随，无多余控件。
+
+**已执行 DB 迁移**：
+```bash
+echo "y" | npx payload migrate
+# Migrated: 20260411_000001_add_tool_runs_rels (236ms)
+```
+
+---
+
 ## 📝 Changelog Protocol (Mandatory for AI Agents)
 
 After **every** code change that is committed and pushed, you MUST update `CHANGELOG.md`:

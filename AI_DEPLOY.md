@@ -85,6 +85,20 @@ echo "y" | npx payload migrate
 # Migrated: 20260411_000001_add_tool_runs_rels (236ms)
 ```
 
+### 2026-04-13 — Claude (v1.2.7)
+
+**问题**：用户反馈 `https://www.jackdeng.cc/admin` 无法打开，白屏 / "This page couldn't load"。
+
+**根因定位**（用户提供浏览器 console 错误）：
+- `TypeError: c.changeLanguage is not a function`
+- `Uncaught Error: Minified React error #418` (hydration mismatch)
+- v1.2.6 的 `AdminHeaderSettings.tsx` 调用了 `(i18n as any).changeLanguage()`
+- Payload 的 `i18n` 对象不是 i18next 实例，不含 `changeLanguage` 方法
+- 该错误在 `useEffect`（hydration 阶段）抛出 → React 崩溃 → 页面无法加载
+
+**变更列表**（1 次 commit，已 push）：
+1. `src/components/AdminHeaderSettings.tsx` — 将 `(i18n as any).changeLanguage(target)` 替换为 `switchLanguage(target)`（Payload 内置方法，通过 `useTranslation()` 获取）
+
 ---
 
 ## 📝 Changelog Protocol (Mandatory for AI Agents)

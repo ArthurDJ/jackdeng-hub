@@ -6,6 +6,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.2.7] — 2026-04-13
+
+### Fixed — Admin 后台崩溃（hydration error #418）
+
+- **`AdminHeaderSettings`**：将 `(i18n as any).changeLanguage()` 改为 Payload 原生的 `switchLanguage()`。Payload 的 `i18n` 对象不是 i18next 实例，不含 `changeLanguage` 方法，调用时抛出 `TypeError: c.changeLanguage is not a function`，导致 React hydration error #418，后台白屏 / 无法打开。使用 `useTranslation()` 返回的 `switchLanguage` 函数（设置 cookie + `router.refresh()`）替代。
+
+---
+
 ## [1.2.6] — 2026-04-13
 
 ### Changed — Admin 语言控件统一为单一入口

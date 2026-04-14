@@ -354,6 +354,18 @@ export interface Project {
   link?: string | null;
   status?: ('active' | 'completed' | 'on-hold') | null;
   isPinned?: boolean | null;
+  /**
+   * URL path identifier, e.g. "jackdeng-hub"
+   */
+  slug?: string | null;
+  techStack?:
+    | {
+        tech: string;
+        id?: string | null;
+      }[]
+    | null;
+  githubLink?: string | null;
+  coverImage?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -630,6 +642,15 @@ export interface ProjectsSelect<T extends boolean = true> {
   link?: T;
   status?: T;
   isPinned?: T;
+  slug?: T;
+  techStack?:
+    | T
+    | {
+        tech?: T;
+        id?: T;
+      };
+  githubLink?: T;
+  coverImage?: T;
   updatedAt?: T;
   createdAt?: T;
 }

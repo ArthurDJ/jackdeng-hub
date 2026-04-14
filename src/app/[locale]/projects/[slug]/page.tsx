@@ -6,28 +6,13 @@ import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
 
-export const revalidate = 3600
+// Dynamic rendering — projects are updated via admin without redeploy
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 type Props = { params: Promise<{ slug: string; locale: string }> }
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
-
-export async function generateStaticParams() {
-  const payload = await getPayload()
-  const { docs } = await payload.find({
-    collection: 'projects',
-    limit: 1000,
-    depth: 0,
-  })
-  const paths = []
-  for (const doc of docs as any[]) {
-    if (!doc.slug) continue
-    for (const locale of ['en', 'zh']) {
-      paths.push({ locale, slug: doc.slug })
-    }
-  }
-  return paths
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, locale } = await params

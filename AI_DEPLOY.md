@@ -105,6 +105,20 @@ echo "y" | npx payload migrate
 # Migrated: 20260413_000001_add_projects_slug (308ms)
 ```
 
+### 2026-04-14 — Claude (v1.3.1)
+
+**问题**：Projects 详情页（`/en/projects/*`）全部返回 500，Vercel 日志 digest 为 `DYNAMIC_SERVER_USAGE`。
+
+**根因定位**：
+- 详情页原有 `generateStaticParams()` 在 Vercel build 时查询 DB，但项目数据在 build 之后通过 seed 脚本写入，导致返回 0 条路径
+- 页面被构建为纯静态（`●`），实际请求到来时 Next.js 尝试动态 fallback，static context 禁止动态 API 调用 → 500
+
+**变更列表**（1 次 commit，已 push）：
+1. `src/app/[locale]/projects/[slug]/page.tsx` — 移除 `generateStaticParams()`，替换为 `export const dynamic = 'force-dynamic'` + `export const revalidate = 0`
+2. `CHANGELOG.md` — 新增 v1.3.1 条目
+
+---
+
 ### 2026-04-13 — Claude (v1.2.7)
 
 **问题**：用户反馈 `https://www.jackdeng.cc/admin` 无法打开，白屏 / "This page couldn't load"。

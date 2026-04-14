@@ -6,6 +6,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.3.1] — 2026-04-14
+
+### Fixed — Projects 详情页 500 错误（DYNAMIC_SERVER_USAGE）
+
+- **`src/app/[locale]/projects/[slug]/page.tsx`**：移除 `generateStaticParams()` 及 `revalidate = 3600`，改为 `export const dynamic = 'force-dynamic'` + `revalidate = 0`。根因：项目详情页在 Vercel build 时 `generateStaticParams()` 返回 0 条路径（种子数据在 build 之后写入），页面被构建为纯静态（`●`），当实际 slug 请求到来时 Next.js 尝试动态 fallback 渲染，触发 `DYNAMIC_SERVER_USAGE` digest 错误返回 500。改为全动态渲染后所有 `/projects/[slug]` 路径正常响应。
+
+---
+
 ## [1.3.0] — 2026-04-13
 
 ### Added — Projects 详情页系统

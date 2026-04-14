@@ -16,6 +16,7 @@ import { CommentList } from '@/components/CommentList'
 import { CommentForm } from '@/components/CommentForm'
 import { ReadingProgress } from '@/components/ReadingProgress'
 import { TableOfContents } from '@/components/TableOfContents'
+import { ShareButtons } from '@/components/ShareButtons'
 import { extractHeadings } from '@/lib/extractHeadings'
 
 export const revalidate = 3600
@@ -302,8 +303,17 @@ export default async function BlogDetailPage({ params }: Props) {
               <LexicalRenderer content={blog.content} withHeadingIds />
             </div>
 
+            {/* Share buttons */}
+            <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid var(--border-subtle)' }}>
+              <ShareButtons
+                url={`${BASE}/${locale}/blog/${slug}`}
+                title={blog.title}
+                locale={locale}
+              />
+            </div>
+
             {/* Back link */}
-            <div style={{ marginTop: 48, paddingTop: 24, borderTop: '1px solid var(--border-subtle)' }}>
+            <div style={{ marginTop: 24 }}>
               <Link
                 href="/blog"
                 style={{

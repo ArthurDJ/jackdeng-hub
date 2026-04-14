@@ -105,6 +105,17 @@ echo "y" | npx payload migrate
 # Migrated: 20260413_000001_add_projects_slug (308ms)
 ```
 
+### 2026-04-14 — Claude (v1.4.1)
+
+**功能**：博客文章社交分享按钮。
+
+**变更列表**（1 次 commit，已 push）：
+1. `src/components/ShareButtons.tsx` — 新增，Twitter/X + LinkedIn + 复制链接，双语 label，复制成功反馈
+2. `src/app/[locale]/blog/[slug]/page.tsx` — 集成 ShareButtons，位于正文结束后
+3. `CHANGELOG.md` — 新增 v1.4.1 条目
+
+---
+
 ### 2026-04-14 — Claude (v1.4.0)
 
 **功能**：博客阅读体验增强——目录（TOC）+ 阅读进度条。

@@ -6,6 +6,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.4.1] — 2026-04-14
+
+### Added — 博客文章社交分享按钮
+
+- **`src/components/ShareButtons.tsx`**：新增 Twitter/X、LinkedIn、复制链接三个分享按钮，渲染在文章正文结束后、返回列表链接之前。复制成功后显示 2 秒 "已复制！/ Copied!" 状态反馈，支持 zh/en 双语 label。
+- **`src/app/[locale]/blog/[slug]/page.tsx`**：引入 `ShareButtons` 并传入文章 `url`、`title`、`locale`。
+
+---
+
 ## [1.4.0] — 2026-04-14
 
 ### Added — 博客阅读体验增强（TOC + 阅读进度条）

@@ -14,6 +14,9 @@ import { formatDate } from '@/lib/formatDate'
 import { buildSidebarData } from '@/lib/sidebarData'
 import { CommentList } from '@/components/CommentList'
 import { CommentForm } from '@/components/CommentForm'
+import { ReadingProgress } from '@/components/ReadingProgress'
+import { TableOfContents } from '@/components/TableOfContents'
+import { extractHeadings } from '@/lib/extractHeadings'
 
 export const revalidate = 3600
 
@@ -114,6 +117,7 @@ export default async function BlogDetailPage({ params }: Props) {
   const sidebar = await buildSidebarData({ activeCategory: category?.slug })
   const t = await getTranslations({ locale, namespace: 'blog' })
   const readMins = readingTime(blog.content)
+  const tocHeadings = extractHeadings(blog.content)
 
   // ── Related Posts ──────────────────────────────────────────────────────────
   const { docs: relatedDocs } = await payload.find({
@@ -183,6 +187,9 @@ export default async function BlogDetailPage({ params }: Props) {
 
   return (
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Reading progress bar */}
+      <ReadingProgress />
+
       {/* JSON-LD structured data */}
       <script
         type="application/ld+json"
@@ -292,7 +299,7 @@ export default async function BlogDetailPage({ params }: Props) {
 
             {/* Body */}
             <div style={{ color: 'var(--text-secondary)' }}>
-              <LexicalRenderer content={blog.content} />
+              <LexicalRenderer content={blog.content} withHeadingIds />
             </div>
 
             {/* Back link */}
@@ -359,8 +366,11 @@ export default async function BlogDetailPage({ params }: Props) {
             </div>
           </article>
 
-          {/* Sidebar */}
-          <Sidebar {...sidebar} />
+          {/* Right column: TOC + Sidebar */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+            <TableOfContents headings={tocHeadings} locale={locale} />
+            <Sidebar {...sidebar} />
+          </div>
         </div>
       </div>
     </div>

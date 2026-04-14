@@ -105,6 +105,20 @@ echo "y" | npx payload migrate
 # Migrated: 20260413_000001_add_projects_slug (308ms)
 ```
 
+### 2026-04-14 — Claude (v1.4.0)
+
+**功能**：博客阅读体验增强——目录（TOC）+ 阅读进度条。
+
+**变更列表**（1 次 commit，已 push）：
+1. `src/lib/extractHeadings.ts` — 新增，服务端解析 Lexical JSON 提取标题列表，支持去重 + CJK slug
+2. `src/components/TableOfContents.tsx` — 新增，客户端 TOC 组件，IntersectionObserver 高亮当前标题，sticky 定位
+3. `src/components/ReadingProgress.tsx` — 新增，客户端阅读进度条，position:fixed top:0
+4. `src/components/LexicalRenderer.tsx` — 新增 `withHeadingIds` prop，自定义 JSXConvertersFunction 注入 id 属性
+5. `src/app/[locale]/blog/[slug]/page.tsx` — 集成以上三个新组件
+6. `CHANGELOG.md` — 新增 v1.4.0 条目
+
+---
+
 ### 2026-04-14 — Claude (v1.3.1)
 
 **问题**：Projects 详情页（`/en/projects/*`）全部返回 500，Vercel 日志 digest 为 `DYNAMIC_SERVER_USAGE`。

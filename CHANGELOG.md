@@ -6,6 +6,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.4.0] — 2026-04-14
+
+### Added — 博客阅读体验增强（TOC + 阅读进度条）
+
+- **`src/lib/extractHeadings.ts`**：新增服务端工具函数，解析 Payload Lexical JSON 提取标题列表（含去重 slug 化 `id`，支持 CJK 字符）。
+- **`src/components/TableOfContents.tsx`**：新增客户端目录组件，使用 `IntersectionObserver` 高亮当前可见标题；`sticky` 定位跟随滚动；标题少于 2 个时自动隐藏。
+- **`src/components/ReadingProgress.tsx`**：新增客户端阅读进度条，固定在视口顶部，随用户滚动从 0% 填充至 100%，颜色跟随 `--accent-primary` CSS 变量。
+
+### Changed
+
+- **`src/components/LexicalRenderer.tsx`**：新增 `withHeadingIds` prop；启用时使用自定义 `JSXConvertersFunction` 在每个标题节点注入 slug 化的 `id` 属性，与 TOC 锚链接对应。
+- **`src/app/[locale]/blog/[slug]/page.tsx`**：集成 `ReadingProgress`（页面顶部进度条）、`extractHeadings`（服务端提取标题）、`TableOfContents`（右侧边栏首位，sticky 定位）；`LexicalRenderer` 启用 `withHeadingIds`。
+
+---
+
 ## [1.3.1] — 2026-04-14
 
 ### Fixed — Projects 详情页 500 错误（DYNAMIC_SERVER_USAGE）

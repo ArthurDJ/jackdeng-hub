@@ -27,8 +27,8 @@ function entry(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const payload = await getPayload()
 
-  // ── Fetch all published blogs, categories, tags in parallel ──
-  const [blogsResult, categoriesResult, tagsResult] = await Promise.all([
+  // ── Fetch all published blogs, categories, tags, projects in parallel ──
+  const [blogsResult, categoriesResult, tagsResult, projectsResult] = await Promise.all([
     payload.find({
       collection: 'blogs',
       where: { status: { equals: 'published' } },
@@ -49,14 +49,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       limit: 500,
       select: { slug: true } as any,
     }).catch(() => ({ docs: [] })),
+    payload.find({
+      collection: 'projects',
+      depth: 0,
+      limit: 200,
+      select: { slug: true, updatedAt: true } as any,
+    }).catch(() => ({ docs: [] })),
   ])
 
   // ── Static pages ──
   const staticEntries: MetadataRoute.Sitemap = [
-    entry('', undefined),           // homepage  /en  /zh
-    entry('/blog', undefined),      // blog list
+    entry('', undefined),             // homepage  /en  /zh
+    entry('/blog', undefined),        // blog list
     entry('/about', undefined),
     entry('/blog/archive', undefined),
+    entry('/projects', undefined),    // projects list
   ]
 
   // ── Blog posts ──
@@ -74,5 +81,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     (tag) => entry(`/blog/tag/${tag.slug}`, undefined),
   )
 
-  return [...staticEntries, ...blogEntries, ...categoryEntries, ...tagEntries]
+  // ── Project pages ──
+  const projectEntries: MetadataRoute.Sitemap = (projectsResult.docs as any[])
+    .filter((p) => p.slug)
+    .map((p) => entry(`/projects/${p.slug}`, p.updatedAt))
+
+  return [...staticEntries, ...blogEntries, ...categoryEntries, ...tagEntries, ...projectEntries]
 }

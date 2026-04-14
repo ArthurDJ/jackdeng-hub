@@ -134,5 +134,17 @@
     "tags": "Tags",
     "recentPosts": "Recent Posts",
     "archive": "Archive"
+  },
+
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Things I've built — case studies, side projects, and open-source tools.",
+    "backToProjects": "← Back to Projects",
+    "viewLiveProject": "Live Demo →",
+    "viewOnGitHub": "GitHub →",
+    "techStack": "Tech Stack",
+    "relatedProjects": "Other Projects",
+    "noProjects": "No projects found.",
+    "viewDetails": "View details →"
   }
 }

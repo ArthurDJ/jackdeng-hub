@@ -6,6 +6,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.3.0] — 2026-04-13
+
+### Added — Projects 详情页系统
+
+- **`src/collections/Projects.ts`**：新增 `slug`（唯一路径标识）、`techStack`（数组）、`githubLink`、`coverImage` 四个字段，支持项目详情页展示。
+- **`src/migrations/20260413_000001_add_projects_slug.ts`**：DB Migration，为 `projects` 表添加 `slug`、`github_link`、`cover_image_id` 列及唯一索引；创建 `projects_tech_stack` 关联表。
+- **`src/app/[locale]/projects/page.tsx`**：新增 `/projects` 列表页，网格布局展示所有项目，含状态徽章、技术栈标签、详情页链接。
+- **`src/app/[locale]/projects/[slug]/page.tsx`**：新增 `/projects/[slug]` 详情页，含封面图、Logo、技术栈、富文本描述、Live Demo / GitHub 按钮、相关项目推荐、JSON-LD schema、SEO metadata。
+- **`src/i18n/messages/en.json` / `zh.json`**：新增 `projects` namespace（8 个翻译 key）。
+
+### Changed
+
+- **`src/app/[locale]/page.tsx`**：首页 `ProjectCard` 升级——卡片整体可点击并链接至 `/projects/[slug]`；显示技术栈标签；新增"Projects →"查看全部链接。
+- **`src/app/sitemap.ts`**：sitemap 加入 `/projects` 列表页及各项目详情页路由。
+
+---
+
 ## [1.2.7] — 2026-04-13
 
 ### Fixed — Admin 后台崩溃（hydration error #418）

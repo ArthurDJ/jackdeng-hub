@@ -85,6 +85,26 @@ echo "y" | npx payload migrate
 # Migrated: 20260411_000001_add_tool_runs_rels (236ms)
 ```
 
+### 2026-04-13 — Claude (v1.3.0)
+
+**功能**：新增 Projects 详情页系统（求职 case study 入口）。
+
+**变更列表**（1 次 commit，已 push）：
+1. `src/collections/Projects.ts` — 新增 slug / techStack / githubLink / coverImage 字段
+2. `src/migrations/20260413_000001_add_projects_slug.ts` — DB migration（已执行）
+3. `src/migrations/index.ts` — 注册新 migration
+4. `src/app/[locale]/projects/page.tsx` — 新建列表页
+5. `src/app/[locale]/projects/[slug]/page.tsx` — 新建详情页
+6. `src/app/[locale]/page.tsx` — 首页 ProjectCard 升级，链接到详情页 + 技术栈标签
+7. `src/app/sitemap.ts` — 加入 /projects 路由
+8. `src/i18n/messages/en.json` / `zh.json` — 新增 projects namespace
+
+**已执行 DB 迁移**：
+```bash
+echo "y" | npx payload migrate
+# Migrated: 20260413_000001_add_projects_slug (308ms)
+```
+
 ### 2026-04-13 — Claude (v1.2.7)
 
 **问题**：用户反馈 `https://www.jackdeng.cc/admin` 无法打开，白屏 / "This page couldn't load"。

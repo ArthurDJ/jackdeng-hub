@@ -55,5 +55,38 @@ export const Projects: CollectionConfig = {
       label: { en: 'Pinned', zh: '置顶' },
       defaultValue: false,
     },
+    {
+      name: 'slug',
+      type: 'text',
+      label: { en: 'Slug', zh: '路径标识' },
+      unique: true,
+      admin: {
+        description: { en: 'URL path identifier, e.g. "jackdeng-hub"', zh: 'URL 路径标识，如 "jackdeng-hub"' },
+      },
+    },
+    {
+      name: 'techStack',
+      type: 'array',
+      label: { en: 'Tech Stack', zh: '技术栈' },
+      fields: [
+        {
+          name: 'tech',
+          type: 'text',
+          label: { en: 'Technology', zh: '技术' },
+          required: true,
+        },
+      ],
+    },
+    {
+      name: 'githubLink',
+      type: 'text',
+      label: { en: 'GitHub Link', zh: 'GitHub 链接' },
+    },
+    {
+      name: 'coverImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: { en: 'Cover Image', zh: '封面图' },
+    },
   ],
 }

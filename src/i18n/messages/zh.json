@@ -134,5 +134,17 @@
     "tags": "热门标签",
     "recentPosts": "最新文章",
     "archive": "文章归档"
+  },
+
+  "projects": {
+    "title": "项目",
+    "subtitle": "我构建的东西——案例研究、副项目与开源工具。",
+    "backToProjects": "← 返回项目列表",
+    "viewLiveProject": "在线演示 →",
+    "viewOnGitHub": "GitHub →",
+    "techStack": "技术栈",
+    "relatedProjects": "其他项目",
+    "noProjects": "暂无项目。",
+    "viewDetails": "查看详情 →"
   }
 }

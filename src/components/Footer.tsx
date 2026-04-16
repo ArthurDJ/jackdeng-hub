@@ -32,6 +32,9 @@ export async function Footer({ className }: FooterProps) {
             <Link href="/blog" className="text-body-sm text-ds-secondary ds-link-hover no-underline">
               {tNav('blog')}
             </Link>
+            <Link href="/tools" className="text-body-sm text-ds-secondary ds-link-hover no-underline">
+              {tNav('tools')}
+            </Link>
             <Link href="/about" className="text-body-sm text-ds-secondary ds-link-hover no-underline">
               {tNav('about')}
             </Link>

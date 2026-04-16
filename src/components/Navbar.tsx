@@ -20,8 +20,9 @@ export function Navbar() {
   }
 
   const NAV_LINKS = [
-    { href: '/blog' as const,  label: t('blog') },
-    { href: '/about' as const, label: t('about') },
+    { href: '/blog'    as const, label: t('blog')  },
+    { href: '/tools'   as const, label: t('tools') },
+    { href: '/about'   as const, label: t('about') },
   ]
 
   return (

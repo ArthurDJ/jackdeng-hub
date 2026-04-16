@@ -7,7 +7,6 @@
     "_4": "en.json is source of truth — zh.json must mirror structure exactly",
     "_5": "Run 'npm run i18n:check' before committing to catch zombie keys"
   },
-
   "common": {
     "loading": "Loading…",
     "submit": "Submit",
@@ -27,7 +26,6 @@
     "errorSomething": "Something went wrong.",
     "copyright": "© {year} Jack Deng"
   },
-
   "nav": {
     "blog": "Blog",
     "about": "About",
@@ -35,9 +33,9 @@
     "searchPlaceholder": "Search",
     "searchShortcut": "⌘K",
     "switchToZh": "中文",
-    "switchToEn": "EN"
+    "switchToEn": "EN",
+    "tools": "Tools"
   },
-
   "home": {
     "available": "Open to opportunities",
     "title": "Senior Database & Integration Administrator",
@@ -58,7 +56,6 @@
     },
     "viewProject": "View project →"
   },
-
   "blog": {
     "title": "Blog",
     "subtitle": "Thoughts on engineering, systems, and building things.",
@@ -91,7 +88,6 @@
       "next": "Next →"
     }
   },
-
   "about": {
     "title": "Jack Deng",
     "subtitle": "Senior Database & Integration Administrator",
@@ -106,7 +102,6 @@
     "ctaBlogLinkText": "writing lately →",
     "ctaBlogNote": "Or read what I've been <link>writing lately →</link>."
   },
-
   "search": {
     "inputPlaceholder": "Search posts, categories, tags…",
     "keyNavigate": "navigate",
@@ -118,24 +113,20 @@
     "typeTag": "tag",
     "typePage": "page"
   },
-
   "footer": {
     "builtWith": "Built with Next.js + Payload CMS."
   },
-
   "notFound": {
     "title": "Page not found",
     "message": "Sorry, we couldn't find the page you're looking for.",
     "backHome": "Go back home"
   },
-
   "sidebar": {
     "categories": "Categories",
     "tags": "Tags",
     "recentPosts": "Recent Posts",
     "archive": "Archive"
   },
-
   "projects": {
     "title": "Projects",
     "subtitle": "Things I've built — case studies, side projects, and open-source tools.",

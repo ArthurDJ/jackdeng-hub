@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { BlogCard } from '@/components/BlogCard'
+import { HomeProjectCard } from '@/components/HomeProjectCard'
 import { getPayload } from '@/lib/payload'
 
 export const revalidate = 3600
@@ -306,7 +307,7 @@ export default async function HomePage({ params }: Props) {
           {projects.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {projects.map((project: any) => (
-                <ProjectCard key={project.id} project={project} t={t} locale={locale} />
+                <HomeProjectCard key={project.id} project={project} locale={locale} />
               ))}
             </div>
           ) : (
@@ -355,109 +356,3 @@ export default async function HomePage({ params }: Props) {
   )
 }
 
-/* ─── Project card sub-component ─────────────────────────────────────────── */
-function ProjectCard({ project, t, locale }: { project: any; t: any; locale: string }) {
-  const statusColors: Record<string, { bg: string; text: string; border: string }> = {
-    active:    { bg: 'rgba(16,185,129,0.10)', text: '#10b981', border: 'rgba(16,185,129,0.20)' },
-    completed: { bg: 'rgba(94,106,210,0.10)', text: '#7170ff', border: 'rgba(94,106,210,0.20)' },
-    'on-hold': { bg: 'rgba(245,158,11,0.10)', text: '#f59e0b', border: 'rgba(245,158,11,0.20)' },
-  }
-  const statusLabel: Record<string, string> = {
-    active:    t('projectStatus.active'),
-    completed: t('projectStatus.completed'),
-    'on-hold': t('projectStatus.onHold'),
-  }
-  const sc = statusColors[project.status] ?? statusColors['active']
-  const techStack: string[] = (project.techStack ?? []).map((ts: any) => ts.tech).filter(Boolean)
-  const hasSlug = Boolean(project.slug)
-
-  const CardInner = (
-    <div
-      className="ds-card-hover"
-      style={{
-        background: 'var(--bg-panel)',
-        border: '1px solid var(--border-default)',
-        borderRadius: 12,
-        padding: '20px 24px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 10,
-        height: '100%',
-        textDecoration: 'none',
-        color: 'inherit',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-        <h3 style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)', lineHeight: 1.4 }}>
-          {project.name}
-        </h3>
-        {project.status && (
-          <span style={{
-            fontSize: 11, fontWeight: 510, padding: '2px 8px', borderRadius: 9999,
-            whiteSpace: 'nowrap', background: sc.bg, color: sc.text, border: `1px solid ${sc.border}`, flexShrink: 0,
-          }}>
-            {statusLabel[project.status] ?? project.status}
-          </span>
-        )}
-      </div>
-      <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, flex: 1 }}>
-        {project.shortDescription}
-      </p>
-      {/* Tech stack tags */}
-      {techStack.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-          {techStack.slice(0, 4).map((tech) => (
-            <span key={tech} style={{
-              fontSize: 10, padding: '2px 7px', borderRadius: 9999,
-              background: 'var(--bg-elevated)', color: 'var(--text-secondary)',
-              border: '1px solid var(--border-default)',
-            }}>
-              {tech}
-            </span>
-          ))}
-        </div>
-      )}
-      {/* CTA */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
-        {hasSlug && (
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: 4,
-            fontSize: 12, fontWeight: 510, color: 'var(--accent-primary)', textDecoration: 'none',
-          }}>
-            {t('viewProject')}
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-            </svg>
-          </span>
-        )}
-        {project.link && (
-          <a
-            href={project.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 4,
-              fontSize: 12, fontWeight: 510, color: 'var(--text-secondary)', textDecoration: 'none',
-            }}
-          >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-            </svg>
-            Live
-          </a>
-        )}
-      </div>
-    </div>
-  )
-
-  return hasSlug ? (
-    <Link href={`/${locale}/projects/${project.slug}`} style={{ textDecoration: 'none', display: 'flex' }}>
-      {CardInner}
-    </Link>
-  ) : (
-    <div style={{ display: 'flex' }}>
-      {CardInner}
-    </div>
-  )
-}

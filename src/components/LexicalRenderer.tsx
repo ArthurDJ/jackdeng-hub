@@ -10,6 +10,7 @@
 import React from 'react'
 import { RichText, type JSXConvertersFunction } from '@payloadcms/richtext-lexical/react'
 import { slugifyHeading } from '@/lib/extractHeadings'
+import { CodeBlockRenderer } from '@/components/CodeBlockRenderer'
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -21,11 +22,24 @@ function getNodeText(node: any): string {
 
 // ── converters ─────────────────────────────────────────────────────────────
 
-/** Heading converter that adds a stable slug `id` for anchor linking */
+/** Converter for CodeBlock blocks (adds copy button) */
+const codeBlockConverter: JSXConvertersFunction = ({ defaultConverters }) => ({
+  ...defaultConverters,
+  blocks: {
+    ...((defaultConverters as any).blocks ?? {}),
+    Code: ({ node }: any) => {
+      const { code = '', language = '' } = node.fields ?? {}
+      return <CodeBlockRenderer key={node.id} code={code} language={language || undefined} />
+    },
+  },
+})
+
+/** Heading converter that adds a stable slug `id` + code block copy button */
 const headingIdsConverters: JSXConvertersFunction = ({ defaultConverters }) => {
   const seenIds = new Map<string, number>()
+  const base = codeBlockConverter({ defaultConverters })
   return {
-    ...defaultConverters,
+    ...base,
     heading: ({ node, nodesToJSX }) => {
       const children = nodesToJSX({ nodes: node.children })
       const NodeTag = node.tag as React.ElementType
@@ -66,7 +80,7 @@ export function LexicalRenderer({ content, className, withHeadingIds }: LexicalR
     >
       <RichText
         data={content}
-        converters={withHeadingIds ? headingIdsConverters : undefined}
+        converters={withHeadingIds ? headingIdsConverters : codeBlockConverter}
       />
     </div>
   )

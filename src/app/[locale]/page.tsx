@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'home' })
   return {
     title: t('title'),
-    description: 'Senior Database & Integration Administrator. NetSuite · Boomi · Supabase · Next.js.',
+    description: 'Senior Software Engineer | Backend & Data Systems. NetSuite · Boomi · Supabase · Next.js.',
     alternates: {
       canonical: `${BASE}/${locale}`,
       languages: { en: `${BASE}/en`, zh: `${BASE}/zh` },

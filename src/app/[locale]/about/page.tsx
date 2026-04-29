@@ -36,7 +36,7 @@ const SKILLS = [
 const TIMELINE = [
   {
     year: '2023 – present',
-    role: { en: 'Senior Database & Integration Administrator', zh: '高级数据库与集成管理员' },
+    role: { en: 'Senior Software Engineer | Backend & Data Systems', zh: '高级软件工程师 | 后端与数据系统' },
     place: 'Value Wholesaler',
     desc: {
       en: 'Owns the NetSuite ERP data layer and Boomi integration platform. Designs and maintains pipelines that keep inventory, finance, and fulfillment systems in sync across the business.',

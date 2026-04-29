@@ -35,41 +35,62 @@ const SKILLS = [
 
 const TIMELINE = [
   {
-    year: '2023 – present',
-    role: { en: 'Senior Software Engineer | Backend & Data Systems', zh: '高级软件工程师 | 后端与数据系统' },
-    place: 'Value Wholesaler',
+    year: '01/2024 – present',
+    role: { en: 'Software Engineer (Backend & Data)', zh: '软件工程师 (后端与数据)' },
+    place: 'Value Windows & Doors',
     desc: {
-      en: 'Owns the NetSuite ERP data layer and Boomi integration platform. Designs and maintains pipelines that keep inventory, finance, and fulfillment systems in sync across the business.',
-      zh: '负责 NetSuite ERP 数据层与 Boomi 集成平台，设计并维护保持库存、财务和履约系统同步的数据管道。',
+      en: 'Spearheaded 0-to-1 cloud data architecture using Python, C#, AWS S3, and Databricks. Developed full-stack internal web portals in React and designed robust backend integrations handling tens of thousands of daily records.',
+      zh: '使用 Python、C#、AWS S3 和 Databricks 实现了从 0 到 1 的云数据架构。使用 React 开发全栈内部 Web 门户，设计了高可用后端集成，每天处理数万条记录。',
     },
   },
   {
-    year: '2021 – 2023',
-    role: { en: 'Database Administrator', zh: '数据库管理员' },
-    place: 'Previous Role',
+    year: '07/2022 – 01/2024',
+    role: { en: 'Software Engineer Intern', zh: '软件开发实习生' },
+    place: 'APEXUS-TECH',
     desc: {
-      en: 'Managed PostgreSQL and SQL Server instances at scale. Designed ETL pipelines, implemented data governance policies, and reduced query latency by 40%.',
-      zh: '管理规模化的 PostgreSQL 和 SQL Server 实例，设计 ETL 管道，落地数据治理策略，查询延迟降低 40%。',
+      en: 'Developed backend services in Python to ingest and persist financial API data. Designed ETL pipelines with MySQL, improving batch efficiency by 40%. Built internal monitoring dashboards.',
+      zh: '使用 Python 开发后端服务以接入和存储财务 API 数据。设计 MySQL ETL 管道，使批处理效率提高 40%。构建了内部监控仪表板。',
     },
   },
   {
-    year: '2017 – 2021',
-    role: { en: 'Information Technology', zh: '信息技术' },
-    place: 'University',
+    year: '03/2022 – 07/2023',
+    role: { en: 'M.S. Analytics', zh: '分析学硕士' },
+    place: 'Northeastern University',
     desc: {
-      en: 'Bachelor of Information Technology. Majored in database systems and enterprise architecture.',
-      zh: '信息技术学士，主修数据库系统与企业架构。',
+      en: 'Served as Data Warehousing & SQL Tutor. Instructed graduate students on SQL performance tuning, indexing strategies, and execution plan analysis.',
+      zh: '担任数据仓库与 SQL 导师。指导研究生进行 SQL 性能调优、索引策略和执行计划分析。GPA: 3.93/4.0。',
     },
   },
 ]
 
 const LINKS = [
   { label: 'GitHub',    href: 'https://github.com/ArthurDJ', icon: 'github' },
-  { label: 'LinkedIn',  href: 'https://linkedin.com/in/jackdeng', icon: 'linkedin' },
-  { label: 'Email',     href: 'mailto:hello@jackdeng.cc', icon: 'email' },
+  { label: 'LinkedIn',  href: 'https://linkedin.com/in/jie-deng-linkdin', icon: 'linkedin' },
+  { label: 'LeetCode',  href: 'https://leetcode.com/u/dj3013158/', icon: 'leetcode' },
+  { label: 'Email',     href: 'mailto:dj3013158@gmail.com', icon: 'email' },
+  { label: 'Resume',    href: '/resume.pdf', icon: 'resume' },
 ]
 
 /* ── inline icon helpers ── */
+function LeetCodeIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125 2.513 5.277 5.277 0 0 0 1.062 2.188 5.286 5.286 0 0 0 1.936 1.488 5.344 5.344 0 0 0 2.446.494 5.368 5.368 0 0 0 2.458-.456 5.274 5.274 0 0 0 1.94-1.467 5.295 5.295 0 0 0 1.09-2.185 5.34 5.34 0 0 0 .141-2.512 5.28 5.28 0 0 0-1.189-2.12l-2.775-2.966a1.385 1.385 0 0 0-2.02.046 1.383 1.383 0 0 0-.044 2.01l2.766 2.955a2.535 2.535 0 0 1 .593 1.026 2.553 2.553 0 0 1-.067 1.206 2.532 2.532 0 0 1-.52 1.045 2.54 2.54 0 0 1-.926.708 2.543 2.543 0 0 1-1.171.22 2.541 2.541 0 0 1-1.171-.237 2.536 2.536 0 0 1-.924-.712 2.551 2.551 0 0 1-.513-1.047 2.543 2.543 0 0 1 .06-1.206 2.545 2.545 0 0 1 .581-1.03l3.844-4.116 5.393-5.776a1.378 1.378 0 0 0-.348-2.31A1.373 1.373 0 0 0 13.483 0zm1.886 14.218a1.384 1.384 0 0 0-1.012 2.302l6.236 6.69c.571.611 1.5.611 2.072 0a1.472 1.472 0 0 0 0-2.086l-6.238-6.69a1.374 1.374 0 0 0-1.058-.216z"/>
+    </svg>
+  )
+}
+function ResumeIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+      <line x1="16" y1="13" x2="8" y2="13"></line>
+      <line x1="16" y1="17" x2="8" y2="17"></line>
+      <polyline points="10 9 9 9 8 9"></polyline>
+    </svg>
+  )
+}
+
 function GithubIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -96,7 +117,9 @@ function EmailIcon() {
 const ICON_MAP: Record<string, React.ReactNode> = {
   github: <GithubIcon />,
   linkedin: <LinkedInIcon />,
+  leetcode: <LeetCodeIcon />,
   email: <EmailIcon />,
+  resume: <ResumeIcon />,
 }
 
 /* ── section heading helper ── */

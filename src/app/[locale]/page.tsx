@@ -114,103 +114,172 @@ export default async function HomePage({ params }: Props) {
 
       <main className="flex-1">
         <section className="max-w-5xl mx-auto px-6 pt-20 pb-16 sm:pt-24 sm:pb-20">
-          <div className="max-w-3xl">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:gap-12">
 
-            {/* Status pill */}
-            <div className="inline-flex items-center gap-2 mb-6 sm:mb-8"
-              style={{
-                background: 'rgba(16,185,129,0.10)',
-                border: '1px solid rgba(16,185,129,0.20)',
-                borderRadius: 9999,
-                padding: '4px 14px',
-              }}>
-              <span
-                className="animate-pulse"
-                style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', display: 'inline-block' }}
-              />
-              <span style={{ fontSize: 13, fontWeight: 510, color: '#10b981' }}>
-                {t('available')}
-              </span>
-            </div>
-
-            {/* Title */}
-            <h1
-              className="mb-5"
-              style={{
-                fontSize: 'clamp(36px, 5vw, 56px)',
-                fontWeight: 590,
-                letterSpacing: '-1.2px',
-                lineHeight: 1.05,
-                color: 'var(--text-primary)',
-              }}
-            >
-              {t('title')}
-            </h1>
-
-            {/* Subtitle */}
-            <p
-              className="mb-4"
-              style={{
-                fontSize: 20,
-                fontWeight: 300,
-                color: 'var(--text-tertiary)',
-                letterSpacing: '-0.2px',
-              }}
-            >
-              {t('subtitle')}
-            </p>
-
-            {/* Bio */}
-            <p
-              className="mb-10 max-w-2xl"
-              style={{ fontSize: 17, lineHeight: 1.7, color: 'var(--text-secondary)', fontWeight: 400 }}
-            >
-              {t.rich('bio', {
-                netsuite: (c) => <span style={{ color: 'var(--text-primary)', fontWeight: 510 }}>{c}</span>,
-                boomi:    (c) => <span style={{ color: 'var(--text-primary)', fontWeight: 510 }}>{c}</span>,
-              })}
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-              <Link
-                href="/blog"
-                className="ds-accent-btn w-full sm:w-auto text-center justify-center"
+            {/* ── Left: text ──────────────────────────────────────────── */}
+            <div className="flex-1 min-w-0">
+              {/* Status pill */}
+              <div className="inline-flex items-center gap-2 mb-6 sm:mb-8"
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '10px 24px',
+                  background: 'rgba(16,185,129,0.10)',
+                  border: '1px solid rgba(16,185,129,0.20)',
                   borderRadius: 9999,
-                  background: 'var(--accent-primary)',
-                  color: '#ffffff',
-                  fontSize: 14,
-                  fontWeight: 500,
-                  textDecoration: 'none',
+                  padding: '4px 14px',
+                }}>
+                <span
+                  className="animate-pulse"
+                  style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', display: 'inline-block' }}
+                />
+                <span style={{ fontSize: 13, fontWeight: 510, color: '#10b981' }}>
+                  {t('available')}
+                </span>
+              </div>
+
+              {/* Title */}
+              <h1
+                className="mb-5"
+                style={{
+                  fontSize: 'clamp(32px, 4.5vw, 52px)',
+                  fontWeight: 590,
+                  letterSpacing: '-1.2px',
+                  lineHeight: 1.05,
+                  color: 'var(--text-primary)',
                 }}
               >
-                {t('ctaBlog')}
-              </Link>
-              <Link
-                href="/about"
-                className="ds-ghost-btn w-full sm:w-auto text-center justify-center"
+                {t('title')}
+              </h1>
+
+              {/* Subtitle — single line, no bio paragraph */}
+              <p
+                className="mb-10"
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '10px 24px',
-                  borderRadius: 9999,
-                  background: 'transparent',
-                  border: '1px solid var(--border-default)',
+                  fontSize: 18,
+                  fontWeight: 350,
                   color: 'var(--text-secondary)',
-                  fontSize: 14,
-                  fontWeight: 500,
-                  textDecoration: 'none',
+                  letterSpacing: '-0.2px',
+                  lineHeight: 1.6,
+                  maxWidth: 480,
                 }}
               >
-                {t('ctaAbout')}
-              </Link>
+                {t('subtitle')}
+              </p>
+
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+                <Link
+                  href={`/${locale}/projects`}
+                  className="ds-accent-btn w-full sm:w-auto text-center justify-center"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '10px 24px',
+                    borderRadius: 9999,
+                    background: 'var(--accent-primary)',
+                    color: '#ffffff',
+                    fontSize: 14,
+                    fontWeight: 500,
+                    textDecoration: 'none',
+                  }}
+                >
+                  {t('ctaProjects')}
+                </Link>
+                <Link
+                  href="/about"
+                  className="ds-ghost-btn w-full sm:w-auto text-center justify-center"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '10px 24px',
+                    borderRadius: 9999,
+                    background: 'transparent',
+                    border: '1px solid var(--border-default)',
+                    color: 'var(--text-secondary)',
+                    fontSize: 14,
+                    fontWeight: 500,
+                    textDecoration: 'none',
+                  }}
+                >
+                  {t('ctaAbout')}
+                </Link>
+              </div>
             </div>
+
+            {/* ── Right: floating project preview cards ───────────────── */}
+            {projects.length > 0 && (
+              <div className="hidden lg:flex flex-col gap-3 flex-shrink-0 w-72 relative pt-4">
+                {projects.slice(0, 2).map((project: any, i: number) => {
+                  const techStack: string[] = (project.techStack ?? []).map((ts: any) => ts.tech).filter(Boolean)
+                  const statusBg: Record<string, string> = {
+                    active:    'rgba(16,185,129,0.10)',
+                    completed: 'rgba(94,106,210,0.10)',
+                    'on-hold': 'rgba(245,158,11,0.10)',
+                  }
+                  const statusText: Record<string, string> = {
+                    active:    '#10b981',
+                    completed: '#7170ff',
+                    'on-hold': '#f59e0b',
+                  }
+                  const statusBorder: Record<string, string> = {
+                    active:    'rgba(16,185,129,0.20)',
+                    completed: 'rgba(94,106,210,0.20)',
+                    'on-hold': 'rgba(245,158,11,0.20)',
+                  }
+                  return (
+                    <div
+                      key={project.id}
+                      style={{
+                        background: 'var(--bg-panel)',
+                        border: '1px solid var(--border-default)',
+                        borderRadius: 12,
+                        padding: '14px 16px',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.07)',
+                        transform: i === 0 ? 'rotate(-1.2deg) translateX(10px)' : 'rotate(0.8deg)',
+                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.3 }}>
+                          {project.name}
+                        </span>
+                        {project.status && (
+                          <span style={{
+                            fontSize: 10, fontWeight: 510, padding: '2px 7px', borderRadius: 9999, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 6,
+                            background: statusBg[project.status] ?? statusBg.active,
+                            color: statusText[project.status] ?? statusText.active,
+                            border: `1px solid ${statusBorder[project.status] ?? statusBorder.active}`,
+                          }}>
+                            {project.status}
+                          </span>
+                        )}
+                      </div>
+                      <p style={{ fontSize: 11, color: 'var(--text-tertiary)', lineHeight: 1.5, marginBottom: 8 }}>
+                        {(project.shortDescription ?? '').slice(0, 72)}{project.shortDescription?.length > 72 ? '…' : ''}
+                      </p>
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                        {techStack.slice(0, 3).map((tech: string) => (
+                          <span key={tech} style={{
+                            fontSize: 10, padding: '2px 6px', borderRadius: 9999,
+                            background: 'var(--bg-elevated)', color: 'var(--text-secondary)',
+                            border: '1px solid var(--border-default)',
+                          }}>
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
+                {/* Decorative glow */}
+                <div style={{
+                  position: 'absolute', bottom: -32, right: -24, width: 140, height: 140,
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle, rgba(94,106,210,0.15) 0%, transparent 70%)',
+                  pointerEvents: 'none',
+                }} />
+              </div>
+            )}
           </div>
         </section>
 

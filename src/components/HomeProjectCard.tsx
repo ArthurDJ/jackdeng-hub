@@ -8,6 +8,23 @@ interface HomeProjectCardProps {
   locale: string
 }
 
+const GRADIENTS = [
+  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+  'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+  'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+  'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+]
+
+function getGradient(name: string): string {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + hash * 31
+  return GRADIENTS[Math.abs(hash) % GRADIENTS.length]
+}
+
 export function HomeProjectCard({ project, locale }: HomeProjectCardProps) {
   const t = useTranslations('home')
 
@@ -29,10 +46,9 @@ export function HomeProjectCard({ project, locale }: HomeProjectCardProps) {
     background: 'var(--bg-panel)',
     border: '1px solid var(--border-default)',
     borderRadius: 12,
-    padding: '20px 24px',
+    overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    gap: 10,
     height: '100%',
     textDecoration: 'none',
     color: 'inherit',
@@ -40,6 +56,9 @@ export function HomeProjectCard({ project, locale }: HomeProjectCardProps) {
 
   const inner = (
     <div className="ds-card-hover" style={cardStyle}>
+      {/* Gradient cover */}
+      <div style={{ height: 72, flexShrink: 0, background: getGradient(project.name ?? '') }} />
+      <div style={{ padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
         <h3 style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)', lineHeight: 1.4 }}>
           {project.name}
@@ -101,6 +120,7 @@ export function HomeProjectCard({ project, locale }: HomeProjectCardProps) {
             Live
           </span>
         )}
+      </div>
       </div>
     </div>
   )

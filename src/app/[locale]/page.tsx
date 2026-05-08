@@ -167,7 +167,7 @@ export default async function HomePage({ params }: Props) {
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row flex-wrap gap-3">
                 <Link
-                  href={`/${locale}/projects`}
+                  href="/projects"
                   className="ds-accent-btn w-full sm:w-auto text-center justify-center"
                   style={{
                     display: 'inline-flex',
@@ -366,7 +366,7 @@ export default async function HomePage({ params }: Props) {
               {t('latestProjects')}
             </h2>
             <Link
-              href={`/${locale}/projects`}
+              href="/projects"
               style={{ fontSize: 13, color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 500 }}
             >
               {t('projects')} →

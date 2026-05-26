@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
+import { Navbar } from '@/components/Navbar'
 
 export const revalidate = 3600
 
@@ -33,6 +34,7 @@ export default async function ProjectsPage({ params }: Props) {
     sort: '-createdAt',
     depth: 1,
     limit: 100,
+    locale: locale as any,
   }).catch(() => ({ docs: [] }))
 
   const statusColors: Record<string, { bg: string; text: string; border: string }> = {
@@ -42,7 +44,9 @@ export default async function ProjectsPage({ params }: Props) {
   }
 
   return (
-    <main className="ds-container" style={{ paddingTop: '3rem', paddingBottom: '4rem' }}>
+    <>
+      <Navbar />
+      <main className="ds-container" style={{ paddingTop: '3rem', paddingBottom: '4rem' }}>
       {/* Page header */}
       <div style={{ marginBottom: '2.5rem' }}>
         <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginBottom: '0.5rem' }}>
@@ -57,7 +61,7 @@ export default async function ProjectsPage({ params }: Props) {
       {(projects as any[]).length === 0 ? (
         <p style={{ color: 'var(--text-secondary)' }}>{t('noProjects')}</p>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
           {(projects as any[]).map((project) => {
             const sc = statusColors[project.status] ?? statusColors['active']
             const statusLabel: Record<string, string> = {
@@ -150,6 +154,7 @@ export default async function ProjectsPage({ params }: Props) {
           })}
         </div>
       )}
-    </main>
+      </main>
+    </>
   )
 }

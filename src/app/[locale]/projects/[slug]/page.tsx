@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
+import { Navbar } from '@/components/Navbar'
 
 // Dynamic rendering — projects are updated via admin without redeploy
 export const dynamic = 'force-dynamic'
@@ -22,6 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     where: { slug: { equals: slug } },
     depth: 1,
     limit: 1,
+    locale: locale as any,
   })
   const project = docs[0] as any
   if (!project) return { title: 'Not Found' }
@@ -62,6 +64,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     where: { slug: { equals: slug } },
     depth: 1,
     limit: 1,
+    locale: locale as any,
   })
 
   const project = docs[0] as any
@@ -93,6 +96,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     sort: '-createdAt',
     depth: 1,
     limit: 3,
+    locale: locale as any,
   }).catch(() => ({ docs: [] }))
 
   // JSON-LD
@@ -112,6 +116,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      <Navbar />
       <main className="ds-container" style={{ paddingTop: '2.5rem', paddingBottom: '4rem' }}>
         {/* Breadcrumb */}
         <nav style={{ marginBottom: '1.5rem', fontSize: 13, color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: 6 }}>

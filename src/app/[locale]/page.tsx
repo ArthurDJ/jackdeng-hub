@@ -226,10 +226,14 @@ export default async function HomePage({ params }: Props) {
                     completed: 'rgba(94,106,210,0.20)',
                     'on-hold': 'rgba(245,158,11,0.20)',
                   }
+                  const href = project.slug ? `/projects/${project.slug}` : '/projects'
                   return (
-                    <div
+                    <Link
                       key={project.id}
+                      href={href}
+                      className="ds-card-hover"
                       style={{
+                        display: 'block',
                         background: 'var(--bg-panel)',
                         border: '1px solid var(--border-default)',
                         borderRadius: 12,
@@ -237,6 +241,8 @@ export default async function HomePage({ params }: Props) {
                         boxShadow: '0 4px 20px rgba(0,0,0,0.07)',
                         transform: i === 0 ? 'rotate(-1.2deg) translateX(10px)' : 'rotate(0.8deg)',
                         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                        textDecoration: 'none',
+                        color: 'inherit',
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
@@ -268,7 +274,7 @@ export default async function HomePage({ params }: Props) {
                           </span>
                         ))}
                       </div>
-                    </div>
+                    </Link>
                   )
                 })}
                 {/* Decorative glow */}

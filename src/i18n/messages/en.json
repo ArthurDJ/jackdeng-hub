@@ -29,6 +29,7 @@
   "nav": {
     "blog": "Blog",
     "about": "About",
+    "projects": "Projects",
     "search": "Search",
     "searchPlaceholder": "Search",
     "searchShortcut": "⌘K",

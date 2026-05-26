@@ -6,6 +6,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.4.3] — 2026-05-25
+
+### Added — 导航栏新增 Projects 入口；首页 hero 项目卡片可点击跳转
+
+- **`src/components/Navbar.tsx`**：`NAV_LINKS` 数组顶部新增 `/projects`（放第一位，portfolio 站项目入口比博客优先级更高）。桌面端 + 移动端抽屉菜单都自动渲染。
+- **`src/i18n/messages/en.json` / `zh.json`**：`nav` namespace 新增 `projects` 键（"Projects" / "项目"）。i18n-check 通过，键数对齐 109/109。
+- **`src/app/[locale]/page.tsx`**：右上角两张倾斜的 hero 浮动项目卡片由 `<div>` 改为 `<Link>`；href 优先 `/projects/${slug}`，无 slug 时回退到 `/projects` 列表页。复用 `ds-card-hover` class 获得 hover 效果。
+
+---
+
 ## [1.4.2] — 2026-05-25
 
 ### Fixed — Sidebar 跨语言缓存串数据

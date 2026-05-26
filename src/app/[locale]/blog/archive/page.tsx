@@ -48,7 +48,7 @@ export default async function ArchivePage({ params, searchParams }: Props) {
     limit: 1000,
   })
 
-  const sidebar = await buildSidebarData()
+  const sidebar = await buildSidebarData({ locale: locale as any })
 
   // Group by year → month → posts
   const grouped: Record<number, Record<number, any[]>> = {}

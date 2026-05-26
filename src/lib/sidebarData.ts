@@ -7,37 +7,38 @@ const MONTHS = [
   'July','August','September','October','November','December',
 ]
 
+type Locale = 'en' | 'zh'
+
 interface SidebarOptions {
+  locale?: Locale
   activeCategory?: string
   activeTag?: string
 }
 
-// Cached version: runs at most once per hour across all requests.
-// Sidebar data (categories, tags, archive) changes rarely.
+// Cached per-locale (the `locale` arg becomes part of the cache key automatically).
 const getCachedSidebarBase = unstable_cache(
-  async () => {
+  async (locale: Locale) => {
     const payload = await getPayload()
 
-    // 3 queries instead of 4 — removed the 1000-blog "allPublished" fetch.
-    // Category counts and archive are derived from a single modest query (limit 200).
     const [categoriesResult, tagsResult, recentResult, countSource] = await Promise.all([
-      payload.find({ collection: 'categories', limit: 50, depth: 0 }),
-      payload.find({ collection: 'tags', limit: 100, depth: 0 }),
+      payload.find({ collection: 'categories', limit: 50, depth: 0, locale }),
+      payload.find({ collection: 'tags', limit: 100, depth: 0, locale }),
       payload.find({
         collection: 'blogs',
         where: { status: { equals: 'published' } },
         sort: '-publishedAt',
         depth: 1,
         limit: 5,
+        locale,
         select: { title: true, slug: true, publishedAt: true, coverImage: true } as any,
       }),
-      // Used for archive grouping + category counts. 200 is more than enough for a personal blog.
       payload.find({
         collection: 'blogs',
         where: { status: { equals: 'published' } },
         sort: '-publishedAt',
         depth: 0,
         limit: 200,
+        locale,
         select: { publishedAt: true, category: true } as any,
       }),
     ])
@@ -94,7 +95,8 @@ const getCachedSidebarBase = unstable_cache(
 )
 
 export async function buildSidebarData(options: SidebarOptions = {}) {
-  const base = await getCachedSidebarBase()
+  const locale: Locale = options.locale ?? 'en'
+  const base = await getCachedSidebarBase(locale)
   return {
     ...base,
     activeCategory: options.activeCategory,

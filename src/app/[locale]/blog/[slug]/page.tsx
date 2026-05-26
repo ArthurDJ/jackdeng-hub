@@ -115,7 +115,7 @@ export default async function BlogDetailPage({ params }: Props) {
     ? blog.tags.filter((t: any) => typeof t === 'object')
     : []
 
-  const sidebar = await buildSidebarData({ activeCategory: category?.slug })
+  const sidebar = await buildSidebarData({ locale: locale as any, activeCategory: category?.slug })
   const t = await getTranslations({ locale, namespace: 'blog' })
   const readMins = readingTime(blog.content)
   const tocHeadings = extractHeadings(blog.content)

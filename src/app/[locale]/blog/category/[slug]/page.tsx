@@ -70,7 +70,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const category = catResult.docs[0] as any
   if (!category) notFound()
 
-  const sidebar = await buildSidebarData({ activeCategory: slug })
+  const sidebar = await buildSidebarData({ locale: locale as any, activeCategory: slug })
   const blogs = blogsResult.docs as any[]
   const totalPages = (blogsResult as any).totalPages ?? 1
 

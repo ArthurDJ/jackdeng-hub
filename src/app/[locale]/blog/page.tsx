@@ -50,7 +50,7 @@ export default async function BlogListPage({ params, searchParams }: Props) {
       page,
       locale: locale as any,
     }).catch(() => ({ docs: [], totalPages: 1 })),
-    buildSidebarData().catch(() => ({})),
+    buildSidebarData({ locale: locale as any }).catch(() => ({})),
   ])
 
   const blogs = blogsResult.docs as any[]

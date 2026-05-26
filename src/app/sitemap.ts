@@ -34,7 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { status: { equals: 'published' } },
       sort: '-publishedAt',
       depth: 0,
-      limit: 1000,
+      limit: 200,
       select: { slug: true, publishedAt: true, updatedAt: true } as any,
     }).catch(() => ({ docs: [] })),
     payload.find({

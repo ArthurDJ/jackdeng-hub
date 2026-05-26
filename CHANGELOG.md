@@ -6,6 +6,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.4.2] — 2026-05-25
+
+### Fixed — Sidebar 跨语言缓存串数据
+
+- **`src/lib/sidebarData.ts`**：`unstable_cache` 包装的 `getCachedSidebarBase` 之前无 locale 入参，en / zh 用户在 1 小时缓存窗口内共用同一份数据；近期文章 `title` 是 localized 字段，导致语言不匹配。改为 `(locale: 'en' | 'zh') => ...`，locale 作为函数参数自动并入缓存键；同时给所有 `payload.find` 加 `locale` 参数。
+- **`src/app/[locale]/blog/page.tsx` / `archive/page.tsx` / `category/[slug]/page.tsx` / `[slug]/page.tsx` / `tag/[slug]/page.tsx`**：5 个调用点全部改为 `buildSidebarData({ locale: locale as any, ... })`。
+
+### Changed — sitemap 性能小调整
+
+- **`src/app/sitemap.ts`**：blog 查询 `limit: 1000 → 200`。个人站规模远小于 1000，降低每日 sitemap 重新生成的 DB 负载与函数内存。`select` 投影已存在不变。
+
+### Added — 数据库测试博客清理脚本
+
+- **`scripts/cleanup-blogs.ts`**：新增一次性清理工具，通过 Payload Local API 删除 `blogs` 表全部记录及孤儿 `comments`。运行方式：`npx tsx scripts/cleanup-blogs.ts`。需要本地 `.env` 含生产 `DATABASE_URI`；建议先在 Supabase Dashboard 做一次 snapshot 再跑。`scripts/seed.ts` 保留不动，供未来空环境复现。
+
+---
+
 ## [1.4.1] — 2026-04-14
 
 ### Added — 博客文章社交分享按钮

@@ -71,7 +71,7 @@ export default async function TagPage({ params, searchParams }: Props) {
   const tag = tagResult.docs[0] as any
   if (!tag) notFound()
 
-  const sidebar = await buildSidebarData({ activeTag: slug })
+  const sidebar = await buildSidebarData({ locale: locale as any, activeTag: slug })
   const blogs = blogsResult.docs as any[]
   const totalPages = (blogsResult as any).totalPages ?? 1
 

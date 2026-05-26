@@ -6,6 +6,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.6.0] — 2026-05-25
+
+### Changed — Payload Admin UX P0：分组 + 列表搜索 + SEO 侧栏 + 双语提示
+
+- **`src/collections/*.ts`**（全部 9 个 collection）：加 `admin.group`，侧边栏从平铺 9 项变成 4 个分组——内容（Blogs / Categories / Tags / Comments）/ 作品（Projects / Media）/ 工具（Tools / ToolRuns）/ 系统（Users）。
+- **`src/collections/Blogs.ts`**：
+  - 加 `listSearchableFields: ['title', 'excerpt', 'slug']`——列表搜索框可即时过滤标题/摘要/路径
+  - SEO group 加 `admin.position: 'sidebar'`——以前埋在长表单底部，现在右侧 sticky 视野内
+  - localized 字段（title / excerpt / content）加 `🌐 多语言字段` 描述，提醒切换顶部 Language 后分别填写
+- **`src/collections/Categories.ts` / `Tags.ts` / `Comments.ts` / `Tools.ts` / `ToolRuns.ts` / `Media.ts`**：加 `listSearchableFields` 提升搜索体验
+- **`src/collections/Media.ts`**：补充 `admin.useAsTitle`、`defaultColumns`、上传转 WebP 的耗时与尺寸说明
+- **`src/collections/Projects.ts`**：加 `defaultColumns` 和 `listSearchableFields`
+
+---
+
 ## [1.5.0] — 2026-05-25
 
 ### Added — Projects 集合双语化

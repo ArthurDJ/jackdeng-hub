@@ -9,6 +9,8 @@ export const ToolRuns: CollectionConfig = {
   admin: {
     useAsTitle: 'runAt',
     defaultColumns: ['tool', 'status', 'summary', 'runAt'],
+    listSearchableFields: ['summary', 'detail'],
+    group: { en: 'Tools', zh: '工具' },
   },
   access: {
     read: ({ req }) => Boolean(req.user),

@@ -9,6 +9,12 @@ export const Blogs: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'status', 'category', 'publishedAt'],
+    listSearchableFields: ['title', 'excerpt', 'slug'],
+    group: { en: 'Content', zh: '内容' },
+    description: {
+      en: 'Blog posts. Tip: use the language switcher at the top to fill in zh / en separately.',
+      zh: '博客文章。提示：使用顶部语言切换分别填写 zh / en 版本。',
+    },
     preview: (doc) => `${process.env.NEXT_PUBLIC_SERVER_URL}/blog/${doc.slug}`,
   },
   access: {
@@ -37,6 +43,12 @@ export const Blogs: CollectionConfig = {
       label: { en: 'Title', zh: '标题' },
       required: true,
       localized: true,
+      admin: {
+        description: {
+          en: '🌐 Bilingual — switch language at the top to edit each locale.',
+          zh: '🌐 多语言字段——顶部切换语言后单独填写各语言版本。',
+        },
+      },
     },
     {
       name: 'slug',
@@ -74,8 +86,8 @@ export const Blogs: CollectionConfig = {
       localized: true,
       admin: {
         description: {
-          en: 'Short summary shown in blog cards. Max 150 characters.',
-          zh: '博客卡片中显示的简短摘要。最多 150 个字符。',
+          en: '🌐 Bilingual — short summary shown in blog cards. Max 150 chars.',
+          zh: '🌐 多语言——博客卡片中显示的简短摘要。最多 150 字符。',
         },
       },
     },
@@ -92,6 +104,12 @@ export const Blogs: CollectionConfig = {
       label: { en: 'Content', zh: '内容' },
       required: true,
       localized: true,
+      admin: {
+        description: {
+          en: '🌐 Bilingual — switch language at the top to edit each locale.',
+          zh: '🌐 多语言字段——顶部切换语言后单独填写各语言版本。',
+        },
+      },
     },
 
     // ── Taxonomy ─────────────────────────────────────────────────
@@ -173,6 +191,13 @@ export const Blogs: CollectionConfig = {
       name: 'seo',
       type: 'group',
       label: 'SEO',
+      admin: {
+        position: 'sidebar',
+        description: {
+          en: 'Search-engine + social-share meta. Defaults are sensible — only override when needed.',
+          zh: '搜索引擎与社交分享元信息。默认值已合理设置，只在需要时覆盖。',
+        },
+      },
       fields: [
         {
           name: 'metaTitle',

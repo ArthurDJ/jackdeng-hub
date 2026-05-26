@@ -9,6 +9,8 @@ export const Comments: CollectionConfig = {
   admin: {
     useAsTitle: 'authorName',
     defaultColumns: ['authorName', 'post', 'status', 'createdAt'],
+    listSearchableFields: ['authorName', 'authorEmail', 'content'],
+    group: { en: 'Content', zh: '内容' },
     description: {
       en: 'Blog post comments. Approve or mark as spam before they appear publicly.',
       zh: '博客文章评论。在公开显示之前批准或标记为垃圾评论。',

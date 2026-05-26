@@ -9,6 +9,8 @@ export const Categories: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'slug', 'description'],
+    listSearchableFields: ['name', 'slug'],
+    group: { en: 'Content', zh: '内容' },
   },
   access: {
     read: () => true, // Public read

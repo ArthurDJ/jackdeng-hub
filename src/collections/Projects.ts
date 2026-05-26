@@ -8,6 +8,9 @@ export const Projects: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
+    defaultColumns: ['name', 'status', 'isPinned', 'slug'],
+    listSearchableFields: ['name', 'slug'],
+    group: { en: 'Portfolio', zh: '作品' },
   },
   fields: [
     {

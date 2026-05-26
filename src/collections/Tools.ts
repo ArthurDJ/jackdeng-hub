@@ -9,6 +9,8 @@ export const Tools: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'toolType', 'status', 'accessControl'],
+    listSearchableFields: ['name', 'slug', 'description'],
+    group: { en: 'Tools', zh: '工具' },
   },
   access: {
     read: ({ req }) => {

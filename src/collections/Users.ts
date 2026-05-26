@@ -18,6 +18,7 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'email'],
+    group: { en: 'System', zh: '系统' },
   },
   fields: [
     {

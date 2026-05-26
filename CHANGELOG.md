@@ -6,6 +6,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.6.1] — 2026-05-25
+
+### Changed — Payload Admin UX P1：dateFormat + 状态 emoji + Tag 调色板提示
+
+- **`src/payload.config.ts`**：`admin.dateFormat` 设为 `yyyy-MM-dd HH:mm`（之前是英文 locale 默认），`admin.meta.titleSuffix` 设 ` — Jack Deng Admin` 让浏览器 tab 一眼可辨。
+- **`src/collections/Blogs.ts`**：`status` option labels 加 emoji（📝 草稿 / ✅ 已发布），列表视图一眼区分。
+- **`src/collections/Projects.ts`**：同上，🟢 进行中 / 🔵 已完成 / 🟠 挂起。
+- **`src/collections/Tags.ts`**：`color` 字段描述补充推荐 7 色色板（蓝/绿/黄/红/紫/粉/青），不需要每次去查 hex 值。
+
+### 说明 — 评论批量审核
+
+Payload 3.x 列表视图已**原生支持 bulk-edit**：勾选多行 → 顶部出现 "Edit" 按钮 → 同时批量改 `status` 字段。计划里的自定义 BulkCommentActions 组件因此不必要，跳过。
+
+---
+
 ## [1.6.0] — 2026-05-25
 
 ### Changed — Payload Admin UX P0：分组 + 列表搜索 + SEO 侧栏 + 双语提示

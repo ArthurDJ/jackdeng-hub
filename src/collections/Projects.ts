@@ -59,9 +59,9 @@ export const Projects: CollectionConfig = {
       label: { en: 'Status', zh: '状态' },
       defaultValue: 'active',
       options: [
-        { label: { en: 'Active', zh: '进行中' }, value: 'active' },
-        { label: { en: 'Completed', zh: '已完成' }, value: 'completed' },
-        { label: { en: 'On Hold', zh: '挂起' }, value: 'on-hold' },
+        { label: { en: '🟢 Active', zh: '🟢 进行中' }, value: 'active' },
+        { label: { en: '🔵 Completed', zh: '🔵 已完成' }, value: 'completed' },
+        { label: { en: '🟠 On Hold', zh: '🟠 挂起' }, value: 'on-hold' },
       ],
     },
     {

@@ -57,8 +57,8 @@ export const Tags: CollectionConfig = {
       defaultValue: '#3B82F6',
       admin: {
         description: {
-          en: 'Hex color code (e.g. #3B82F6) used to render the tag badge.',
-          zh: '用于渲染标签徽章的十六进制颜色代码（例如 #3B82F6）。',
+          en: 'Hex color for the tag badge. Suggested palette: #3B82F6 (blue) · #10B981 (green) · #F59E0B (amber) · #EF4444 (red) · #8B5CF6 (purple) · #EC4899 (pink) · #14B8A6 (teal).',
+          zh: '标签徽章的十六进制颜色。推荐色板：#3B82F6（蓝）· #10B981（绿）· #F59E0B（黄）· #EF4444（红）· #8B5CF6（紫）· #EC4899（粉）· #14B8A6（青）',
         },
       },
       validate: (value: any) => {

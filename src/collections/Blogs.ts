@@ -152,8 +152,8 @@ export const Blogs: CollectionConfig = {
       required: true,
       defaultValue: 'draft',
       options: [
-        { label: { en: 'Draft', zh: '草稿' }, value: 'draft' },
-        { label: { en: 'Published', zh: '已发布' }, value: 'published' },
+        { label: { en: '📝 Draft', zh: '📝 草稿' }, value: 'draft' },
+        { label: { en: '✅ Published', zh: '✅ 已发布' }, value: 'published' },
       ],
       admin: {
         position: 'sidebar',

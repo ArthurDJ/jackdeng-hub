@@ -24,6 +24,11 @@ export const config = buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
   admin: {
     user: 'users',
+    dateFormat: 'yyyy-MM-dd HH:mm',
+    meta: {
+      titleSuffix: ' — Jack Deng Admin',
+      icons: [{ rel: 'icon', type: 'image/svg+xml', url: '/favicon.svg' }],
+    },
     components: {
       actions: ['@/components/AdminHeaderSettings#AdminHeaderSettings'],
       beforeLogin: ['@/components/GoogleLoginButton#GoogleLoginButton'],

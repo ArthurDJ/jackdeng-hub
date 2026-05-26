@@ -19,7 +19,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added — 数据库测试博客清理脚本
 
-- **`scripts/cleanup-blogs.ts`**：新增一次性清理工具，通过 Payload Local API 删除 `blogs` 表全部记录及孤儿 `comments`。运行方式：`npx tsx scripts/cleanup-blogs.ts`。需要本地 `.env` 含生产 `DATABASE_URI`；建议先在 Supabase Dashboard 做一次 snapshot 再跑。`scripts/seed.ts` 保留不动，供未来空环境复现。
+- **`scripts/cleanup-blogs.ts`**：新增一次性清理工具，通过 Payload Local API **先删 comments 再删 blogs**（comments.post_id 是 NOT NULL，FK ON DELETE SET NULL 会冲突，必须先删子表）。运行方式：`npx tsx --env-file=.env scripts/cleanup-blogs.ts`（`--env-file` 是必须的——ESM import 提升导致 dotenv 在 payload.config import 后才执行）。`scripts/seed.ts` 保留不动，供未来空环境复现。
 
 ---
 

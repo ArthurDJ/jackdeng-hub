@@ -19,3 +19,6 @@ server*.log
 check-slugs.ts
 
 .vercel
+
+# Local DB snapshots (contain production data — never commit)
+backups/

@@ -6,6 +6,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.5.0] — 2026-05-25
+
+### Added — Projects 集合双语化
+
+- **`src/collections/Projects.ts`**：`name` / `shortDescription` / `longDescription` 三个字段加 `localized: true`，同时加 `🌐 多语言字段` 提示，编辑者切换顶部 Language 后可分别填写各语言版本。
+- **`src/migrations/20260525_000001_add_projects_localization.ts`**：新建 migration，创建 `projects_locales` 表，把现有 5 个项目的英文内容拷贝到 `_locale='zh'` 槽（defaultLocale 是 zh），最后从 `projects` 主表移除原 3 列。FK + unique index 与 `blogs_locales` 同模式。
+- **`src/migrations/index.ts`**：注册新迁移。
+- **`scripts/snapshot-projects.ts`** / **`scripts/apply-projects-localization.ts`** / **`scripts/verify-migration.ts`**：辅助脚本。snapshot 用原生 pg 直连导出 projects 表（Payload init 在 Supabase pooler 上总卡住，原生 pg ~2s）；apply 也走 pg 跑原始 SQL + 写入 `payload_migrations` 表（Payload CLI 在本地环境一样卡）。verify 检查表结构 + locale 分布。
+- **`.gitignore`**：新增 `backups/` 排除规则。
+
+### Operations log（已执行）
+
+1. ✓ Supabase 编程式 snapshot：`backups/projects_2026-05-26T03-21-48-524Z.json`（5 行数据 + 富文本完整）
+2. ✓ Migration 应用：`20260525_000001_add_projects_localization` 已 commit 到生产
+3. ✓ 校验：`projects` 表 -3 列；`projects_locales` 表 +5 行（zh 槽）；`payload_migrations` 含新条目
+4. ⚠️ **遗留**：5 个项目的英文内容当前在 zh 槽，需登陆 https://www.jackdeng.cc/admin/collections/projects 把每个项目的 zh 字段替换为中文版本，并在 en 槽补充英文版本
+
+---
+
 ## [1.4.3] — 2026-05-25
 
 ### Added — 导航栏新增 Projects 入口；首页 hero 项目卡片可点击跳转

@@ -15,6 +15,10 @@ export const Projects: CollectionConfig = {
       type: 'text',
       label: { en: 'Name', zh: '名称' },
       required: true,
+      localized: true,
+      admin: {
+        description: { en: '🌐 Bilingual — switch language at the top to edit each locale.', zh: '🌐 多语言字段——顶部切换语言后单独填写各语言版本。' },
+      },
     },
     {
       name: 'logo',
@@ -27,11 +31,19 @@ export const Projects: CollectionConfig = {
       type: 'text',
       label: { en: 'Short Description', zh: '简短描述' },
       required: true,
+      localized: true,
+      admin: {
+        description: { en: '🌐 Bilingual — switch language at the top to edit each locale.', zh: '🌐 多语言字段——顶部切换语言后单独填写各语言版本。' },
+      },
     },
     {
       name: 'longDescription',
       type: 'richText',
       label: { en: 'Long Description', zh: '详细描述' },
+      localized: true,
+      admin: {
+        description: { en: '🌐 Bilingual — switch language at the top to edit each locale.', zh: '🌐 多语言字段——顶部切换语言后单独填写各语言版本。' },
+      },
     },
     {
       name: 'link',

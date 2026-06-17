@@ -57,8 +57,8 @@ const TIMELINE = [
     role: { en: 'M.S. Analytics', zh: '分析学硕士' },
     place: 'Northeastern University',
     desc: {
-      en: 'Served as Data Warehousing & SQL Tutor. Instructed graduate students on SQL performance tuning, indexing strategies, and execution plan analysis.',
-      zh: '担任数据仓库与 SQL 导师。指导研究生进行 SQL 性能调优、索引策略和执行计划分析。GPA: 3.93/4.0。',
+      en: 'Served as Data Warehousing & SQL Tutor, coaching graduate students on SQL performance tuning, indexing strategies, and execution-plan analysis. GPA: 3.93/4.0.',
+      zh: '担任数据仓库与 SQL 助教，指导研究生进行 SQL 性能调优、索引策略与执行计划分析。GPA：3.93/4.0。',
     },
   },
 ]

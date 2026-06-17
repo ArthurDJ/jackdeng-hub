@@ -102,6 +102,7 @@ export default async function HomePage({ params }: Props) {
       sort: '-createdAt',
       depth: 1,
       limit: 4,
+      locale: locale as any,
     }).catch(() => ({ docs: [] })),
   ])
 

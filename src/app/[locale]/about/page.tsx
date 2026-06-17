@@ -38,28 +38,53 @@ const TIMELINE = [
     year: '01/2024 – present',
     role: { en: 'Software Engineer (Backend & Data)', zh: '软件工程师 (后端与数据)' },
     place: 'Value Windows & Doors',
-    desc: {
-      en: 'Spearheaded 0-to-1 cloud data architecture using Python, C#, AWS S3, and Databricks. Developed full-stack internal web portals in React and designed robust backend integrations handling tens of thousands of daily records.',
-      zh: '使用 Python、C#、AWS S3 和 Databricks 实现了从 0 到 1 的云数据架构。使用 React 开发全栈内部 Web 门户，设计了高可用后端集成，每天处理数万条记录。',
+    bullets: {
+      en: [
+        'Built a 0-to-1 cloud data platform on Databricks + dbt with a medallion (Bronze→Silver→Gold→Mart) architecture, turning raw ERP data into analytics-ready models for manufacturing, inventory, sales, and workforce reporting.',
+        'Engineered C# and Python data-migration and integration pipelines that improved ERP reliability and processed tens of thousands of records daily across departments.',
+        'Delivered Power BI executive dashboards and React internal portals, giving teams self-serve access to real-time operational metrics.',
+      ],
+      zh: [
+        '在 Databricks + dbt 上从 0 到 1 搭建云数据平台，采用 Medallion（Bronze→Silver→Gold→Mart）分层架构，将原始 ERP 数据转化为可直接分析的模型，支撑制造、库存、销售与人力效率报表。',
+        '用 C# 与 Python 构建数据迁移与集成管道，提升 ERP 系统可靠性，每天跨部门处理数万条记录。',
+        '交付 Power BI 高管看板与 React 内部门户，让各团队自助获取实时运营指标。',
+      ],
     },
+    tech: ['Databricks', 'dbt', 'Python', 'C#', 'React', 'Power BI'],
   },
   {
     year: '07/2022 – 01/2024',
     role: { en: 'Software Engineer Intern', zh: '软件开发实习生' },
     place: 'APEXUS-TECH',
-    desc: {
-      en: 'Developed backend services in Python to ingest and persist financial API data. Designed ETL pipelines with MySQL, improving batch efficiency by 40%. Built internal monitoring dashboards.',
-      zh: '使用 Python 开发后端服务以接入和存储财务 API 数据。设计 MySQL ETL 管道，使批处理效率提高 40%。构建了内部监控仪表板。',
+    bullets: {
+      en: [
+        'Built a data-visualization tool that streamlined quantitative strategy analysis for the operations desk, improving decision-making speed.',
+        'Developed Python + MySQL backend services that automatically ingested and persisted financial-market data, keeping analyses up to date.',
+        'Designed ETL pipelines that lifted batch-processing efficiency by 40% and shipped internal monitoring dashboards with the product team.',
+      ],
+      zh: [
+        '开发数据可视化工具，简化运营部门的量化策略分析，提升决策效率。',
+        '用 Python + MySQL 构建后端服务，自动接入并持久化金融市场数据，保证分析实时更新。',
+        '设计 ETL 管道，使批处理效率提升 40%，并与产品团队共同交付内部监控看板。',
+      ],
     },
+    tech: ['Python', 'MySQL', 'ETL', 'JavaScript', 'HTML/CSS'],
   },
   {
     year: '03/2022 – 07/2023',
     role: { en: 'M.S. Analytics', zh: '分析学硕士' },
     place: 'Northeastern University',
-    desc: {
-      en: 'Served as Data Warehousing & SQL Tutor, coaching graduate students on SQL performance tuning, indexing strategies, and execution-plan analysis. GPA: 3.93/4.0.',
-      zh: '担任数据仓库与 SQL 助教，指导研究生进行 SQL 性能调优、索引策略与执行计划分析。GPA：3.93/4.0。',
+    bullets: {
+      en: [
+        'M.S. in Analytics, GPA 3.93/4.0 — coursework spanning data warehousing, predictive analytics, and enterprise data systems.',
+        'Served as Data Warehousing & SQL Tutor (ALY6030), coaching graduate students on SQL performance tuning, indexing strategies, and execution-plan analysis.',
+      ],
+      zh: [
+        '分析学硕士，GPA 3.93/4.0——课程涵盖数据仓库、预测分析与企业数据系统。',
+        '担任数据仓库与 SQL 助教（ALY6030），指导研究生进行 SQL 性能调优、索引策略与执行计划分析。',
+      ],
     },
+    tech: ['SQL', 'Data Warehousing', 'Statistics', 'Python'],
   },
 ]
 
@@ -231,7 +256,7 @@ export default async function AboutPage({ params }: Props) {
         <section>
           <SectionLabel>{t('experienceHeading')}</SectionLabel>
           <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {TIMELINE.map(({ year, role, place, desc }, i) => (
+            {TIMELINE.map(({ year, role, place, bullets, tech }, i) => (
               <li key={year} style={{ display: 'flex', gap: 20, position: 'relative', paddingBottom: i < TIMELINE.length - 1 ? 32 : 0 }}>
                 {/* Spine */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, width: 16 }}>
@@ -248,9 +273,26 @@ export default async function AboutPage({ params }: Props) {
                     {role[lang]}{' '}
                     <span style={{ fontWeight: 400, color: 'var(--text-tertiary)' }}>@ {place}</span>
                   </p>
-                  <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.65 }}>
-                    {desc[lang]}
-                  </p>
+                  <ul style={{ listStyle: 'none', margin: '0 0 12px', padding: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
+                    {bullets[lang].map((b, j) => (
+                      <li key={j} style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, paddingLeft: 16, position: 'relative' }}>
+                        <span style={{ position: 'absolute', left: 0, top: 9, width: 5, height: 5, borderRadius: '50%', background: 'var(--accent-primary)', opacity: 0.55 }} />
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                  {tech && tech.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {tech.map((tch) => (
+                        <span key={tch} style={{
+                          fontSize: 11, fontWeight: 400, padding: '2px 9px', borderRadius: 9999,
+                          background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-default)', color: 'var(--text-tertiary)',
+                        }}>
+                          {tch}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </li>
             ))}

@@ -198,21 +198,29 @@ export interface Comment {
   createdAt: string;
 }
 /**
+ * Blog posts. Tip: use the language switcher at the top to fill in zh / en separately.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blogs".
  */
 export interface Blog {
   id: number;
+  /**
+   * 🌐 Bilingual — switch language at the top to edit each locale.
+   */
   title: string;
   /**
    * URL path — auto-generated from title if left blank.
    */
   slug: string;
   /**
-   * Short summary shown in blog cards. Max 150 characters.
+   * 🌐 Bilingual — short summary shown in blog cards. Max 150 chars.
    */
   excerpt?: string | null;
   coverImage?: (number | null) | Media;
+  /**
+   * 🌐 Bilingual — switch language at the top to edit each locale.
+   */
   content: {
     root: {
       type: string;
@@ -242,6 +250,9 @@ export interface Blog {
    * Pinned to homepage highlights.
    */
   featured?: boolean | null;
+  /**
+   * Search-engine + social-share meta. Defaults are sensible — only override when needed.
+   */
   seo?: {
     /**
      * Defaults to post title if left blank.
@@ -260,6 +271,8 @@ export interface Blog {
   createdAt: string;
 }
 /**
+ * Uploads are auto-converted to WebP at 3 sizes (thumbnail 400×225, card 800×450, hero 1600×900). Typical upload: 5–15 s.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -320,7 +333,7 @@ export interface Tag {
    */
   slug: string;
   /**
-   * Hex color code (e.g. #3B82F6) used to render the tag badge.
+   * Hex color for the tag badge. Suggested palette: #3B82F6 (blue) · #10B981 (green) · #F59E0B (amber) · #EF4444 (red) · #8B5CF6 (purple) · #EC4899 (pink) · #14B8A6 (teal).
    */
   color: string;
   description?: string | null;
@@ -333,9 +346,18 @@ export interface Tag {
  */
 export interface Project {
   id: number;
+  /**
+   * 🌐 Bilingual — switch language at the top to edit each locale.
+   */
   name: string;
   logo?: (number | null) | Media;
+  /**
+   * 🌐 Bilingual — switch language at the top to edit each locale.
+   */
   shortDescription: string;
+  /**
+   * 🌐 Bilingual — switch language at the top to edit each locale.
+   */
   longDescription?: {
     root: {
       type: string;
@@ -353,6 +375,9 @@ export interface Project {
   } | null;
   link?: string | null;
   status?: ('active' | 'completed' | 'on-hold') | null;
+  /**
+   * Pinned to homepage highlights.
+   */
   isPinned?: boolean | null;
   /**
    * URL path identifier, e.g. "jackdeng-hub"

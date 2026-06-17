@@ -15,7 +15,7 @@ export const Media: CollectionConfig = {
     useAsTitle: 'filename',
     defaultColumns: ['filename', 'alt', 'mimeType', 'filesize'],
     listSearchableFields: ['filename', 'alt'],
-    group: { en: 'Portfolio', zh: '作品' },
+    group: { en: 'Content', zh: '内容' },
     description: {
       en: 'Uploads are auto-converted to WebP at 3 sizes (thumbnail 400×225, card 800×450, hero 1600×900). Typical upload: 5–15 s.',
       zh: '上传文件自动转 WebP 三种尺寸（缩略图 400×225，卡片 800×450，主图 1600×900）。常见耗时 5-15 秒。',

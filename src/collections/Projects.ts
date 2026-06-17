@@ -52,6 +52,7 @@ export const Projects: CollectionConfig = {
       name: 'link',
       type: 'text',
       label: { en: 'Link', zh: '链接' },
+      admin: { position: 'sidebar' },
     },
     {
       name: 'status',
@@ -63,12 +64,17 @@ export const Projects: CollectionConfig = {
         { label: { en: '🔵 Completed', zh: '🔵 已完成' }, value: 'completed' },
         { label: { en: '🟠 On Hold', zh: '🟠 挂起' }, value: 'on-hold' },
       ],
+      admin: { position: 'sidebar' },
     },
     {
       name: 'isPinned',
       type: 'checkbox',
       label: { en: 'Pinned', zh: '置顶' },
       defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: { en: 'Pinned to homepage highlights.', zh: '置顶到首页高亮区域。' },
+      },
     },
     {
       name: 'slug',
@@ -76,6 +82,7 @@ export const Projects: CollectionConfig = {
       label: { en: 'Slug', zh: '路径标识' },
       unique: true,
       admin: {
+        position: 'sidebar',
         description: { en: 'URL path identifier, e.g. "jackdeng-hub"', zh: 'URL 路径标识，如 "jackdeng-hub"' },
       },
     },
@@ -96,6 +103,7 @@ export const Projects: CollectionConfig = {
       name: 'githubLink',
       type: 'text',
       label: { en: 'GitHub Link', zh: 'GitHub 链接' },
+      admin: { position: 'sidebar' },
     },
     {
       name: 'coverImage',

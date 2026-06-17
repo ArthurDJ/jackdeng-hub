@@ -1,1 +1,65 @@
-/* Custom styles for Payload Admin */
+/* ============================================================================
+   Custom styles for Payload Admin — Jack Deng Hub
+   Scope: brand polish for the login screen + a brand accent on primary actions.
+   All colors use Payload theme variables (or brand vars below) so light & dark
+   admin themes both stay legible.
+   ========================================================================== */
+
+:root {
+  --brand-500: #6366f1;
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+}
+
+/* ── Login screen ─────────────────────────────────────────────────────────
+   The login view is the only public-facing part of the admin, so it gets the
+   most polish. Wrap the form area in a card and give it breathing room.        */
+
+.login {
+  /* subtle vertical centering + page rhythm */
+  padding: 2rem 1rem;
+}
+
+.login .login__form,
+.login form.login__form {
+  background: var(--theme-elevation-0);
+  border: 1px solid var(--theme-elevation-100);
+  border-radius: 12px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
+  max-width: 400px;
+  margin-inline: auto;
+}
+
+/* The "forgot password" flow is dead here — the app uses a no-op email adapter,
+   so the reset email is never sent. Hide the link to avoid a broken action.
+   (The email/password fields stay as a working fallback login.)               */
+.login .login__form > a[href$="/admin/forgot"] {
+  display: none !important;
+}
+
+/* Tighten the gap left by the hidden link before the submit button. */
+.login .login__form .form-submit {
+  margin-top: 4px;
+}
+
+/* ── Brand accent on primary buttons ──────────────────────────────────────
+   Gives the login submit + primary actions the brand indigo instead of the
+   default near-black, tying the admin to the site's identity.                  */
+
+.btn.btn--style-primary {
+  background: var(--brand-600);
+  border-color: var(--brand-600);
+  color: #fff;
+}
+
+.btn.btn--style-primary:not(.btn--disabled):hover,
+.btn.btn--style-primary:not(.btn--disabled):focus-visible {
+  background: var(--brand-700);
+  border-color: var(--brand-700);
+}
+
+.btn.btn--style-primary .btn__label,
+.btn.btn--style-primary .btn__content {
+  color: #fff;
+}

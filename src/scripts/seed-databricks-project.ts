@@ -9,8 +9,15 @@
  */
 import { getPayload } from 'payload'
 import config from '../payload.config'
+import type { Project } from '../payload-types'
 
 const SLUG = 'enterprise-manufacturing-analytics'
+
+// Payload's generated type for the project rich-text field. Annotating the
+// `doc()` helper with this lets the object literals be contextually typed, so
+// `direction: 'ltr'` / `format: ''` satisfy their literal unions instead of
+// widening to `string` (which previously broke `next build`'s type check).
+type LexicalDoc = NonNullable<Project['longDescription']>
 
 // ── Lexical helpers ──────────────────────────────────────────────────────────
 const txt = (text: string, format = 0) => ({
@@ -29,8 +36,8 @@ const ul = (...items: string[]) => ({
     type: 'listitem', value: i + 1, children: [txt(item)], format: '', indent: 0, direction: 'ltr', version: 1,
   })),
 })
-const doc = (...children: any[]) => ({
-  root: { type: 'root', children, format: '', indent: 0, direction: 'ltr', version: 1 },
+const doc = (...children: any[]): LexicalDoc => ({
+  root: { type: 'root', children, format: '' as const, indent: 0, direction: 'ltr' as const, version: 1 },
 })
 
 // ── Content (EN) ─────────────────────────────────────────────────────────────

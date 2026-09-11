@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
@@ -13,7 +12,7 @@ type Props = { params: Promise<{ locale: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   return {
-    title: locale === 'zh' ? '工具箱 — Jack Deng' : 'Tools — Jack Deng',
+    title: locale === 'zh' ? '工具箱' : 'Tools',
     description: locale === 'zh'
       ? '实用开发工具，免费在线使用'
       : 'Handy dev tools, free to use online',
@@ -90,22 +89,15 @@ export default async function ToolsPage({ params }: Props) {
                   href={`/${locale}/tools/${tool.slug}`}
                   style={{ textDecoration: 'none' }}
                 >
-                  <div style={{
-                    backgroundColor: 'var(--bg-panel)',
-                    border: '1px solid var(--border-default)',
-                    borderRadius: '12px',
-                    padding: '24px',
-                    transition: 'border-color 0.15s, background 0.15s',
-                    cursor: 'pointer',
-                    height: '100%',
-                  }}
-                    onMouseEnter={e => {
-                      (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)'
-                      ;(e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-elevated)'
-                    }}
-                    onMouseLeave={e => {
-                      (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)'
-                      ;(e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-panel)'
+                  <div
+                    className="ds-card-hover"
+                    style={{
+                      backgroundColor: 'var(--bg-panel)',
+                      border: '1px solid var(--border-default)',
+                      borderRadius: '12px',
+                      padding: '24px',
+                      cursor: 'pointer',
+                      height: '100%',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>

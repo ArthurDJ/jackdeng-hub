@@ -17,7 +17,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'home' })
   return {
-    title: t('title'),
+    // The layout's `%s — Jack Deng` template does not apply to the page in the
+    // same route segment, so the homepage has to carry the name itself.
+    title: `Jack Deng — ${t('title')}`,
     description: 'Senior Software Engineer | Backend & Data Systems. NetSuite · Boomi · Supabase · Next.js.',
     alternates: {
       canonical: `${BASE}/${locale}`,

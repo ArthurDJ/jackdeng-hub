@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const tool = docs[0]
   if (!tool) return {}
 
-  const title = `${tool.name} — Jack Deng`
+  const title = tool.name
   const description = tool.description ?? ''
   return {
     title,
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         zh: `${BASE}/zh/tools/${slug}`,
       },
     },
-    openGraph: { title, description },
+    openGraph: { title: `${title} — Jack Deng`, description },
   }
 }
 

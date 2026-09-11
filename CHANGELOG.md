@@ -6,6 +6,79 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.6.2] — 2026-09-11
+
+### Fixed — 生产环境根级路由被 next-intl middleware 吞掉（SEO / RSS / OG 全线失效）
+
+- **`src/proxy.ts`**：matcher 从 `'/((?!api|_next/static|_next/image|favicon.ico|admin).*)'` 改为
+  `'/((?!api|admin|_next|_vercel|og|.*\\..*).*)'`。
+
+  旧 matcher 只排除了 `_next/static` / `_next/image` / `favicon.ico`，于是所有根级路由都被 next-intl
+  当成需要加语言前缀的页面路径，307 重定向到 `/en/<path>`——而那里没有任何路由，最终 404。线上实测：
+
+  | 路径 | 修复前 | 修复后 |
+  |------|--------|--------|
+  | `/robots.txt`  | 307 → `/en/robots.txt` → 404  | 200（正确输出 Disallow 规则） |
+  | `/sitemap.xml` | 307 → 404 | 200 |
+  | `/feed.xml`    | 307 → 404（`<head>` 里的 RSS 链接全废） | 200 |
+  | `/og?title=…`  | 307 → 404（所有社交分享缩略图全废） | 200，1200×630 PNG |
+
+  也就是说 Google 从来没拿到过 sitemap、没读到过 robots 规则，发到微信 / Twitter / LinkedIn 的链接
+  一直没有预览图——`sitemap.ts` / `robots.ts` / `feed.xml` / `og` 这些代码本身早就写好了，只是被
+  middleware 拦在门外。v1.1.x 那次"把 resume.pdf 复制进 locale 目录来绕过 307 拦截"撞的是同一个
+  根因，当时绕过去了没根治，现在 `public/en/` `public/zh/` 下的副本可以在确认无外链后清理。
+
+  `.*\..*`（任何含点的路径）一并覆盖了 `/public` 下的静态资源，这是 next-intl 官方推荐写法；`og`
+  单列是因为它没有扩展名。已验证 `/` → 307 `/en` 的语言重定向行为不受影响。
+
+### Fixed — `/tools` 一发布工具就 500（Server Component 传事件处理器）
+
+- **`src/app/[locale]/tools/page.tsx`**：工具卡片的 `<div>` 上挂了 `onMouseEnter` / `onMouseLeave` 来做
+  hover 换色，但这是个 Server Component——React 无法序列化事件处理器，渲染即报
+  "Event handlers cannot be passed to Client Component props"。目前页面能打开纯粹因为工具列表是空的、
+  `tools.map()` 从未执行；**在 `/admin` 发布第一个工具的那一刻 `/tools` 就会 500**。
+  改用 `globals.css` 里既有的 `.ds-card-hover`（注释写着 "safe in Server Components"，
+  `HomeProjectCard` 已在用），hover 效果与过渡时长完全一致。顺手删掉未使用的 `getTranslations` import。
+
+### Fixed — 页面标题重复品牌后缀
+
+- `[locale]/layout.tsx` 的 `title.template` 是 `%s — Jack Deng`，但 6 个页面又手动拼了一遍，线上实测
+  `/en/projects` → `Projects — Jack Deng — Jack Deng`、`/en/tools` 和 `/en/blog/archive` 同样。
+  涉及 `projects/page.tsx`、`projects/[slug]/page.tsx`、`tools/page.tsx`、`tools/[slug]/page.tsx`、
+  `blog/archive/page.tsx`、`blog/[slug]/page.tsx`、`blog/category/[slug]/page.tsx`、
+  `blog/tag/[slug]/page.tsx`——页面 `title` 交给 template，`openGraph.title` 保留完整品牌（Next.js 不会
+  把 template 套到 openGraph 上）。
+- **`src/app/[locale]/page.tsx`**：反过来的问题——`title.template` **不作用于定义它的同一路由段**，
+  所以首页标题一直是裸的 `Senior Software Engineer | Backend & Data Systems`，SERP 里不带人名。
+  改为显式 `Jack Deng — {t('title')}`。
+
+### Added — 站点图标（此前完全缺失，`/favicon.ico` 404）
+
+- **`src/app/icon.svg`**：JD 字母组合标，配色取设计 token 的 `--accent-primary` → `--accent-hover`
+  (`#5e6ad2` → `#7170ff`) 渐变。字形用 path 绘制而非 `<text>`，避免依赖光栅化器 / 浏览器的可用字体。
+- **`src/app/favicon.ico`**（32×32）+ **`src/app/apple-icon.png`**（180×180）：由同一 SVG 用 sharp 光栅化。
+  `.ico` 走 Vista PNG-in-ICO 容器，`file(1)` 校验通过；保留 `favicon.ico` 是为了那些硬编码该路径的
+  爬虫与 RSS 阅读器。三个文件让 Next.js 自动注入 `icon` / `apple-touch-icon` link 标签（已验证）。
+
+### Security — Projects slug 规范化
+
+- **`src/collections/Projects.ts`**：`slug` 是自由文本且**完全没有**清洗 hook（Blogs / Categories / Tags /
+  Tools 都有）。新增 `beforeValidate` 把输入规范化到 `[a-z0-9-]`。手打一个带点的 slug（如
+  `next.js-hub`）会让该 URL 落进上面 matcher 的 `.*\..*` 排除区间，导致不带语言前缀的
+  `/projects/next.js-hub` 404 而不是 307 跳转。现有 5 个项目的 slug 均无点号，无数据影响。
+
+### Removed — 入库的垃圾文件
+
+- `git rm --cached` 掉 `.DS_Store`、`public/.DS_Store`、`tsconfig.tsbuildinfo`（657 KB 的 TS 增量编译缓存），
+  并在 `.gitignore` 补上 `.DS_Store` / `**/.DS_Store` / `*.tsbuildinfo`。
+
+### 验证方式
+
+`npx tsc --noEmit` 零报错；`node scripts/i18n-check.mjs` 通过（115/115 键对齐）；本地 `next dev` 实测
+`/robots.txt` `/favicon.ico` `/icon.svg` `/apple-icon.png` `/og?title=…` `/resume.pdf` 均 200，
+`/` 仍 307 → `/en`，`/sitemap.xml` `/feed.xml` 已进入自己的 handler（本地无 DB 故 500，不再是 307）。
+`/tools` 的修复由类型检查 + "Server Component 内已无事件处理器" 全量扫描确认，**未**用真实工具数据渲染验证。
+
 ## [1.6.1] — 2026-05-25
 
 ### Changed — Payload Admin UX P1：dateFormat + 状态 emoji + Tag 调色板提示

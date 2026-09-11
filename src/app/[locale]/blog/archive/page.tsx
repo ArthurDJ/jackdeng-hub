@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'blog' })
   return {
-    title: `${t('archive')} — Jack Deng`,
+    title: t('archive'),
     description: 'All blog posts organized by year and month.',
   }
 }

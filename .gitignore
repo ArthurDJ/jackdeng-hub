@@ -22,3 +22,10 @@ check-slugs.ts
 
 # Local DB snapshots (contain production data — never commit)
 backups/
+
+# OS cruft
+.DS_Store
+**/.DS_Store
+
+# TypeScript incremental build cache
+*.tsbuildinfo

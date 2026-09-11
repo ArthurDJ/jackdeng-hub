@@ -70,7 +70,16 @@
 | `.gitignore` 漏点 | 🟡 中 | ✅ 已修复 | 已排除 `.log`, `.claude/` 等干扰项。 |
 | 搜索 Locale 硬编码 | 🟡 中 | ✅ 已修复 | 现在搜索结果能正确返回当前语言内容。 |
 | 分页硬限制 | 🟡 中 | ✅ 已修复 | Pagination.tsx + Payload page 参数对接。 |
+| 根级路由被 middleware 拦截 | 🔴 高 | ✅ 已修复 (v1.6.2) | `/robots.txt` `/sitemap.xml` `/feed.xml` `/og` 线上全是 307→404，SEO 与社交预览长期失效。proxy.ts matcher 修正。 |
+| `/tools` Server Component 事件处理器 | 🔴 高 | ✅ 已修复 (v1.6.2) | 发布任意工具即 500，改用 `.ds-card-hover`。 |
+| 标题重复品牌后缀 | 🟡 中 | ✅ 已修复 (v1.6.2) | 6 处页面手动拼接 + layout template 叠加。 |
+| 站点图标缺失 | 🟡 中 | ✅ 已修复 (v1.6.2) | 新增 icon.svg / favicon.ico / apple-icon.png。 |
+| 内容真空 | 🔴 高 | ⬜ 待处理 | 博客 0 篇、工具 0 个；侧边栏分类与标签计数全为 0。 |
+| Tools 页面未接 i18n | 🟡 中 | ⬜ 待处理 | `isZh ?` 硬编码三元、用 `next/link` 手拼 locale 前缀、无 `tools` i18n namespace。 |
+| sitemap 漏 tools 路由 | 🟡 中 | ⬜ 待处理 | `/tools` 与 `/tools/[slug]` 未进 sitemap。 |
+| 首页 TECH STACK 英文硬编码 | 🟢 低 | ⬜ 待处理 | `TECH_STACK` 的 description 未 localized，中文页显示英文。 |
+| 遗留测试媒体 | 🟢 低 | ⬜ 待处理 | media 库仍有 15 张 test-images，可通过公开 REST API 枚举。 |
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-04-09 (P2 批量完成：Footer 统一、布局抽象、分页覆盖、Hover 补全、JSON-LD mainEntityOfPage)*
+*最后更新：2026-09-11 (v1.6.2 生产故障批量修复：middleware 根级路由拦截、/tools 500、标题后缀、站点图标)*

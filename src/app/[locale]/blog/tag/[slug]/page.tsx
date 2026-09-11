@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const tag = docs[0] as any
   if (!tag) return { title: 'Tag not found' }
   return {
-    title: `#${tag.name} — Blog — Jack Deng`,
+    title: `#${tag.name} — Blog`,
     description: tag.description ?? `Posts tagged with ${tag.name}.`,
   }
 }

@@ -85,6 +85,17 @@ export const Projects: CollectionConfig = {
         position: 'sidebar',
         description: { en: 'URL path identifier, e.g. "jackdeng-hub"', zh: 'URL 路径标识，如 "jackdeng-hub"' },
       },
+      hooks: {
+        beforeValidate: [
+          // Normalise to [a-z0-9-] like Blogs/Categories/Tags do. A dot in a
+          // slug would opt the URL out of the locale middleware (see proxy.ts),
+          // so `/projects/next.js-hub` would 404 instead of redirecting to /en.
+          ({ value }) =>
+            typeof value === 'string'
+              ? value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+              : value,
+        ],
+      },
     },
     {
       name: 'techStack',

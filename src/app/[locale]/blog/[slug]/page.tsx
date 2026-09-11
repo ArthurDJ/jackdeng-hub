@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : `${BASE}/og?title=${encodeURIComponent(title)}&type=blog`
 
   return {
-    title: `${title} — Jack Deng`,
+    title,
     description,
     openGraph: {
       title: `${title} — Jack Deng`,

@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'projects' })
   return {
-    title: `${t('title')} — Jack Deng`,
+    title: t('title'),
     description: t('subtitle'),
     alternates: {
       canonical: `${BASE}/${locale}/projects`,

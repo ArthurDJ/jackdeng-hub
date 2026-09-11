@@ -16,8 +16,9 @@ const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'about' })
+  const tNav = await getTranslations({ locale, namespace: 'nav' })
   return {
-    title: 'About',
+    title: tNav('about'),
     description: `${t('subtitle')} — ${t('title')}`,
     alternates: {
       canonical: `${BASE}/${locale}/about`,

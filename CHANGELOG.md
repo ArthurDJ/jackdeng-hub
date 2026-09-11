@@ -6,6 +6,39 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.6.3] — 2026-09-11
+
+### Changed — Tools 页面接入 i18n（此前是全站唯一没走 next-intl 的公开页面）
+
+- **`src/i18n/messages/en.json` / `zh.json`**：新增 `tools` namespace（`title` / `subtitle` / `noTools` /
+  `backToTools` / `comingSoon` / `automation` / `enableJs` / `status.{online,maintenance,offline}`）。
+  键数 115 → 119，双语对齐。
+- **`src/app/[locale]/tools/page.tsx`**：12 处 `isZh ? '中文' : 'English'` 硬编码三元全部清除；
+  `STATUS_BADGE` 里混着中英文标签（`label: '维护中'` 在英文页也显示中文）拆成纯颜色的 `STATUS_COLOR`
+  + 渲染时查 i18n 的 `STATUS_LABEL` 静态映射（遵守 i18n 规范"不动态拼接 key"）；`next/link` +
+  手拼 `/${locale}/tools/...` 换成 `@/i18n/navigation` 的 `Link`（规范第 4 条）。
+- **`src/app/[locale]/tools/[slug]/page.tsx`**：同上；两处 `<a href={\`/${locale}/tools\`}>`（面包屑 +
+  返回链接）换成 i18n `Link`；`ScriptEmbed` 的 `<noscript>` 文案此前恒为英文，改为传入 `noScriptText`。
+- 两个 tools 页面此前**都没有 `<Footer />`**（全站唯一），补上。
+
+### Fixed — 首页技术栈描述与 About 标题未本地化
+
+- **`src/app/[locale]/page.tsx`**：`TECH_STACK` 四项的 `description` 是硬编码英文，中文访客看到的是
+  "ERP & financial data governance"。改为 `descriptionKey` + `home.techStack` namespace 静态映射。
+- **`src/app/[locale]/about/page.tsx`**：`generateMetadata` 的 `title: 'About'` 写死，`/zh/about` 的
+  浏览器标题也是英文。改用 `nav.about`。
+
+### Added — sitemap 补齐 tools 路由
+
+- **`src/app/sitemap.ts`**：静态条目加 `/tools`；新增 tool 详情页条目，查询条件与
+  `[locale]/tools/page.tsx` 的列表过滤完全一致（`online` + `public` + `interactive`），
+  避免 sitemap 里出现会 404 的地址。
+
+### 验证方式
+
+`npx tsc --noEmit` 零报错；`node scripts/i18n-check.mjs` 通过（119/119，0 僵尸 key）。
+tools 页面的实际渲染需线上验证——本地无 DB 连接，该页依赖 payload 查询。
+
 ## [1.6.2] — 2026-09-11
 
 ### Fixed — 生产环境根级路由被 next-intl middleware 吞掉（SEO / RSS / OG 全线失效）

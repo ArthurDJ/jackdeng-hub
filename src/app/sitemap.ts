@@ -27,8 +27,8 @@ function entry(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const payload = await getPayload()
 
-  // ── Fetch all published blogs, categories, tags, projects in parallel ──
-  const [blogsResult, categoriesResult, tagsResult, projectsResult] = await Promise.all([
+  // ── Fetch all published blogs, categories, tags, projects, tools in parallel ──
+  const [blogsResult, categoriesResult, tagsResult, projectsResult, toolsResult] = await Promise.all([
     payload.find({
       collection: 'blogs',
       where: { status: { equals: 'published' } },
@@ -55,6 +55,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       limit: 200,
       select: { slug: true, updatedAt: true } as any,
     }).catch(() => ({ docs: [] })),
+    // Only tools the public list page actually renders — same filter as
+    // [locale]/tools/page.tsx, so the sitemap never advertises a 404.
+    payload.find({
+      collection: 'tools',
+      where: {
+        and: [
+          { status: { equals: 'online' } },
+          { accessControl: { equals: 'public' } },
+          { toolType: { equals: 'interactive' } },
+        ],
+      },
+      depth: 0,
+      limit: 100,
+      select: { slug: true, updatedAt: true } as any,
+    }).catch(() => ({ docs: [] })),
   ])
 
   // ── Static pages ──
@@ -64,6 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry('/about', undefined),
     entry('/blog/archive', undefined),
     entry('/projects', undefined),    // projects list
+    entry('/tools', undefined),       // tools list
   ]
 
   // ── Blog posts ──
@@ -86,5 +102,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((p) => p.slug)
     .map((p) => entry(`/projects/${p.slug}`, p.updatedAt))
 
-  return [...staticEntries, ...blogEntries, ...categoryEntries, ...tagEntries, ...projectEntries]
+  // ── Tool pages ──
+  const toolEntries: MetadataRoute.Sitemap = (toolsResult.docs as any[])
+    .filter((tool) => tool.slug)
+    .map((tool) => entry(`/tools/${tool.slug}`, tool.updatedAt))
+
+  return [
+    ...staticEntries,
+    ...blogEntries,
+    ...categoryEntries,
+    ...tagEntries,
+    ...projectEntries,
+    ...toolEntries,
+  ]
 }

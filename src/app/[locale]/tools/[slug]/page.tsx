@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
+import { Footer } from '@/components/Footer'
 import { VisaMonitorDashboard } from '@/components/VisaMonitorDashboard'
 
 export const revalidate = 3600
@@ -47,7 +50,14 @@ const TOOL_STATUS_COLOR: Record<string, string> = {
 
 export default async function ToolDetailPage({ params }: Props) {
   const { locale, slug } = await params
-  const isZh = locale === 'zh'
+  const t = await getTranslations({ locale, namespace: 'tools' })
+
+  // Static map — next-intl keys must stay statically analysable (no t('status.' + x))
+  const STATUS_LABEL: Record<string, string> = {
+    online: t('status.online'),
+    offline: t('status.offline'),
+    maintenance: t('status.maintenance'),
+  }
 
   const payload = await getPayload()
 
@@ -80,9 +90,9 @@ export default async function ToolDetailPage({ params }: Props) {
 
         {/* ── Breadcrumb ──────────────────────────────────────────────── */}
         <nav style={{ marginBottom: '32px', fontSize: '14px', color: 'var(--text-tertiary)' }}>
-          <a href={`/${locale}/tools`} style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
-            {isZh ? '工具箱' : 'Tools'}
-          </a>
+          <Link href="/tools" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
+            {t('title')}
+          </Link>
           <span style={{ margin: '0 8px' }}>›</span>
           <span style={{ color: 'var(--text-primary)' }}>{tool.name}</span>
         </nav>
@@ -110,11 +120,7 @@ export default async function ToolDetailPage({ params }: Props) {
                 border: `1px solid ${statusColor}30`,
                 borderRadius: '4px', padding: '2px 8px',
               }}>
-                {tool.status === 'online'
-                  ? (isZh ? '在线' : 'Online')
-                  : tool.status === 'maintenance'
-                    ? (isZh ? '维护中' : 'Maintenance')
-                    : (isZh ? '离线' : 'Offline')}
+                {STATUS_LABEL[tool.status] ?? STATUS_LABEL.online}
               </span>
               {isAutomation && (
                 <span style={{
@@ -124,7 +130,7 @@ export default async function ToolDetailPage({ params }: Props) {
                   border: '1px solid #a78bfa30',
                   borderRadius: '4px', padding: '2px 8px',
                 }}>
-                  {isZh ? '自动化' : 'Automation'}
+                  {t('automation')}
                 </span>
               )}
             </div>
@@ -157,7 +163,7 @@ export default async function ToolDetailPage({ params }: Props) {
             />
           </div>
         ) : hasScript ? (
-          <ScriptEmbed url={tool.embedUrl} name={tool.name} />
+          <ScriptEmbed url={tool.embedUrl} noScriptText={t('enableJs')} />
         ) : (
           <div style={{
             borderRadius: '12px',
@@ -168,27 +174,29 @@ export default async function ToolDetailPage({ params }: Props) {
           }}>
             <p style={{ fontSize: '40px', marginBottom: '16px' }}>🚧</p>
             <p style={{ color: 'var(--text-secondary)', fontSize: '16px' }}>
-              {isZh ? '工具页面建设中，敬请期待' : 'Tool page coming soon'}
+              {t('comingSoon')}
             </p>
           </div>
         )}
 
         {/* ── Back link ───────────────────────────────────────────────── */}
         <div style={{ marginTop: '40px' }}>
-          <a href={`/${locale}/tools`} style={{
+          <Link href="/tools" style={{
             display: 'inline-flex', alignItems: 'center', gap: '6px',
             fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none',
           }}>
-            ← {isZh ? '返回工具箱' : 'Back to Tools'}
-          </a>
+            {t('backToTools')}
+          </Link>
         </div>
 
       </main>
+
+      <Footer />
     </div>
   )
 }
 
-function ScriptEmbed({ url, name }: { url: string; name: string }) {
+function ScriptEmbed({ url, noScriptText }: { url: string; noScriptText: string }) {
   return (
     <div style={{
       borderRadius: '12px',
@@ -202,7 +210,7 @@ function ScriptEmbed({ url, name }: { url: string; name: string }) {
       <script src={url} async defer data-container="tool-embed-root" />
       <noscript>
         <p style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>
-          Please enable JavaScript to use {name}.
+          {noScriptText}
         </p>
       </noscript>
     </div>

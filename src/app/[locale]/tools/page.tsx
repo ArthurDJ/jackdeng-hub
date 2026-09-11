@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
+import { Footer } from '@/components/Footer'
 
 export const revalidate = 3600
 
@@ -11,11 +13,10 @@ type Props = { params: Promise<{ locale: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'tools' })
   return {
-    title: locale === 'zh' ? '工具箱' : 'Tools',
-    description: locale === 'zh'
-      ? '实用开发工具，免费在线使用'
-      : 'Handy dev tools, free to use online',
+    title: t('title'),
+    description: t('subtitle'),
     alternates: {
       canonical: `${BASE}/${locale}/tools`,
       languages: { en: `${BASE}/en/tools`, zh: `${BASE}/zh/tools` },
@@ -23,15 +24,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-const STATUS_BADGE: Record<string, { label: string; color: string }> = {
-  online:      { label: 'Online',  color: '#10b981' },
-  offline:     { label: 'Offline', color: '#71717a' },
-  maintenance: { label: '维护中',  color: '#f59e0b' },
+const STATUS_COLOR: Record<string, string> = {
+  online:      '#10b981',
+  offline:     '#71717a',
+  maintenance: '#f59e0b',
 }
 
 export default async function ToolsPage({ params }: Props) {
   const { locale } = await params
-  const isZh = locale === 'zh'
+  const t = await getTranslations({ locale, namespace: 'tools' })
+
+  // Static map — next-intl keys must stay statically analysable (no t('status.' + x))
+  const STATUS_LABEL: Record<string, string> = {
+    online: t('status.online'),
+    offline: t('status.offline'),
+    maintenance: t('status.maintenance'),
+  }
 
   const payload = await getPayload()
   const { docs: tools } = await payload.find({
@@ -61,19 +69,17 @@ export default async function ToolsPage({ params }: Props) {
             letterSpacing: '-0.02em',
             marginBottom: '12px',
           }}>
-            {isZh ? '🛠️ 工具箱' : '🛠️ Tools'}
+            🛠️ {t('title')}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '16px' }}>
-            {isZh
-              ? '实用开发小工具，免费在线使用'
-              : 'Handy dev tools, free to use online'}
+            {t('subtitle')}
           </p>
         </div>
 
         {/* Grid */}
         {tools.length === 0 ? (
           <p style={{ color: 'var(--text-tertiary)' }}>
-            {isZh ? '暂无可用工具' : 'No tools available yet'}
+            {t('noTools')}
           </p>
         ) : (
           <div style={{
@@ -82,11 +88,12 @@ export default async function ToolsPage({ params }: Props) {
             gap: '20px',
           }}>
             {tools.map((tool: any) => {
-              const badge = STATUS_BADGE[tool.status] ?? STATUS_BADGE.online
+              const color = STATUS_COLOR[tool.status] ?? STATUS_COLOR.online
+              const label = STATUS_LABEL[tool.status] ?? STATUS_LABEL.online
               return (
                 <Link
                   key={tool.id}
-                  href={`/${locale}/tools/${tool.slug}`}
+                  href={`/tools/${tool.slug}`}
                   style={{ textDecoration: 'none' }}
                 >
                   <div
@@ -105,13 +112,13 @@ export default async function ToolsPage({ params }: Props) {
                       <span style={{
                         fontSize: '11px',
                         fontWeight: 600,
-                        color: badge.color,
-                        background: badge.color + '18',
-                        border: `1px solid ${badge.color}30`,
+                        color: color,
+                        background: color + '18',
+                        border: `1px solid ${color}30`,
                         borderRadius: '4px',
                         padding: '2px 8px',
                       }}>
-                        {badge.label}
+                        {label}
                       </span>
                     </div>
                     <h2 style={{
@@ -144,6 +151,8 @@ export default async function ToolsPage({ params }: Props) {
           </div>
         )}
       </main>
+
+      <Footer />
     </div>
   )
 }

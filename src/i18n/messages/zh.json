@@ -56,7 +56,13 @@
       "completed": "已完成",
       "onHold": "暂停"
     },
-    "viewProject": "查看项目 →"
+    "viewProject": "查看项目 →",
+    "techStack": {
+      "netsuite": "ERP 与财务数据治理",
+      "boomi": "iPaaS 集成与流程自动化",
+      "supabase": "Postgres 原生后端与鉴权",
+      "nextjs": "全栈 React，内部工具首选"
+    }
   },
   "blog": {
     "title": "文章",
@@ -139,5 +145,19 @@
     "relatedProjects": "其他项目",
     "noProjects": "暂无项目。",
     "viewDetails": "查看详情 →"
+  },
+  "tools": {
+    "title": "工具箱",
+    "subtitle": "实用开发小工具，免费在线使用。",
+    "noTools": "暂无可用工具。",
+    "backToTools": "← 返回工具箱",
+    "comingSoon": "工具页面建设中，敬请期待。",
+    "automation": "自动化",
+    "enableJs": "请启用 JavaScript 以使用本工具。",
+    "status": {
+      "online": "在线",
+      "maintenance": "维护中",
+      "offline": "离线"
+    }
   }
 }

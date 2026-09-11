@@ -28,11 +28,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-/* ─── Tech Stack data (static) ──────────────────────────────────────────── */
+/* ─── Tech Stack data (static) ──────────────────────────────────────────────
+   `descriptionKey` is resolved through the `home.techStack` namespace at render
+   time; the labels used to be hardcoded English and leaked onto the zh page. */
 const TECH_STACK = [
   {
     name: 'NetSuite',
-    description: 'ERP & financial data governance',
+    descriptionKey: 'netsuite' as const,
     color: '#0077B6',
     icon: (
       <svg viewBox="0 0 40 40" fill="none" aria-hidden="true" className="w-8 h-8">
@@ -44,7 +46,7 @@ const TECH_STACK = [
   },
   {
     name: 'Boomi',
-    description: 'iPaaS integration & workflow automation',
+    descriptionKey: 'boomi' as const,
     color: '#00AAFF',
     icon: (
       <svg viewBox="0 0 40 40" fill="none" aria-hidden="true" className="w-8 h-8">
@@ -56,7 +58,7 @@ const TECH_STACK = [
   },
   {
     name: 'Supabase',
-    description: 'Postgres-native backend & auth',
+    descriptionKey: 'supabase' as const,
     color: '#3ECF8E',
     icon: (
       <svg viewBox="0 0 40 40" fill="none" aria-hidden="true" className="w-8 h-8">
@@ -67,7 +69,7 @@ const TECH_STACK = [
   },
   {
     name: 'Next.js',
-    description: 'Full-stack React for internal tools',
+    descriptionKey: 'nextjs' as const,
     color: '#f7f8f8',
     icon: (
       <svg viewBox="0 0 40 40" fill="none" aria-hidden="true" className="w-8 h-8">
@@ -84,6 +86,14 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'home' })
   const tCommon = await getTranslations({ locale, namespace: 'common' })
+
+  // Static map — next-intl keys must stay statically analysable (no t('techStack.' + x))
+  const TECH_DESCRIPTIONS = {
+    netsuite: t('techStack.netsuite'),
+    boomi: t('techStack.boomi'),
+    supabase: t('techStack.supabase'),
+    nextjs: t('techStack.nextjs'),
+  } as const
 
   const payload = await getPayload()
 
@@ -322,7 +332,7 @@ export default async function HomePage({ params }: Props) {
                   {tech.name}
                 </p>
                 <p style={{ fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.5 }}>
-                  {tech.description}
+                  {TECH_DESCRIPTIONS[tech.descriptionKey]}
                 </p>
               </div>
             ))}

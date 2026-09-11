@@ -75,7 +75,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const totalPages = (blogsResult as any).totalPages ?? 1
 
   return (
-    <main>
+    <main id="main">
       {/* Header */}
       <section className="border-b border-subtle ds-section-padding">
         <div className="ds-container">

@@ -67,7 +67,7 @@ export default async function ArchivePage({ params, searchParams }: Props) {
   const totalCount = (all as any[]).length
 
   return (
-    <main>
+    <main id="main">
       {/* Header */}
       <section style={{ borderBottom: '1px solid var(--border-subtle)', padding: '48px 24px 40px' }}>
         <div style={{ maxWidth: 1024, margin: '0 auto' }}>

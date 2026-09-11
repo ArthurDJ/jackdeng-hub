@@ -85,7 +85,7 @@ export default async function ToolDetailPage({ params }: Props) {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-base)' }}>
       <Navbar />
 
-      <main className="ds-container" style={{ paddingTop: '64px', paddingBottom: '80px' }}>
+      <main id="main" className="ds-container" style={{ paddingTop: '64px', paddingBottom: '80px' }}>
 
         {/* ── Breadcrumb ──────────────────────────────────────────────── */}
         <nav style={{ marginBottom: '32px', fontSize: '14px', color: 'var(--text-tertiary)' }}>

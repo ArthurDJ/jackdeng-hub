@@ -173,7 +173,7 @@ export default async function AboutPage({ params }: Props) {
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      <main style={{ flex: 1, maxWidth: 720, margin: '0 auto', padding: '64px 24px', display: 'flex', flexDirection: 'column', gap: 56 }}>
+      <main id="main" style={{ flex: 1, maxWidth: 720, margin: '0 auto', padding: '64px 24px', display: 'flex', flexDirection: 'column', gap: 56 }}>
 
         {/* ── Bio ─────────────────────────────────────────────────────── */}
         <section style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

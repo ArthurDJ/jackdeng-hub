@@ -117,7 +117,7 @@ export default async function ProjectDetailPage({ params }: Props) {
       />
 
       <Navbar />
-      <main className="ds-container" style={{ paddingTop: '2.5rem', paddingBottom: '4rem' }}>
+      <main id="main" className="ds-container" style={{ paddingTop: '2.5rem', paddingBottom: '4rem' }}>
         {/* Breadcrumb */}
         <nav style={{ marginBottom: '1.5rem', fontSize: 13, color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Link href={`/${locale}/projects`} style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>

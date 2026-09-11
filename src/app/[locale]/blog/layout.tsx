@@ -1,5 +1,4 @@
 import { Navbar } from '@/components/Navbar'
-import { Footer } from '@/components/Footer'
 
 type Props = {
   children: React.ReactNode

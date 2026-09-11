@@ -25,7 +25,8 @@
     "submitting": "提交中…",
     "errorSomething": "出错了，请稍后再试。",
     "copyright": "© {year} Jack Deng",
-    "typeToConfirm": "输入 {phrase} 以确认"
+    "typeToConfirm": "输入 {phrase} 以确认",
+    "skipToContent": "跳到主内容"
   },
   "nav": {
     "blog": "文章",
@@ -163,5 +164,11 @@
       "maintenance": "维护中",
       "offline": "离线"
     }
+  },
+  "error": {
+    "title": "出了点问题",
+    "message": "这个页面遇到了意外错误。重试通常就能恢复——如果一直这样，下面这个编号能帮我定位。",
+    "retry": "重试",
+    "reference": "错误编号"
   }
 }

@@ -58,7 +58,7 @@ export default async function ToolsPage({ params }: Props) {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-base)' }}>
       <Navbar />
 
-      <main className="ds-container" style={{ paddingTop: '64px', paddingBottom: '80px' }}>
+      <main id="main" className="ds-container" style={{ paddingTop: '64px', paddingBottom: '80px' }}>
         {/* Header */}
         <div style={{ marginBottom: '48px' }}>
           <h1 style={{

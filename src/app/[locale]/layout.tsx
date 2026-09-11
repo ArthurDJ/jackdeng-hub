@@ -69,6 +69,10 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
+            {/* Keyboard-only escape hatch past the nav — visible on focus */}
+            <a href="#main" className="ds-skip-link">
+              {messages.common.skipToContent as string}
+            </a>
             {children}
             <Footer />
             <CommandPalette />

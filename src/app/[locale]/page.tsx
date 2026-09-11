@@ -125,7 +125,7 @@ export default async function HomePage({ params }: Props) {
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }} className="min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         <section className="max-w-5xl mx-auto px-6 pt-20 pb-16 sm:pt-24 sm:pb-20">
           <div className="flex flex-col lg:flex-row lg:items-center lg:gap-12">
 

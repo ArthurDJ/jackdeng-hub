@@ -452,4 +452,45 @@
     background: transparent !important;
     color: var(--text-secondary) !important;
   }
+
+  /* ── Loading skeleton (PageSkeleton.tsx) ── */
+  .ds-skeleton {
+    background-color: var(--bg-elevated);
+    border-radius: 6px;
+    animation: ds-pulse 1.6s var(--ease-default) infinite;
+  }
+  @keyframes ds-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.45; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ds-skeleton { animation: none; opacity: 0.7; }
+  }
+}
+
+/* ── Skip link: visible only once focused by keyboard ──────────────────────
+   Deliberately OUTSIDE @layer components: inside the layer the `:focus`
+   override lost the cascade to the base rule and the link never slid into
+   view. Unlayered rules also win over Tailwind's layers, so nothing further
+   up can bury it. Verified by focusing it and reading the computed `top`. */
+.ds-skip-link {
+  position: fixed;
+  left: 12px;
+  top: 12px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 6px;
+  background: var(--accent-primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 510;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--duration-base) var(--ease-default);
+}
+.ds-skip-link:focus {
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-skip-link { transition: none; }
 }

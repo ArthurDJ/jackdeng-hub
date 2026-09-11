@@ -46,7 +46,7 @@ export default async function ProjectsPage({ params }: Props) {
   return (
     <>
       <Navbar />
-      <main className="ds-container" style={{ paddingTop: '3rem', paddingBottom: '4rem' }}>
+      <main id="main" className="ds-container" style={{ paddingTop: '3rem', paddingBottom: '4rem' }}>
       {/* Page header */}
       <div style={{ marginBottom: '2.5rem' }}>
         <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginBottom: '0.5rem' }}>

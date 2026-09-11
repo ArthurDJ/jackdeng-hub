@@ -74,6 +74,7 @@
 | `/tools` Server Component 事件处理器 | 🔴 高 | ✅ 已修复 (v1.6.2) | 发布任意工具即 500，改用 `.ds-card-hover`。 |
 | 标题重复品牌后缀 | 🟡 中 | ✅ 已修复 (v1.6.2) | 6 处页面手动拼接 + layout template 叠加。 |
 | 站点图标缺失 | 🟡 中 | ✅ 已修复 (v1.6.2) | 新增 icon.svg / favicon.ico / apple-icon.png。 |
+| Next.js 未打安全补丁 | 🔴 高 | ⬜ 待处理（已决定推迟） | 站点跑 16.2.2；2026-08-25 的 August Security Release 在 **16.3.3** 修了两个 Critical 未授权 RCE。Windows 那个（CVE-2026-75604）不影响我们（Vercel/Linux）；AVIF 那个（GHSA-2xp9-vwfh-vxw4，libheif via sharp）理论上影响，但 `images.remotePatterns` 只允许 `**.public.blob.vercel-storage.com`，攻击者无法投喂任意 AVIF，实际可利用性低。目标 16.3.5，已确认在 @payloadcms/next (`>=16.2.0-canary.10 <17.0.0`) 与 next-intl (`^16.0.0`) 的 peer 范围内。注意：补丁版本会**禁用 AVIF 优化**。 |
 | 内容真空 | 🔴 高 | ⬜ 待处理 | 博客 0 篇、工具 0 个；侧边栏分类与标签计数全为 0。 |
 | Tools 页面未接 i18n | 🟡 中 | ⬜ 待处理 | `isZh ?` 硬编码三元、用 `next/link` 手拼 locale 前缀、无 `tools` i18n namespace。 |
 | sitemap 漏 tools 路由 | 🟡 中 | ⬜ 待处理 | `/tools` 与 `/tools/[slug]` 未进 sitemap。 |
@@ -82,4 +83,4 @@
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-09-11 (v1.6.2 生产故障批量修复：middleware 根级路由拦截、/tools 500、标题后缀、站点图标)*
+*最后更新：2026-09-11 (v1.8.0 骨架完善：error/loading 边界、弹窗与 toast 层、CommentForm 设计系统迁移)*

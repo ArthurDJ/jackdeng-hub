@@ -9,6 +9,7 @@ import { Footer } from '@/components/Footer'
 import { routing } from '@/i18n/routing'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { CommandPalette } from '@/components/CommandPalette'
+import { Toaster } from '@/components/Toaster'
 import '../globals.css'
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
@@ -71,6 +72,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             {children}
             <Footer />
             <CommandPalette />
+            <Toaster />
           </ThemeProvider>
         </NextIntlClientProvider>
         <SpeedInsights />

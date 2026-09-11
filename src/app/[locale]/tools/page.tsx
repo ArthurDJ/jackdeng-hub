@@ -3,7 +3,6 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
-import { Footer } from '@/components/Footer'
 
 export const revalidate = 3600
 
@@ -151,8 +150,6 @@ export default async function ToolsPage({ params }: Props) {
           </div>
         )}
       </main>
-
-      <Footer />
     </div>
   )
 }

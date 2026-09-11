@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 
 type Props = {
@@ -119,21 +120,33 @@ export function CommentForm({ postId }: Props) {
         window.turnstile.reset(widgetIdRef.current)
       }
     } catch (err) {
+      const msg = err instanceof Error ? err.message : tCommon('errorSomething')
       setState('error')
-      setErrorMsg(err instanceof Error ? err.message : tCommon('errorSomething'))
+      setErrorMsg(msg)
+      // The inline line below sits under a long form and is easy to scroll
+      // past; the toast makes a failed submit impossible to miss.
+      toast.error(msg)
     }
   }
 
   if (state === 'success') {
     return (
-      <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 p-6 text-center space-y-1">
-        <p className="font-medium text-emerald-700 dark:text-emerald-400">{t('commentSubmitSuccess')}</p>
-        <p className="text-sm text-emerald-600 dark:text-emerald-500">
+      <div
+        className="p-6 text-center space-y-1"
+        style={{
+          borderRadius: 12,
+          border: '1px solid color-mix(in srgb, var(--status-success) 24%, transparent)',
+          backgroundColor: 'color-mix(in srgb, var(--status-success) 10%, transparent)',
+        }}
+      >
+        <p style={{ fontWeight: 510, color: 'var(--status-success)' }}>{t('commentSubmitSuccess')}</p>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
           {t('commentSubmitSuccessNote')}
         </p>
         <button
           onClick={() => setState('idle')}
-          className="mt-3 text-xs text-emerald-600 dark:text-emerald-400 underline underline-offset-2 hover:no-underline"
+          className="mt-3 text-xs underline underline-offset-2 hover:no-underline"
+          style={{ color: 'var(--status-success)' }}
         >
           {t('commentLeaveAnother')}
         </button>
@@ -150,8 +163,8 @@ export function CommentForm({ postId }: Props) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label htmlFor="comment-name" className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            {t('commentNameLabel')} <span className="text-red-400">*</span>
+          <label htmlFor="comment-name" className="block text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+            {t('commentNameLabel')} <span style={{ color: 'var(--status-error)' }}>*</span>
           </label>
           <input
             id="comment-name"
@@ -161,13 +174,13 @@ export function CommentForm({ postId }: Props) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t('commentNamePlaceholder')}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
+            className="ds-input w-full"
           />
         </div>
         <div className="space-y-1.5">
-          <label htmlFor="comment-email" className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            {t('commentEmailLabel')} <span className="text-red-400">*</span>
-            <span className="ml-1 font-normal text-zinc-400">{tCommon('notDisplayed')}</span>
+          <label htmlFor="comment-email" className="block text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+            {t('commentEmailLabel')} <span style={{ color: 'var(--status-error)' }}>*</span>
+            <span className="ml-1 font-normal" style={{ color: 'var(--text-tertiary)' }}>{tCommon('notDisplayed')}</span>
           </label>
           <input
             id="comment-email"
@@ -176,15 +189,15 @@ export function CommentForm({ postId }: Props) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="w-full px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
+            className="ds-input w-full"
           />
         </div>
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="comment-content" className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-          {t('commentContentLabel')} <span className="text-red-400">*</span>
-          <span className="ml-1 font-normal text-zinc-400">{tCommon('maxChars', { count: 500 })}</span>
+        <label htmlFor="comment-content" className="block text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+          {t('commentContentLabel')} <span style={{ color: 'var(--status-error)' }}>*</span>
+          <span className="ml-1 font-normal" style={{ color: 'var(--text-tertiary)' }}>{tCommon('maxChars', { count: 500 })}</span>
         </label>
         <textarea
           id="comment-content"
@@ -195,9 +208,9 @@ export function CommentForm({ postId }: Props) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder={t('commentContentPlaceholder')}
-          className="w-full px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500 resize-none"
+          className="ds-input w-full resize-none"
         />
-        <p className="text-right text-xs text-zinc-400">{content.length} / 500</p>
+        <p className="text-right text-xs" style={{ color: 'var(--text-tertiary)' }}>{content.length} / 500</p>
       </div>
 
       {/* Turnstile widget */}
@@ -206,13 +219,14 @@ export function CommentForm({ postId }: Props) {
       )}
 
       {state === 'error' && (
-        <p className="text-sm text-red-500 dark:text-red-400">{errorMsg}</p>
+        <p className="text-sm" style={{ color: 'var(--status-error)' }}>{errorMsg}</p>
       )}
 
       <button
         type="submit"
         disabled={state === 'submitting'}
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-medium hover:opacity-85 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+        className="ds-accent-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        style={{ background: 'var(--accent-primary)', color: '#fff', fontWeight: 590, border: '1px solid transparent' }}
       >
         {state === 'submitting' ? (
           <>

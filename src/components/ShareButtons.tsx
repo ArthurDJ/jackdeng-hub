@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface ShareButtonsProps {
   url: string
   title: string
-  locale?: string
 }
 
 /**
@@ -13,7 +13,8 @@ interface ShareButtonsProps {
  * Shows Twitter/X, LinkedIn, and a copy-link button.
  * All rendered client-side — no server secrets needed.
  */
-export function ShareButtons({ url, title, locale }: ShareButtonsProps) {
+export function ShareButtons({ url, title }: ShareButtonsProps) {
+  const t = useTranslations('blog')
   const [copied, setCopied] = useState(false)
 
   const encoded = encodeURIComponent(url)
@@ -40,8 +41,8 @@ export function ShareButtons({ url, title, locale }: ShareButtonsProps) {
     }
   }
 
-  const label = locale === 'zh' ? '分享' : 'Share'
-  const copyLabel = locale === 'zh' ? (copied ? '已复制！' : '复制链接') : (copied ? 'Copied!' : 'Copy link')
+  const label = t('share')
+  const copyLabel = copied ? t('copied') : t('copyLink')
 
   const btnBase: React.CSSProperties = {
     display: 'inline-flex',

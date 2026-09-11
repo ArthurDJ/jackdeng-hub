@@ -24,7 +24,8 @@
     "maxChars": "(max {count} chars)",
     "submitting": "Submitting…",
     "errorSomething": "Something went wrong.",
-    "copyright": "© {year} Jack Deng"
+    "copyright": "© {year} Jack Deng",
+    "typeToConfirm": "Type {phrase} to confirm"
   },
   "nav": {
     "blog": "Blog",
@@ -94,7 +95,10 @@
     "pagination": {
       "previous": "← Previous",
       "next": "Next →"
-    }
+    },
+    "share": "Share",
+    "copyLink": "Copy link",
+    "copied": "Copied!"
   },
   "about": {
     "title": "Jack Deng",

@@ -350,3 +350,106 @@
     --tw-prose-invert-td-borders:    var(--border-subtle);
   }
 }
+
+/* ════════════════════════════════════════════════════
+   DIALOG + TOAST — native <dialog>, tokens only.
+   Elevation is a background step + a barely-there
+   border, never a box-shadow (DESIGN.md §Do/Don't).
+   ════════════════════════════════════════════════════ */
+@layer components {
+
+  /* ── Confirmation dialog (ConfirmDialog.tsx) ── */
+  dialog.ds-dialog {
+    padding: 0;
+    border: none;
+    background: transparent;
+    max-width: min(440px, calc(100vw - 32px));
+    width: 100%;
+    /* The native centring keywords; margin:auto keeps older engines honest. */
+    margin: auto;
+    color: var(--text-primary);
+  }
+  dialog.ds-dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .ds-dialog-panel {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: left;
+  }
+
+  /* Pair opacity with transform — never animate on its own (DESIGN.md §Motion) */
+  dialog.ds-dialog[open] .ds-dialog-panel {
+    animation: ds-dialog-in var(--duration-base) var(--ease-default);
+  }
+  dialog.ds-dialog[open]::backdrop {
+    animation: ds-backdrop-in var(--duration-base) var(--ease-default);
+  }
+  @keyframes ds-dialog-in {
+    from { opacity: 0; transform: translateY(6px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes ds-backdrop-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    dialog.ds-dialog[open] .ds-dialog-panel,
+    dialog.ds-dialog[open]::backdrop { animation: none; }
+  }
+
+  .ds-dialog-confirm:hover:not(:disabled) {
+    background-color: var(--accent-hover) !important;
+  }
+  .ds-dialog-confirm:focus-visible,
+  .ds-dialog .ds-ghost-btn:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+  }
+
+  /* ── Text input (dialog confirm-phrase, reusable elsewhere) ── */
+  .ds-input {
+    background-color: color-mix(in srgb, var(--text-primary) 3%, transparent);
+    border: 1px solid var(--border-default);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: var(--text-primary);
+    transition: border-color var(--duration-base) var(--ease-default);
+  }
+  .ds-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+  }
+
+  /* ── Toasts (sonner) — repainted onto our tokens ── */
+  [data-sonner-toaster] {
+    --normal-bg: var(--bg-elevated);
+    --normal-text: var(--text-primary);
+    --normal-border: var(--border-default);
+    --border-radius: 8px;
+    font-family: inherit;
+  }
+  [data-sonner-toast] {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border-default) !important;
+    color: var(--text-primary) !important;
+    box-shadow: none !important;
+    font-size: 14px;
+  }
+  [data-sonner-toast] [data-description] {
+    color: var(--text-secondary) !important;
+    font-size: 13px;
+  }
+  [data-sonner-toast][data-type='success'] [data-icon] { color: var(--status-success); }
+  [data-sonner-toast][data-type='error']   [data-icon] { color: var(--status-error); }
+  [data-sonner-toast] [data-cancel] {
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+  }
+}

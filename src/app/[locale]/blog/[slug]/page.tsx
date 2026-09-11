@@ -308,7 +308,6 @@ export default async function BlogDetailPage({ params }: Props) {
               <ShareButtons
                 url={`${BASE}/${locale}/blog/${slug}`}
                 title={blog.title}
-                locale={locale}
               />
             </div>
 

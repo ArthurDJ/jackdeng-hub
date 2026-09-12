@@ -6,6 +6,73 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.8.0] — 2026-09-11
+
+### Added — 错误边界、加载骨架与跳转链接
+
+- **`src/app/[locale]/error.tsx`**（新建，160 行）：locale 级错误边界。此前任何 Server Component
+  抛错都落到 Next.js 默认的白底报错页，完全脱离设计系统，且生产环境只显示一句 "Application error"。
+  现在渲染 token 化的错误页，含 `reset()` 重试按钮和 `error.digest` 引用码（Vercel 日志里可直接搜到
+  这串 digest 定位具体报错）。
+- **`src/app/global-error.tsx`**（新建，78 行）：root layout 自身崩溃时的兜底。它必须自带
+  `<html>`/`<body>`，且不能依赖 next-intl（provider 可能就是崩的那个），所以文案是硬编码英文——
+  这是 Next.js 的约束，不是遗漏。
+- **`src/app/[locale]/blog/loading.tsx` / `projects/loading.tsx` / `tools/loading.tsx`**（新建）：
+  三个列表页都是 DB 查询驱动的，冷启动时此前是整页空白。现在走 `<PageSkeleton />`。
+- **`src/components/PageSkeleton.tsx`**（新建，61 行）：卡片骨架屏，用 `.ds-skeleton` 的
+  token 化微光动画，`prefers-reduced-motion` 下降级为静态。
+
+### Added — 键盘可达性：跳到主内容
+
+- **`src/app/[locale]/layout.tsx`**：body 内第一个可聚焦元素改为 `<a href="#main" class="ds-skip-link">`，
+  平时 `translateY(-200%)` 移出视口，`:focus` 时滑下。键盘用户不必每页 Tab 穿过整条导航。
+- **全部 8 个页面的 `<main>` 补 `id="main"`**：about / home / blog 各子页 / projects / tools。
+- **`src/i18n/messages/*`**：新增 `common.skipToContent` 与 `error.*`（title / message / retry / reference）。
+
+### 已知未验证项
+
+跳转链接的**交互行为未能在本会话验证**——浏览器面板的合成 Tab 按键不驱动真实的顺序焦点导航
+（activeElement 不动，页面自行恢复滚动位置），截图也返回全黑。生产环境 CSS 已静态核对：基础规则
+在前、`:focus` 覆盖在后且优先级更高、`prefers-reduced-motion` 块只改 `transition` 不影响 transform。
+**需要人工按一次 Tab 确认。**
+
+---
+
+## [1.7.0] — 2026-09-11
+
+### Added — 弹窗与 toast 层（自建确认框 + sonner）
+
+选型依据：实测 sweetalert2 打包后 20.6 KB gzip、sonner 14.7 KB，体积差距不足以成为理由；
+真正的问题是 sweetalert2 自带 30 KB CSS 与一整套视觉语言（大阴影、居中大号彩色圆形图标、弹跳动画），
+与 DESIGN.md 第一条"用亮度层叠做纵深，永不用 box-shadow"直接冲突，且它是命令式 DOM 注入而非
+React 组件。Lazyweb 检索的 12 个暗色确认弹窗参考（Flora / Basedash / Okta / Calendly / Medium /
+Bonsai 等）无一使用图标前置样式。结论：确认框自建，toast 买 sonner。
+
+- **`src/components/ConfirmDialog.tsx`**（新建，228 行）：基于原生 `<dialog>` + `showModal()`，
+  焦点陷阱、Esc 关闭、`::backdrop`、top-layer 层级全部由浏览器提供，永远不会和 sticky Navbar 或
+  CommandPalette 打 z-index 官司。支持 `variant="danger"`（confirm 按钮用 `--status-error`）与
+  `confirmPhrase`（需手打指定字符串才能确认，即 Basedash / Okta / Calendly / Medium 对不可逆操作
+  的通用模式）。附 `useConfirm()` Promise 包装，调用处可写成 `if (await confirm({...}))`。
+- **`src/components/Toaster.tsx`**（新建）：sonner `<Toaster />` 的 token 化封装，挂在 locale layout。
+- **`src/app/globals.css`**：新增 `.ds-dialog` / `.ds-dialog-panel` / `.ds-dialog-confirm` / `.ds-input`
+  与 `[data-sonner-toaster]` / `[data-sonner-toast]` 覆盖，两个 `@keyframes`（`ds-dialog-in` /
+  `ds-backdrop-in`）遵循 DESIGN.md「不单独动画颜色，必须配合 transform 或 opacity」。
+
+### Changed — CommentForm 迁移到设计系统；ShareButtons 改用 toast
+
+- **`src/components/CommentForm.tsx`**：提交反馈此前是内联文本，改为 sonner toast。
+- **`src/components/ShareButtons.tsx`**：复制链接的 2 秒内联状态改为 toast；`locale === 'zh' ? …` 硬编码
+  三元换成 `blog.share` / `blog.copyLink` / `blog.copied` 三个 i18n key。
+- **`src/i18n/messages/*`**：新增 `common.typeToConfirm`、`blog.share` / `copyLink` / `copied`。
+
+### Fixed — Footer 重复渲染
+
+v1.6.3 给两个 tools 页面补 `<Footer />` 时没注意到 `[locale]/layout.tsx` 已经全局渲染了一次，
+导致 `/en/tools` 出现两个页脚。移除 tools 两页和 blog 详情页里的冗余 `<Footer />`（生产验证：
+各页面 copyright 字符串均为 3 处，与其他页面一致）。
+
+---
+
 ## [1.6.3] — 2026-09-11
 
 ### Changed — Tools 页面接入 i18n（此前是全站唯一没走 next-intl 的公开页面）

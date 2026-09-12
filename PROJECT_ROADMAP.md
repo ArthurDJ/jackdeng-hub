@@ -54,9 +54,20 @@
 - [x] **环境清理**: 确认 `.gitignore` 生效，移除残留的未追踪日志与临时文件。 ✅
 - [x] **Admin UI 优化**: 合并 Header 设置面板 (AdminHeaderSettings)，修复 /admin/account 路由未找到问题。 ✅
 
-### ⏳ Phase 8: 动态工具引擎 (Pending)
-- [ ] 设计 Tools Collection（配置 API Endpoint、鉴权规则等）。
-- [ ] 前端渲染公开可用的”在线工具”列表（Tools 目录）。
+### 🔄 Phase 8: 动态工具引擎 (骨架完成，等待内容)
+- [x] 设计 Tools Collection（toolType / accessControl / status / embedUrl / embedType 等字段）✅
+- [x] 前端渲染公开可用的"在线工具"列表（`/tools` 目录 + `/tools/[slug]` 详情）✅
+- [x] Tools 页面接入 next-intl（v1.6.3）✅
+- [x] sitemap 覆盖 tools 路由，过滤条件与列表页一致（v1.6.3）✅
+- [ ] **决定第一个真实工具做什么** — 当前 `/tools` 线上显示"暂无可用工具"，引擎跑空。
+- [ ] 工具运行前的确认弹窗接入 `ConfirmDialog`（组件已就绪，v1.7.0）
+
+### ✅ Phase 9: 骨架完善 (v1.6.2 – v1.8.1)
+- [x] **生产故障修复 (v1.6.2)**：根级路由 307→404、`/tools` 事件处理器 500、标题重复后缀、站点图标缺失 ✅
+- [x] **Tools i18n + 零散本地化 (v1.6.3)**：`tools` namespace、STATUS_BADGE 中英混排 bug、about 标题、首页 TECH STACK ✅
+- [x] **弹窗与 toast 层 (v1.7.0)**：自建 `ConfirmDialog`（原生 `<dialog>`）+ sonner；CommentForm / ShareButtons 迁移 ✅
+- [x] **韧性与可达性 (v1.8.0)**：`error.tsx` / `global-error.tsx` 错误边界、三个列表页 loading 骨架、跳转链接 ✅
+- [ ] **依赖安全升级 (v1.8.1)** — PR #15 已开，**等 preview 验证后合并**
 
 ---
 
@@ -74,13 +85,14 @@
 | `/tools` Server Component 事件处理器 | 🔴 高 | ✅ 已修复 (v1.6.2) | 发布任意工具即 500，改用 `.ds-card-hover`。 |
 | 标题重复品牌后缀 | 🟡 中 | ✅ 已修复 (v1.6.2) | 6 处页面手动拼接 + layout template 叠加。 |
 | 站点图标缺失 | 🟡 中 | ✅ 已修复 (v1.6.2) | 新增 icon.svg / favicon.ico / apple-icon.png。 |
-| Next.js 未打安全补丁 | 🔴 高 | ⬜ 待处理（已决定推迟） | 站点跑 16.2.2；2026-08-25 的 August Security Release 在 **16.3.3** 修了两个 Critical 未授权 RCE。Windows 那个（CVE-2026-75604）不影响我们（Vercel/Linux）；AVIF 那个（GHSA-2xp9-vwfh-vxw4，libheif via sharp）理论上影响，但 `images.remotePatterns` 只允许 `**.public.blob.vercel-storage.com`，攻击者无法投喂任意 AVIF，实际可利用性低。目标 16.3.5，已确认在 @payloadcms/next (`>=16.2.0-canary.10 <17.0.0`) 与 next-intl (`^16.0.0`) 的 peer 范围内。注意：补丁版本会**禁用 AVIF 优化**。 |
+| 依赖安全（Next.js / Payload / sharp） | 🔴 高 | 🔄 PR #15 待验证 | **之前这条的评估严重低估**：原文只盯 2026-08-25 August Security Release 的两个 Critical RCE，并据此判断可推迟。实际 `npm audit` 报 **31 条公告，2 条 critical、13 条 high**。与本站直接相关的包括多条 App Router 的 **Middleware / Proxy bypass**（CVSS 7.5–8.1，`src/proxy.ts` 正是 next-intl middleware）、**SSRF via WebSocket upgrades**（8.6），以及 Payload 的「已认证用户可重置他人账号锁定」越权。已升 next 16.3.5 / payload 3.89.0 / sharp 0.35.4 + dompurify override，降到 5 条（全为构建期工具链，无上游修复，不进生产运行时）。**注意：Payload 子包 peer-depend 精确版本，必须锁步且需删 lockfile 重新解析。** |
+| 跳转链接交互未验证 | 🟡 中 | ⚠️ 待人工确认 | v1.8.0 的 `.ds-skip-link` 生产 CSS 已静态核对正确（基础规则在前、`:focus` 覆盖在后），但**浏览器面板的合成 Tab 不驱动真实焦点导航**，无法自动验证。需人工按一次 Tab。 |
 | 内容真空 | 🔴 高 | ⬜ 待处理 | 博客 0 篇、工具 0 个；侧边栏分类与标签计数全为 0。 |
-| Tools 页面未接 i18n | 🟡 中 | ⬜ 待处理 | `isZh ?` 硬编码三元、用 `next/link` 手拼 locale 前缀、无 `tools` i18n namespace。 |
-| sitemap 漏 tools 路由 | 🟡 中 | ⬜ 待处理 | `/tools` 与 `/tools/[slug]` 未进 sitemap。 |
-| 首页 TECH STACK 英文硬编码 | 🟢 低 | ⬜ 待处理 | `TECH_STACK` 的 description 未 localized，中文页显示英文。 |
+| Tools 页面未接 i18n | 🟡 中 | ✅ 已修复 (v1.6.3) | `isZh ?` 硬编码三元、用 `next/link` 手拼 locale 前缀、无 `tools` i18n namespace。 |
+| sitemap 漏 tools 路由 | 🟡 中 | ✅ 已修复 (v1.6.3) | `/tools` 与 `/tools/[slug]` 未进 sitemap。 |
+| 首页 TECH STACK 英文硬编码 | 🟢 低 | ✅ 已修复 (v1.6.3) | `TECH_STACK` 的 description 未 localized，中文页显示英文。 |
 | 遗留测试媒体 | 🟢 低 | ⬜ 待处理 | media 库仍有 15 张 test-images，可通过公开 REST API 枚举。 |
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-09-11 (v1.8.0 骨架完善：error/loading 边界、弹窗与 toast 层、CommentForm 设计系统迁移)*
+*最后更新：2026-09-12 (v1.8.1 依赖安全升级 PR #15 待验证；Roadmap 与 v1.6.3–v1.8.0 实际进度对齐)*

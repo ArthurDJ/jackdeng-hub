@@ -6,6 +6,44 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.8.1] — 2026-09-12
+
+### Security — 依赖安全升级（31 条公告 → 5 条，critical 2 → 0，high 13 → 0）
+
+此前 `npm audit` 报 31 条，其中 2 条 critical、13 条 high。之前的 roadmap 把它记成
+"Next.js 小版本升级"，严重低估了。
+
+- **`next` 16.2.2 → 16.3.5**（critical）。受影响范围 `9.3.4-canary.0 - 16.3.2`。与本站直接相关的：
+  多条 **Middleware / Proxy bypass in App Router**（CVSS 7.5–8.1，本站 `src/proxy.ts` 就是
+  next-intl middleware）、**SSRF via WebSocket upgrades**（CVSS 8.6）、**Image Optimization API
+  的 RCE（AVIF）与 DoS**（站点用 next/image + Vercel Blob）。Windows 主机的未认证 RCE（CVSS 9）
+  对 Vercel/Linux 不适用。
+- **`payload` 与全部 `@payloadcms/*` 3.81.0 → 3.89.0**（high）。含「已认证用户可重置**其他**账号
+  锁定状态」的越权公告。**注意：Payload 子包 peer-depend 精确版本**（`peer payload@"3.89.0"`），
+  整个家族必须锁步，因此 package.json 里这几项改为精确版本号而非 caret——用 caret 会导致
+  npm ERESOLVE 解析失败。升级需删除 node_modules + package-lock.json 重新解析。
+- **`sharp` 0.34.5 → 0.35.4**（high）。libvips / libheif 的 CVE-2026-33327 / 33328 / 35590 / 35591
+  及 libheif 两条公告。
+- **新增 `overrides: { "dompurify": "^3.4.15" }`**。Payload 传递依赖锁在 3.4.8，而 18 条 XSS 公告
+  影响 `<=3.4.12`。这些 XSS 都在 admin 侧（富文本编辑器 + monaco），但**评论是用户提交内容且会
+  在后台被管理员打开**，所以路径并非纯理论。等 Payload 自己升上去后可移除此 override。
+
+### 剩余 5 条（均为构建期工具链，无上游修复）
+
+`esbuild` / `@esbuild-kit/*` / `drizzle-kit` / `@payloadcms/db-postgres`(via drizzle-kit)。
+esbuild 那条是众所周知的 dev-server CORS 问题，只影响 `esbuild serve` 开发模式；drizzle-kit
+仅在跑 migration 时执行，不进生产运行时。
+
+### 验证状态
+
+`npx tsc --noEmit` 零报错；`i18n-check` 通过；`next build` 在无数据库环境下**编译全过**，
+一路跑到 `generateStaticParams` 才因 ECONNREFUSED 停止——说明编译层面无 API 破坏。
+**完整验证需要 Vercel preview 部署**（真实 DB）。preview 上务必检查：
+1. `/admin` 能正常登录（Payload 跨 8 个 minor）
+2. 富文本编辑器能正常打开与保存（dompurify override）
+3. 媒体上传 / 缩略图生成（sharp 大版本 0.34 → 0.35）
+4. 站点各页面正常渲染
+
 ## [1.8.0] — 2026-09-11
 
 ### Added — 错误边界、加载骨架与跳转链接

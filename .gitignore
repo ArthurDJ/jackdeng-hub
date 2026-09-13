@@ -29,3 +29,8 @@ backups/
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Payload local upload dir — production uploads go to Vercel Blob.
+# Keep the directory, ignore whatever dev writes into it.
+public/media/*
+!public/media/.gitkeep

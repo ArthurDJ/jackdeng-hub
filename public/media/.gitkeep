@@ -1,0 +1,4 @@
+Payload's Media collection uses this directory as `upload.staticDir`
+(see src/collections/Media.ts). In production uploads go to Vercel Blob
+instead — vercelBlobStorage is enabled whenever BLOB_READ_WRITE_TOKEN is
+set — so anything landing here is local-dev only and is not committed.

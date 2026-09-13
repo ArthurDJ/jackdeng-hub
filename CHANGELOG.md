@@ -6,6 +6,35 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.9.2] — 2026-09-12
+
+### Removed — 清空遗留的测试媒体（经确认）
+
+media 库里 10 条 `test-image-N.jpg` 是库里**仅有**的内容，而 `Media.access.read`
+是 `() => true`，所以任何人 `GET /api/media` 就能把它们全列出来。
+
+- 新增 `scripts/purge-test-media.ts`：默认 dry run，`--apply` 才真删；
+  只碰匹配 `/^test-image-\d+\.jpg$/i` 的文件名，并且在删之前反查
+  blogs 的 coverImage 和 projects 的图片字段，只要还有引用就拒绝执行。
+  实测 10/10 匹配、0 引用，删除后 `GET /api/media` 返回 `totalDocs: 0`。
+- 一并删掉 `public/test-images/`（12 个文件）与 `public/media/` 里
+  commit 94dff63 那轮种子数据留下的 30 个孤儿文件（`img_1..img_15` 及其
+  webp 变体）—— media 表清空后它们不再被任何记录指向，却仍然公开可取。
+- `public/media/` 本身保留（`Media.upload.staticDir` 指着它），加了 `.gitkeep`
+  并把目录内容加进 `.gitignore`：生产的上传走 Vercel Blob
+  （`BLOB_READ_WRITE_TOKEN` 存在时 `vercelBlobStorage` 自动启用），
+  落到这个目录里的只可能是本地 dev 的产物，不该再进仓库。
+
+### Fixed — 脚本的 dotenv 永远晚于 payload.config 执行
+
+`scripts/` 下既有脚本都是先 `dotenvConfig()` 再 `import '../src/payload.config'`，
+但 ESM 会把所有静态 import 提升到语句之前，于是 config 在 dotenv 跑之前就读了
+`process.env.DATABASE_URI`，拿到 undefined，postgres adapter 回落到
+`localhost:5432` 并报 `ECONNREFUSED`。新脚本改成 dotenv 之后再动态
+`await import('../src/payload.config')`。既有脚本没动，但同样的坑还在。
+
+---
+
 ## [1.9.1] — 2026-09-12
 
 ### Fixed — Automation 工具面板的三个残留问题

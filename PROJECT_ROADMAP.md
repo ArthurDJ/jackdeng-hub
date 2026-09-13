@@ -100,8 +100,8 @@
 | `var(--accent)` 不存在 | 🟡 中 | ✅ 已修复 (v1.9.1) | Automation 面板未登录态的登录按钮用了未定义的 token，白字落在透明底上，按钮实际隐形。改 `var(--accent-primary)`。 |
 | Payload admin 图标 404 | 🟢 低 | ✅ 已修复 (v1.9.1) | `admin.meta.icons` 指向不存在的 `/favicon.svg`，改指 `/icon.svg`。 |
 | 工具面板两套登录混用 | 🟡 中 | ⬜ 待处理 | 面板用 NextAuth Google session 决定渲染，但它拉的 `/api/tool-runs` 由 Payload 的 `req.user` 把关 —— 不是同一套 session。Google 登录成功的人会看到面板但拉不到数据。有真实 automation 工具后才能验。 |
-| 遗留测试媒体 | 🟢 低 | ⬜ 待处理 | media 库 **10 张** test-image-N.jpg（roadmap 原记 15 张，实测 10），`GET /api/media` 公开可枚举，且是库里**仅有**的内容。另有 `public/test-images/`。删除会直接写生产库，需人工确认。 |
+| 遗留测试媒体 | 🟢 低 | ✅ 已修复 (v1.9.2) | 经确认后清空：10 条 `test-image-N.jpg` media 记录（`GET /api/media` 现返回 `totalDocs: 0`）、`public/test-images/` 12 个文件、`public/media/` 里 commit 94dff63 留下的 30 个孤儿文件。`public/media/` 目录保留并加进 `.gitignore`。工具见 `scripts/purge-test-media.ts`（默认 dry run，删前反查引用）。 |
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-09-12 (v1.9.1 修复 automation 面板 i18n / 隐形按钮 / admin 图标；v1.9.0 修复根布局嵌套与博客 main landmark)*
+*最后更新：2026-09-12 (v1.9.2 清空遗留测试媒体；v1.9.1 automation 面板 i18n 与图标修复；v1.9.0 根布局嵌套与博客 main landmark)*

@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A newer push to the same branch makes the older run irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+
+      # Deliberately typecheck only — no `next build` here.
+      #
+      # Payload reads DATABASE_URI while the config is evaluated, so a build in
+      # CI would need real database credentials as repository secrets, and the
+      # only database this project has is production. Vercel already runs the
+      # full build on every preview deployment, and next.config.mjs does not set
+      # typescript.ignoreBuildErrors, so build breakage is caught there.
+      #
+      # What Vercel does NOT do is *block a merge*. That gate is this job's
+      # entire job. tsconfig.json includes **/*.ts, so this covers src/,
+      # scripts/ and src/scripts/ alike.
+      - run: npm run typecheck

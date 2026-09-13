@@ -1,11 +1,7 @@
 import { Client } from 'pg'
-import { config as dotenvConfig } from 'dotenv'
+import { loadEnv } from './lib/env'
 
-// This script only needs DATABASE_URI, not the Payload config, so there is no
-// import-hoisting hazard — but nothing was loading .env either, leaving pg to
-// fall back to localhost:5432. Load the env before any statement reads it.
-dotenvConfig({ path: '.env' })
-dotenvConfig({ path: '.env.local' })
+loadEnv()
 
 async function run() {
   const client = new Client({ connectionString: process.env.DATABASE_URI })

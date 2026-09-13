@@ -1,11 +1,8 @@
 import { Client } from 'pg'
-import { config as dotenvConfig } from 'dotenv'
+import { loadEnv, requireApply } from './lib/env'
 
-// This script only needs DATABASE_URI, not the Payload config, so there is no
-// import-hoisting hazard — but nothing was loading .env either, leaving pg to
-// fall back to localhost:5432. Load the env before any statement reads it.
-dotenvConfig({ path: '.env' })
-dotenvConfig({ path: '.env.local' })
+loadEnv()
+requireApply({ script: 'scripts/apply-projects-localization.ts', writes: ['projects (DDL)', 'payload_migrations'] })
 
 /**
  * Apply add_projects_localization migration directly via pg, bypassing the

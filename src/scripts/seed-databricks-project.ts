@@ -5,19 +5,14 @@
  * names, internal catalog/schema/table names, product lines, or repo links.
  * Only architecture and tech-stack details are described.
  *
- * Run: npx tsx src/scripts/seed-databricks-project.ts
+ * Run: npx tsx src/scripts/seed-databricks-project.ts --apply
  */
-import { config as dotenvConfig } from 'dotenv'
+import { loadEnv, requireApply } from '../../scripts/lib/env'
 import { getPayload } from 'payload'
 import type { Project } from '../payload-types'
 
-// ESM hoists every static import above the statements in this file, so a
-// top-level `import config from '../payload.config'` would be evaluated — and
-// read process.env.DATABASE_URI — before dotenv ever runs, leaving the adapter
-// pointed at localhost:5432. Load the env first, then pull the config in
-// dynamically.
-dotenvConfig({ path: '.env' })
-dotenvConfig({ path: '.env.local' })
+loadEnv()
+requireApply({ script: 'src/scripts/seed-databricks-project.ts', writes: ['projects'] })
 
 const SLUG = 'enterprise-manufacturing-analytics'
 

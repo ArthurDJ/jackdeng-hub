@@ -1,6 +1,13 @@
 import { Client } from 'pg'
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { config as dotenvConfig } from 'dotenv'
+
+// This script only needs DATABASE_URI, not the Payload config, so there is no
+// import-hoisting hazard — but nothing was loading .env either, leaving pg to
+// fall back to localhost:5432. Load the env before any statement reads it.
+dotenvConfig({ path: '.env' })
+dotenvConfig({ path: '.env.local' })
 
 /**
  * Raw pg snapshot of the `projects` table. Bypasses Payload init entirely —
@@ -12,7 +19,7 @@ import { join } from 'node:path'
 async function run() {
   const conn = process.env.DATABASE_URI
   if (!conn) {
-    console.error('DATABASE_URI is not set; run with --env-file=.env')
+    console.error('DATABASE_URI is not set; check .env')
     process.exit(1)
   }
 

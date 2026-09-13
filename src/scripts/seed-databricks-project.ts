@@ -5,11 +5,19 @@
  * names, internal catalog/schema/table names, product lines, or repo links.
  * Only architecture and tech-stack details are described.
  *
- * Run: npx tsx --env-file=.env src/scripts/seed-databricks-project.ts
+ * Run: npx tsx src/scripts/seed-databricks-project.ts
  */
+import { config as dotenvConfig } from 'dotenv'
 import { getPayload } from 'payload'
-import config from '../payload.config'
 import type { Project } from '../payload-types'
+
+// ESM hoists every static import above the statements in this file, so a
+// top-level `import config from '../payload.config'` would be evaluated — and
+// read process.env.DATABASE_URI — before dotenv ever runs, leaving the adapter
+// pointed at localhost:5432. Load the env first, then pull the config in
+// dynamically.
+dotenvConfig({ path: '.env' })
+dotenvConfig({ path: '.env.local' })
 
 const SLUG = 'enterprise-manufacturing-analytics'
 
@@ -97,6 +105,7 @@ const longZH = doc(
 const TECH = ['dbt', 'Databricks', 'Unity Catalog', 'Apache Iceberg', 'Python', 'SQL', 'Medallion Architecture']
 
 async function run() {
+  const config = (await import('../payload.config')).default
   const payload = await getPayload({ config })
 
   const existing = await payload.find({

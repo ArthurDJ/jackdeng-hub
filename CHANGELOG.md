@@ -6,6 +6,58 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.9.0] — 2026-09-12
+
+### Fixed — 每个页面都在渲染两层 `<html>` / `<body>`
+
+`src/app/layout.tsx` 是一个自己带 `<html><body>` 的根布局，而 `[locale]/layout.tsx`
+和 `(payload)/layout.tsx`（Payload 的 `RootLayout`）各自也带一套。结果线上每个响应的
+HTML 都长这样：
+
+```html
+<html>            <!-- src/app/layout.tsx，没有 lang -->
+<body>
+<html lang="en">  <!-- 真正的那层 -->
+<body>
+```
+
+- **`/admin` 的 hydration 直接报错**：`In HTML, <body> cannot be a child of <html>` +
+  `Hydration failed` + 两条 "mounting a new <html>/<body> while a previous one has not
+  unmounted"。浏览器控制台 5 条 error。
+- 输出的是**非法 HTML**。浏览器的解析器会把第二个 `<html>` 的属性合并到 documentElement
+  上，所以 `lang` / Geist className 侥幸没丢；但不做这层合并的爬虫、阅读器、校验器
+  看到的是一个**没有 `lang` 属性的文档**。
+
+**修法：删掉 `src/app/layout.tsx`。** Next.js 的 multiple root layouts 本来就是这么用的 ——
+`[locale]/layout.tsx` 给前台当根布局，`(payload)/layout.tsx` 给 admin 当根布局，
+route handlers（`robots.ts` / `sitemap.ts` / `og` / `feed.xml` / `api`）不需要布局，
+`not-found.tsx` 和 `global-error.tsx` 本来就各自带 `<html><body>`（它们当初就是照
+无根布局的写法写的 —— 那个根布局是后加的，nesting 由此而来）。
+
+验证：`/en` `/zh/tools` `/zh/about` `/en/blog` `/admin` 现在每页只有一个 `<html>`，
+`lang` 正确；`/admin` 的 hydration error 全部消失；构建产物的路由表与修复前完全一致。
+
+### Fixed — 博客列表页和详情页没有 `<main>` landmark
+
+v1.8.0 加的 `.ds-skip-link` 指向 `#main`。`archive` / `category` / `tag` / `projects` /
+`tools` / `about` / 首页都有 `<main id="main">`，**唯独站点最重要的两个页面
+`blog/page.tsx` 和 `blog/[slug]/page.tsx` 没有** —— 跳转链接在这两个页面上跳空，
+辅助技术也找不到主内容区。
+
+- `blog/page.tsx`：最外层那个 `<div>` 其实是在重复 `blog/layout.tsx` 已经画好的页面外壳，
+  直接换成 `<main id="main">`，与 `archive/page.tsx` 的写法对齐。
+- `blog/[slug]/page.tsx`：`<main id="main">` 落在封面图**之后**的内容容器上，
+  键盘用户跳过导航后直接落到正文，而不是落到一张装饰性大图上。
+
+### Notes
+
+- 开发时如果发现 `/blog` `/tools` `/projects` 一直停在骨架屏不动、DOM 里有两个
+  `main#main`（一个 `aria-busy` 可见、一个内容藏在 `div#S:0[hidden]` 里）——
+  这是**浏览器标签页不可见**导致的，不是站点 bug。React 的 `$RC` 揭示逻辑走
+  `requestAnimationFrame`，标签页 hidden 时 rAF 不触发。前台打开即正常。
+
+---
+
 ## [1.8.1] — 2026-09-12
 
 ### Security — 依赖安全升级（31 条公告 → 5 条，critical 2 → 0，high 13 → 0）

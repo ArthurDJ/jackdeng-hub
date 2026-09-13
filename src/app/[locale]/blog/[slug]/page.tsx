@@ -216,7 +216,9 @@ export default async function BlogDetailPage({ params }: Props) {
         </div>
       )}
 
-      <div className="ds-container py-10 flex-1">
+      {/* Landmark the skip link targets (#main) — starts below the cover art,
+          so keyboard users land on the article itself. */}
+      <main id="main" className="ds-container py-10 flex-1">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 48 }} className="article-layout">
           <style>{`
             @media (min-width: 1024px) {
@@ -381,7 +383,7 @@ export default async function BlogDetailPage({ params }: Props) {
             <Sidebar {...sidebar} />
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

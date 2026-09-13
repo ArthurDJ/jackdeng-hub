@@ -57,7 +57,9 @@ export default async function BlogListPage({ params, searchParams }: Props) {
   const totalPages = (blogsResult as any).totalPages ?? 1
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    // blog/layout.tsx already paints the page shell; this is just the landmark
+    // the skip link targets (#main).
+    <main id="main">
 
       {/* Page header */}
       <section className="border-b border-subtle ds-section-padding">
@@ -113,6 +115,6 @@ export default async function BlogListPage({ params, searchParams }: Props) {
           <Sidebar {...sidebar} />
         </div>
       </div>
-    </div>
+    </main>
   )
 }

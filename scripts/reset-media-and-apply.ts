@@ -10,17 +10,25 @@
  * 运行：npx tsx scripts/reset-media-and-apply.ts
  */
 
-import 'dotenv/config'
+import { config as dotenvConfig } from 'dotenv'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { getPayload } from 'payload'
-import config from '../src/payload.config'
+
+// ESM hoists every static import above the statements in this file, so a
+// top-level `import config from '../src/payload.config'` would be
+// evaluated — and read process.env.DATABASE_URI — before dotenv ever runs,
+// leaving the adapter pointed at localhost:5432. Load the env first, then
+// pull the config in dynamically.
+dotenvConfig({ path: '.env' })
+dotenvConfig({ path: '.env.local' })
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const IMAGES_DIR = path.resolve(__dirname, '../public/test-images/batch-1')
 
 async function main() {
+  const config = (await import('../src/payload.config')).default
   const payload = await getPayload({ config })
 
   // ── Step 1: 删除所有现有 media 记录 ──────────────────────────────

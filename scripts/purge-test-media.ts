@@ -12,16 +12,14 @@
  * Refuses to delete anything still referenced by a blog cover or a project,
  * and only ever touches filenames matching TEST_FILENAME.
  */
-import { config as dotenvConfig } from 'dotenv'
+import { loadEnv } from './lib/env'
 import { getPayload } from 'payload'
 
-// ESM hoists every static import above the statements in this file, so a
-// top-level `import configPromise from '../src/payload.config'` would be
-// evaluated — and read process.env.DATABASE_URI — before dotenv ever runs,
-// leaving the adapter pointed at localhost:5432. Load the env first, then
-// pull the config in dynamically.
-dotenvConfig({ path: '.env' })
-dotenvConfig({ path: '.env.local' })
+// No requireApply() here: this script already gates itself on --apply, and its
+// default is a true dry run that lists what it would delete. loadEnv() must
+// still run before the config is pulled in dynamically below, since the config
+// reads process.env.DATABASE_URI the moment it is evaluated.
+loadEnv()
 
 const TEST_FILENAME = /^test-image-\d+\.jpg$/i
 

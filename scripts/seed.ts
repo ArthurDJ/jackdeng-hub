@@ -1,13 +1,8 @@
-import { config as dotenvConfig } from 'dotenv'
+import { loadEnv, requireApply } from './lib/env'
 import { getPayload } from 'payload'
 
-// ESM hoists every static import above the statements in this file, so a
-// top-level `import configPromise from '../src/payload.config'` would be
-// evaluated — and read process.env.DATABASE_URI — before dotenv ever runs,
-// leaving the adapter pointed at localhost:5432. Load the env first, then
-// pull the config in dynamically.
-dotenvConfig({ path: '.env' })
-dotenvConfig({ path: '.env.local' })
+loadEnv()
+requireApply({ script: 'scripts/seed.ts', writes: ['blogs'] })
 
 const createParagraph = (text: string): any => ({
   root: {

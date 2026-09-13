@@ -7,22 +7,18 @@
  * 3. 查询所有已发布博客，按顺序循环分配封面图
  * 4. 打印验证结果
  *
- * 运行：npx tsx scripts/reset-media-and-apply.ts
+ * 运行：npx tsx scripts/reset-media-and-apply.ts --apply
+ *（不加 --apply 会在检测到生产库时拒绝执行）
  */
 
-import { config as dotenvConfig } from 'dotenv'
+import { loadEnv, requireApply } from './lib/env'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { getPayload } from 'payload'
 
-// ESM hoists every static import above the statements in this file, so a
-// top-level `import config from '../src/payload.config'` would be
-// evaluated — and read process.env.DATABASE_URI — before dotenv ever runs,
-// leaving the adapter pointed at localhost:5432. Load the env first, then
-// pull the config in dynamically.
-dotenvConfig({ path: '.env' })
-dotenvConfig({ path: '.env.local' })
+loadEnv()
+requireApply({ script: 'scripts/reset-media-and-apply.ts', writes: ['media', 'blogs'] })
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const IMAGES_DIR = path.resolve(__dirname, '../public/test-images/batch-1')

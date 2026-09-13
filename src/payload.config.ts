@@ -27,7 +27,9 @@ export const config = buildConfig({
     dateFormat: 'yyyy-MM-dd HH:mm',
     meta: {
       titleSuffix: ' — Jack Deng Admin',
-      icons: [{ rel: 'icon', type: 'image/svg+xml', url: '/favicon.svg' }],
+      // /icon.svg is the Next metadata route (src/app/icon.svg). There is no
+      // /favicon.svg in public/ — the old value 404'd, leaving admin tabs blank.
+      icons: [{ rel: 'icon', type: 'image/svg+xml', url: '/icon.svg' }],
     },
     components: {
       actions: ['@/components/AdminHeaderSettings#AdminHeaderSettings'],

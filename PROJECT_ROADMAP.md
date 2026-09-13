@@ -60,7 +60,8 @@
 - [x] Tools 页面接入 next-intl（v1.6.3）✅
 - [x] sitemap 覆盖 tools 路由，过滤条件与列表页一致（v1.6.3）✅
 - [ ] **决定第一个真实工具做什么** — 当前 `/tools` 线上显示"暂无可用工具"，引擎跑空。
-- [ ] 工具运行前的确认弹窗接入 `ConfirmDialog`（组件已就绪，v1.7.0）
+- [ ] ~~工具运行前的确认弹窗接入 `ConfirmDialog`~~ — **暂时无处可接**：现在的 automation 架构是工具往站里推（`POST /api/tools/[slug]/callback`，`x-cron-secret` 鉴权），站内没有"运行"触发入口，面板是纯只读的。要接确认弹窗得先设计出站方向的触发通道。
+- [x] Automation 面板本地化 + 隐形登录按钮修复（v1.9.1）✅
 
 ### ✅ Phase 9: 骨架完善 (v1.6.2 – v1.8.1)
 - [x] **生产故障修复 (v1.6.2)**：根级路由 307→404、`/tools` 事件处理器 500、标题重复后缀、站点图标缺失 ✅
@@ -95,8 +96,12 @@
 | Tools 页面未接 i18n | 🟡 中 | ✅ 已修复 (v1.6.3) | `isZh ?` 硬编码三元、用 `next/link` 手拼 locale 前缀、无 `tools` i18n namespace。 |
 | sitemap 漏 tools 路由 | 🟡 中 | ✅ 已修复 (v1.6.3) | `/tools` 与 `/tools/[slug]` 未进 sitemap。 |
 | 首页 TECH STACK 英文硬编码 | 🟢 低 | ✅ 已修复 (v1.6.3) | `TECH_STACK` 的 description 未 localized，中文页显示英文。 |
-| 遗留测试媒体 | 🟢 低 | ⬜ 待处理 | media 库仍有 15 张 test-images，可通过公开 REST API 枚举。 |
+| Automation 面板未接 i18n | 🟡 中 | ✅ 已修复 (v1.9.1) | `VisaMonitorDashboard` 整个硬编码中文（状态、metadata 标签、相对时间、`toLocaleString('zh-CN')`），英文访客看到一屏中文。新增 `tools.dashboard` namespace。 |
+| `var(--accent)` 不存在 | 🟡 中 | ✅ 已修复 (v1.9.1) | Automation 面板未登录态的登录按钮用了未定义的 token，白字落在透明底上，按钮实际隐形。改 `var(--accent-primary)`。 |
+| Payload admin 图标 404 | 🟢 低 | ✅ 已修复 (v1.9.1) | `admin.meta.icons` 指向不存在的 `/favicon.svg`，改指 `/icon.svg`。 |
+| 工具面板两套登录混用 | 🟡 中 | ⬜ 待处理 | 面板用 NextAuth Google session 决定渲染，但它拉的 `/api/tool-runs` 由 Payload 的 `req.user` 把关 —— 不是同一套 session。Google 登录成功的人会看到面板但拉不到数据。有真实 automation 工具后才能验。 |
+| 遗留测试媒体 | 🟢 低 | ⬜ 待处理 | media 库 **10 张** test-image-N.jpg（roadmap 原记 15 张，实测 10），`GET /api/media` 公开可枚举，且是库里**仅有**的内容。另有 `public/test-images/`。删除会直接写生产库，需人工确认。 |
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-09-12 (v1.8.1 已验证合并；v1.9.0 修复根布局嵌套与博客 main landmark)*
+*最后更新：2026-09-12 (v1.9.1 修复 automation 面板 i18n / 隐形按钮 / admin 图标；v1.9.0 修复根布局嵌套与博客 main landmark)*

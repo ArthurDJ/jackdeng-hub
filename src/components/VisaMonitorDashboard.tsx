@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react'
 import { useSession, signIn } from 'next-auth/react'
+import { useTranslations, useLocale } from 'next-intl'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type RunRecord = {
@@ -11,6 +12,11 @@ type RunRecord = {
   detail?: string
   metadata?: Record<string, unknown>
   runAt: string
+}
+
+type Labels = {
+  status: Record<string, string>
+  meta: Record<string, string>
 }
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -23,47 +29,16 @@ const STATUS_COLOR: Record<string, string> = {
   exited:    '#71717a',
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  running:   '运行中',
-  found:     '找到名额 🎉',
-  booked:    '已改签 ✅',
-  heartbeat: '心跳',
-  error:     '错误 ❌',
-  exited:    '已退出',
-}
-
-const META_LABEL: Record<string, string> = {
-  consulate:           '领事馆',
-  earliest_available:  '最早可用',
-  current_appointment: '当前预约',
-  acceptable_range:    '目标区间',
-  total_slots:         '可用名额数',
-  auto_reschedule:     '自动改签',
-  available_date:      '找到日期',
-  booked_date:         '改签日期',
-  booked_time:         '改签时间',
-  verified_date:       '验证日期',
-  old_appointment:     '原预约',
-  session_count:       '运行 Session 数',
-}
-
-// ── Helper ─────────────────────────────────────────────────────────────────
-function fmt(dt: string) {
-  return new Date(dt).toLocaleString('zh-CN', {
+// ── Helpers ────────────────────────────────────────────────────────────────
+function fmt(dt: string, locale: string) {
+  return new Date(dt).toLocaleString(locale, {
     month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit', second: '2-digit',
   })
 }
 
-function timeSince(dt: string) {
-  const secs = Math.floor((Date.now() - new Date(dt).getTime()) / 1000)
-  if (secs < 60) return `${secs}s 前`
-  if (secs < 3600) return `${Math.floor(secs / 60)}m 前`
-  return `${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m 前`
-}
-
 // ── Sub-components ─────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, labels }: { status: string; labels: Labels }) {
   const color = STATUS_COLOR[status] ?? '#71717a'
   return (
     <span style={{
@@ -75,12 +50,12 @@ function StatusBadge({ status }: { status: string }) {
       fontSize: '13px',
       fontWeight: 600,
     }}>
-      {STATUS_LABEL[status] ?? status}
+      {labels.status[status] ?? status}
     </span>
   )
 }
 
-function MetaCard({ data }: { data: Record<string, unknown> }) {
+function MetaCard({ data, labels }: { data: Record<string, unknown>; labels: Labels }) {
   const entries = Object.entries(data)
   if (!entries.length) return null
   return (
@@ -97,7 +72,7 @@ function MetaCard({ data }: { data: Record<string, unknown> }) {
           padding: '12px 14px',
         }}>
           <div style={{ color: 'var(--text-tertiary)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '4px' }}>
-            {META_LABEL[k] ?? k.replace(/_/g, ' ')}
+            {labels.meta[k] ?? k.replace(/_/g, ' ')}
           </div>
           <div style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 500, wordBreak: 'break-all' }}>
             {String(v)}
@@ -108,10 +83,13 @@ function MetaCard({ data }: { data: Record<string, unknown> }) {
   )
 }
 
-function RunRow({ run, isExpanded, onToggle }: {
+function RunRow({ run, isExpanded, onToggle, labels, locale, detailHeading }: {
   run: RunRecord
   isExpanded: boolean
   onToggle: () => void
+  labels: Labels
+  locale: string
+  detailHeading: string
 }) {
   const color = STATUS_COLOR[run.status] ?? '#71717a'
   const hasDetail = Boolean(run.detail) || Boolean(run.metadata && Object.keys(run.metadata).length)
@@ -141,12 +119,12 @@ function RunRow({ run, isExpanded, onToggle }: {
 
         {/* time */}
         <span style={{ color: 'var(--text-tertiary)', fontSize: '12px', width: 120, flexShrink: 0 }}>
-          {fmt(run.runAt)}
+          {fmt(run.runAt, locale)}
         </span>
 
         {/* badge */}
         <span style={{ width: 100, flexShrink: 0 }}>
-          <StatusBadge status={run.status} />
+          <StatusBadge status={run.status} labels={labels} />
         </span>
 
         {/* summary */}
@@ -181,14 +159,14 @@ function RunRow({ run, isExpanded, onToggle }: {
         }}>
           {/* Metadata cards */}
           {run.metadata && Object.keys(run.metadata).length > 0 && (
-            <MetaCard data={run.metadata as Record<string, unknown>} />
+            <MetaCard data={run.metadata as Record<string, unknown>} labels={labels} />
           )}
 
           {/* Detail log text */}
           {run.detail && (
             <div>
               <div style={{ color: 'var(--text-tertiary)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>
-                运行详情
+                {detailHeading}
               </div>
               <pre style={{
                 background: 'var(--bg-panel)',
@@ -217,11 +195,48 @@ function RunRow({ run, isExpanded, onToggle }: {
 
 // ── Main component ─────────────────────────────────────────────────────────
 export function VisaMonitorDashboard({ slug }: { slug: string }) {
-  const { data: session, status } = useSession()
+  const t = useTranslations('tools.dashboard')
+  const locale = useLocale()
+  const { status } = useSession()
   const [runs, setRuns] = useState<RunRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  // Static maps — next-intl keys must stay statically analysable, so no
+  // t('runStatus.' + x). The metadata keys are snake_case because they come
+  // straight off the Python tool's JSON payload.
+  const labels: Labels = {
+    status: {
+      running:   t('runStatus.running'),
+      found:     t('runStatus.found'),
+      booked:    t('runStatus.booked'),
+      heartbeat: t('runStatus.heartbeat'),
+      error:     t('runStatus.error'),
+      exited:    t('runStatus.exited'),
+    },
+    meta: {
+      consulate:           t('meta.consulate'),
+      earliest_available:  t('meta.earliestAvailable'),
+      current_appointment: t('meta.currentAppointment'),
+      acceptable_range:    t('meta.acceptableRange'),
+      total_slots:         t('meta.totalSlots'),
+      auto_reschedule:     t('meta.autoReschedule'),
+      available_date:      t('meta.availableDate'),
+      booked_date:         t('meta.bookedDate'),
+      booked_time:         t('meta.bookedTime'),
+      verified_date:       t('meta.verifiedDate'),
+      old_appointment:     t('meta.oldAppointment'),
+      session_count:       t('meta.sessionCount'),
+    },
+  }
+
+  const timeSince = (dt: string) => {
+    const secs = Math.floor((Date.now() - new Date(dt).getTime()) / 1000)
+    if (secs < 60) return t('agoSeconds', { n: secs })
+    if (secs < 3600) return t('agoMinutes', { n: Math.floor(secs / 60) })
+    return t('agoHours', { h: Math.floor(secs / 3600), m: Math.floor((secs % 3600) / 60) })
+  }
 
   const fetchRuns = useCallback(async () => {
     try {
@@ -250,7 +265,7 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
   if (status === 'loading') {
     return (
       <div style={{ textAlign: 'center', padding: '80px 0', color: 'var(--text-tertiary)' }}>
-        验证身份中...
+        {t('verifying')}
       </div>
     )
   }
@@ -265,12 +280,13 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
       }}>
         <p style={{ fontSize: '32px', marginBottom: '12px' }}>🔒</p>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '15px' }}>
-          此工具为私有，需要登录后查看
+          {t('privateNotice')}
         </p>
         <button
           onClick={() => signIn('google')}
+          className="ds-accent-btn"
           style={{
-            background: 'var(--accent)',
+            background: 'var(--accent-primary)',
             color: '#fff',
             border: 'none',
             borderRadius: '8px',
@@ -280,7 +296,7 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
             cursor: 'pointer',
           }}
         >
-          使用 Google 登录
+          {t('signInGoogle')}
         </button>
       </div>
     )
@@ -317,10 +333,10 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
         }} />
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <StatusBadge status={latestStatus} />
+            <StatusBadge status={latestStatus} labels={labels} />
             {latest && (
               <span style={{ color: 'var(--text-tertiary)', fontSize: '13px' }}>
-                {timeSince(latest.runAt)} · {fmt(latest.runAt)}
+                {timeSince(latest.runAt)} · {fmt(latest.runAt, locale)}
               </span>
             )}
           </div>
@@ -342,7 +358,7 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
             cursor: 'pointer',
           }}
         >
-          ↻ 刷新
+          ↻ {t('refresh')}
         </button>
       </div>
 
@@ -350,9 +366,9 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
       {latest?.metadata && Object.keys(latest.metadata).length > 0 && (
         <div>
           <div style={{ color: 'var(--text-tertiary)', fontSize: '12px', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-            最新状态
+            {t('latestStatus')}
           </div>
-          <MetaCard data={latest.metadata as Record<string, unknown>} />
+          <MetaCard data={latest.metadata as Record<string, unknown>} labels={labels} />
         </div>
       )}
 
@@ -360,7 +376,7 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
       {notableRuns.length > 0 && (
         <div>
           <div style={{ color: 'var(--text-tertiary)', fontSize: '12px', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-            重要事件
+            {t('notableEvents')}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {notableRuns.slice(0, 5).map(run => (
@@ -369,6 +385,9 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
                 run={run}
                 isExpanded={expandedId === run.id}
                 onToggle={() => setExpandedId(expandedId === run.id ? null : run.id)}
+                labels={labels}
+                locale={locale}
+                detailHeading={t('runDetail')}
               />
             ))}
           </div>
@@ -379,19 +398,19 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
           <div style={{ color: 'var(--text-tertiary)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-            运行记录（最近 50 条）
+            {t('runLog')}
           </div>
           {lastRefresh && (
             <div style={{ color: 'var(--text-tertiary)', fontSize: '11px' }}>
-              自动刷新 · 上次 {lastRefresh.toLocaleTimeString('zh-CN')}
+              {t('autoRefresh', { time: lastRefresh.toLocaleTimeString(locale) })}
             </div>
           )}
         </div>
 
         {loading ? (
-          <div style={{ color: 'var(--text-tertiary)', padding: '20px 0', textAlign: 'center' }}>加载中...</div>
+          <div style={{ color: 'var(--text-tertiary)', padding: '20px 0', textAlign: 'center' }}>{t('loading')}</div>
         ) : runs.length === 0 ? (
-          <div style={{ color: 'var(--text-tertiary)', padding: '20px 0', textAlign: 'center' }}>暂无运行记录</div>
+          <div style={{ color: 'var(--text-tertiary)', padding: '20px 0', textAlign: 'center' }}>{t('noRuns')}</div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {runs.map(run => (
@@ -400,6 +419,9 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
                 run={run}
                 isExpanded={expandedId === run.id}
                 onToggle={() => setExpandedId(expandedId === run.id ? null : run.id)}
+                labels={labels}
+                locale={locale}
+                detailHeading={t('runDetail')}
               />
             ))}
           </div>

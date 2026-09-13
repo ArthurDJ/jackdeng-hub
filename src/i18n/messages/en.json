@@ -163,6 +163,44 @@
       "online": "Online",
       "maintenance": "Maintenance",
       "offline": "Offline"
+    },
+    "dashboard": {
+      "verifying": "Verifying identity…",
+      "privateNotice": "This tool is private — sign in to view it.",
+      "signInGoogle": "Sign in with Google",
+      "refresh": "Refresh",
+      "latestStatus": "Latest status",
+      "notableEvents": "Notable events",
+      "runLog": "Run log (last 50)",
+      "autoRefresh": "Auto-refresh · last {time}",
+      "loading": "Loading…",
+      "noRuns": "No runs recorded yet.",
+      "runDetail": "Run detail",
+      "agoSeconds": "{n}s ago",
+      "agoMinutes": "{n}m ago",
+      "agoHours": "{h}h {m}m ago",
+      "runStatus": {
+        "running": "Running",
+        "found": "Slot found 🎉",
+        "booked": "Rescheduled ✅",
+        "heartbeat": "Heartbeat",
+        "error": "Error ❌",
+        "exited": "Exited"
+      },
+      "meta": {
+        "consulate": "Consulate",
+        "earliestAvailable": "Earliest available",
+        "currentAppointment": "Current appointment",
+        "acceptableRange": "Target range",
+        "totalSlots": "Slots available",
+        "autoReschedule": "Auto-reschedule",
+        "availableDate": "Date found",
+        "bookedDate": "Rescheduled to",
+        "bookedTime": "Time booked",
+        "verifiedDate": "Verified date",
+        "oldAppointment": "Previous appointment",
+        "sessionCount": "Sessions run"
+      }
     }
   },
   "error": {

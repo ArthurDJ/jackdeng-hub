@@ -6,6 +6,47 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.9.1] — 2026-09-12
+
+### Fixed — Automation 工具面板的三个残留问题
+
+`VisaMonitorDashboard` 是 automation 类工具详情页唯一的渲染出口，但它被
+v1.6.3 的本地化清扫整个漏掉了。
+
+- **未登录状态下的登录按钮是隐形的。** 按钮写的是 `background: 'var(--accent)'`，
+  而设计系统里根本没有 `--accent` 这个 token（只有 `--accent-primary` /
+  `--accent-hover` / `--accent-subtle`）。未定义的自定义属性等于没写，于是
+  白字落在透明底上。改用 `var(--accent-primary)`，并补上 `.ds-accent-btn`
+  让它有 hover 态 —— 站内其他主按钮都有。
+- **整个面板硬编码中文**，英文访客在 `/en/tools/<slug>` 上看到的是一屏中文：
+  状态标签、metadata 字段名、"运行详情"、"暂无运行记录"、相对时间（"3m 前"），
+  连 `toLocaleString('zh-CN')` 都是写死的。新增 `tools.dashboard` namespace
+  （en/zh 各 32 键），时间格式改走 `useLocale()`。
+  状态与 metadata 的标签沿用 `tools/[slug]/page.tsx` 已有的静态 map 写法 ——
+  next-intl 的 key 必须可静态分析，不能 `t('runStatus.' + x)`。
+  metadata 的 key 保持 snake_case，因为它们直接来自 Python 工具推送的 JSON。
+
+### Fixed — Payload admin 的 tab 图标 404
+
+`payload.config.ts` 的 `admin.meta.icons` 指向 `/favicon.svg`，但 `public/`
+下没有这个文件 —— v1.6.2 补站点图标时加的是 Next metadata route
+`src/app/icon.svg`（服务于 `/icon.svg`），admin 这处没跟上。改指 `/icon.svg`，
+实测 200。
+
+### Known gaps（记录，未动）
+
+- **`/tools` 仍然是空的**，"第一个真实工具做什么"还没定，引擎跑空。
+- **Roadmap 上"工具运行前接 ConfirmDialog"目前无处可接**：现在的 automation
+  架构是**工具往站里推**（Python 脚本 → `POST /api/tools/[slug]/callback`，
+  `x-cron-secret` 鉴权），站里没有任何"运行"触发入口，面板是纯只读的。
+  要接确认弹窗，得先设计出站方向的触发通道。
+- **两套登录混用**：面板用 NextAuth Google session 决定显不显示，
+  但它拉的 `/api/tool-runs` 由 Payload 的 `access.read: Boolean(req.user)`
+  把关 —— 那是 Payload admin session，不是同一套。Google 登录成功的人
+  会看到面板骨架但拉不到数据。有真实 automation 工具之前不好验，先记在这里。
+
+---
+
 ## [1.9.0] — 2026-09-12
 
 ### Fixed — 每个页面都在渲染两层 `<html>` / `<body>`

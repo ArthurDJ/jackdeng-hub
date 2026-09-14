@@ -33,24 +33,20 @@ requireApply({ script: 'scripts/publish-drafts.ts', writes: ['media', 'blogs'] }
  * Payload writes uploads to the local public/media folder while still recording
  * a /api/media/file/... URL in the shared database. The row then points at a
  * file that exists on one laptop and nowhere else, so the cover is broken in
- * production. That happened once.
+ * production. That happened once, and two media rows had to be deleted.
  *
- * Checked here rather than at startup, because the update path below touches no
- * files and has no reason to need the token.
+ * Without the token the run is not stopped — the post text still goes in and
+ * the cover is left for /admin, which is the useful outcome when the token
+ * lives in Vercel rather than on the machine running this.
  */
-function assertBlobConfigured() {
-  if (process.env.BLOB_READ_WRITE_TOKEN) return
-  console.error(`
-  ⛔ BLOB_READ_WRITE_TOKEN is not set, and this run needs to upload an image
-
-     The file would be written to ./public/media on this machine instead of
-     Vercel Blob, and the media row would point at something production cannot
-     serve.
-
-     Either add the token to .env, or upload the image through /admin and
-     attach it to the post by hand.
-`)
-  process.exit(1)
+function blobConfigured() {
+  if (process.env.BLOB_READ_WRITE_TOKEN) return true
+  console.warn(`  ! BLOB_READ_WRITE_TOKEN is not set — skipping the image upload.
+    Uploading now would write the file to ./public/media on this machine while
+    recording a /api/media/file/... URL in the shared database, so the row would
+    point at something production cannot serve. The post still goes in; attach
+    the cover from /admin.`)
+  return false
 }
 
 // ── Markdown -> Lexical ─────────────────────────────────────────────────────
@@ -188,7 +184,50 @@ const POSTS = [
     category: 'career-thoughts',
     tags: ['postgresql'],
   },
+  {
+    md: '03-dates-en.md',
+    mdZh: '03-dates-zh.md',
+    titleZh: '2026 年里值得自己去核对的三个日期',
+    excerptZh: '一家聚合站把 NVIDIA 的 CES 发布说成了九月，差了 8 个月。下面是三件我能对着一手信源核实的事，各自附上它实际带的日期。',
+    hero: 'hero-dates.jpg',
+    heroAlt: 'An empty archive search room with rows of bare library shelves, photographed in 1936',
+    heroCredit: 'West Search Room, U.S. National Archives, 1936, no known restrictions',
+    slug: 'three-dates-worth-checking',
+    title: 'Three dates from 2026 that are worth checking yourself',
+    excerpt:
+      'An aggregator told me NVIDIA shipped robotics models in September. NVIDIA dates it to 5 January. Three things I checked, and the dates they carry.',
+    category: 'career-thoughts',
+    tags: ['rest-api'],
+  },
+  {
+    md: '04-before-the-key-en.md',
+    mdZh: '04-before-the-key-zh.md',
+    titleZh: '在把钥匙交给 agent 之前',
+    excerptZh: '影子 AI 出现在 43% 的 AI 相关泄漏事件中，而只有 38% 的机构持有覆盖全公司的政策。一个 agent 泄漏的是能力，不是文档。',
+    hero: 'hero-before-the-key.jpg',
+    heroAlt: 'An ornate gilt-bronze French door lock made around 1745, seen from the front',
+    heroCredit: 'Lock (France), ca. 1745, Cooper Hewitt collection, public domain',
+    slug: 'before-you-give-an-agent-a-key',
+    title: 'Before you give an agent a key',
+    excerpt:
+      'Shadow AI featured in 43% of AI-related breaches, and 38% of organisations hold a company-wide policy. An agent leaks a capability, not a document.',
+    category: 'backend',
+    tags: ['rest-api', 'postgresql'],
+  },
 ]
+
+// Blogs.excerpt is capped at 150 characters. Payload reports the overflow as a
+// localized "摘要 is invalid", which says nothing about which post or by how much,
+// so check here first.
+const LIMIT = 150
+for (const post of POSTS) {
+  for (const [field, value] of [['excerpt', post.excerpt], ['excerptZh', post.excerptZh]] as const) {
+    if (value.length > LIMIT) {
+      console.error(`  ⛔ ${post.slug}: ${field} is ${value.length} characters, limit is ${LIMIT}`)
+      process.exit(1)
+    }
+  }
+}
 
 /**
  * Fills the zh slot. defaultLocale is zh with fallback on, so a post written
@@ -220,6 +259,30 @@ async function writeZh(payload: any, id: number | string, post: any) {
   console.log(`       ${id}  zh ${firstWrite ? 'locale written' : 'body updated (title kept)'}`)
 }
 
+/**
+ * Uploads the hero and returns its id, or null when there is no token to upload
+ * with. Shared by both paths so a post that missed its cover on one run can
+ * still get it on the next.
+ */
+async function uploadHero(payload: any, post: any) {
+  if (!blobConfigured()) {
+    console.log(`       cover to attach by hand: ${post.hero}`)
+    return null
+  }
+  const found = await payload.find({
+    collection: 'media', where: { filename: { equals: post.hero } }, limit: 1, depth: 0,
+  })
+  const media = found.docs.length
+    ? found.docs[0]
+    : await payload.create({
+        collection: 'media',
+        data: { alt: post.heroAlt, caption: post.heroCredit } as any,
+        filePath: path.join(DRAFTS, post.hero),
+      })
+  console.log(`media  ${media.id}  ${post.hero}${found.docs.length ? ' (reused)' : ''}`)
+  return media.id
+}
+
 async function run() {
   const config = (await import('../src/payload.config')).default
   const payload = await getPayload({ config })
@@ -247,27 +310,25 @@ async function run() {
     // /admin since — status, cover, publish date — is left alone.
     if (existing.docs.length) {
       const id = existing.docs[0].id
+
+      // A post created while the token was missing has no cover, and the upload
+      // block below is unreachable once the slug exists. So offer the cover
+      // here too, and only when the post is still without one — re-attaching it
+      // every run would undo a different cover chosen in /admin.
+      const cover = (existing.docs[0] as any).coverImage
+        ? null
+        : await uploadHero(payload, post)
+
       await payload.update({
         collection: 'blogs', id, locale: 'en',
-        data: { content } as any,
+        data: { content, ...(cover ? { coverImage: cover } : {}) } as any,
       })
-      console.log(`update blog ${id}  ${post.slug}  (content only)`)
+      console.log(`update blog ${id}  ${post.slug}  (content${cover ? ' + cover' : ' only'})`)
       await writeZh(payload, id, post)
       continue
     }
 
-    assertBlobConfigured()
-    const found = await payload.find({
-      collection: 'media', where: { filename: { equals: post.hero } }, limit: 1, depth: 0,
-    })
-    const media = found.docs.length
-      ? found.docs[0]
-      : await payload.create({
-          collection: 'media',
-          data: { alt: post.heroAlt, caption: post.heroCredit } as any,
-          filePath: path.join(DRAFTS, post.hero),
-        })
-    console.log(`media  ${media.id}  ${post.hero}${found.docs.length ? ' (reused)' : ''}`)
+    const coverId = await uploadHero(payload, post)
 
     const doc = await payload.create({
       collection: 'blogs',
@@ -277,7 +338,7 @@ async function run() {
         slug: post.slug,
         excerpt: post.excerpt,
         content,
-        coverImage: media.id,
+        coverImage: coverId,
         category: await idBySlug('categories', post.category),
         tags: await Promise.all(post.tags.map((t) => idBySlug('tags', t))),
         status: 'draft',

@@ -100,8 +100,12 @@ export const config = buildConfig({
       enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
       token: process.env.BLOB_READ_WRITE_TOKEN || '',
       collections: {
-        // disablePayloadAccessControl: true — media 是全公开 collection（read: () => true），
-        // 无需通过 Payload 的 /api/media/file/xxx 代理，直接返回 Blob CDN URL
+        // disablePayloadAccessControl: true — 直接返回 Blob CDN URL，不走 Payload 的
+        // /api/media/file/xxx 代理。
+        //
+        // 注意：media 的 read 已收紧为「需登录」（见 collections/Media.ts），但那只
+        // 挡住匿名枚举整个媒体库，挡不住单个文件 —— Blob 存储本身是公开的，URL 泄露
+        // 即可直取。要让文件也私有，得去掉这一行并接受 CDN 性能损失。
         media: {
           disablePayloadAccessControl: true,
         },

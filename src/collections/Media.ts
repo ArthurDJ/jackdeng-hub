@@ -22,7 +22,17 @@ export const Media: CollectionConfig = {
     },
   },
   access: {
-    read: () => true,
+    // Authenticated-only, so `GET /api/media` cannot be used to enumerate the
+    // whole library anonymously. This does NOT make the files private: the
+    // Vercel Blob store is public and its CDN URLs are handed out in
+    // `coverImage.sizes.*.url`, so anyone holding a URL can still fetch that
+    // one object. Making files themselves private would mean dropping
+    // `disablePayloadAccessControl` in payload.config.ts and proxying every
+    // image through Payload, at the cost of the CDN.
+    //
+    // Public pages are unaffected — they read media server-side through the
+    // Local API, which defaults to `overrideAccess: true`.
+    read: ({ req }) => Boolean(req.user),
   },
   hooks: {
     // 上传时若 alt 为空，自动使用文件名（去掉扩展名）作为默认 alt

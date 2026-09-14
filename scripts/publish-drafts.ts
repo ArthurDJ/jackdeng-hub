@@ -350,7 +350,7 @@ async function run() {
   }
 
   console.log('\ndone. Posts are drafts — publish from /admin when you are happy with them.')
-  console.log('Both locales are written. Covers still have to be attached in /admin.')
+  console.log('Both locales are written. Any cover the log did not name is already attached.')
 }
 
 run().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1) })

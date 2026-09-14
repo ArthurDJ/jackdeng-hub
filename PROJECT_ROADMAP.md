@@ -99,9 +99,13 @@
 | Automation 面板未接 i18n | 🟡 中 | ✅ 已修复 (v1.9.1) | `VisaMonitorDashboard` 整个硬编码中文（状态、metadata 标签、相对时间、`toLocaleString('zh-CN')`），英文访客看到一屏中文。新增 `tools.dashboard` namespace。 |
 | `var(--accent)` 不存在 | 🟡 中 | ✅ 已修复 (v1.9.1) | Automation 面板未登录态的登录按钮用了未定义的 token，白字落在透明底上，按钮实际隐形。改 `var(--accent-primary)`。 |
 | Payload admin 图标 404 | 🟢 低 | ✅ 已修复 (v1.9.1) | `admin.meta.icons` 指向不存在的 `/favicon.svg`，改指 `/icon.svg`。 |
-| 工具面板两套登录混用 | 🟡 中 | ⬜ 待处理 | 面板用 NextAuth Google session 决定渲染，但它拉的 `/api/tool-runs` 由 Payload 的 `req.user` 把关 —— 不是同一套 session。Google 登录成功的人会看到面板但拉不到数据。有真实 automation 工具后才能验。 |
+| 工具面板两套登录混用 | 🟡 中 | ✅ 已修复 (#20) | 面板改读 `/api/users/me`，与它拉的 `/api/tool-runs` 用同一套 Payload session。**没有桥接两套鉴权，而是删掉一套** —— next-auth 全站只有这一个消费者，故连同路由、依赖（+14 个传递依赖）、3 个环境变量一并移除；`VisaMonitorPanel.tsx`（186 行死代码，无引用）同时删除。顺带修掉静默失败：原先 403 被 `data.docs ?? []` 加空 `catch {}` 吞光，渲染成空面板，与「从没跑过」无法区分。**注意受众变化**：原 next-auth 白名单只放行 1 个 Google 账号，现为任意 Payload 用户（当前 2 个）；但 `ToolRuns.access.read` 本就是 `Boolean(req.user)`，所以这是 UI 与既有 API 策略对齐，不是扩权。要真限制到 1 人，改 `ToolRuns.access.read`。**未验**：登录后的面板渲染 —— `visa-checker` 是 offline+private，页面 404，要可见须写生产库。 |
+| 运维脚本 env 加载失效 | 🔴 高 | ✅ 已修复 (#16) | `scripts/` 下 3 个脚本把 `dotenvConfig()` 写成模块体语句，而 ESM 先求值所有静态 import，于是 `src/payload.config.ts` 早已读过空的 `DATABASE_URI`，adapter 回落 localhost:5432，裸跑必 `ECONNREFUSED`。改为顶部加载 env + 函数内动态 `await import` config。另：`reset-media-and-apply.ts` 其实没被 hoisting 坑到（`import 'dotenv/config'` 按书写顺序求值），真正缺的是 `.env.local`；`src/scripts/` 下 3 个纯 pg 脚本则是压根没有 dotenv，成因不同、症状相同。 |
+| 写库脚本无生产防护 | 🔴 高 | ✅ 已修复 (#17) | #16 修好 env 加载的副作用是**拆掉了一个意外的保险丝** —— 此前这些脚本连不上 localhost 就死，等于误执行被动挡下。新增 `scripts/lib/env.ts`：`loadEnv()` 收敛十份重复前导块，`requireApply()` 在 `DATABASE_URI` 指向 Supabase 时拒绝执行，除非显式 `--apply`。是**拒绝执行而非 dry-run**，不改任何脚本内部逻辑。`purge-test-media.ts` 保留自己更严的 dry-run 门禁。 |
+| 无 CI 闸门 | 🔴 高 | ✅ 已修复 (#18) | #16/#17 两个 PR 全程零自动检查，`tsc --noEmit` 全靠手动跑，`main` 也无分支保护。新增 `.github/workflows/ci.yml` 跑 `npm ci` + `npm run typecheck`，并开启分支保护（required check = `typecheck`，不强制 review，`enforce_admins: false` 保留直推）。**刻意不跑 `next build`**：Payload 在 config 求值时读 `DATABASE_URI`，CI 跑 build 就得把生产库凭据放进 repository secrets；Vercel preview 本就跑完整 build 且未关类型检查，它唯一不做的是拦合并。闸门已端到端实测（绿→红→绿）。**未做**：eslint，97 个既有文件从零加 lint 应是独立 PR。 |
+| Media 读权限全开 | 🔴 高 | ✅ 已修复 (#19) | `Media.access.read` 是 `() => true`，匿名即可 `GET /api/media` 枚举整个媒体库（文件名、alt、mime、尺寸、CDN URL）。`purge-test-media.ts` 文件头早已点破，当时只清了图没堵口子。因 `media` 表为 0 条而潜伏，但填内容必然上传真实图片 —— 故排在内容之前修。改为 `Boolean(req.user)`。**边界要说清**：只堵匿名枚举清单，**不使文件私有** —— `disablePayloadAccessControl: true` 让图片走 Vercel Blob 公开 CDN，知道 URL 即可直取；要文件也私有须去掉该选项并牺牲 CDN。 |
 | 遗留测试媒体 | 🟢 低 | ✅ 已修复 (v1.9.2) | 经确认后清空：10 条 `test-image-N.jpg` media 记录（`GET /api/media` 现返回 `totalDocs: 0`）、`public/test-images/` 12 个文件、`public/media/` 里 commit 94dff63 留下的 30 个孤儿文件。`public/media/` 目录保留并加进 `.gitignore`。工具见 `scripts/purge-test-media.ts`（默认 dry run，删前反查引用）。 |
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-09-12 (v1.9.2 清空遗留测试媒体；v1.9.1 automation 面板 i18n 与图标修复；v1.9.0 根布局嵌套与博客 main landmark)*
+*最后更新：2026-09-14 (#20 移除 next-auth，面板统一 Payload session；#19 Media 读权限收口；#18 CI 闸门与分支保护；#17 写库脚本生产守卫；#16 运维脚本 env 加载修复)*

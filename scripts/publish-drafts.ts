@@ -1,5 +1,5 @@
 /**
- * One-off: upload hero images and create the first two blog posts as drafts.
+ * Upload hero images and write blog posts, in both locales, as drafts.
  *
  * Content is authored as markdown in the drafts folder and converted to the
  * Lexical node shape Payload stores. Only headings, paragraphs and inline
@@ -160,6 +160,9 @@ function toLexical(md: string) {
 const POSTS = [
   {
     md: '01-last-mile-en.md',
+    mdZh: '01-last-mile-zh.md',
+    titleZh: '最后一公里不是模型',
+    excerptZh: '2026 年第一季度 80% 的企业应用已嵌入 agent，而把它规模化到可度量价值的不到 10%。我不认为这道落差是一个模型问题。',
     hero: 'hero-last-mile.jpg',
     heroAlt: 'Rows of rack-mounted servers in a data centre, lit by status LEDs',
     heroCredit: 'Wikimedia Foundation servers, photo by Victorgrigas, CC BY-SA 3.0',
@@ -172,6 +175,9 @@ const POSTS = [
   },
   {
     md: '02-sys5113-en.md',
+    mdZh: '02-sys5113-zh.md',
+    titleZh: '系统工程给我的三个想法',
+    excerptZh: '念系统工程硕士之前，我以为拿到的会是一套词汇。结果有三个想法跟着我回到了工位，每一个都纠正了一项我带了多年却没有察觉的习惯。',
     hero: 'hero-sys5113.jpg',
     heroAlt: 'First and second floor plans from an early twentieth century technical drawing manual',
     heroCredit: 'Plate from "Blueprint reading" (1916), Internet Archive, no known restrictions',
@@ -183,6 +189,36 @@ const POSTS = [
     tags: ['postgresql'],
   },
 ]
+
+/**
+ * Fills the zh slot. defaultLocale is zh with fallback on, so a post written
+ * only into en leaves the Chinese page empty rather than falling back — the
+ * fallback runs towards the default locale, not away from it.
+ *
+ * title and content are required, so a per-locale write has to carry them or
+ * Payload rejects it.
+ */
+async function writeZh(payload: any, id: number | string, post: any) {
+  const md = fs.readFileSync(path.join(DRAFTS, post.mdZh), 'utf-8')
+
+  // Send title and excerpt only when the slot is still empty. Payload needs
+  // them on the first write because both title and content are required, but
+  // sending them every time would revert a Chinese title edited in /admin —
+  // and the English branch above deliberately touches nothing but the body.
+  const current = await payload.findByID({
+    collection: 'blogs', id, locale: 'zh', depth: 0, fallbackLocale: false,
+  })
+  const firstWrite = !current?.title
+
+  await payload.update({
+    collection: 'blogs', id, locale: 'zh',
+    data: {
+      content: toLexical(md) as any,
+      ...(firstWrite ? { title: post.titleZh, excerpt: post.excerptZh } : {}),
+    } as any,
+  })
+  console.log(`       ${id}  zh ${firstWrite ? 'locale written' : 'body updated (title kept)'}`)
+}
 
 async function run() {
   const config = (await import('../src/payload.config')).default
@@ -216,6 +252,7 @@ async function run() {
         data: { content } as any,
       })
       console.log(`update blog ${id}  ${post.slug}  (content only)`)
+      await writeZh(payload, id, post)
       continue
     }
 
@@ -248,10 +285,11 @@ async function run() {
       } as any,
     })
     console.log(`create blog ${doc.id}  ${post.slug}  (draft, en)`)
+    await writeZh(payload, doc.id, post)
   }
 
   console.log('\ndone. Posts are drafts — publish from /admin when you are happy with them.')
-  console.log('The zh locale is still empty; the Chinese versions go in as a second pass.')
+  console.log('Both locales are written. Covers still have to be attached in /admin.')
 }
 
 run().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1) })

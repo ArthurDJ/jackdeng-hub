@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useEffect, useState, useCallback } from 'react'
-import { useSession, signIn } from 'next-auth/react'
 import { useTranslations, useLocale } from 'next-intl'
 
 // ── Types ──────────────────────────────────────────────────────────────────
+type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated'
+
 type RunRecord = {
   id: string
   status: string
@@ -197,11 +198,31 @@ function RunRow({ run, isExpanded, onToggle, labels, locale, detailHeading }: {
 export function VisaMonitorDashboard({ slug }: { slug: string }) {
   const t = useTranslations('tools.dashboard')
   const locale = useLocale()
-  const { status } = useSession()
+  // Payload's own session, not a second auth system. The run log this panel
+  // reads (`/api/tool-runs`) is gated on Payload's `req.user`, so gating the UI
+  // on anything else means a signed-in visitor sees the panel and gets nothing
+  // back — which is exactly what the next-auth version did.
+  const [status, setStatus] = useState<AuthStatus>('loading')
   const [runs, setRuns] = useState<RunRecord[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/users/me', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled) setStatus(d?.user ? 'authenticated' : 'unauthenticated')
+      })
+      .catch(() => {
+        if (!cancelled) setStatus('unauthenticated')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // Static maps — next-intl keys must stay statically analysable, so no
   // t('runStatus.' + x). The metadata keys are snake_case because they come
@@ -242,12 +263,18 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
     try {
       const res = await fetch(
         `/api/tool-runs?where[tool.slug][equals]=${slug}&sort=-runAt&limit=50&depth=0`,
+        { credentials: 'include' },
       )
+      // Previously this swallowed everything: a 403 fell through to
+      // `data.docs ?? []` and rendered as an empty panel, indistinguishable
+      // from "the tool has never run". Surface the failure instead.
+      if (!res.ok) throw new Error(`tool-runs responded ${res.status}`)
       const data = await res.json()
       setRuns(data.docs ?? [])
+      setLoadError(false)
       setLastRefresh(new Date())
     } catch {
-      // silent
+      setLoadError(true)
     } finally {
       setLoading(false)
     }
@@ -282,22 +309,11 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
         <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '15px' }}>
           {t('privateNotice')}
         </p>
-        <button
-          onClick={() => signIn('google')}
-          className="ds-accent-btn"
-          style={{
-            background: 'var(--accent-primary)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '8px',
-            padding: '10px 24px',
-            fontSize: '14px',
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
-          {t('signInGoogle')}
-        </button>
+        {/* Deliberately no link to the admin login. This panel renders on a
+            tool page that is public whenever the tool is online + public
+            (see Tools.access.read), and the roadmap asks for the admin
+            backend to stay unadvertised. The one person who needs it knows
+            where it is. */}
       </div>
     )
   }
@@ -312,6 +328,23 @@ export function VisaMonitorDashboard({ slug }: { slug: string }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+      {/* ── Load failure ─────────────────────────────────────────────── */}
+      {loadError && (
+        <div
+          role="alert"
+          style={{
+            border: '1px solid var(--border-default)',
+            borderLeft: '3px solid #ef4444',
+            borderRadius: '8px',
+            padding: '12px 16px',
+            fontSize: '14px',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          {t('loadError')}
+        </div>
+      )}
 
       {/* ── Status header ────────────────────────────────────────────── */}
       <div style={{

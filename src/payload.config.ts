@@ -33,10 +33,11 @@ export const config = buildConfig({
     },
     components: {
       actions: ['@/components/AdminHeaderSettings#AdminHeaderSettings'],
-      // Login is via Payload's native email/password. The Google OAuth button was
-      // removed: next-auth was never bridged into Payload's session, so it could
-      // not actually grant admin access. (next-auth itself stays for the
-      // front-end VisaMonitor tool.)
+      // Login is via Payload's native email/password. next-auth used to sit
+      // alongside this and was never bridged into Payload's session, so it
+      // could not grant admin access; the Google button was removed from this
+      // page first, and next-auth itself was dropped once the VisaMonitor
+      // panel — its last consumer — moved onto the Payload session too.
       graphics: {
         Logo: '@/components/AdminLogo#AdminLogo',
         Icon: '@/components/AdminLogo#AdminIcon',

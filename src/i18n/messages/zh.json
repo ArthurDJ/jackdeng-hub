@@ -167,7 +167,7 @@
     "dashboard": {
       "verifying": "验证身份中…",
       "privateNotice": "此工具为私有，需要登录后查看。",
-      "signInGoogle": "使用 Google 登录",
+      "loadError": "运行记录加载失败，登录状态可能已过期，请重新登录。",
       "refresh": "刷新",
       "latestStatus": "最新状态",
       "notableEvents": "重要事件",

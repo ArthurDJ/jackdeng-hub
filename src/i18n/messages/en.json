@@ -167,7 +167,7 @@
     "dashboard": {
       "verifying": "Verifying identity…",
       "privateNotice": "This tool is private — sign in to view it.",
-      "signInGoogle": "Sign in with Google",
+      "loadError": "Could not load the run log. Your session may have expired — try signing in again.",
       "refresh": "Refresh",
       "latestStatus": "Latest status",
       "notableEvents": "Notable events",

@@ -5,7 +5,7 @@ export default createMiddleware(routing)
 
 export const config = {
   // Match every path that should be locale-prefixed, i.e. everything except:
-  // - `api`    — Payload REST + GraphQL, NextAuth, tool callbacks
+  // - `api`    — Payload REST + GraphQL, tool callbacks
   // - `admin`  — Payload admin UI
   // - `_next` / `_vercel` — framework internals
   // - `og`     — dynamic OpenGraph image route (src/app/og/route.tsx)

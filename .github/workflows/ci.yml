@@ -36,3 +36,9 @@ jobs:
       # entire job. tsconfig.json includes **/*.ts, so this covers src/,
       # scripts/ and src/scripts/ alike.
       - run: npm run typecheck
+
+      # Unit tests over the pure helpers only — no database, no browser, so
+      # this needs no secrets. Added after two bugs in readingTime survived
+      # into production: it counted from the wrong node and could not count
+      # Chinese. Both are covered now.
+      - run: npm test

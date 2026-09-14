@@ -92,7 +92,10 @@
 | 跳转链接交互未验证 | 🟡 中 | ⚠️ 待人工确认 | v1.8.0 的 `.ds-skip-link` 生产 CSS 已静态核对正确（基础规则在前、`:focus` 覆盖在后），但**浏览器面板的合成 Tab 不驱动真实焦点导航**，无法自动验证。需人工按一次 Tab。 |
 | 根布局嵌套 `<html>/<body>` | 🔴 高 | ✅ 已修复 (v1.9.0) | `src/app/layout.tsx` 与 `[locale]/layout.tsx`、`(payload)/layout.tsx` 各自输出一套 `<html><body>`，线上每个响应都是非法 HTML，外层 `<html>` 无 `lang`，`/admin` 控制台 5 条 hydration error。删除根布局，改用 Next 的 multiple root layouts。 |
 | 博客页缺 `<main>` landmark | 🟡 中 | ✅ 已修复 (v1.9.0) | v1.8.0 的跳转链接指向 `#main`，但 `blog/page.tsx` 与 `blog/[slug]/page.tsx` 两个最重要的页面没有这个元素，跳转跳空。 |
-| 内容真空 | 🔴 高 | ⬜ 待处理 | 博客 0 篇、工具 0 个；侧边栏分类与标签计数全为 0。 |
+| 内容真空 | 🔴 高 | 🔄 进行中 (#22) | 首批 4 篇已入库，**中英双语各一份正文**，状态均为 draft，等人工发布。这是站上第一批真正双语的内容 —— 此前所有内容都是英文塞在默认的 `zh` 槽里靠 fallback，两个语言页显示同样的英文（见技术债表上方的本地化说明）。工具仍为 0，`visa-checker` 是 offline + private，本轮未处理。发布后侧边栏计数与 sitemap / feed 会自动跟上，两者都按 `status = published` 查询，无需改代码。 |
+| 阅读时长恒为 1 分钟 | 🟡 中 | ✅ 已修复 (#23) | `readingTime` 从 Lexical 文档顶层开始遍历，而内容在 `root` 里，遍历返回 0，`Math.max(1, 0)` 让**每一篇**文章都显示「1 min read」。第二个 bug 只在有中文内容时显形：按 `/\s+/` 切词，1,454 字的中文被数成约 170 词，又是 1 分钟。现在 CJK 按 400 字/分单独计数，切词前先剥离，两个分数相加后再取整。**两个都先于本次工作存在**，一直没被发现是因为 `blogs = 0`；发现方式是起 dev server 用眼睛看。对照：同目录的 `extractHeadings.ts:35` 写的是 `content?.root?.children`，它处理对了。 |
+| 零测试 | 🔴 高 | ✅ 已修复 (#24) | **原评估为 🟡 并判断「不如 CI 闸门紧急」，#23 推翻了这个判断** —— 闸门拦得住类型错误，拦不住「函数看着对但算出来是 0」。引入 vitest + `npm test`，接进现有 CI job（纯函数，不碰数据库和浏览器，无需 secrets，required check 名字不变）。30 个测试覆盖 `readingTime`、`extractHeadings`、`formatDate` 以及从 `publish-drafts.ts` 抽出的 `scripts/lib/markdown.ts`。**每条断言都靠「把被测代码改坏、确认变红」验证过**：还原 root 下钻 → 5 红，移除 CJK 分支 → 1 红，去掉链接 token → 2 红。刻意不做组件测试、e2e、覆盖率指标与 eslint。 |
+| 发文流程无工具 | 🟢 低 | ✅ 已修复 (#22) | `scripts/publish-drafts.ts`：markdown 转 Lexical、上传题图、双语写入、幂等（已存在的文章只更新正文，保留 `/admin` 里改过的标题与封面）。两个曾进生产库的解析缺陷已有测试盯着：链接存成字面量括号语法、无序列表被压成一个跑马句段落。另有 `BLOB_READ_WRITE_TOKEN` 防护 —— 缺 token 时跳过上传而不是写出一条指向本机文件的 media 记录，那个错误犯过一次，事后删了两条坏记录。 |
 | Tools 页面未接 i18n | 🟡 中 | ✅ 已修复 (v1.6.3) | `isZh ?` 硬编码三元、用 `next/link` 手拼 locale 前缀、无 `tools` i18n namespace。 |
 | sitemap 漏 tools 路由 | 🟡 中 | ✅ 已修复 (v1.6.3) | `/tools` 与 `/tools/[slug]` 未进 sitemap。 |
 | 首页 TECH STACK 英文硬编码 | 🟢 低 | ✅ 已修复 (v1.6.3) | `TECH_STACK` 的 description 未 localized，中文页显示英文。 |
@@ -108,4 +111,4 @@
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-09-14 (#20 移除 next-auth，面板统一 Payload session；#19 Media 读权限收口；#18 CI 闸门与分支保护；#17 写库脚本生产守卫；#16 运维脚本 env 加载修复)*
+*最后更新：2026-09-14 (#24 纯函数单元测试；#23 阅读时长两个 bug；#22 发文脚本与首批双语内容；#20 移除 next-auth；#19 Media 读权限收口；#18 CI 闸门与分支保护；#17 写库脚本生产守卫；#16 运维脚本 env 加载修复)*

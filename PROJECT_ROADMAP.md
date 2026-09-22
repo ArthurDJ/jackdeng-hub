@@ -77,8 +77,8 @@
 - [x] **修复静态渲染读请求头** — 第一次发布触发全站文章页 500，回滚 → 定位 → 修复 → 重发（#26）✅
 - [x] **分类名多语言** — `categories_locales` 零停机迁移，中文站不再显示英文分类名（#27）✅
 - [x] **部署后冒烟检查** — 补上 CI 拦不住请求期错误的缺口（#27）✅
-- [ ] **旧列清理** — `categories.name` / `.description` 在新构建上线后由后续迁移 DROP。
-- [ ] **sitemap 收录文章** — `revalidate = 86400`，下次部署或 24h 后自动生效。
+- [x] **旧列清理** — `20260922_000002` DROP 掉 `categories.name` / `.description`（#29）✅
+- [x] **sitemap 收录文章** — 部署后已刷新，41 条 loc 含 4 篇文章 ✅
 
 ---
 
@@ -118,8 +118,8 @@
 | 遗留测试媒体 | 🟢 低 | ✅ 已修复 (v1.9.2) | 经确认后清空：10 条 `test-image-N.jpg` media 记录（`GET /api/media` 现返回 `totalDocs: 0`）、`public/test-images/` 12 个文件、`public/media/` 里 commit 94dff63 留下的 30 个孤儿文件。`public/media/` 目录保留并加进 `.gitignore`。工具见 `scripts/purge-test-media.ts`（默认 dry run，删前反查引用）。 |
 | 静态渲染读请求头 | 🔴 高 | ✅ 已修复 (#26) | 发布首批文章后**每个详情页都 500**，`digest: DYNAMIC_SERVER_USAGE`。`[locale]/layout.tsx` 调 `getMessages()` 时不带 locale，next-intl 只能去读请求头 —— 而 `[locale]/blog/[slug]` 是全站唯一的静态路由（`revalidate = 3600`），其余页面都因读 `searchParams` 而是动态的，所以只有文章页中招。**潜伏原因是两层叠加**：线上 `blogs = 0` 让这条路由从没被渲染过；而 `next dev` 根本不做静态渲染 —— 同样 4 篇文章在 dev server 里 8 个页面全是 200，几分钟后在生产全是 500。与 #23 同一模式：空集合藏住了真实缺陷。修复是 `setRequestLocale(locale)`，**必须放在 layout 而非 page**（layout 先渲染，放 page 里来不及；先试过，无效）。验证方式是本地 `next build` + `next start`，dev server 做不到这件事。 |
 | 部署后无冒烟检查 | 🟡 中 | ✅ 已修复 (#27) | #26 暴露的闸门缺口：把每篇文章变成 500 的那个提交，`typecheck` 绿、`npm test` 绿、Vercel build 也绿 —— **因为报错发生在请求期而不是构建期**，CI 里没有任何一步真正去取一个页面。新增 `.github/workflows/smoke.yml`，在生产部署成功后打 12 条关键 URL（含两个语言的文章详情页，slug 从 `/api/blogs` 动态取）。刻意不接 pull_request：它需要一个已部署的 URL 和其后的生产库。 |
-| 分类名不支持多语言 | 🟡 中 | ✅ 已修复 (#27) | `Categories.ts` 的 `name` / `description` 没有 `localized: true` —— 不是数据没填，是字段压根不支持多语言，于是中文站的侧边栏、面包屑、CategoryBadge、分类页标题全是 `Career & Thoughts` / `DevOps & Tools`。另有两处硬编码英文：分类页与标签页的 `<title>`、meta description 和 eyebrow 标签（`${cat.name} — Blog`、`Posts in the ... category.`、`Category` / `Tag`）。迁移 `20260922_000001_localize_categories` **刻意做成纯增量**，不像 `add_projects_localization` 那样 DROP 旧列 —— 丢列会造成一个无论什么顺序都有破损的窗口（先迁移则线上旧代码查一个已消失的列，先部署则新代码查一张还不存在的表）；保留旧列（并去掉 `NOT NULL` 让新建分类仍能 INSERT）使迁移可以在部署前安全执行，**零停机**。已在生产库用事务彩排后回滚，再正式执行。另外英文值写入 `en` 槽、中文写入 `zh` 槽，**不沿用 projects 迁移那种「全部塞进默认 locale」的做法** —— 那正是本站长期用 fallback 拿英文充中文的成因。**未做**：Tags 的 `name` 保持不本地化（NetSuite / PostgreSQL / Docker 是专有名词）；旧列 `categories.name` / `.description` 待后续迁移清理。 |
+| 分类名不支持多语言 | 🟡 中 | ✅ 已修复 (#27) | `Categories.ts` 的 `name` / `description` 没有 `localized: true` —— 不是数据没填，是字段压根不支持多语言，于是中文站的侧边栏、面包屑、CategoryBadge、分类页标题全是 `Career & Thoughts` / `DevOps & Tools`。另有两处硬编码英文：分类页与标签页的 `<title>`、meta description 和 eyebrow 标签（`${cat.name} — Blog`、`Posts in the ... category.`、`Category` / `Tag`）。迁移 `20260922_000001_localize_categories` **刻意做成纯增量**，不像 `add_projects_localization` 那样 DROP 旧列 —— 丢列会造成一个无论什么顺序都有破损的窗口（先迁移则线上旧代码查一个已消失的列，先部署则新代码查一张还不存在的表）；保留旧列（并去掉 `NOT NULL` 让新建分类仍能 INSERT）使迁移可以在部署前安全执行，**零停机**。已在生产库用事务彩排后回滚，再正式执行。另外英文值写入 `en` 槽、中文写入 `zh` 槽，**不沿用 projects 迁移那种「全部塞进默认 locale」的做法** —— 那正是本站长期用 fallback 拿英文充中文的成因。**未做**：Tags 的 `name` 保持不本地化（NetSuite / PostgreSQL / Docker 是专有名词）。旧列已由 `20260922_000002` 清理（#29）—— 彩排验证过 up → down → up 往返，`down()` 能从 `en` 槽完整还原两列（零空值），否则整条链反向回滚会在 `000001` 的 `down()` 上撞到一个已不存在的列。丢列后另跑过一次写路径检查：新建分类、双语分别写入、读回、删除均正常。 |
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-09-22 (#27 分类名本地化与部署后冒烟检查；#26 静态渲染读请求头导致文章页全 500；首批 4 篇双语文章发布上线；#24 纯函数单元测试；#23 阅读时长两个 bug；#22 发文脚本与首批双语内容；#20 移除 next-auth；#19 Media 读权限收口；#18 CI 闸门与分支保护；#17 写库脚本生产守卫；#16 运维脚本 env 加载修复)*
+*最后更新：2026-09-22 (#29 清理分类旧列；#28 修复冒烟检查从未触发；#27 分类名本地化与部署后冒烟检查；#26 静态渲染读请求头导致文章页全 500；首批 4 篇双语文章发布上线；#24 纯函数单元测试；#23 阅读时长两个 bug；#22 发文脚本与首批双语内容；#20 移除 next-auth；#19 Media 读权限收口；#18 CI 闸门与分支保护；#17 写库脚本生产守卫；#16 运维脚本 env 加载修复)*

@@ -99,7 +99,15 @@
     },
     "share": "分享",
     "copyLink": "复制链接",
-    "copied": "已复制！"
+    "copied": "已复制！",
+    "categoryEyebrow": "分类",
+    "categoryMetaTitle": "{name} — 文章",
+    "categoryMetaDescription": "{name} 分类下的文章。",
+    "categoryNotFound": "未找到该分类",
+    "tagEyebrow": "标签",
+    "tagMetaTitle": "#{name} — 文章",
+    "tagMetaDescription": "带有 {name} 标签的文章。",
+    "tagNotFound": "未找到该标签"
   },
   "about": {
     "title": "Jack Deng",

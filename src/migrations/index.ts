@@ -11,6 +11,7 @@ import * as migration_20260410_021800 from './20260410_021800';
 import * as migration_20260411_000001_add_tool_runs_rels from './20260411_000001_add_tool_runs_rels';
 import * as migration_20260413_000001_add_projects_slug from './20260413_000001_add_projects_slug';
 import * as migration_20260525_000001_add_projects_localization from './20260525_000001_add_projects_localization';
+import * as migration_20260922_000001_localize_categories from './20260922_000001_localize_categories';
 
 export const migrations = [
   {
@@ -77,5 +78,10 @@ export const migrations = [
     up: migration_20260525_000001_add_projects_localization.up,
     down: migration_20260525_000001_add_projects_localization.down,
     name: '20260525_000001_add_projects_localization',
+  },
+  {
+    up: migration_20260922_000001_localize_categories.up,
+    down: migration_20260922_000001_localize_categories.down,
+    name: '20260922_000001_localize_categories',
   },
 ];

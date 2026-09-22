@@ -99,7 +99,15 @@
     },
     "share": "Share",
     "copyLink": "Copy link",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "categoryEyebrow": "Category",
+    "categoryMetaTitle": "{name} — Blog",
+    "categoryMetaDescription": "Posts in the {name} category.",
+    "categoryNotFound": "Category not found",
+    "tagEyebrow": "Tag",
+    "tagMetaTitle": "#{name} — Blog",
+    "tagMetaDescription": "Posts tagged with {name}.",
+    "tagNotFound": "Tag not found"
   },
   "about": {
     "title": "Jack Deng",

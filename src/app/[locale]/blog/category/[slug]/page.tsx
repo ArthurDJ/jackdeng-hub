@@ -39,10 +39,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     locale: locale as any,
   })
   const cat = docs[0] as any
-  if (!cat) return { title: 'Category not found' }
+  const t = await getTranslations({ locale, namespace: 'blog' })
+  if (!cat) return { title: t('categoryNotFound') }
   return {
-    title: `${cat.name} — Blog`,
-    description: cat.description ?? `Posts in the ${cat.name} category.`,
+    title: t('categoryMetaTitle', { name: cat.name }),
+    description: cat.description ?? t('categoryMetaDescription', { name: cat.name }),
   }
 }
 
@@ -80,7 +81,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       <section className="border-b border-subtle ds-section-padding">
         <div className="ds-container">
           <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-tertiary)', marginBottom: 8 }}>
-            Category
+            {t('categoryEyebrow')}
           </p>
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 590, letterSpacing: '-0.8px', color: 'var(--text-primary)', marginBottom: 8 }}>
             {category.name}

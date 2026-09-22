@@ -4,7 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
-import { VisaMonitorDashboard } from '@/components/VisaMonitorDashboard'
+import { getBuiltinTool } from '@/components/tools/registry'
 
 export const revalidate = 3600
 
@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     where: { slug: { equals: slug } },
     depth: 0,
     limit: 1,
+    locale: locale as any,
   }) as any
 
   const tool = docs[0]
@@ -71,12 +72,16 @@ export default async function ToolDetailPage({ params }: Props) {
     },
     depth: 0,
     limit: 1,
+    locale: locale as any,
   }) as any
 
   const tool = docs[0]
   if (!tool) notFound()
 
   const statusColor = TOOL_STATUS_COLOR[tool.status] ?? TOOL_STATUS_COLOR.online
+  // Resolved by slug, not by toolType. The old code rendered the visa monitor
+  // for *any* automation tool, and never handled embedType 'builtin' at all.
+  const BuiltinTool = getBuiltinTool(slug)
   const isAutomation = tool.toolType === 'automation'
   const hasIframe = Boolean(tool.embedUrl) && tool.embedType === 'iframe'
   const hasScript = Boolean(tool.embedUrl) && tool.embedType === 'script'
@@ -142,9 +147,9 @@ export default async function ToolDetailPage({ params }: Props) {
         </div>
 
         {/* ── Content ──────────────────────────────────────────────────── */}
-        {isAutomation ? (
-          // Automation 工具：客户端鉴权 + 运行 Dashboard
-          <VisaMonitorDashboard slug={slug} />
+        {BuiltinTool ? (
+          // In-repo page: automation dashboards and client-side toys alike.
+          <BuiltinTool slug={slug} />
         ) : hasIframe ? (
           <div style={{
             borderRadius: '12px',

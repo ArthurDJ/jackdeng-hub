@@ -51,6 +51,7 @@ export default async function ToolsPage({ params }: Props) {
       ],
     },
     depth: 0,
+    locale: locale as any,
     limit: 50,
   }) as any
 

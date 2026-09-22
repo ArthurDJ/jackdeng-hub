@@ -72,6 +72,14 @@
 - [x] **根布局嵌套修复 (v1.9.0)** — 删除 `src/app/layout.tsx`，消除全站双层 `<html>/<body>` 与 `/admin` 的 hydration error ✅
 - [x] **博客 main landmark 补全 (v1.9.0)** — `blog/page.tsx` 与 `blog/[slug]/page.tsx` 补 `<main id="main">`，跳转链接不再跳空 ✅
 
+### ✅ Phase 10: 内容上线 (2026-09-22)
+- [x] **首批 4 篇双语文章发布** — 中英各一份正文，非 fallback。feed 4 条、8 个详情页全 200 ✅
+- [x] **修复静态渲染读请求头** — 第一次发布触发全站文章页 500，回滚 → 定位 → 修复 → 重发（#26）✅
+- [x] **分类名多语言** — `categories_locales` 零停机迁移，中文站不再显示英文分类名（#27）✅
+- [x] **部署后冒烟检查** — 补上 CI 拦不住请求期错误的缺口（#27）✅
+- [ ] **旧列清理** — `categories.name` / `.description` 在新构建上线后由后续迁移 DROP。
+- [ ] **sitemap 收录文章** — `revalidate = 86400`，下次部署或 24h 后自动生效。
+
 ---
 
 ## 📋 技术债清单 (Tech Debt)
@@ -92,7 +100,7 @@
 | 跳转链接交互未验证 | 🟡 中 | ⚠️ 待人工确认 | v1.8.0 的 `.ds-skip-link` 生产 CSS 已静态核对正确（基础规则在前、`:focus` 覆盖在后），但**浏览器面板的合成 Tab 不驱动真实焦点导航**，无法自动验证。需人工按一次 Tab。 |
 | 根布局嵌套 `<html>/<body>` | 🔴 高 | ✅ 已修复 (v1.9.0) | `src/app/layout.tsx` 与 `[locale]/layout.tsx`、`(payload)/layout.tsx` 各自输出一套 `<html><body>`，线上每个响应都是非法 HTML，外层 `<html>` 无 `lang`，`/admin` 控制台 5 条 hydration error。删除根布局，改用 Next 的 multiple root layouts。 |
 | 博客页缺 `<main>` landmark | 🟡 中 | ✅ 已修复 (v1.9.0) | v1.8.0 的跳转链接指向 `#main`，但 `blog/page.tsx` 与 `blog/[slug]/page.tsx` 两个最重要的页面没有这个元素，跳转跳空。 |
-| 内容真空 | 🔴 高 | 🔄 进行中 (#22) | 首批 4 篇已入库，**中英双语各一份正文**，状态均为 draft，等人工发布。这是站上第一批真正双语的内容 —— 此前所有内容都是英文塞在默认的 `zh` 槽里靠 fallback，两个语言页显示同样的英文（见技术债表上方的本地化说明）。工具仍为 0，`visa-checker` 是 offline + private，本轮未处理。发布后侧边栏计数与 sitemap / feed 会自动跟上，两者都按 `status = published` 查询，无需改代码。 |
+| 内容真空 | 🔴 高 | ✅ 已修复 (#22/#26) | 首批 4 篇已于 2026-09-22 发布上线，**中英双语各一份正文** —— 站上第一批真正双语的内容。发布分两次：第一次 4 篇全发，8 个详情页全部 500（见下一行），回滚后修掉再按「先发 1 篇验证 → 再发剩余 3 篇」的顺序重发。侧边栏计数、feed 已自动跟上；sitemap 因 `revalidate = 86400` 滞后，下次部署即刷新。工具仍为 0，`visa-checker` 是 offline + private，本轮未处理。 |
 | 阅读时长恒为 1 分钟 | 🟡 中 | ✅ 已修复 (#23) | `readingTime` 从 Lexical 文档顶层开始遍历，而内容在 `root` 里，遍历返回 0，`Math.max(1, 0)` 让**每一篇**文章都显示「1 min read」。第二个 bug 只在有中文内容时显形：按 `/\s+/` 切词，1,454 字的中文被数成约 170 词，又是 1 分钟。现在 CJK 按 400 字/分单独计数，切词前先剥离，两个分数相加后再取整。**两个都先于本次工作存在**，一直没被发现是因为 `blogs = 0`；发现方式是起 dev server 用眼睛看。对照：同目录的 `extractHeadings.ts:35` 写的是 `content?.root?.children`，它处理对了。 |
 | 零测试 | 🔴 高 | ✅ 已修复 (#24) | **原评估为 🟡 并判断「不如 CI 闸门紧急」，#23 推翻了这个判断** —— 闸门拦得住类型错误，拦不住「函数看着对但算出来是 0」。引入 vitest + `npm test`，接进现有 CI job（纯函数，不碰数据库和浏览器，无需 secrets，required check 名字不变）。30 个测试覆盖 `readingTime`、`extractHeadings`、`formatDate` 以及从 `publish-drafts.ts` 抽出的 `scripts/lib/markdown.ts`。**每条断言都靠「把被测代码改坏、确认变红」验证过**：还原 root 下钻 → 5 红，移除 CJK 分支 → 1 红，去掉链接 token → 2 红。刻意不做组件测试、e2e、覆盖率指标与 eslint。 |
 | 发文流程无工具 | 🟢 低 | ✅ 已修复 (#22) | `scripts/publish-drafts.ts`：markdown 转 Lexical、上传题图、双语写入、幂等（已存在的文章只更新正文，保留 `/admin` 里改过的标题与封面）。两个曾进生产库的解析缺陷已有测试盯着：链接存成字面量括号语法、无序列表被压成一个跑马句段落。另有 `BLOB_READ_WRITE_TOKEN` 防护 —— 缺 token 时跳过上传而不是写出一条指向本机文件的 media 记录，那个错误犯过一次，事后删了两条坏记录。 |
@@ -108,7 +116,10 @@
 | 无 CI 闸门 | 🔴 高 | ✅ 已修复 (#18) | #16/#17 两个 PR 全程零自动检查，`tsc --noEmit` 全靠手动跑，`main` 也无分支保护。新增 `.github/workflows/ci.yml` 跑 `npm ci` + `npm run typecheck`，并开启分支保护（required check = `typecheck`，不强制 review，`enforce_admins: false` 保留直推）。**刻意不跑 `next build`**：Payload 在 config 求值时读 `DATABASE_URI`，CI 跑 build 就得把生产库凭据放进 repository secrets；Vercel preview 本就跑完整 build 且未关类型检查，它唯一不做的是拦合并。闸门已端到端实测（绿→红→绿）。**未做**：eslint，97 个既有文件从零加 lint 应是独立 PR。 |
 | Media 读权限全开 | 🔴 高 | ✅ 已修复 (#19) | `Media.access.read` 是 `() => true`，匿名即可 `GET /api/media` 枚举整个媒体库（文件名、alt、mime、尺寸、CDN URL）。`purge-test-media.ts` 文件头早已点破，当时只清了图没堵口子。因 `media` 表为 0 条而潜伏，但填内容必然上传真实图片 —— 故排在内容之前修。改为 `Boolean(req.user)`。**边界要说清**：只堵匿名枚举清单，**不使文件私有** —— `disablePayloadAccessControl: true` 让图片走 Vercel Blob 公开 CDN，知道 URL 即可直取；要文件也私有须去掉该选项并牺牲 CDN。 |
 | 遗留测试媒体 | 🟢 低 | ✅ 已修复 (v1.9.2) | 经确认后清空：10 条 `test-image-N.jpg` media 记录（`GET /api/media` 现返回 `totalDocs: 0`）、`public/test-images/` 12 个文件、`public/media/` 里 commit 94dff63 留下的 30 个孤儿文件。`public/media/` 目录保留并加进 `.gitignore`。工具见 `scripts/purge-test-media.ts`（默认 dry run，删前反查引用）。 |
+| 静态渲染读请求头 | 🔴 高 | ✅ 已修复 (#26) | 发布首批文章后**每个详情页都 500**，`digest: DYNAMIC_SERVER_USAGE`。`[locale]/layout.tsx` 调 `getMessages()` 时不带 locale，next-intl 只能去读请求头 —— 而 `[locale]/blog/[slug]` 是全站唯一的静态路由（`revalidate = 3600`），其余页面都因读 `searchParams` 而是动态的，所以只有文章页中招。**潜伏原因是两层叠加**：线上 `blogs = 0` 让这条路由从没被渲染过；而 `next dev` 根本不做静态渲染 —— 同样 4 篇文章在 dev server 里 8 个页面全是 200，几分钟后在生产全是 500。与 #23 同一模式：空集合藏住了真实缺陷。修复是 `setRequestLocale(locale)`，**必须放在 layout 而非 page**（layout 先渲染，放 page 里来不及；先试过，无效）。验证方式是本地 `next build` + `next start`，dev server 做不到这件事。 |
+| 部署后无冒烟检查 | 🟡 中 | ✅ 已修复 (#27) | #26 暴露的闸门缺口：把每篇文章变成 500 的那个提交，`typecheck` 绿、`npm test` 绿、Vercel build 也绿 —— **因为报错发生在请求期而不是构建期**，CI 里没有任何一步真正去取一个页面。新增 `.github/workflows/smoke.yml`，在生产部署成功后打 12 条关键 URL（含两个语言的文章详情页，slug 从 `/api/blogs` 动态取）。刻意不接 pull_request：它需要一个已部署的 URL 和其后的生产库。 |
+| 分类名不支持多语言 | 🟡 中 | ✅ 已修复 (#27) | `Categories.ts` 的 `name` / `description` 没有 `localized: true` —— 不是数据没填，是字段压根不支持多语言，于是中文站的侧边栏、面包屑、CategoryBadge、分类页标题全是 `Career & Thoughts` / `DevOps & Tools`。另有两处硬编码英文：分类页与标签页的 `<title>`、meta description 和 eyebrow 标签（`${cat.name} — Blog`、`Posts in the ... category.`、`Category` / `Tag`）。迁移 `20260922_000001_localize_categories` **刻意做成纯增量**，不像 `add_projects_localization` 那样 DROP 旧列 —— 丢列会造成一个无论什么顺序都有破损的窗口（先迁移则线上旧代码查一个已消失的列，先部署则新代码查一张还不存在的表）；保留旧列（并去掉 `NOT NULL` 让新建分类仍能 INSERT）使迁移可以在部署前安全执行，**零停机**。已在生产库用事务彩排后回滚，再正式执行。另外英文值写入 `en` 槽、中文写入 `zh` 槽，**不沿用 projects 迁移那种「全部塞进默认 locale」的做法** —— 那正是本站长期用 fallback 拿英文充中文的成因。**未做**：Tags 的 `name` 保持不本地化（NetSuite / PostgreSQL / Docker 是专有名词）；旧列 `categories.name` / `.description` 待后续迁移清理。 |
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-09-14 (#24 纯函数单元测试；#23 阅读时长两个 bug；#22 发文脚本与首批双语内容；#20 移除 next-auth；#19 Media 读权限收口；#18 CI 闸门与分支保护；#17 写库脚本生产守卫；#16 运维脚本 env 加载修复)*
+*最后更新：2026-09-22 (#27 分类名本地化与部署后冒烟检查；#26 静态渲染读请求头导致文章页全 500；首批 4 篇双语文章发布上线；#24 纯函数单元测试；#23 阅读时长两个 bug；#22 发文脚本与首批双语内容；#20 移除 next-auth；#19 Media 读权限收口；#18 CI 闸门与分支保护；#17 写库脚本生产守卫；#16 运维脚本 env 加载修复)*

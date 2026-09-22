@@ -40,10 +40,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     locale: locale as any,
   })
   const tag = docs[0] as any
-  if (!tag) return { title: 'Tag not found' }
+  const t = await getTranslations({ locale, namespace: 'blog' })
+  if (!tag) return { title: t('tagNotFound') }
   return {
-    title: `#${tag.name} — Blog`,
-    description: tag.description ?? `Posts tagged with ${tag.name}.`,
+    title: t('tagMetaTitle', { name: tag.name }),
+    description: tag.description ?? t('tagMetaDescription', { name: tag.name }),
   }
 }
 
@@ -81,7 +82,7 @@ export default async function TagPage({ params, searchParams }: Props) {
       <section className="border-b border-subtle ds-section-padding">
         <div className="ds-container">
           <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-tertiary)', marginBottom: 8 }}>
-            Tag
+            {t('tagEyebrow')}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
             <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 590, letterSpacing: '-0.8px', color: 'var(--text-primary)' }}>

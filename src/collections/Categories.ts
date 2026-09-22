@@ -22,6 +22,13 @@ export const Categories: CollectionConfig = {
       label: { en: 'Name', zh: '名称' },
       required: true,
       unique: true,
+      // Localized because the category name is reader-facing in four places —
+      // the sidebar, the breadcrumb, the CategoryBadge and the category page's
+      // own heading. Before this, /zh showed "Career & Thoughts" and
+      // "DevOps & Tools" to Chinese readers. The slug stays unlocalized on
+      // purpose: it is the URL, and one URL per category keeps hreflang pairs
+      // and existing links intact.
+      localized: true,
     },
     {
       name: 'slug',
@@ -47,6 +54,7 @@ export const Categories: CollectionConfig = {
       name: 'description',
       type: 'textarea',
       label: { en: 'Description', zh: '描述' },
+      localized: true,
     },
   ],
 }

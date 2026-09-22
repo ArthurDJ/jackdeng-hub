@@ -1,0 +1,53 @@
+name: smoke
+
+# The gap that PR #26 exposed: `typecheck` and `npm test` both passed on the
+# commit that turned every blog post into a 500, and so did the Vercel build —
+# the error was thrown at request time, not build time. Nothing in CI actually
+# fetched a page. This does.
+#
+# It runs after a production deployment succeeds, not on pull requests, because
+# it needs a deployed URL and the production database behind it.
+on:
+  deployment_status:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: smoke
+    # Only once the deployment is live, and only for production.
+    if: github.event_name == 'workflow_dispatch' || (github.event.deployment_status.state == 'success' && github.event.deployment_status.environment == 'Production')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch the routes a build cannot check
+        env:
+          BASE: https://www.jackdeng.cc
+        run: |
+          set -u
+          fail=0
+
+          # A post detail page is the only statically rendered route, which is
+          # exactly why it broke in a way nothing else caught. Both locales.
+          slug=$(curl -fsS "$BASE/api/blogs?limit=1&depth=0" | sed -n 's/.*"slug":"\([^"]*\)".*/\1/p' | head -1)
+
+          # One route per line, read with `while read` rather than `for x in $var`
+          # so this does not depend on the shell doing word splitting.
+          routes=$(printf '%s\n' /en /zh /en/blog /zh/blog /en/projects /en/tools \
+                                  /zh/about /robots.txt /sitemap.xml /feed.xml)
+          if [ -n "$slug" ]; then
+            routes=$(printf '%s\n%s\n%s\n' "$routes" "/en/blog/$slug" "/zh/blog/$slug")
+          else
+            echo "note: no published posts, skipping the detail-page checks"
+          fi
+
+          while IFS= read -r r; do
+            [ -n "$r" ] || continue
+            code=$(curl -s -o /dev/null -w '%{http_code}' -L "$BASE$r")
+            if [ "$code" = "200" ]; then
+              echo "ok   $code  $r"
+            else
+              echo "FAIL $code  $r"
+              fail=1
+            fi
+          done <<< "$routes"
+
+          exit $fail

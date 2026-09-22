@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages } from 'next-intl/server'
+import { getMessages, setRequestLocale } from 'next-intl/server'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { SpeedInsights } from '@vercel/speed-insights/next'
@@ -43,6 +43,13 @@ export default async function LocaleLayout({ children, params }: Props) {
   if (!routing.locales.includes(locale as 'en' | 'zh')) {
     notFound()
   }
+
+  // Seed next-intl's request locale from the route segment. Without this,
+  // getMessages() resolves the locale by reading request headers, which is a
+  // dynamic API — and this layout wraps the blog detail page, the one route
+  // the build renders statically. The result was DYNAMIC_SERVER_USAGE on every
+  // post. Layouts render before pages, so this has to happen here.
+  setRequestLocale(locale)
 
   const messages = await getMessages()
 

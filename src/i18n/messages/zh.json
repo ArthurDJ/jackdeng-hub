@@ -209,6 +209,19 @@
         "oldAppointment": "原预约",
         "sessionCount": "运行 Session 数"
       }
+    },
+    "sand": {
+      "sand": "沙",
+      "water": "水",
+      "stone": "石",
+      "eraser": "橡皮",
+      "brush": "笔刷",
+      "pause": "暂停",
+      "play": "继续",
+      "clear": "清空",
+      "materialLabel": "材质",
+      "canvasLabel": "落沙模拟。在画布上拖动即可绘制。",
+      "hint": "拖动即可倾倒。沙会堆积，水会流平，沙能穿过水沉下去。石头不动。"
     }
   },
   "error": {

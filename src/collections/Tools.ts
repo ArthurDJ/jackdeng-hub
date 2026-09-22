@@ -30,6 +30,12 @@ export const Tools: CollectionConfig = {
       type: 'text',
       label: { en: 'Name', zh: '名称' },
       required: true,
+      // Reader-facing on /tools, on the detail page and in the sitemap. Before
+      // this the column was single-valued, so writing the Chinese name simply
+      // overwrote the English one and both locales showed whichever was saved
+      // last — the same defect Categories had, hidden the same way by an empty
+      // collection.
+      localized: true,
     },
     {
       name: 'slug',
@@ -65,6 +71,7 @@ export const Tools: CollectionConfig = {
       name: 'description',
       type: 'textarea',
       label: { en: 'Description', zh: '描述' },
+      localized: true,
     },
 
     // ── Type & Access ─────────────────────────────────────────────

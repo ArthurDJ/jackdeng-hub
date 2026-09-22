@@ -59,7 +59,7 @@
 - [x] 前端渲染公开可用的"在线工具"列表（`/tools` 目录 + `/tools/[slug]` 详情）✅
 - [x] Tools 页面接入 next-intl（v1.6.3）✅
 - [x] sitemap 覆盖 tools 路由，过滤条件与列表页一致（v1.6.3）✅
-- [ ] **决定第一个真实工具做什么** — 当前 `/tools` 线上显示"暂无可用工具"，引擎跑空。
+- [x] **第一个真实工具：落沙（#31）** — 站内 builtin 组件，纯客户端元胞自动机。引擎不再跑空 ✅
 - [ ] ~~工具运行前的确认弹窗接入 `ConfirmDialog`~~ — **暂时无处可接**：现在的 automation 架构是工具往站里推（`POST /api/tools/[slug]/callback`，`x-cron-secret` 鉴权），站内没有"运行"触发入口，面板是纯只读的。要接确认弹窗得先设计出站方向的触发通道。
 - [x] Automation 面板本地化 + 隐形登录按钮修复（v1.9.1）✅
 
@@ -79,6 +79,14 @@
 - [x] **部署后冒烟检查** — 补上 CI 拦不住请求期错误的缺口（#27）✅
 - [x] **旧列清理** — `20260922_000002` DROP 掉 `categories.name` / `.description`（#29）✅
 - [x] **sitemap 收录文章** — 部署后已刷新，41 条 loc 含 4 篇文章 ✅
+
+### ✅ Phase 11: 工具引擎跑通 (2026-09-22)
+- [x] **builtin 分支补齐** — `embedType: 'builtin'` 此前是死选项，选它只渲染 🚧（#31）✅
+- [x] **按 slug 注册表** — 取代 `isAutomation ? <VisaMonitorDashboard/>`，第二个自动化工具不再渲染出签证面板（#31）✅
+- [x] **Tools 字段本地化** — `name` / `description` 加 `localized: true` + `tools_locales` 迁移（#31）✅
+- [x] **落沙工具** — 沙/水/石/橡皮、笔刷、暂停、清空；尊重 `prefers-reduced-motion`（#31）✅
+- [ ] **旧列清理** — `tools.name` / `.description` 待后续迁移 DROP（与 categories 同一套两阶段做法）。
+- [ ] **出站触发通道** — 仍未设计。但 `tool_runs` 停在 2026-04-16，`visa-checker` 已静默五个月，建议先确认那条链路是否还要留。
 
 ---
 
@@ -116,10 +124,12 @@
 | 无 CI 闸门 | 🔴 高 | ✅ 已修复 (#18) | #16/#17 两个 PR 全程零自动检查，`tsc --noEmit` 全靠手动跑，`main` 也无分支保护。新增 `.github/workflows/ci.yml` 跑 `npm ci` + `npm run typecheck`，并开启分支保护（required check = `typecheck`，不强制 review，`enforce_admins: false` 保留直推）。**刻意不跑 `next build`**：Payload 在 config 求值时读 `DATABASE_URI`，CI 跑 build 就得把生产库凭据放进 repository secrets；Vercel preview 本就跑完整 build 且未关类型检查，它唯一不做的是拦合并。闸门已端到端实测（绿→红→绿）。**未做**：eslint，97 个既有文件从零加 lint 应是独立 PR。 |
 | Media 读权限全开 | 🔴 高 | ✅ 已修复 (#19) | `Media.access.read` 是 `() => true`，匿名即可 `GET /api/media` 枚举整个媒体库（文件名、alt、mime、尺寸、CDN URL）。`purge-test-media.ts` 文件头早已点破，当时只清了图没堵口子。因 `media` 表为 0 条而潜伏，但填内容必然上传真实图片 —— 故排在内容之前修。改为 `Boolean(req.user)`。**边界要说清**：只堵匿名枚举清单，**不使文件私有** —— `disablePayloadAccessControl: true` 让图片走 Vercel Blob 公开 CDN，知道 URL 即可直取；要文件也私有须去掉该选项并牺牲 CDN。 |
 | 遗留测试媒体 | 🟢 低 | ✅ 已修复 (v1.9.2) | 经确认后清空：10 条 `test-image-N.jpg` media 记录（`GET /api/media` 现返回 `totalDocs: 0`）、`public/test-images/` 12 个文件、`public/media/` 里 commit 94dff63 留下的 30 个孤儿文件。`public/media/` 目录保留并加进 `.gitignore`。工具见 `scripts/purge-test-media.ts`（默认 dry run，删前反查引用）。 |
+| Tools 字段不支持多语言 | 🟡 中 | ✅ 已修复 (#31) | 与 Categories 同一个缺陷，**在隔壁集合里又犯了一次**，同样被空集合藏住 —— `Tools.name` / `.description` 是单列，用 `locale: 'zh'` 写第二个语言只是一次 UPDATE，直接把英文名覆盖掉。发现方式是把落沙工具建出来后，英文页标题显示成「落沙」。**还有另一半**：`/tools` 列表页、详情页、`generateMetadata` 三处查询压根没传 `locale`，所以即使字段本地化了也会回落到 defaultLocale（zh）—— Categories 当时没这问题，是因为那些页面本来就传了。两半都修掉。迁移沿用 categories 的加法两阶段，事务彩排后执行（batch 16）。 |
+| builtin 工具无法渲染 | 🟡 中 | ✅ 已修复 (#31) | `embedType` 的选项里有「内置页面」，但详情页只处理 `iframe` / `script`，选 builtin 落到 🚧 占位。同时 `isAutomation ? <VisaMonitorDashboard/>` 让**任意**自动化工具都渲染签证面板 —— 组件名就是那个工具的名字。两者都是声明与实现不一致，都因为 `tools` 长期为空而没被发现。改为按 slug 的组件注册表，未注册的 slug 仍落到占位（那是诚实的结果：记录在但页面没写）。 |
 | 静态渲染读请求头 | 🔴 高 | ✅ 已修复 (#26) | 发布首批文章后**每个详情页都 500**，`digest: DYNAMIC_SERVER_USAGE`。`[locale]/layout.tsx` 调 `getMessages()` 时不带 locale，next-intl 只能去读请求头 —— 而 `[locale]/blog/[slug]` 是全站唯一的静态路由（`revalidate = 3600`），其余页面都因读 `searchParams` 而是动态的，所以只有文章页中招。**潜伏原因是两层叠加**：线上 `blogs = 0` 让这条路由从没被渲染过；而 `next dev` 根本不做静态渲染 —— 同样 4 篇文章在 dev server 里 8 个页面全是 200，几分钟后在生产全是 500。与 #23 同一模式：空集合藏住了真实缺陷。修复是 `setRequestLocale(locale)`，**必须放在 layout 而非 page**（layout 先渲染，放 page 里来不及；先试过，无效）。验证方式是本地 `next build` + `next start`，dev server 做不到这件事。 |
 | 部署后无冒烟检查 | 🟡 中 | ✅ 已修复 (#27) | #26 暴露的闸门缺口：把每篇文章变成 500 的那个提交，`typecheck` 绿、`npm test` 绿、Vercel build 也绿 —— **因为报错发生在请求期而不是构建期**，CI 里没有任何一步真正去取一个页面。新增 `.github/workflows/smoke.yml`，在生产部署成功后打 12 条关键 URL（含两个语言的文章详情页，slug 从 `/api/blogs` 动态取）。刻意不接 pull_request：它需要一个已部署的 URL 和其后的生产库。**触发条件返工过两次**：初版写 `environment == 'Production'`，而 Vercel 实际发的是 `Production – jackdeng-hub`，于是每次部署都静默跳过（#28 改为 startsWith + endsWith）；随后删除重复项目 `jackdeng-hub-83t7`，环境名又退回裸 `Production` —— **那个后缀只在多项目并存时存在**，endsWith 随即失效（#30 改为只认前缀）。教训：判据要挑不随环境数量变化的部分。 |
 | 分类名不支持多语言 | 🟡 中 | ✅ 已修复 (#27) | `Categories.ts` 的 `name` / `description` 没有 `localized: true` —— 不是数据没填，是字段压根不支持多语言，于是中文站的侧边栏、面包屑、CategoryBadge、分类页标题全是 `Career & Thoughts` / `DevOps & Tools`。另有两处硬编码英文：分类页与标签页的 `<title>`、meta description 和 eyebrow 标签（`${cat.name} — Blog`、`Posts in the ... category.`、`Category` / `Tag`）。迁移 `20260922_000001_localize_categories` **刻意做成纯增量**，不像 `add_projects_localization` 那样 DROP 旧列 —— 丢列会造成一个无论什么顺序都有破损的窗口（先迁移则线上旧代码查一个已消失的列，先部署则新代码查一张还不存在的表）；保留旧列（并去掉 `NOT NULL` 让新建分类仍能 INSERT）使迁移可以在部署前安全执行，**零停机**。已在生产库用事务彩排后回滚，再正式执行。另外英文值写入 `en` 槽、中文写入 `zh` 槽，**不沿用 projects 迁移那种「全部塞进默认 locale」的做法** —— 那正是本站长期用 fallback 拿英文充中文的成因。**未做**：Tags 的 `name` 保持不本地化（NetSuite / PostgreSQL / Docker 是专有名词）。旧列已由 `20260922_000002` 清理（#29）—— 彩排验证过 up → down → up 往返，`down()` 能从 `en` 槽完整还原两列（零空值），否则整条链反向回滚会在 `000001` 的 `down()` 上撞到一个已不存在的列。丢列后另跑过一次写路径检查：新建分类、双语分别写入、读回、删除均正常。 |
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-09-22 (#30 冒烟触发条件改认前缀；#29 清理分类旧列；#28 修复冒烟检查从未触发；#27 分类名本地化与部署后冒烟检查；#26 静态渲染读请求头导致文章页全 500；首批 4 篇双语文章发布上线；#24 纯函数单元测试；#23 阅读时长两个 bug；#22 发文脚本与首批双语内容；#20 移除 next-auth；#19 Media 读权限收口；#18 CI 闸门与分支保护；#17 写库脚本生产守卫；#16 运维脚本 env 加载修复)*
+*最后更新：2026-09-22 (#31 落沙工具、builtin 注册表与 Tools 本地化；#30 冒烟触发条件改认前缀；#29 清理分类旧列；#28 修复冒烟检查从未触发；#27 分类名本地化与部署后冒烟检查；#26 静态渲染读请求头导致文章页全 500；首批 4 篇双语文章发布上线；#24 纯函数单元测试；#23 阅读时长两个 bug；#22 发文脚本与首批双语内容；#20 移除 next-auth；#19 Media 读权限收口；#18 CI 闸门与分支保护；#17 写库脚本生产守卫；#16 运维脚本 env 加载修复)*

@@ -54,6 +54,16 @@ jobs:
             echo "note: no published posts, skipping the detail-page checks"
           fi
 
+          # Same idea for tools. /api/tools only returns online + public ones to
+          # an anonymous caller, so this picks up whatever is actually listed
+          # rather than hardcoding a slug that a rename would silently break.
+          tool=$(curl -fsS "$BASE/api/tools?limit=1&depth=0" | sed -n 's/.*"slug":"\([^"]*\)".*/\1/p' | head -1)
+          if [ -n "$tool" ]; then
+            routes=$(printf '%s\n%s\n%s\n' "$routes" "/en/tools/$tool" "/zh/tools/$tool")
+          else
+            echo "note: no public tools, skipping the tool-page checks"
+          fi
+
           while IFS= read -r r; do
             [ -n "$r" ] || continue
             code=$(curl -s -o /dev/null -w '%{http_code}' -L "$BASE$r")

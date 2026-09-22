@@ -209,6 +209,19 @@
         "oldAppointment": "Previous appointment",
         "sessionCount": "Sessions run"
       }
+    },
+    "sand": {
+      "sand": "Sand",
+      "water": "Water",
+      "stone": "Stone",
+      "eraser": "Eraser",
+      "brush": "Brush",
+      "pause": "Pause",
+      "play": "Play",
+      "clear": "Clear",
+      "materialLabel": "Material",
+      "canvasLabel": "Falling sand simulation. Drag on the canvas to draw.",
+      "hint": "Drag to pour. Sand piles up, water levels off, and sand sinks through water. Stone stays put."
     }
   },
   "error": {

@@ -14,6 +14,7 @@ import * as migration_20260525_000001_add_projects_localization from './20260525
 import * as migration_20260922_000001_localize_categories from './20260922_000001_localize_categories';
 import * as migration_20260922_000002_drop_legacy_category_columns from './20260922_000002_drop_legacy_category_columns';
 import * as migration_20260922_000003_localize_tools from './20260922_000003_localize_tools';
+import * as migration_20260922_000004_drop_legacy_tool_columns from './20260922_000004_drop_legacy_tool_columns';
 
 export const migrations = [
   {
@@ -95,5 +96,10 @@ export const migrations = [
     up: migration_20260922_000003_localize_tools.up,
     down: migration_20260922_000003_localize_tools.down,
     name: '20260922_000003_localize_tools',
+  },
+  {
+    up: migration_20260922_000004_drop_legacy_tool_columns.up,
+    down: migration_20260922_000004_drop_legacy_tool_columns.down,
+    name: '20260922_000004_drop_legacy_tool_columns',
   },
 ];

@@ -14,8 +14,20 @@ on:
 jobs:
   smoke:
     name: smoke
-    # Only once the deployment is live, and only for production.
-    if: github.event_name == 'workflow_dispatch' || (github.event.deployment_status.state == 'success' && github.event.deployment_status.environment == 'Production')
+    # Only once the deployment is live, and only for the production
+    # deployment of the project that actually serves www.jackdeng.cc.
+    #
+    # Vercel does not send a bare "Production" as the environment name — it
+    # sends "Production <en dash> <project>", e.g. "Production – jackdeng-hub".
+    # An `== 'Production'` check therefore never matched and this job was
+    # silently skipped on every deploy, which is worse than not having it.
+    # endsWith also keeps the second Vercel project on this repo
+    # ("Production – jackdeng-hub-83t7") from running the same checks twice.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       startsWith(github.event.deployment_status.environment, 'Production') &&
+       endsWith(github.event.deployment_status.environment, 'jackdeng-hub'))
     runs-on: ubuntu-latest
     steps:
       - name: Fetch the routes a build cannot check

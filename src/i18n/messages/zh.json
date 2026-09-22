@@ -172,44 +172,6 @@
       "maintenance": "维护中",
       "offline": "离线"
     },
-    "dashboard": {
-      "verifying": "验证身份中…",
-      "privateNotice": "此工具为私有，需要登录后查看。",
-      "loadError": "运行记录加载失败，登录状态可能已过期，请重新登录。",
-      "refresh": "刷新",
-      "latestStatus": "最新状态",
-      "notableEvents": "重要事件",
-      "runLog": "运行记录（最近 50 条）",
-      "autoRefresh": "自动刷新 · 上次 {time}",
-      "loading": "加载中…",
-      "noRuns": "暂无运行记录。",
-      "runDetail": "运行详情",
-      "agoSeconds": "{n} 秒前",
-      "agoMinutes": "{n} 分钟前",
-      "agoHours": "{h} 小时 {m} 分前",
-      "runStatus": {
-        "running": "运行中",
-        "found": "找到名额 🎉",
-        "booked": "已改签 ✅",
-        "heartbeat": "心跳",
-        "error": "错误 ❌",
-        "exited": "已退出"
-      },
-      "meta": {
-        "consulate": "领事馆",
-        "earliestAvailable": "最早可用",
-        "currentAppointment": "当前预约",
-        "acceptableRange": "目标区间",
-        "totalSlots": "可用名额数",
-        "autoReschedule": "自动改签",
-        "availableDate": "找到日期",
-        "bookedDate": "改签日期",
-        "bookedTime": "改签时间",
-        "verifiedDate": "验证日期",
-        "oldAppointment": "原预约",
-        "sessionCount": "运行 Session 数"
-      }
-    },
     "sand": {
       "sand": "沙",
       "water": "水",

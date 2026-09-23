@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     default: 'Jack Deng',
     template: '%s — Jack Deng',
   },
-  description: 'Jack Deng — backend & full-stack engineer. Data platforms, integrations and internal tools.',
+  description: 'Jack Deng — full-stack engineer focused on backend and data. Data platforms, integrations and internal tools.',
   metadataBase: new URL(BASE),
   openGraph: {
     siteName: 'Jack Deng',

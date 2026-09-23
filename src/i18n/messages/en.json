@@ -40,7 +40,7 @@
     "tools": "Tools"
   },
   "home": {
-    "title": "Backend & Full-Stack Engineer",
+    "title": "Full-Stack Engineer · Backend & Data",
     "location": "Based in California",
     "intro": "I work on the backend and data side: pipelines, integrations and the internal tools people run their day on. At Value Windows & Doors I built a Databricks + dbt data platform from zero, along with the pipelines and portals around it.",
     "ctaResume": "Résumé (PDF)",
@@ -49,7 +49,7 @@
     "experienceMore": "Full background →",
     "skillsHeading": "Skills",
     "selectedProjects": "Selected Projects",
-    "metaDescription": "Jack Deng — backend & full-stack engineer. Data platforms, integrations and internal tools with Python, C#, SQL, Databricks and TypeScript.",
+    "metaDescription": "Jack Deng — full-stack engineer focused on backend and data. Data platforms, integrations and internal tools with Python, C#, SQL, Databricks and TypeScript.",
     "latestPosts": "Latest Posts",
     "projects": "Projects",
     "noProjectsYet": "Projects coming soon.",
@@ -114,7 +114,7 @@
   },
   "about": {
     "title": "Jack Deng",
-    "subtitle": "Backend & Full-Stack Engineer",
+    "subtitle": "Full-Stack Engineer · Backend & Data",
     "bio1": "Hi, I'm Jack — a Software Engineer based in California, focused on designing reliable enterprise data systems and full-stack applications. I bridge business operations and technical infrastructure through robust backend architectures and scalable data pipelines.",
     "bio2": "This site is my public workspace: engineering notes, integration patterns, and tools I build along the way. It runs on <nextjs>Next.js</nextjs> + <payload>Payload CMS</payload> with a <supabase>Supabase</supabase> PostgreSQL backend.",
     "bio3": "Outside of work I'm probably debugging a flow, reading systems-design docs, or figuring out why the ETL ran 3 seconds slower than yesterday.",

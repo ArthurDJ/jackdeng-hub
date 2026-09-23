@@ -1,4 +1,11 @@
-import type { CollectionConfig } from 'payload'
+import { APIError, type CollectionConfig } from 'payload'
+// Relative, not `@/` — this module is also loaded through the Payload CLI
+// (`payload migrate`) and the tsx scripts, which do not read tsconfig paths.
+import type { CommentRejection } from '../lib/commentSubmission'
+
+/** Anonymous submissions per IP per window. */
+const RATE_MAX = 5
+const RATE_WINDOW_MS = 60 * 60 * 1000
 
 export const Comments: CollectionConfig = {
   slug: 'comments',
@@ -17,8 +24,11 @@ export const Comments: CollectionConfig = {
     },
   },
   access: {
-    // Public can create (submit a comment)
-    create: () => true,
+    // Public submission goes through `POST /api/comments/submit`, which
+    // verifies Turnstile and then writes with `overrideAccess`. Leaving create
+    // open to anonymous callers is what made the widget optional: skipping the
+    // form and posting straight to `/api/comments` wrote a comment anyway.
+    create: ({ req }) => Boolean(req.user),
     // Only admins can read, update, delete
     read: ({ req }) => {
       if (req.user) return true
@@ -31,55 +41,46 @@ export const Comments: CollectionConfig = {
     delete: ({ req }) => Boolean(req.user),
   },
   hooks: {
-    beforeOperation: [
-      // ── IP Rate Limiting ──────────────────────────────────────────────────
-      async ({ operation, req, args }) => {
-        if (operation !== 'create') return args
-
-        const forwarded = req.headers?.get?.('x-forwarded-for')
-        const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown'
-
-        // Store ip for use in beforeChange
-        if (req.context) {
-          (req.context as Record<string, unknown>).clientIp = ip
-        }
-
-        return args
-      },
-    ],
     beforeChange: [
-      // ── Honeypot check ────────────────────────────────────────────────────
-      async ({ data, operation }) => {
-        if (operation !== 'create') return data
-
-        if (data.honeypot && data.honeypot.trim() !== '') {
-          throw new Error('Bot detected.')
-        }
-
-        return data
-      },
-
-      // ── Inject IP + set default status ───────────────────────────────────
+      // ── Anti-spam for anonymous submissions ───────────────────────────────
+      //
+      // This lives in the collection rather than in the route so that it covers
+      // every path into the table, including one a later change forgets about.
       async ({ data, req, operation }) => {
         if (operation !== 'create') return data
 
-        const ip = (req.context as Record<string, unknown> | undefined)?.clientIp ?? 'unknown'
+        // An authenticated create is the admin panel: no trap, no rate limit,
+        // and the author picks the status.
+        if (req.user) return data
 
-        // Check recent submission count for this IP (last 1 hour, max 5)
-        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
-        const recentCount = await req.payload.count({
+        // The message is a code, not a sentence: the submission route maps it
+        // to a translated string, so no English leaks to a Chinese visitor.
+        if (typeof data.honeypot === 'string' && data.honeypot.trim() !== '') {
+          throw new APIError('bot_detected' satisfies CommentRejection, 400)
+        }
+
+        // Supplied by the submission route from the header the platform sets.
+        // Deliberately not read from the request here: a header the submitter
+        // can write is a rate limit the submitter can reset.
+        const context = req.context as Record<string, unknown> | undefined
+        const ip = typeof context?.clientIp === 'string' && context.clientIp
+          ? context.clientIp
+          : 'unknown'
+
+        const windowStart = new Date(Date.now() - RATE_WINDOW_MS).toISOString()
+        const recent = await req.payload.count({
           collection: 'comments',
           where: {
             and: [
               { ip: { equals: ip } },
-              { createdAt: { greater_than: oneHourAgo } },
+              { createdAt: { greater_than: windowStart } },
             ],
           },
           overrideAccess: true,
         })
 
-        if (recentCount.totalDocs >= 5) {
-          throw new Error('Too many comments. Please wait before submitting again.')
+        if (recent.totalDocs >= RATE_MAX) {
+          throw new APIError('rate_limited' satisfies CommentRejection, 429)
         }
 
         return {
@@ -154,13 +155,21 @@ export const Comments: CollectionConfig = {
       },
     },
     {
+      // Deprecated, and no longer written to. The token is verified against
+      // Cloudflare during the submission and is single-use, so a stored copy
+      // is a spent one — it proves nothing after the fact. The column stays
+      // until a follow-up migration drops it, the same two-step used for the
+      // legacy category and tool columns (#29, #32).
       name: 'turnstileToken',
       type: 'text',
       label: { en: 'Turnstile Token', zh: 'Turnstile 令牌' },
       admin: {
         position: 'sidebar',
         readOnly: true,
-        description: { en: 'Cloudflare Turnstile verification token.', zh: 'Cloudflare Turnstile 验证令牌。' },
+        description: {
+          en: 'Deprecated. Verification now happens server-side during submission.',
+          zh: '已弃用。验证现在于提交时在服务端完成。',
+        },
       },
     },
 

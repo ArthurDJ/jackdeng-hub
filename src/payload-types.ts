@@ -190,7 +190,7 @@ export interface Comment {
    */
   ip?: string | null;
   /**
-   * Cloudflare Turnstile verification token.
+   * Deprecated. Verification now happens server-side during submission.
    */
   turnstileToken?: string | null;
   honeypot?: string | null;

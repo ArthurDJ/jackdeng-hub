@@ -70,6 +70,30 @@ export function CommentForm({ postId }: Props) {
     }
   }, [siteKey])
 
+  // The server answers with a code rather than a sentence, so the visitor's
+  // language is chosen here instead of in the route.
+  const messageForCode = (code: unknown): string => {
+    switch (code) {
+      case 'invalid_name':     return t('commentErrorName')
+      case 'invalid_email':    return t('commentErrorEmail')
+      case 'invalid_content':  return t('commentErrorContent')
+      case 'turnstile_failed': return t('commentErrorSecurity')
+      case 'rate_limited':     return t('commentErrorRateLimited')
+      case 'unavailable':      return t('commentErrorUnavailable')
+      default:                 return tCommon('errorSomething')
+    }
+  }
+
+  // A Turnstile token is single-use, so a spent one has to be cleared on the
+  // way out of *either* branch — otherwise a retry replays a token Cloudflare
+  // has already rejected and the form can never recover.
+  const resetChallenge = () => {
+    turnstileToken.current = null
+    if (widgetIdRef.current && window.turnstile) {
+      window.turnstile.reset(widgetIdRef.current)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setState('submitting')
@@ -79,21 +103,16 @@ export function CommentForm({ postId }: Props) {
     const honeypot = (form.elements.namedItem('_trap') as HTMLInputElement)?.value
 
     try {
-      // 1. Verify Turnstile (skip in dev)
-      if (siteKey && siteKey !== 'dev') {
-        if (!turnstileToken.current) {
-          throw new Error('Please complete the security check.')
-        }
-        const verifyRes = await fetch('/api/verify-turnstile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: turnstileToken.current }),
-        })
-        if (!verifyRes.ok) throw new Error('Security check failed. Please try again.')
+      // Catching an unsolved challenge here saves a round trip, but it is not
+      // the check that matters: the token is verified inside the write, so a
+      // caller that skips this form is challenged all the same. The old flow
+      // asked /api/verify-turnstile first and then posted to /api/comments,
+      // which meant skipping the first request skipped the challenge.
+      if (siteKey && siteKey !== 'dev' && !turnstileToken.current) {
+        throw new Error(t('commentErrorSecurity'))
       }
 
-      // 2. Submit to Payload
-      const res = await fetch('/api/comments', {
+      const res = await fetch('/api/comments/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -107,18 +126,15 @@ export function CommentForm({ postId }: Props) {
       })
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data?.errors?.[0]?.message ?? 'Submission failed. Please try again.')
+        const data = await res.json().catch(() => null)
+        throw new Error(messageForCode(data?.error))
       }
 
       setState('success')
       setName('')
       setEmail('')
       setContent('')
-      turnstileToken.current = null
-      if (widgetIdRef.current && window.turnstile) {
-        window.turnstile.reset(widgetIdRef.current)
-      }
+      resetChallenge()
     } catch (err) {
       const msg = err instanceof Error ? err.message : tCommon('errorSomething')
       setState('error')
@@ -126,6 +142,9 @@ export function CommentForm({ postId }: Props) {
       // The inline line below sits under a long form and is easy to scroll
       // past; the toast makes a failed submit impossible to miss.
       toast.error(msg)
+      // Hand back a fresh challenge. Whatever went wrong, the token that went
+      // with the request is spent, and retrying with it fails every time.
+      resetChallenge()
     }
   }
 

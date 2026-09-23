@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
-import { getPayload, orEmpty } from '@/lib/payload'
+import { getPayload } from '@/lib/payload'
 import { BlogCard } from '@/components/BlogCard'
 import { Pagination } from '@/components/Pagination'
 import { Sidebar } from '@/components/Sidebar'
@@ -42,8 +42,10 @@ export default async function BlogListPage({ params, searchParams }: Props) {
 
   const payload = await getPayload()
 
+  // No fallbacks, sidebar included: blog/[slug] already lets buildSidebarData
+  // throw, and an empty sidebar is still a broken page served as a 200.
   const [blogsResult, sidebar] = await Promise.all([
-    orEmpty(payload.find({
+    payload.find({
       collection: 'blogs',
       where: { status: { equals: 'published' } },
       sort: '-publishedAt',
@@ -51,8 +53,8 @@ export default async function BlogListPage({ params, searchParams }: Props) {
       limit: POSTS_PER_PAGE,
       page,
       locale: asLocale(locale),
-    })),
-    buildSidebarData({ locale: asLocale(locale) }).catch(() => ({})),
+    }),
+    buildSidebarData({ locale: asLocale(locale) }),
   ])
 
   const blogs = blogsResult.docs

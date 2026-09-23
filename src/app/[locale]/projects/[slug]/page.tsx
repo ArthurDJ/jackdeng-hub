@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { cache } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -7,16 +8,37 @@ import { getPayload } from '@/lib/payload'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
 import { Navbar } from '@/components/Navbar'
 
-// Dynamic rendering — projects are updated via admin without redeploy
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+// ISR, same as blog/[slug]. This page was force-dynamic from v1.3.1 until
+// now; the DYNAMIC_SERVER_USAGE 500 that prompted it was the layout reading
+// request headers (fixed by setRequestLocale in #26), not the build-time
+// path list. Admin edits show up within the revalidate window.
+export const revalidate = 3600
 
 type Props = { params: Promise<{ slug: string; locale: string }> }
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug, locale } = await params
+export async function generateStaticParams() {
+  const payload = await getPayload()
+  const { docs } = await payload.find({
+    collection: 'projects',
+    limit: 1000,
+    depth: 0,
+  })
+
+  const paths = []
+  for (const doc of docs as any[]) {
+    if (!doc.slug) continue
+    for (const locale of ['en', 'zh']) {
+      paths.push({ locale, slug: doc.slug })
+    }
+  }
+  return paths
+}
+
+// generateMetadata and the page both need the project; cache() makes that
+// one query per render instead of two.
+const getProject = cache(async (slug: string, locale: string) => {
   const payload = await getPayload()
   const { docs } = await payload.find({
     collection: 'projects',
@@ -25,7 +47,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     limit: 1,
     locale: locale as any,
   })
-  const project = docs[0] as any
+  return (docs[0] as any) ?? null
+})
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug, locale } = await params
+  const project = await getProject(slug, locale)
   if (!project) return { title: 'Not Found' }
 
   const title = project.name
@@ -57,17 +84,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectDetailPage({ params }: Props) {
   const { slug, locale } = await params
-  const payload = await getPayload()
-
-  const { docs } = await payload.find({
-    collection: 'projects',
-    where: { slug: { equals: slug } },
-    depth: 1,
-    limit: 1,
-    locale: locale as any,
-  })
-
-  const project = docs[0] as any
+  const project = await getProject(slug, locale)
   if (!project) notFound()
 
   const t = await getTranslations({ locale, namespace: 'projects' })
@@ -90,6 +107,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   const sc = statusColors[project.status] ?? statusColors['active']
 
   // Other projects (exclude current)
+  const payload = await getPayload()
   const { docs: otherProjects } = await payload.find({
     collection: 'projects',
     where: { slug: { not_equals: slug } },

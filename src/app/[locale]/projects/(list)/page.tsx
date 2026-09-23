@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { getPayload, orEmpty } from '@/lib/payload'
+import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
 import { asLocale } from '@/i18n/routing'
 
@@ -30,13 +30,13 @@ export default async function ProjectsPage({ params }: Props) {
   const tHome = await getTranslations({ locale, namespace: 'home' })
 
   const payload = await getPayload()
-  const { docs: projects } = await orEmpty(payload.find({
+  const { docs: projects } = await payload.find({
     collection: 'projects',
     sort: '-createdAt',
     depth: 1,
     limit: 100,
     locale: asLocale(locale),
-  }))
+  })
 
   const statusColors: Record<string, { bg: string; text: string; border: string }> = {
     active:    { bg: 'rgba(16,185,129,0.10)', text: '#10b981', border: 'rgba(16,185,129,0.20)' },

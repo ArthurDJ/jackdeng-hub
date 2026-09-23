@@ -64,14 +64,24 @@ jobs:
             echo "note: no public tools, skipping the tool-page checks"
           fi
 
+          # A 200 is not enough on its own. /blog and /projects sit under a
+          # loading.tsx, so the status is committed before the page renders
+          # (#34), and a query that throws there still goes out as a 200 with
+          # error.tsx streamed in. Next marks that in the HTML as a numeric
+          # data-dgst; the non-numeric ones (BAILOUT_TO_CLIENT_SIDE_RENDERING)
+          # are normal.
+          body=$(mktemp)
           while IFS= read -r r; do
             [ -n "$r" ] || continue
-            code=$(curl -s -o /dev/null -w '%{http_code}' -L "$BASE$r")
-            if [ "$code" = "200" ]; then
-              echo "ok   $code  $r"
-            else
+            code=$(curl -s -o "$body" -w '%{http_code}' -L "$BASE$r")
+            if [ "$code" != "200" ]; then
               echo "FAIL $code  $r"
               fail=1
+            elif grep -qE 'data-dgst="[0-9]+"' "$body"; then
+              echo "FAIL $code  $r  (server error rendered under a 200)"
+              fail=1
+            else
+              echo "ok   $code  $r"
             fi
           done <<< "$routes"
 

@@ -11,15 +11,20 @@ import config from '../payload.config'
 export const getPayload = async () => _getPayload({ config })
 
 /**
- * Run a find() and render it as empty if it throws. This is the behaviour the
- * pages already had, spelled `.catch(() => ({ docs: [] }))` at each call site —
- * moved here because with `strict: false` that literal `[]` is `any[]`, and
- * the union with the real result turned every document on the page into
- * `any`. Inside a generic function the fallback is typed as `T[]`.
+ * Run a find() for an optional section of a page and render that section as
+ * empty if the query fails, logging why. Generic so the fallback is typed as
+ * `T[]`: with `strict: false` an inline `.catch(() => ({ docs: [] }))` is
+ * `any[]`, and the union with the real result turns every document into `any`.
  *
- * Kept as-is, not endorsed: on an ISR page a transient database error is
- * served, and cached, as an empty list with a 200.
+ * Only for content the page is still correct without, such as related posts.
+ * A page's main list must not use this. Let it throw: during ISR revalidation
+ * a throw keeps the last good version cached, whereas an empty list is served
+ * as a 200 and cached for the whole revalidate window. On a cold render the
+ * throw reaches error.tsx.
  */
-export function orEmpty<T>(query: Promise<PaginatedDocs<T>>): Promise<{ docs: T[]; totalPages: number }> {
-  return query.catch(() => ({ docs: [], totalPages: 1 }))
+export function orEmpty<T>(query: Promise<PaginatedDocs<T>>, context: string): Promise<{ docs: T[] }> {
+  return query.catch((err: unknown) => {
+    console.error(`[orEmpty] ${context}: query failed, rendering the section empty`, err)
+    return { docs: [] }
+  })
 }

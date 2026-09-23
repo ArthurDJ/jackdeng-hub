@@ -5,7 +5,7 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { BlogCard } from '@/components/BlogCard'
 import { HomeProjectCard } from '@/components/HomeProjectCard'
-import { getPayload, orEmpty } from '@/lib/payload'
+import { getPayload } from '@/lib/payload'
 import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
 
@@ -99,25 +99,25 @@ export default async function HomePage({ params }: Props) {
 
   const payload = await getPayload()
 
-  // blogs_locales table may not exist yet (run: npx payload migrate)
-  // Fall back to empty array rather than crashing the page
+  // No fallback: a failed query should reach error.tsx, not render as a home
+  // page with no posts and no projects and a 200.
   const [blogsResult, projectsResult] = await Promise.all([
-    orEmpty(payload.find({
+    payload.find({
       collection: 'blogs',
       where: { status: { equals: 'published' } },
       sort: '-publishedAt',
       depth: 1,
       limit: 3,
       locale: asLocale(locale),
-    })),
-    orEmpty(payload.find({
+    }),
+    payload.find({
       collection: 'projects',
       where: { isPinned: { equals: true } },
       sort: '-createdAt',
       depth: 1,
       limit: 4,
       locale: asLocale(locale),
-    })),
+    }),
   ])
 
   const blogs = blogsResult.docs

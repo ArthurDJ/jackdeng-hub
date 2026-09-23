@@ -96,7 +96,8 @@
     "readIn": "以 {lang} 阅读",
     "pagination": {
       "previous": "← 上一页",
-      "next": "下一页 →"
+      "next": "下一页 →",
+      "page": "第 {page} 页"
     },
     "share": "分享",
     "copyLink": "复制链接",

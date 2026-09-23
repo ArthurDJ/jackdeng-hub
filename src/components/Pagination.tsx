@@ -1,5 +1,6 @@
 import { Link } from '@/i18n/navigation'
 import { getLocale, getTranslations } from 'next-intl/server'
+import { pageHref } from '@/lib/pagination'
 
 interface PaginationProps {
   page: number
@@ -25,7 +26,7 @@ export async function Pagination({ page, totalPages, basePath }: PaginationProps
   const locale = await getLocale()
   const t = await getTranslations({ locale, namespace: 'blog' })
   const pageItems = getPageItems(page, totalPages)
-  const href = (p: number) => (p === 1 ? basePath : `${basePath}?page=${p}`)
+  const href = (p: number) => pageHref(basePath, p)
 
   return (
     <nav

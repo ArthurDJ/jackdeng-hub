@@ -156,7 +156,7 @@ export async function Sidebar({ categories = [], tags = [], recentPosts = [], ar
             {archives.map((entry) => (
               <li key={`${entry.year}-${entry.month}`}>
                 <Link
-                  href={`/blog/archive?year=${entry.year}&month=${entry.month}`}
+                  href={`/blog/archive#${entry.year}-${entry.month}`}
                   style={{
                     display: 'flex',
                     alignItems: 'center',

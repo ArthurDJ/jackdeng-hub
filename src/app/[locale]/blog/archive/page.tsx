@@ -48,6 +48,9 @@ export default async function ArchivePage({ params, searchParams }: Props) {
     sort: '-publishedAt',
     depth: 0,
     limit: 1000,
+    // Without this Payload falls back to its defaultLocale, zh, and the English
+    // archive listed every post under its Chinese title.
+    locale: asLocale(locale),
   })
 
   const sidebar = await buildSidebarData({ locale: asLocale(locale) })

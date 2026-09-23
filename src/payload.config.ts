@@ -88,6 +88,13 @@ export const config = buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
+    // Schema changes go through migrations only. Payload's default is to push
+    // the collection schema straight into the database whenever it starts
+    // outside production — and .env.local points at the production database,
+    // so every `npm run dev` or tsx script was a live DDL run against prod.
+    // That is how prod drifted from the migrations (enum columns the
+    // migrations create as varchar, a dropped index, an extra NOT NULL).
+    push: false,
   }),
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [

@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { getPayload } from '@/lib/payload'
+import { getPayload, orEmpty } from '@/lib/payload'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
 import { Navbar } from '@/components/Navbar'
 
@@ -106,16 +106,17 @@ export default async function ProjectDetailPage({ params }: Props) {
   }
   const sc = statusColors[project.status] ?? statusColors['active']
 
-  // Other projects (exclude current)
+  // Other projects (exclude current). Optional: the page is still worth
+  // serving without them.
   const payload = await getPayload()
-  const { docs: otherProjects } = await payload.find({
+  const { docs: otherProjects } = await orEmpty(payload.find({
     collection: 'projects',
     where: { slug: { not_equals: slug } },
     sort: '-createdAt',
     depth: 1,
     limit: 3,
     locale: locale as any,
-  }).catch(() => ({ docs: [] }))
+  }), `other projects for projects/${slug} (${locale})`)
 
   // JSON-LD
   const jsonLd = {
@@ -272,13 +273,13 @@ export default async function ProjectDetailPage({ params }: Props) {
         </div>
 
         {/* Other projects */}
-        {(otherProjects as any[]).length > 0 && (
+        {otherProjects.length > 0 && (
           <section style={{ marginTop: '4rem' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
               {t('relatedProjects')}
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
-              {(otherProjects as any[]).filter(p => p.slug).map((other) => {
+              {otherProjects.filter(p => p.slug).map((other) => {
                 const oSc = statusColors[other.status] ?? statusColors['active']
                 const oTech: string[] = (other.techStack ?? []).map((t: any) => t.tech).filter(Boolean)
                 return (

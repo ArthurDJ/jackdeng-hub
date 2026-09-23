@@ -100,6 +100,8 @@
     "share": "Share",
     "copyLink": "Copy link",
     "copied": "Copied!",
+    "relatedPosts": "Related Posts",
+    "tableOfContents": "On This Page",
     "categoryEyebrow": "Category",
     "categoryMetaTitle": "{name} — Blog",
     "categoryMetaDescription": "Posts in the {name} category.",

@@ -126,7 +126,7 @@
     "ctaBlogNote": "或者看看我最近在<link>写什么 →</link>。"
   },
   "search": {
-    "inputPlaceholder": "搜索文章、分类、标签…",
+    "inputPlaceholder": "搜索文章、项目、工具…",
     "keyNavigate": "导航",
     "keyOpen": "打开",
     "keyClose": "关闭",
@@ -134,7 +134,15 @@
     "typePost": "文章",
     "typeCategory": "分类",
     "typeTag": "标签",
-    "typePage": "页面"
+    "typePage": "页面",
+    "typeTool": "工具",
+    "typeProject": "项目",
+    "pageHome": "首页",
+    "pageHomeDesc": "回到首页",
+    "pageBlogDesc": "全部文章",
+    "pageProjectsDesc": "做过的东西",
+    "pageToolsDesc": "在浏览器里跑的小工具",
+    "pageAboutDesc": "关于我"
   },
   "footer": {
     "builtWith": "基于 Next.js + Payload CMS 构建。"

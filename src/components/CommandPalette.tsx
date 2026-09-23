@@ -1,20 +1,19 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
+// The next-intl router, not next/navigation's: hrefs here are locale-less and
+// this one adds the current prefix. The plain router sent `/blog/x` through the
+// middleware for a 307, and the locale it redirected to came from the
+// NEXT_LOCALE cookie — or, with cookies blocked, from Accept-Language.
+import { useRouter } from '@/i18n/navigation'
+import type { SearchResult, SearchType } from '@/lib/search'
 import { useCommandPaletteStore } from '@/store/commandPaletteStore'
 import { useCommandPalette } from '@/hooks/useCommandPalette'
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-type ResultItem = {
-  id: string
-  type: 'post' | 'category' | 'tag' | 'page'
-  label: string
-  description?: string
-  href: string
-}
+type ResultItem = Omit<SearchResult, 'type'> & { type: SearchType | 'page' }
 
 // ─── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -48,6 +47,22 @@ function IconTag() {
   )
 }
 
+function IconTool() {
+  return (
+    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+    </svg>
+  )
+}
+
+function IconProject() {
+  return (
+    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+    </svg>
+  )
+}
+
 function IconPage() {
   return (
     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -62,6 +77,8 @@ function typeIcon(type: ResultItem['type']) {
     case 'post':     return <IconPost />
     case 'category': return <IconCategory />
     case 'tag':      return <IconTag />
+    case 'tool':     return <IconTool />
+    case 'project':  return <IconProject />
     default:         return <IconPage />
   }
 }
@@ -72,64 +89,26 @@ function typeAccentStyle(type: ResultItem['type']): React.CSSProperties {
     case 'post':     return { color: 'var(--accent-primary)' }
     case 'category': return { color: '#a78bfa' }  // purple-400 equivalent
     case 'tag':      return { color: 'var(--status-success)' }
+    case 'tool':     return { color: 'var(--status-warning)' }
+    case 'project':  return { color: 'var(--status-info)' }
     default:         return { color: 'var(--text-tertiary)' }
   }
 }
 
 // ─── Search fetch ───────────────────────────────────────────────────────────────
 
-async function fetchResults(query: string, locale: string): Promise<ResultItem[]> {
-  if (!query.trim()) return []
-
-  const q = encodeURIComponent(query)
-
-  try {
-    const [postsRes, categoriesRes, tagsRes] = await Promise.all([
-      fetch(`/api/blogs?where[or][0][title][like]=${q}&where[or][1][excerpt][like]=${q}&where[status][equals]=published&locale=${locale}&limit=5`),
-      fetch(`/api/categories?where[name][like]=${q}&limit=5`),
-      fetch(`/api/tags?where[name][like]=${q}&limit=5`),
-    ])
-
-    const [posts, categories, tags] = await Promise.all([
-      postsRes.ok ? postsRes.json() : { docs: [] },
-      categoriesRes.ok ? categoriesRes.json() : { docs: [] },
-      tagsRes.ok ? tagsRes.json() : { docs: [] },
-    ])
-
-    const results: ResultItem[] = []
-
-    for (const post of posts.docs ?? []) {
-      results.push({
-        id: `post-${post.id}`,
-        type: 'post',
-        label: post.title,
-        description: post.excerpt ?? '',
-        href: `/blog/${post.slug}`,
-      })
-    }
-    for (const cat of categories.docs ?? []) {
-      results.push({
-        id: `cat-${cat.id}`,
-        type: 'category',
-        label: cat.name,
-        description: cat.description ?? 'Category',
-        href: `/blog/category/${cat.slug}`,
-      })
-    }
-    for (const tag of tags.docs ?? []) {
-      results.push({
-        id: `tag-${tag.id}`,
-        type: 'tag',
-        label: tag.name,
-        description: tag.description ?? 'Tag',
-        href: `/blog/tag/${tag.slug}`,
-      })
-    }
-
-    return results
-  } catch {
-    return []
-  }
+// One request to our own route (src/app/api/search), which answers from a cached
+// index. This used to be three Payload REST calls straight from the browser,
+// matching titles and excerpts only; categories and tags were queried without a
+// locale, so Payload fell back to zh and English queries missed them.
+async function fetchResults(query: string, locale: string, signal: AbortSignal): Promise<ResultItem[]> {
+  const res = await fetch(
+    `/api/search?q=${encodeURIComponent(query)}&locale=${encodeURIComponent(locale)}`,
+    { signal },
+  )
+  if (!res.ok) return []
+  const data = await res.json()
+  return data.results ?? []
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────────
@@ -144,12 +123,23 @@ export function CommandPalette() {
   const t = useTranslations('search')
   const tNav = useTranslations('nav')
 
-  // Static pages use i18n labels
   const staticPages: ResultItem[] = [
-    { id: 'home',  type: 'page', label: 'Home',        description: 'Back to homepage', href: '/' },
-    { id: 'blog',  type: 'page', label: tNav('blog'),   description: 'All posts',        href: '/blog' },
-    { id: 'about', type: 'page', label: tNav('about'),  description: 'About me',         href: '/about' },
+    { id: 'home',     type: 'page', label: t('pageHome'),       description: t('pageHomeDesc'),     href: '/' },
+    { id: 'blog',     type: 'page', label: tNav('blog'),        description: t('pageBlogDesc'),     href: '/blog' },
+    { id: 'projects', type: 'page', label: tNav('projects'),    description: t('pageProjectsDesc'), href: '/projects' },
+    { id: 'tools',    type: 'page', label: tNav('tools'),       description: t('pageToolsDesc'),    href: '/tools' },
+    { id: 'about',    type: 'page', label: tNav('about'),       description: t('pageAboutDesc'),    href: '/about' },
   ]
+
+  // Static map — next-intl keys must stay statically analysable (no t('type' + x))
+  const TYPE_LABEL: Record<ResultItem['type'], string> = {
+    post: t('typePost'),
+    category: t('typeCategory'),
+    tag: t('typeTag'),
+    tool: t('typeTool'),
+    project: t('typeProject'),
+    page: t('typePage'),
+  }
 
   const [query, setQuery]         = useState('')
   const [results, setResults]     = useState<ResultItem[]>([])
@@ -159,6 +149,7 @@ export function CommandPalette() {
   const inputRef    = useRef<HTMLInputElement>(null)
   const listRef     = useRef<HTMLUListElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const abortRef    = useRef<AbortController | null>(null)
 
   // Focus input when opened
   useEffect(() => {
@@ -170,9 +161,11 @@ export function CommandPalette() {
     }
   }, [isOpen])
 
-  // Debounced search
+  // Debounced search. Each new query aborts the one in flight, so a slow
+  // response for "po" cannot land after, and overwrite, the one for "postgres".
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
+    abortRef.current?.abort()
 
     if (!query.trim()) {
       setResults([])
@@ -182,14 +175,23 @@ export function CommandPalette() {
 
     setLoading(true)
     debounceRef.current = setTimeout(async () => {
-      const res = await fetchResults(query, locale)
-      setResults(res)
-      setActiveIdx(0)
-      setLoading(false)
+      const controller = new AbortController()
+      abortRef.current = controller
+      try {
+        const res = await fetchResults(query, locale, controller.signal)
+        setResults(res)
+        setActiveIdx(0)
+        setLoading(false)
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') return
+        setResults([])
+        setLoading(false)
+      }
     }, 280)
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
+      abortRef.current?.abort()
     }
   }, [query, locale])
 
@@ -321,10 +323,7 @@ export function CommandPalette() {
                 )}
               </div>
               <span className="text-[10px] shrink-0 capitalize" style={{ color: 'var(--text-tertiary)' }}>
-                {item.type === 'post'     ? t('typePost') :
-                 item.type === 'category' ? t('typeCategory') :
-                 item.type === 'tag'      ? t('typeTag') :
-                                            t('typePage')}
+                {TYPE_LABEL[item.type]}
               </span>
             </li>
           ))}

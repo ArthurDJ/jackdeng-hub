@@ -126,7 +126,7 @@
     "ctaBlogNote": "Or read what I've been <link>writing lately →</link>."
   },
   "search": {
-    "inputPlaceholder": "Search posts, categories, tags…",
+    "inputPlaceholder": "Search posts, projects, tools…",
     "keyNavigate": "navigate",
     "keyOpen": "open",
     "keyClose": "close",
@@ -134,7 +134,15 @@
     "typePost": "post",
     "typeCategory": "category",
     "typeTag": "tag",
-    "typePage": "page"
+    "typePage": "page",
+    "typeTool": "tool",
+    "typeProject": "project",
+    "pageHome": "Home",
+    "pageHomeDesc": "Back to homepage",
+    "pageBlogDesc": "All posts",
+    "pageProjectsDesc": "Things I have built",
+    "pageToolsDesc": "Small tools that run in the browser",
+    "pageAboutDesc": "About me"
   },
   "footer": {
     "builtWith": "Built with Next.js + Payload CMS."

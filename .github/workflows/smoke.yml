@@ -114,3 +114,58 @@ jobs:
           done <<< "$missing"
 
           exit $fail
+
+      # Every internal link on every page in the sitemap, without following
+      # redirects. The step above only fetches a fixed list of URLs with -L,
+      # so it never looked at the links a visitor actually clicks: the home
+      # page's project cards pointed at /en/en/projects/… and 404'd in
+      # production for months, and most blog links were bare /blog/… paths
+      # that each cost a 307 through the locale middleware. Fails on a doubled
+      # prefix, a missing prefix, or a target that does not answer 200.
+      - name: Every internal link resolves without a redirect
+        env:
+          BASE: https://www.jackdeng.cc
+        run: |
+          python3 - <<'PY'
+          import os, re, sys, urllib.request, urllib.error
+
+          base = os.environ['BASE']
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, *args, **kwargs):
+                  return None
+          opener = urllib.request.build_opener(NoRedirect)
+
+          def get(path):
+              try:
+                  with opener.open(base + path, timeout=30) as r:
+                      return r.status, r.read().decode('utf-8', 'replace')
+              except urllib.error.HTTPError as e:
+                  return e.code, ''
+
+          _, sitemap = get('/sitemap.xml')
+          pages = sorted({re.sub(r'^https?://[^/]+', '', u) for u in re.findall(r'<loc>([^<]+)</loc>', sitemap)})
+          skip = ('/_next', '/api', '/admin', '/og', '/icon', '/apple-icon', '/favicon')
+          links = {}
+          for page in pages:
+              _, html = get(page)
+              for href in set(re.findall(r'href="(/[^"#?]*)', html)):
+                  if href.startswith(skip) or '.' in href.rsplit('/', 1)[-1]:
+                      continue
+                  links.setdefault(href, page)
+
+          fail = 0
+          for href, page in sorted(links.items()):
+              if re.match(r'^/(en|zh)/(en|zh)(/|$)', href):
+                  why = 'locale prefix doubled'
+              elif not re.match(r'^/(en|zh)(/|$)', href):
+                  why = 'no locale prefix: every click is a 307 through the middleware'
+              else:
+                  code, _ = get(href)
+                  why = None if code == 200 else f'answers {code}'
+              if why:
+                  print(f'FAIL {href}  (linked from {page}) — {why}')
+                  fail = 1
+          print(f'{len(pages)} pages, {len(links)} distinct internal links, {"FAIL" if fail else "all ok"}')
+          sys.exit(fail)
+          PY

@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import Link from 'next/link'
+// next-intl's Link, which adds the current locale to these locale-less hrefs.
+// next/link left them bare, so every click cost a 307 through the middleware
+// (and, with cookies blocked, landed in whichever locale the browser preferred).
+import { Link } from '@/i18n/navigation'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { getPayload, orEmpty } from '@/lib/payload'
@@ -264,7 +267,10 @@ export default async function BlogDetailPage({ params }: Props) {
                   {t('minRead', { count: readMins })}
                 </span>
                 <Link
-                  href={locale === 'en' ? `/zh/blog/${slug}` : `/en/blog/${slug}`}
+                  // The other locale's copy of this post. next-intl prefixes hrefs itself,
+                  // so the target locale goes in `locale`, not in the path.
+                  href={`/blog/${slug}`}
+                  locale={locale === 'en' ? 'zh' : 'en'}
                   style={{
                     fontSize: 12,
                     padding: '2px 8px',

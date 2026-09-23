@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
 import { cache } from 'react'
+import { asLocale } from '@/i18n/routing'
+import { populated } from '@/lib/relations'
+import type { Project } from '@/payload-types'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -27,7 +30,7 @@ export async function generateStaticParams() {
   })
 
   const paths = []
-  for (const doc of docs as any[]) {
+  for (const doc of docs) {
     if (!doc.slug) continue
     for (const locale of ['en', 'zh']) {
       paths.push({ locale, slug: doc.slug })
@@ -38,16 +41,16 @@ export async function generateStaticParams() {
 
 // generateMetadata and the page both need the project; cache() makes that
 // one query per render instead of two.
-const getProject = cache(async (slug: string, locale: string) => {
+const getProject = cache(async (slug: string, locale: string): Promise<Project | null> => {
   const payload = await getPayload()
   const { docs } = await payload.find({
     collection: 'projects',
     where: { slug: { equals: slug } },
     depth: 1,
     limit: 1,
-    locale: locale as any,
+    locale: asLocale(locale),
   })
-  return (docs[0] as any) ?? null
+  return docs[0] ?? null
 })
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -57,7 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = project.name
   const description = project.shortDescription
-  const coverUrl = (project.coverImage as any)?.url
+  const coverUrl = populated(project.coverImage)?.url
   const ogImage = coverUrl ?? `${BASE}/og?title=${encodeURIComponent(title)}&type=project`
 
   return {
@@ -90,9 +93,9 @@ export default async function ProjectDetailPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'projects' })
   const tHome = await getTranslations({ locale, namespace: 'home' })
 
-  const techStack: string[] = (project.techStack ?? []).map((t: any) => t.tech).filter(Boolean)
-  const coverUrl: string | null = (project.coverImage as any)?.url ?? null
-  const logoUrl: string | null = (project.logo as any)?.url ?? null
+  const techStack: string[] = (project.techStack ?? []).map((t) => t.tech).filter(Boolean)
+  const coverUrl: string | null = populated(project.coverImage)?.url ?? null
+  const logoUrl: string | null = populated(project.logo)?.url ?? null
 
   const statusColors: Record<string, { bg: string; text: string; border: string }> = {
     active:    { bg: 'rgba(16,185,129,0.10)', text: '#10b981', border: 'rgba(16,185,129,0.20)' },

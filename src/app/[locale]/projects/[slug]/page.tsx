@@ -118,7 +118,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     sort: '-createdAt',
     depth: 1,
     limit: 3,
-    locale: locale as any,
+    locale: asLocale(locale),
   }), `other projects for projects/${slug} (${locale})`)
 
   // JSON-LD
@@ -284,7 +284,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
               {otherProjects.filter(p => p.slug).map((other) => {
                 const oSc = statusColors[other.status] ?? statusColors['active']
-                const oTech: string[] = (other.techStack ?? []).map((t: any) => t.tech).filter(Boolean)
+                const oTech: string[] = (other.techStack ?? []).map((t) => t.tech).filter(Boolean)
                 return (
                   <Link
                     key={other.id}

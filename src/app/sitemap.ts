@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { getPayload, orEmpty } from '@/lib/payload'
+import { getPayload } from '@/lib/payload'
 
 export const revalidate = 86400 // regenerate once per day
 
@@ -28,36 +28,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const payload = await getPayload()
 
   // ── Fetch all published blogs, categories, tags, projects, tools in parallel ──
+  // No fallbacks. An empty result would drop every URL of that type from the
+  // sitemap for a day (revalidate = 86400); a throw keeps yesterday's version.
   const [blogsResult, categoriesResult, tagsResult, projectsResult, toolsResult] = await Promise.all([
-    orEmpty(payload.find({
+    payload.find({
       collection: 'blogs',
       where: { status: { equals: 'published' } },
       sort: '-publishedAt',
       depth: 0,
       limit: 200,
       select: { slug: true, publishedAt: true, updatedAt: true },
-    })),
-    orEmpty(payload.find({
+    }),
+    payload.find({
       collection: 'categories',
       depth: 0,
       limit: 200,
       select: { slug: true },
-    })),
-    orEmpty(payload.find({
+    }),
+    payload.find({
       collection: 'tags',
       depth: 0,
       limit: 500,
       select: { slug: true },
-    })),
-    orEmpty(payload.find({
+    }),
+    payload.find({
       collection: 'projects',
       depth: 0,
       limit: 200,
       select: { slug: true, updatedAt: true },
-    })),
+    }),
     // Only tools the public list page actually renders — same filter as
     // [locale]/tools/page.tsx, so the sitemap never advertises a 404.
-    orEmpty(payload.find({
+    payload.find({
       collection: 'tools',
       where: {
         and: [
@@ -69,7 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       depth: 0,
       limit: 100,
       select: { slug: true, updatedAt: true },
-    })),
+    }),
   ])
 
   // ── Static pages ──

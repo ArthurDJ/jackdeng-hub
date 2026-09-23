@@ -123,6 +123,7 @@ export default async function BlogDetailPage({ params }: Props) {
   const tocHeadings = extractHeadings(blog.content)
 
   // ── Related Posts ──────────────────────────────────────────────────────────
+  // Optional: if this query fails the post is still worth serving without it.
   const { docs: relatedDocs } = await orEmpty(payload.find({
     collection: 'blogs',
     where: {
@@ -136,7 +137,7 @@ export default async function BlogDetailPage({ params }: Props) {
     sort: '-publishedAt',
     depth: 1,
     locale: asLocale(locale),
-  }))
+  }), `related posts for blog/${slug} (${locale})`)
 
   // ── JSON-LD structured data ──────────────────────────────────────────────
   const canonicalUrl = `${BASE}/${locale}/blog/${slug}`

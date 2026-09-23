@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
-import { getPayload } from '@/lib/payload'
+import { getPayload, orEmpty } from '@/lib/payload'
 import { BlogCard } from '@/components/BlogCard'
 import { Pagination } from '@/components/Pagination'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
+import { asLocale } from '@/i18n/routing'
+import { populated, populatedList } from '@/lib/relations'
 
 export const revalidate = 3600
 
@@ -41,20 +43,20 @@ export default async function BlogListPage({ params, searchParams }: Props) {
   const payload = await getPayload()
 
   const [blogsResult, sidebar] = await Promise.all([
-    payload.find({
+    orEmpty(payload.find({
       collection: 'blogs',
       where: { status: { equals: 'published' } },
       sort: '-publishedAt',
       depth: 1,
       limit: POSTS_PER_PAGE,
       page,
-      locale: locale as any,
-    }).catch(() => ({ docs: [], totalPages: 1 })),
-    buildSidebarData({ locale: locale as any }).catch(() => ({})),
+      locale: asLocale(locale),
+    })),
+    buildSidebarData({ locale: asLocale(locale) }).catch(() => ({})),
   ])
 
-  const blogs = blogsResult.docs as any[]
-  const totalPages = (blogsResult as any).totalPages ?? 1
+  const blogs = blogsResult.docs
+  const totalPages = blogsResult.totalPages ?? 1
 
   return (
     // blog/layout.tsx already paints the page shell; this is just the landmark
@@ -97,9 +99,9 @@ export default async function BlogListPage({ params, searchParams }: Props) {
                       title={blog.title}
                       slug={blog.slug}
                       excerpt={blog.excerpt}
-                      coverImage={blog.coverImage}
-                      category={typeof blog.category === 'object' ? blog.category : null}
-                      tags={Array.isArray(blog.tags) ? blog.tags.filter((t: any) => typeof t === 'object') : []}
+                      coverImage={populated(blog.coverImage)}
+                      category={populated(blog.category)}
+                      tags={populatedList(blog.tags)}
                       publishedAt={blog.publishedAt}
                       featured={blog.featured}
                       content={blog.content}

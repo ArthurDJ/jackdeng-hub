@@ -2,9 +2,10 @@
 
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
+import type { Project } from '@/payload-types'
 
 interface HomeProjectCardProps {
-  project: any
+  project: Project
   locale: string
 }
 
@@ -39,7 +40,7 @@ export function HomeProjectCard({ project, locale }: HomeProjectCardProps) {
     'on-hold': t('projectStatus.onHold'),
   }
   const sc = statusColors[project.status] ?? statusColors['active']
-  const techStack: string[] = (project.techStack ?? []).map((ts: any) => ts.tech).filter(Boolean)
+  const techStack: string[] = (project.techStack ?? []).map((ts) => ts.tech).filter(Boolean)
   const hasSlug = Boolean(project.slug)
 
   const cardStyle: React.CSSProperties = {

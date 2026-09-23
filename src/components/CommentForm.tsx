@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 
 type Props = {
-  postId: string
+  postId: number
 }
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error'

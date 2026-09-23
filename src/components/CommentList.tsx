@@ -2,7 +2,7 @@ import { getLocale, getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 
 type Props = {
-  postId: string
+  postId: number
 }
 
 function formatDate(dateStr: string, locale: string) {

@@ -4,6 +4,8 @@ import { Link } from '@/i18n/navigation'
 import { getPayload } from '@/lib/payload'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
+import { asLocale } from '@/i18n/routing'
+import type { Blog } from '@/payload-types'
 
 export const revalidate = 3600
 
@@ -46,13 +48,16 @@ export default async function ArchivePage({ params, searchParams }: Props) {
     sort: '-publishedAt',
     depth: 0,
     limit: 1000,
+    // Without this Payload falls back to its defaultLocale, zh, and the English
+    // archive listed every post under its Chinese title.
+    locale: asLocale(locale),
   })
 
-  const sidebar = await buildSidebarData({ locale: locale as any })
+  const sidebar = await buildSidebarData({ locale: asLocale(locale) })
 
   // Group by year → month → posts
-  const grouped: Record<number, Record<number, any[]>> = {}
-  for (const blog of all as any[]) {
+  const grouped: Record<number, Record<number, Blog[]>> = {}
+  for (const blog of all) {
     if (!blog.publishedAt) continue
     const d = new Date(blog.publishedAt)
     const y = d.getFullYear()
@@ -64,7 +69,7 @@ export default async function ArchivePage({ params, searchParams }: Props) {
 
   const years = Object.keys(grouped).map(Number).sort((a, b) => b - a)
   const displayYears = filterYear ? [filterYear] : years
-  const totalCount = (all as any[]).length
+  const totalCount = all.length
 
   return (
     <main id="main">
@@ -135,7 +140,7 @@ export default async function ArchivePage({ params, searchParams }: Props) {
                             </span>
                           </Link>
                           <ul style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 4, listStyle: 'none', margin: 0 }}>
-                            {posts.map((blog: any) => (
+                            {posts.map((blog) => (
                               <li key={blog.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                                 <time style={{ fontSize: 12, color: 'var(--text-tertiary)', fontVariantNumeric: 'tabular-nums', paddingTop: 2, width: 90, flexShrink: 0 }}>
                                   {formatDate(blog.publishedAt, locale)}

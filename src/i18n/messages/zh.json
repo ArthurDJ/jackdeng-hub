@@ -100,6 +100,8 @@
     "share": "分享",
     "copyLink": "复制链接",
     "copied": "已复制！",
+    "relatedPosts": "相关文章",
+    "tableOfContents": "目录",
     "categoryEyebrow": "分类",
     "categoryMetaTitle": "{name} — 文章",
     "categoryMetaDescription": "{name} 分类下的文章。",

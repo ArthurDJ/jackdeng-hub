@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import type { TocHeading } from '@/lib/extractHeadings'
 
 interface TableOfContentsProps {
   headings: TocHeading[]
-  locale?: string
 }
 
 /**
@@ -13,7 +13,8 @@ interface TableOfContentsProps {
  * Uses IntersectionObserver to highlight the heading currently in the viewport.
  * Renders nothing if there are fewer than 2 headings.
  */
-export function TableOfContents({ headings, locale }: TableOfContentsProps) {
+export function TableOfContents({ headings }: TableOfContentsProps) {
+  const t = useTranslations('blog')
   const [activeId, setActiveId] = useState<string>(headings[0]?.id ?? '')
 
   useEffect(() => {
@@ -47,7 +48,7 @@ export function TableOfContents({ headings, locale }: TableOfContentsProps) {
 
   if (headings.length < 2) return null
 
-  const label = locale === 'zh' ? '目录' : 'On This Page'
+  const label = t('tableOfContents')
   const minLevel = Math.min(...headings.map((h) => h.level))
 
   return (

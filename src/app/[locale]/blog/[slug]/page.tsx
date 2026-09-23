@@ -340,7 +340,7 @@ export default async function BlogDetailPage({ params }: Props) {
             {relatedDocs.length > 0 && (
               <div style={{ marginTop: 64, paddingTop: 48, borderTop: '1px solid var(--border-subtle)' }}>
                 <h3 style={{ fontSize: 13, fontWeight: 510, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 24 }}>
-                  {locale === 'zh' ? '相关文章' : 'Related Posts'}
+                  {t('relatedPosts')}
                 </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
                   {relatedDocs.map((related) => (
@@ -381,7 +381,7 @@ export default async function BlogDetailPage({ params }: Props) {
 
           {/* Right column: TOC + Sidebar */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-            <TableOfContents headings={tocHeadings} locale={locale} />
+            <TableOfContents headings={tocHeadings} />
             <Sidebar {...sidebar} />
           </div>
         </div>

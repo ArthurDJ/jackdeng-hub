@@ -5,7 +5,9 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { BlogCard } from '@/components/BlogCard'
 import { HomeProjectCard } from '@/components/HomeProjectCard'
-import { getPayload } from '@/lib/payload'
+import { getPayload, orEmpty } from '@/lib/payload'
+import { asLocale } from '@/i18n/routing'
+import { populated, populatedList } from '@/lib/relations'
 
 export const revalidate = 3600
 
@@ -100,26 +102,26 @@ export default async function HomePage({ params }: Props) {
   // blogs_locales table may not exist yet (run: npx payload migrate)
   // Fall back to empty array rather than crashing the page
   const [blogsResult, projectsResult] = await Promise.all([
-    payload.find({
+    orEmpty(payload.find({
       collection: 'blogs',
       where: { status: { equals: 'published' } },
       sort: '-publishedAt',
       depth: 1,
       limit: 3,
-      locale: locale as any,
-    }).catch(() => ({ docs: [] })),
-    payload.find({
+      locale: asLocale(locale),
+    })),
+    orEmpty(payload.find({
       collection: 'projects',
       where: { isPinned: { equals: true } },
       sort: '-createdAt',
       depth: 1,
       limit: 4,
-      locale: locale as any,
-    }).catch(() => ({ docs: [] })),
+      locale: asLocale(locale),
+    })),
   ])
 
-  const blogs = blogsResult.docs as any[]
-  const projects = projectsResult.docs as any[]
+  const blogs = blogsResult.docs
+  const projects = projectsResult.docs
 
   return (
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }} className="min-h-screen flex flex-col">
@@ -222,8 +224,8 @@ export default async function HomePage({ params }: Props) {
             {/* ── Right: floating project preview cards ───────────────── */}
             {projects.length > 0 && (
               <div className="hidden lg:flex flex-col gap-3 flex-shrink-0 w-72 relative pt-4">
-                {projects.slice(0, 2).map((project: any, i: number) => {
-                  const techStack: string[] = (project.techStack ?? []).map((ts: any) => ts.tech).filter(Boolean)
+                {projects.slice(0, 2).map((project, i) => {
+                  const techStack: string[] = (project.techStack ?? []).map((ts) => ts.tech).filter(Boolean)
                   const statusBg: Record<string, string> = {
                     active:    'rgba(16,185,129,0.10)',
                     completed: 'rgba(94,106,210,0.10)',
@@ -363,9 +365,9 @@ export default async function HomePage({ params }: Props) {
                   title={blog.title}
                   slug={blog.slug}
                   excerpt={blog.excerpt}
-                  coverImage={blog.coverImage}
-                  category={typeof blog.category === 'object' ? blog.category : null}
-                  tags={Array.isArray(blog.tags) ? blog.tags.filter((tag: any) => typeof tag === 'object') : []}
+                  coverImage={populated(blog.coverImage)}
+                  category={populated(blog.category)}
+                  tags={populatedList(blog.tags)}
                   publishedAt={blog.publishedAt}
                   featured={blog.featured}
                   content={blog.content}
@@ -394,7 +396,7 @@ export default async function HomePage({ params }: Props) {
 
           {projects.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {projects.map((project: any) => (
+              {projects.map((project) => (
                 <HomeProjectCard key={project.id} project={project} locale={locale} />
               ))}
             </div>

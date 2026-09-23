@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { getPayload } from '@/lib/payload'
+import { getPayload, orEmpty } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
+import { asLocale } from '@/i18n/routing'
 
 export const revalidate = 3600
 
@@ -29,13 +30,13 @@ export default async function ProjectsPage({ params }: Props) {
   const tHome = await getTranslations({ locale, namespace: 'home' })
 
   const payload = await getPayload()
-  const { docs: projects } = await payload.find({
+  const { docs: projects } = await orEmpty(payload.find({
     collection: 'projects',
     sort: '-createdAt',
     depth: 1,
     limit: 100,
-    locale: locale as any,
-  }).catch(() => ({ docs: [] }))
+    locale: asLocale(locale),
+  }))
 
   const statusColors: Record<string, { bg: string; text: string; border: string }> = {
     active:    { bg: 'rgba(16,185,129,0.10)', text: '#10b981', border: 'rgba(16,185,129,0.20)' },
@@ -58,18 +59,18 @@ export default async function ProjectsPage({ params }: Props) {
       </div>
 
       {/* Projects grid */}
-      {(projects as any[]).length === 0 ? (
+      {projects.length === 0 ? (
         <p style={{ color: 'var(--text-secondary)' }}>{t('noProjects')}</p>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
-          {(projects as any[]).map((project) => {
+          {projects.map((project) => {
             const sc = statusColors[project.status] ?? statusColors['active']
             const statusLabel: Record<string, string> = {
               active:    tHome('projectStatus.active'),
               completed: tHome('projectStatus.completed'),
               'on-hold': tHome('projectStatus.onHold'),
             }
-            const techStack: string[] = (project.techStack ?? []).map((t: any) => t.tech).filter(Boolean)
+            const techStack: string[] = (project.techStack ?? []).map((t) => t.tech).filter(Boolean)
             const hasSlug = Boolean(project.slug)
 
             const CardInner = (

@@ -3,10 +3,11 @@ import Image from 'next/image'
 import { getLocale, getTranslations } from 'next-intl/server'
 import { TagBadge } from './TagBadge'
 import { formatDate } from '@/lib/formatDate'
+import type { Category as CategoryDoc, Media, Tag as TagDoc } from '@/payload-types'
 
-interface Category    { id: string; name: string; slug: string; _count?: number }
-interface Tag         { id: string; name: string; slug: string; color: string }
-interface RecentPost  { title: string; slug: string; publishedAt?: string | null; coverImage?: any }
+type Category   = Pick<CategoryDoc, 'id' | 'name' | 'slug'> & { _count?: number }
+type Tag        = Pick<TagDoc, 'id' | 'name' | 'slug' | 'color'>
+type RecentPost = { title: string; slug: string; publishedAt?: string | null; coverImage?: Pick<Media, 'url' | 'sizes' | 'alt'> | null }
 interface ArchiveEntry { year: number; month: number; count: number }
 
 interface SidebarProps {

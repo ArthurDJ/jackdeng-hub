@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     default: 'Jack Deng',
     template: '%s — Jack Deng',
   },
-  description: 'Senior Software Engineer | Backend & Data Systems. NetSuite · Boomi · Supabase · Next.js.',
+  description: 'Jack Deng — full-stack engineer focused on backend and data. Data platforms, integrations and internal tools.',
   metadataBase: new URL(BASE),
   openGraph: {
     siteName: 'Jack Deng',

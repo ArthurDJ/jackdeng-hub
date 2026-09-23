@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
+import { CONTACT_EMAIL, PROFILE_LINKS as LINKS, SKILLS, TIMELINE } from '@/lib/profile'
 
 // Static per locale — generated at build time
 export async function generateStaticParams() {
@@ -26,76 +27,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   }
 }
-
-const SKILLS = [
-  { group: 'Database',     items: ['PostgreSQL', 'NetSuite', 'SQL Server', 'Supabase'] },
-  { group: 'Integration',  items: ['Boomi', 'REST APIs', 'EDI / SFTP', 'Webhooks'] },
-  { group: 'Development',  items: ['TypeScript', 'Python', 'Node.js', 'Next.js'] },
-  { group: 'Tools',        items: ['Docker', 'Vercel', 'GitHub Actions', 'CI/CD'] },
-]
-
-const TIMELINE = [
-  {
-    year: '01/2024 – present',
-    role: { en: 'Software Engineer (Backend & Data)', zh: '软件工程师 (后端与数据)' },
-    place: 'Value Windows & Doors',
-    bullets: {
-      en: [
-        'Built a 0-to-1 cloud data platform on Databricks + dbt with a medallion (Bronze→Silver→Gold→Mart) architecture, turning raw ERP data into analytics-ready models for manufacturing, inventory, sales, and workforce reporting.',
-        'Engineered C# and Python data-migration and integration pipelines that improved ERP reliability and processed tens of thousands of records daily across departments.',
-        'Delivered Power BI executive dashboards and React internal portals, giving teams self-serve access to real-time operational metrics.',
-      ],
-      zh: [
-        '在 Databricks + dbt 上从 0 到 1 搭建云数据平台，采用 Medallion（Bronze→Silver→Gold→Mart）分层架构，将原始 ERP 数据转化为可直接分析的模型，支撑制造、库存、销售与人力效率报表。',
-        '用 C# 与 Python 构建数据迁移与集成管道，提升 ERP 系统可靠性，每天跨部门处理数万条记录。',
-        '交付 Power BI 高管看板与 React 内部门户，让各团队自助获取实时运营指标。',
-      ],
-    },
-    tech: ['Databricks', 'dbt', 'Python', 'C#', 'React', 'Power BI'],
-  },
-  {
-    year: '07/2022 – 01/2024',
-    role: { en: 'Software Engineer Intern', zh: '软件开发实习生' },
-    place: 'APEXUS-TECH',
-    bullets: {
-      en: [
-        'Built a data-visualization tool that streamlined quantitative strategy analysis for the operations desk, improving decision-making speed.',
-        'Developed Python + MySQL backend services that automatically ingested and persisted financial-market data, keeping analyses up to date.',
-        'Designed ETL pipelines that lifted batch-processing efficiency by 40% and shipped internal monitoring dashboards with the product team.',
-      ],
-      zh: [
-        '开发数据可视化工具，简化运营部门的量化策略分析，提升决策效率。',
-        '用 Python + MySQL 构建后端服务，自动接入并持久化金融市场数据，保证分析实时更新。',
-        '设计 ETL 管道，使批处理效率提升 40%，并与产品团队共同交付内部监控看板。',
-      ],
-    },
-    tech: ['Python', 'MySQL', 'ETL', 'JavaScript', 'HTML/CSS'],
-  },
-  {
-    year: '03/2022 – 07/2023',
-    role: { en: 'M.S. Analytics', zh: '分析学硕士' },
-    place: 'Northeastern University',
-    bullets: {
-      en: [
-        'M.S. in Analytics, GPA 3.93/4.0 — coursework spanning data warehousing, predictive analytics, and enterprise data systems.',
-        'Served as Data Warehousing & SQL Tutor (ALY6030), coaching graduate students on SQL performance tuning, indexing strategies, and execution-plan analysis.',
-      ],
-      zh: [
-        '分析学硕士，GPA 3.93/4.0——课程涵盖数据仓库、预测分析与企业数据系统。',
-        '担任数据仓库与 SQL 助教（ALY6030），指导研究生进行 SQL 性能调优、索引策略与执行计划分析。',
-      ],
-    },
-    tech: ['SQL', 'Data Warehousing', 'Statistics', 'Python'],
-  },
-]
-
-const LINKS = [
-  { label: 'GitHub',    href: 'https://github.com/ArthurDJ', icon: 'github' },
-  { label: 'LinkedIn',  href: 'https://linkedin.com/in/jie-deng-linkdin', icon: 'linkedin' },
-  { label: 'LeetCode',  href: 'https://leetcode.com/u/dj3013158/', icon: 'leetcode' },
-  { label: 'Email',     href: 'mailto:dj3013158@gmail.com', icon: 'email' },
-  { label: 'Resume',    href: '/resume.pdf', icon: 'resume' },
-]
 
 /* ── inline icon helpers ── */
 function LeetCodeIcon() {
@@ -224,14 +155,14 @@ export default async function AboutPage({ params }: Props) {
           <SectionLabel>{t('skillsHeading')}</SectionLabel>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
             {SKILLS.map(({ group, items }) => (
-              <div key={group} style={{
+              <div key={group.en} style={{
                 background: 'var(--bg-panel)',
                 border: '1px solid var(--border-default)',
                 borderRadius: 12,
                 padding: '16px 18px',
               }}>
                 <p style={{ fontSize: 11, fontWeight: 510, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>
-                  {group}
+                  {group[lang]}
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {items.map((item) => (
@@ -258,7 +189,7 @@ export default async function AboutPage({ params }: Props) {
           <SectionLabel>{t('experienceHeading')}</SectionLabel>
           <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 0 }}>
             {TIMELINE.map(({ year, role, place, bullets, tech }, i) => (
-              <li key={year} style={{ display: 'flex', gap: 20, position: 'relative', paddingBottom: i < TIMELINE.length - 1 ? 32 : 0 }}>
+              <li key={year.en} style={{ display: 'flex', gap: 20, position: 'relative', paddingBottom: i < TIMELINE.length - 1 ? 32 : 0 }}>
                 {/* Spine */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, width: 16 }}>
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-primary)', marginTop: 6, flexShrink: 0 }} />
@@ -268,7 +199,7 @@ export default async function AboutPage({ params }: Props) {
                 </div>
                 <div style={{ paddingBottom: i < TIMELINE.length - 1 ? 0 : 0 }}>
                   <p style={{ fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 4, fontFamily: 'var(--font-geist-mono, monospace)' }}>
-                    {year}
+                    {year[lang]}
                   </p>
                   <p style={{ fontSize: 14, fontWeight: 510, color: 'var(--text-primary)', marginBottom: 4 }}>
                     {role[lang]}{' '}
@@ -348,7 +279,7 @@ export default async function AboutPage({ params }: Props) {
             {t('ctaText')}
           </p>
           <a
-            href="mailto:hello@jackdeng.cc"
+            href={`mailto:${CONTACT_EMAIL}`}
             className="ds-accent-btn"
             style={{
               display: 'inline-flex',

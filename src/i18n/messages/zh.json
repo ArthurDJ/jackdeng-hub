@@ -40,16 +40,17 @@
     "tools": "工具"
   },
   "home": {
-    "available": "探索 Web 的无限可能",
-    "title": "高级软件工程师 | 后端与数据系统",
-    "subtitle": "连接系统。管理数据。自动化复杂流程。",
-    "bio": "连接复杂的分布式系统与现代 Web 平台。我负责设计和维护高可用的数据管道与企业级集成，保持关键业务流程的可靠性、可观测性与高性能。",
-    "ctaProjects": "查看项目",
-    "ctaBlog": "阅读文章",
-    "ctaAbout": "了解我",
-    "techStackHeading": "技术栈",
+    "title": "全栈工程师 · 专注后端与数据",
+    "location": "现居加州",
+    "intro": "我做后端与数据：数据管道、系统集成，以及大家每天在用的内部工具。在 Value Windows & Doors，我从 0 到 1 搭建了基于 Databricks + dbt 的数据平台，以及围绕它的数据管道和内部门户。",
+    "ctaResume": "下载简历 (PDF)",
+    "ctaEmail": "发邮件给我",
+    "experienceHeading": "经历",
+    "experienceMore": "完整经历 →",
+    "skillsHeading": "技能",
+    "selectedProjects": "精选项目",
+    "metaDescription": "Jack Deng —— 全栈工程师，专注后端与数据。用 Python、C#、SQL、Databricks 和 TypeScript 构建数据平台、系统集成与内部工具。",
     "latestPosts": "最新文章",
-    "latestProjects": "最新项目",
     "projects": "项目",
     "noProjectsYet": "项目即将上线。",
     "noProjectsNote": "目前正在开发新内容，敬请期待。",
@@ -58,13 +59,7 @@
       "completed": "已完成",
       "onHold": "暂停"
     },
-    "viewProject": "查看项目 →",
-    "techStack": {
-      "netsuite": "ERP 与财务数据治理",
-      "boomi": "iPaaS 集成与流程自动化",
-      "supabase": "Postgres 原生后端与鉴权",
-      "nextjs": "全栈 React，内部工具首选"
-    }
+    "viewProject": "查看项目 →"
   },
   "blog": {
     "title": "文章",
@@ -119,7 +114,7 @@
   },
   "about": {
     "title": "Jack Deng",
-    "subtitle": "高级软件工程师 | 后端与数据系统",
+    "subtitle": "全栈工程师 · 专注后端与数据",
     "bio1": "你好，我是 Jack，一名常驻加州的软件工程师，专注于构建可靠的企业级数据系统和全栈应用。我通过高可用后端架构和可扩展的数据管道，连接业务运营与技术基础设施。",
     "bio2": "这个网站是我的公开工作空间：记录工程笔记、集成模式，以及我顺手构建的工具。它基于 <nextjs>Next.js</nextjs> + <payload>Payload CMS</payload> 构建，后端使用 <supabase>Supabase</supabase> PostgreSQL。",
     "bio3": "不在工作的时候，我大概在调试某个流程、阅读系统设计文档，或者研究为什么 ETL 今天又慢了 3 秒。",

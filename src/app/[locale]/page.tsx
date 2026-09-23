@@ -387,7 +387,7 @@ export default async function HomePage({ params }: Props) {
           {projects.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {projects.map((project) => (
-                <HomeProjectCard key={project.id} project={project} locale={locale} />
+                <HomeProjectCard key={project.id} project={project} />
               ))}
             </div>
           ) : (

@@ -6,7 +6,6 @@ import type { Project } from '@/payload-types'
 
 interface HomeProjectCardProps {
   project: Project
-  locale: string
 }
 
 const GRADIENTS = [
@@ -26,7 +25,7 @@ function getGradient(name: string): string {
   return GRADIENTS[Math.abs(hash) % GRADIENTS.length]
 }
 
-export function HomeProjectCard({ project, locale }: HomeProjectCardProps) {
+export function HomeProjectCard({ project }: HomeProjectCardProps) {
   const t = useTranslations('home')
 
   const statusColors: Record<string, { bg: string; text: string; border: string }> = {
@@ -127,7 +126,10 @@ export function HomeProjectCard({ project, locale }: HomeProjectCardProps) {
   )
 
   return hasSlug ? (
-    <Link href={`/${locale}/projects/${project.slug}`} style={{ textDecoration: 'none', display: 'flex' }}>
+    // Locale-less: this Link is next-intl's and adds the prefix itself. Writing
+    // /${locale}/ here produced /en/en/projects/…, and every card on the home
+    // page led to a 404.
+    <Link href={`/projects/${project.slug}`} style={{ textDecoration: 'none', display: 'flex' }}>
       {inner}
     </Link>
   ) : (

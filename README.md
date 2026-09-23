@@ -35,6 +35,13 @@ DATABASE_URI="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-1-us-east-1.poo
 
 # Payload Encryption Secret
 PAYLOAD_SECRET="your-secure-random-string"
+
+# Cloudflare Turnstile — required for public comment submission.
+# Without the secret, POST /api/comments/submit refuses every submission in
+# production (503) rather than accepting unverified ones. Leave both unset, or
+# set the secret to "dev", to work without a Cloudflare account locally.
+NEXT_PUBLIC_TURNSTILE_SITE_KEY="0x..."
+TURNSTILE_SECRET_KEY="0x..."
 ```
 
 ### 2. Install & Run Locally

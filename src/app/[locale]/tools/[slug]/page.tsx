@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import type { Where } from 'payload'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
@@ -9,19 +10,27 @@ import { asLocale, routing } from '@/i18n/routing'
 
 export const revalidate = 3600
 
-// Prerender only tools anyone may see. The page itself does not check
-// accessControl (see the query below), so a private tool must not be baked
-// into a static page ahead of time; unlisted slugs still render on demand.
+// What an anonymous visitor may see. The local API skips access control, so
+// this filter is the check — for the page, its metadata and the prerender
+// alike. The page used to filter only `status`, so a private tool that was
+// online rendered, name and all, for anyone who had its slug. (The metadata
+// filtered nothing either; that one did not leak, because Next drops a page's
+// metadata when the page calls notFound(), but it should not depend on that.)
+// Maintenance tools stay visible — the page shows them with a badge. Private
+// ones are 404 for every visitor: they are managed in /admin, and checking the
+// session here would make this page dynamic.
+const VISIBLE: Where = {
+  and: [
+    { status: { not_equals: 'offline' } },
+    { accessControl: { equals: 'public' } },
+  ],
+}
+
 export async function generateStaticParams() {
   const payload = await getPayload()
   const { docs } = await payload.find({
     collection: 'tools',
-    where: {
-      and: [
-        { status: { not_equals: 'offline' } },
-        { accessControl: { equals: 'public' } },
-      ],
-    },
+    where: VISIBLE,
     depth: 0,
     limit: 100,
   })
@@ -39,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const payload = await getPayload()
   const { docs } = await payload.find({
     collection: 'tools',
-    where: { slug: { equals: slug } },
+    where: { and: [{ slug: { equals: slug } }, VISIBLE] },
     depth: 0,
     limit: 1,
     locale: asLocale(locale),
@@ -83,15 +92,9 @@ export default async function ToolDetailPage({ params }: Props) {
 
   const payload = await getPayload()
 
-  // 查询工具（不过滤 accessControl/toolType，权限在渲染层处理）
   const { docs } = await payload.find({
     collection: 'tools',
-    where: {
-      and: [
-        { slug: { equals: slug } },
-        { status: { not_equals: 'offline' } },
-      ],
-    },
+    where: { and: [{ slug: { equals: slug } }, VISIBLE] },
     depth: 0,
     limit: 1,
     locale: asLocale(locale),

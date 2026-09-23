@@ -75,4 +75,32 @@ jobs:
             fi
           done <<< "$routes"
 
+          # The other half: pages that must NOT exist.
+          #
+          # #34 shipped five routes that answered a made-up slug with HTTP 200
+          # and a 404 page. Adding loading.tsx to the list pages had pulled the
+          # detail routes into the same Suspense boundary, and streaming commits
+          # the status line with the first chunk — so notFound() ran after 200
+          # was already sent, and search engines were free to index every URL
+          # anyone invented. Every positive assertion above passed the whole
+          # time, because the pages that should exist did.
+          #
+          # One probe per route that calls notFound(), with a slug no document
+          # can plausibly have.
+          nope=ci-smoke-probe-no-such-slug
+          missing=$(printf '%s\n' "/en/blog/$nope" "/zh/blog/$nope" \
+                                   "/en/tools/$nope" "/en/projects/$nope" \
+                                   "/en/blog/category/$nope" "/en/blog/tag/$nope")
+
+          while IFS= read -r r; do
+            [ -n "$r" ] || continue
+            code=$(curl -s -o /dev/null -w '%{http_code}' -L "$BASE$r")
+            if [ "$code" = "404" ]; then
+              echo "ok   $code  $r  (absent, and says so)"
+            else
+              echo "FAIL $code  $r  — a made-up slug must answer 404"
+              fail=1
+            fi
+          done <<< "$missing"
+
           exit $fail

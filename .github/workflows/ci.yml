@@ -42,3 +42,14 @@ jobs:
       # into production: it counted from the wrong node and could not count
       # Chinese. Both are covered now.
       - run: npm test
+
+      # Message parity between en.json and zh.json, plus keys nothing reads.
+      # The script predates this gate and was only ever run by hand, which is
+      # why half the tech-debt table is i18n regressions: a hardcoded ternary
+      # here, an English string on a Chinese page there. It needs no secrets
+      # and runs in well under a second.
+      #
+      # A step rather than a second job, deliberately: branch protection
+      # requires the check named `typecheck`, so a new job would run without
+      # being able to block a merge.
+      - run: npm run i18n:check

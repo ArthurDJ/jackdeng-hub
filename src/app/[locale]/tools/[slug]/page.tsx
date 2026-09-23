@@ -5,9 +5,30 @@ import { Link } from '@/i18n/navigation'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
 import { getBuiltinTool } from '@/components/tools/registry'
-import { asLocale } from '@/i18n/routing'
+import { asLocale, routing } from '@/i18n/routing'
 
 export const revalidate = 3600
+
+// Prerender only tools anyone may see. The page itself does not check
+// accessControl (see the query below), so a private tool must not be baked
+// into a static page ahead of time; unlisted slugs still render on demand.
+export async function generateStaticParams() {
+  const payload = await getPayload()
+  const { docs } = await payload.find({
+    collection: 'tools',
+    where: {
+      and: [
+        { status: { not_equals: 'offline' } },
+        { accessControl: { equals: 'public' } },
+      ],
+    },
+    depth: 0,
+    limit: 100,
+  })
+  return docs
+    .filter((doc) => doc.slug)
+    .flatMap((doc) => routing.locales.map((locale) => ({ locale, slug: doc.slug })))
+}
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
 

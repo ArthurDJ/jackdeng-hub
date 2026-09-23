@@ -14,6 +14,14 @@ import '../globals.css'
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
 
+// Tell Next which locales exist. Without this, every page under [locale] that
+// did not list its own params (home, the projects and tools lists, a tool's
+// page) was rendered on every request despite `revalidate = 3600` — the home
+// page, the most visited one, missed the cache every time.
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }))
+}
+
 export const metadata: Metadata = {
   title: {
     default: 'Jack Deng',

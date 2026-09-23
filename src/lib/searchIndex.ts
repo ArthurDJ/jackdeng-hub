@@ -29,7 +29,7 @@ export const getSearchIndex = unstable_cache(
         depth: 0,
         limit: 1000,
         locale,
-        select: { title: true, slug: true, excerpt: true, content: true, category: true, tags: true } as any,
+        select: { title: true, slug: true, excerpt: true, content: true, category: true, tags: true },
       }),
       payload.find({ collection: 'categories', depth: 0, limit: 100, locale }),
       payload.find({ collection: 'tags', depth: 0, limit: 200, locale }),
@@ -49,16 +49,16 @@ export const getSearchIndex = unstable_cache(
       payload.find({ collection: 'projects', sort: '-createdAt', depth: 0, limit: 100, locale }),
     ])
 
-    const categoryName = new Map((categories.docs as any[]).map((c) => [c.id, c.name ?? '']))
-    const tagName = new Map((tags.docs as any[]).map((t) => [t.id, t.name ?? '']))
+    const categoryName = new Map(categories.docs.map((c) => [c.id, c.name ?? '']))
+    const tagName = new Map(tags.docs.map((t) => [t.id, t.name ?? '']))
 
     // Order matters: ties in score keep it, so posts come before taxonomy.
     const docs: SearchDoc[] = []
 
-    for (const b of blogs.docs as any[]) {
+    for (const b of blogs.docs) {
       if (!b.slug) continue
       const catId = typeof b.category === 'object' ? b.category?.id : b.category
-      const tagIds = ((b.tags ?? []) as any[]).map((t) => (typeof t === 'object' ? t?.id : t))
+      const tagIds = (b.tags ?? []).map((t) => (typeof t === 'object' ? t?.id : t))
       docs.push({
         id: `post-${b.id}`,
         type: 'post',
@@ -71,7 +71,7 @@ export const getSearchIndex = unstable_cache(
         body: lexicalToText(b.content),
       })
     }
-    for (const p of projects.docs as any[]) {
+    for (const p of projects.docs) {
       if (!p.slug) continue
       docs.push({
         id: `project-${p.id}`,
@@ -79,11 +79,11 @@ export const getSearchIndex = unstable_cache(
         label: p.name ?? '',
         description: p.shortDescription ?? '',
         href: `/projects/${p.slug}`,
-        keywords: ((p.techStack ?? []) as any[]).map((t) => t?.tech).filter(Boolean).join(' '),
+        keywords: (p.techStack ?? []).map((t) => t?.tech).filter(Boolean).join(' '),
         body: lexicalToText(p.longDescription),
       })
     }
-    for (const t of tools.docs as any[]) {
+    for (const t of tools.docs) {
       if (!t.slug) continue
       docs.push({
         id: `tool-${t.id}`,
@@ -95,7 +95,7 @@ export const getSearchIndex = unstable_cache(
         body: '',
       })
     }
-    for (const c of categories.docs as any[]) {
+    for (const c of categories.docs) {
       if (!c.slug) continue
       docs.push({
         id: `category-${c.id}`,
@@ -107,7 +107,7 @@ export const getSearchIndex = unstable_cache(
         body: '',
       })
     }
-    for (const t of tags.docs as any[]) {
+    for (const t of tags.docs) {
       if (!t.slug) continue
       docs.push({
         id: `tag-${t.id}`,

@@ -24,6 +24,18 @@ const nextConfig = {
   async headers() {
     return [{ source: '/:path*', headers: SECURITY_HEADERS }]
   },
+  // Pagination moved from ?page=N to /page/N so the list pages can be cached
+  // (reading searchParams forces a per-request render). Old links keep
+  // working: page 2 and up go to the new URL; ?page=1 and junk values are
+  // left alone and simply get page 1.
+  async redirects() {
+    const page = [{ type: 'query', key: 'page', value: '(?<page>[2-9]|[1-9]\\d+)' }]
+    return [
+      { source: '/:locale(en|zh)/blog', has: page, destination: '/:locale/blog/page/:page', permanent: true },
+      { source: '/:locale(en|zh)/blog/category/:slug', has: page, destination: '/:locale/blog/category/:slug/page/:page', permanent: true },
+      { source: '/:locale(en|zh)/blog/tag/:slug', has: page, destination: '/:locale/blog/tag/:slug/page/:page', permanent: true },
+    ]
+  },
   allowedDevOrigins: ['playing-sydney-fingers-wireless.trycloudflare.com'],
   images: {
     remotePatterns: [

@@ -96,7 +96,8 @@
     "readIn": "Read in {lang}",
     "pagination": {
       "previous": "← Previous",
-      "next": "Next →"
+      "next": "Next →",
+      "page": "Page {page}"
     },
     "share": "Share",
     "copyLink": "Copy link",

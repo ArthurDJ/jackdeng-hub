@@ -9,13 +9,17 @@ import type { Blog } from '@/payload-types'
 
 export const revalidate = 3600
 
-type Props = {
-  params: Promise<{ locale: string }>
-  searchParams: Promise<{ year?: string; month?: string }>
+type Props = { params: Promise<{ locale: string }> }
+
+/** The fragment a month's section carries; the sidebar links to it. */
+function monthAnchor(year: number, month: number) {
+  return `${year}-${month}`
 }
 
-const MONTHS = ['January','February','March','April','May','June',
-  'July','August','September','October','November','December']
+function monthName(month: number, locale: string) {
+  // Intl rather than a hardcoded English array, which the zh page showed too.
+  return new Date(Date.UTC(2000, month - 1, 1)).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', { month: 'long', timeZone: 'UTC' })
+}
 
 function formatDate(iso: string, locale: string) {
   return new Date(iso).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
@@ -32,13 +36,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   }
 }
 
-export default async function ArchivePage({ params, searchParams }: Props) {
+// The whole archive, always. It used to narrow itself to a year and month
+// taken from the query string, and reading it made the page render on every
+// request; the sidebar's month links now jump to that month's section instead.
+export default async function ArchivePage({ params }: Props) {
   const { locale } = await params
-  const sp = await searchParams
   const t = await getTranslations({ locale, namespace: 'blog' })
-
-  const filterYear = sp.year ? parseInt(sp.year, 10) : null
-  const filterMonth = sp.month ? parseInt(sp.month, 10) : null
 
   const payload = await getPayload()
 
@@ -68,7 +71,6 @@ export default async function ArchivePage({ params, searchParams }: Props) {
   }
 
   const years = Object.keys(grouped).map(Number).sort((a, b) => b - a)
-  const displayYears = filterYear ? [filterYear] : years
   const totalCount = all.length
 
   return (
@@ -82,17 +84,6 @@ export default async function ArchivePage({ params, searchParams }: Props) {
           <p style={{ fontSize: 14, color: 'var(--text-tertiary)' }}>
             {totalCount} {totalCount !== 1 ? t('posts') : t('post')}
           </p>
-          {(filterYear || filterMonth) && (
-            <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-              <span style={{ color: 'var(--text-tertiary)' }}>Showing:</span>
-              <span style={{ fontWeight: 510, color: 'var(--text-primary)' }}>
-                {filterMonth ? MONTHS[filterMonth - 1] : ''}{' '}{filterYear ?? ''}
-              </span>
-              <Link href="/blog/archive" style={{ color: 'var(--accent-primary)', marginLeft: 8, textDecoration: 'none' }}>
-                ✕ Clear
-              </Link>
-            </div>
-          )}
         </div>
       </section>
 
@@ -102,10 +93,9 @@ export default async function ArchivePage({ params, searchParams }: Props) {
           <style>{`@media (min-width: 1024px) { .blog-layout { grid-template-columns: 1fr 260px !important; } }`}</style>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
-            {displayYears.map((year) => {
+            {years.map((year) => {
               const monthsInYear = Object.keys(grouped[year] ?? {})
                 .map(Number)
-                .filter((m) => !filterMonth || m === filterMonth)
                 .sort((a, b) => b - a)
 
               if (monthsInYear.length === 0) return null
@@ -123,9 +113,9 @@ export default async function ArchivePage({ params, searchParams }: Props) {
                     {monthsInYear.map((month) => {
                       const posts = grouped[year][month]
                       return (
-                        <div key={month}>
+                        <div key={month} id={monthAnchor(year, month)} style={{ scrollMarginTop: 80 }}>
                           <Link
-                            href={`/blog/archive?year=${year}&month=${month}`}
+                            href={`/blog/archive#${monthAnchor(year, month)}`}
                             style={{
                               display: 'inline-flex', alignItems: 'center', gap: 6,
                               fontSize: 11, fontWeight: 600, textTransform: 'uppercase',
@@ -134,7 +124,7 @@ export default async function ArchivePage({ params, searchParams }: Props) {
                             }}
                             className="ds-link-hover"
                           >
-                            {MONTHS[month - 1]}
+                            {monthName(month, locale)}
                             <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11, letterSpacing: 0 }}>
                               ({posts.length})
                             </span>

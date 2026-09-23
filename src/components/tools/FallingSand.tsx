@@ -2,15 +2,20 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { lifeStep } from '@/lib/life'
 
 /**
- * A falling-sand toy. Cellular automaton on a coarse grid, drawn by scaling a
- * grid-sized ImageData up with smoothing off, so the cost is the simulation
- * rather than thousands of fillRect calls.
+ * Two cellular automata sharing one canvas: falling sand, and Conway's Game of
+ * Life. Both are drawn by scaling a grid-sized ImageData up with smoothing off,
+ * so the cost is the simulation rather than thousands of fillRect calls.
  *
  * The canvas is painted with clearRect and left transparent; its background
  * comes from CSS (var(--bg-panel)). That is what keeps it correct in both
  * themes without reading computed styles or re-rendering on a theme change.
+ *
+ * Life runs on a coarser grid than sand — single cells have to stay legible,
+ * and a glider on a 200-wide grid is a speck. Both grids are 5:3, so switching
+ * modes does not change the canvas box and the layout never jumps.
  */
 
 const EMPTY = 0
@@ -19,6 +24,7 @@ const WATER = 2
 const STONE = 3
 
 type Material = typeof SAND | typeof WATER | typeof STONE | typeof EMPTY
+type Mode = 'sand' | 'life'
 
 // RGB chosen to sit readably on both the light and the dark panel token.
 const COLORS: Record<number, [number, number, number]> = {
@@ -26,28 +32,42 @@ const COLORS: Record<number, [number, number, number]> = {
   [WATER]: [59, 130, 246],
   [STONE]: [120, 120, 128],
 }
+const ALIVE: [number, number, number] = [110, 190, 140]
 
-const COLS = 200
-const ROWS = 120
+const DIMS: Record<Mode, { cols: number; rows: number }> = {
+  sand: { cols: 200, rows: 120 },
+  life: { cols: 100, rows: 60 },
+}
+
+// Life at 60 steps/second is a blur. This is slow enough to read a glider.
+const LIFE_STEP_MS = 80
 
 export function FallingSand() {
   const t = useTranslations('tools.sand')
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const gridRef = useRef<Uint8Array>(new Uint8Array(COLS * ROWS))
   const rafRef = useRef<number | undefined>(undefined)
   const pointerRef = useRef<{ x: number; y: number; down: boolean }>({ x: 0, y: 0, down: false })
 
+  const sandRef = useRef<Uint8Array>(new Uint8Array(DIMS.sand.cols * DIMS.sand.rows))
+  const lifeRef = useRef<Uint8Array>(new Uint8Array(DIMS.life.cols * DIMS.life.rows))
+  const lifeNextRef = useRef<Uint8Array>(new Uint8Array(DIMS.life.cols * DIMS.life.rows))
+  const lifeClockRef = useRef(0)
+
   // Refs mirror the controls so the animation loop reads current values without
   // being torn down and restarted on every click.
+  const modeRef = useRef<Mode>('sand')
   const materialRef = useRef<Material>(SAND)
   const brushRef = useRef(4)
   const runningRef = useRef(true)
+  const stepOnceRef = useRef(false)
 
+  const [mode, setMode] = useState<Mode>('sand')
   const [material, setMaterial] = useState<Material>(SAND)
   const [brush, setBrush] = useState(4)
   const [running, setRunning] = useState(true)
 
+  useEffect(() => { modeRef.current = mode }, [mode])
   useEffect(() => { materialRef.current = material }, [material])
   useEffect(() => { brushRef.current = brush }, [brush])
   useEffect(() => { runningRef.current = running }, [running])
@@ -59,22 +79,126 @@ export function FallingSand() {
     if (mq.matches) setRunning(false)
   }, [])
 
+  const seedLife = useCallback(() => {
+    const { cols, rows } = DIMS.life
+    const g = lifeRef.current
+    g.fill(0)
+    // Seeded only in the middle band: a field that reaches the edges spends its
+    // first seconds dying back, which reads as the toy being broken.
+    for (let y = Math.floor(rows * 0.2); y < Math.floor(rows * 0.8); y++) {
+      for (let x = Math.floor(cols * 0.15); x < Math.floor(cols * 0.85); x++) {
+        if (Math.random() < 0.32) g[y * cols + x] = 1
+      }
+    }
+  }, [])
+
+  const seedSand = useCallback(() => {
+    const { cols } = DIMS.sand
+    const g = sandRef.current
+    g.fill(EMPTY)
+    for (let y = 0; y < 26; y++) {
+      for (let x = 0; x < cols; x++) {
+        const edge = Math.min(x, cols - 1 - x)
+        if (edge < 30 && y > edge) continue
+        if (Math.random() < 0.55) g[y * cols + x] = SAND
+      }
+    }
+  }, [])
+
   const paint = useCallback((cx: number, cy: number) => {
-    const grid = gridRef.current
-    const r = brushRef.current
+    const m = modeRef.current
+    const { cols, rows } = DIMS[m]
+    const grid = m === 'sand' ? sandRef.current : lifeRef.current
+    // A brush sized for the sand grid covers a quarter of the Life board.
+    const r = m === 'sand' ? brushRef.current : Math.max(1, Math.round(brushRef.current / 2))
     const mat = materialRef.current
+
     for (let dy = -r; dy <= r; dy++) {
       for (let dx = -r; dx <= r; dx++) {
         if (dx * dx + dy * dy > r * r) continue
         const x = cx + dx
         const y = cy + dy
-        if (x < 0 || x >= COLS || y < 0 || y >= ROWS) continue
+        if (x < 0 || x >= cols || y < 0 || y >= rows) continue
+        if (m === 'life') {
+          grid[y * cols + x] = materialRef.current === EMPTY ? 0 : 1
+          continue
+        }
         // Sand and water are sprayed rather than packed solid, which keeps the
         // stroke looking granular instead of like a painted blob.
         if (mat !== STONE && mat !== EMPTY && Math.random() > 0.55) continue
-        grid[y * COLS + x] = mat
+        grid[y * cols + x] = mat
       }
     }
+  }, [])
+
+  const stepSand = useCallback(() => {
+    const { cols, rows } = DIMS.sand
+    const grid = sandRef.current
+    // Bottom-up so a cell that just moved down is not moved again this tick.
+    for (let y = rows - 2; y >= 0; y--) {
+      // Alternating scan direction each row cancels the drift a fixed
+      // left-to-right sweep would build up in the piles.
+      const ltr = Math.random() < 0.5
+      for (let i = 0; i < cols; i++) {
+        const x = ltr ? i : cols - 1 - i
+        const idx = y * cols + x
+        const cell = grid[idx]
+        if (cell === EMPTY || cell === STONE) continue
+
+        const below = idx + cols
+        if (grid[below] === EMPTY) {
+          grid[below] = cell
+          grid[idx] = EMPTY
+          continue
+        }
+        // Sand is denser than water, so it trades places and sinks.
+        if (cell === SAND && grid[below] === WATER) {
+          grid[below] = SAND
+          grid[idx] = WATER
+          continue
+        }
+
+        const dir = Math.random() < 0.5 ? -1 : 1
+        for (const d of [dir, -dir]) {
+          const nx = x + d
+          if (nx < 0 || nx >= cols) continue
+          const diag = below + d
+          if (grid[diag] === EMPTY) {
+            grid[diag] = cell
+            grid[idx] = EMPTY
+            break
+          }
+          if (cell === SAND && grid[diag] === WATER) {
+            grid[diag] = SAND
+            grid[idx] = WATER
+            break
+          }
+          // Water alone also spreads sideways, which is what makes it level
+          // off instead of standing in a column like sand.
+          if (cell === WATER) {
+            const side = idx + d
+            if (grid[side] === EMPTY) {
+              grid[side] = WATER
+              grid[idx] = EMPTY
+              break
+            }
+          }
+        }
+      }
+    }
+  }, [])
+
+  const stepLife = useCallback(() => {
+    const { cols, rows } = DIMS.life
+    // Rule lives in src/lib/life.ts so it can be tested against a block, a
+    // blinker and a glider — none of which a canvas can tell you about.
+    // Swap the two buffers rather than allocating: lifeStep writes into `next`
+    // and returns it, so the grid just read from becomes the scratch space for
+    // the following generation. Pointing both refs at the same array here would
+    // make the next step read and write one buffer, which corrupts the board.
+    const prev = lifeRef.current
+    lifeRef.current = lifeStep(prev, lifeNextRef.current, cols, rows)
+    lifeNextRef.current = prev
   }, [])
 
   useEffect(() => {
@@ -83,92 +207,31 @@ export function FallingSand() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    canvas.width = COLS
-    canvas.height = ROWS
-    ctx.imageSmoothingEnabled = false
+    if (!sandRef.current.some((c) => c !== EMPTY)) seedSand()
+    if (!lifeRef.current.some((c) => c !== 0)) seedLife()
 
-    const image = ctx.createImageData(COLS, ROWS)
-    const grid = gridRef.current
+    const images: Partial<Record<Mode, ImageData>> = {}
+    let lastMode: Mode | null = null
+    let prev = performance.now()
 
-    // Seed a heap so the first thing on screen is sand settling rather than an
-    // empty rectangle that gives no hint the canvas is the toy.
-    if (!grid.some((c) => c !== EMPTY)) {
-      for (let y = 0; y < 26; y++) {
-        for (let x = 0; x < COLS; x++) {
-          const edge = Math.min(x, COLS - 1 - x)
-          if (edge < 30 && y > edge) continue
-          if (Math.random() < 0.55) grid[y * COLS + x] = SAND
-        }
+    const draw = (m: Mode) => {
+      const { cols, rows } = DIMS[m]
+      if (lastMode !== m) {
+        canvas.width = cols
+        canvas.height = rows
+        ctx.imageSmoothingEnabled = false
+        lastMode = m
       }
-    }
-
-    const step = () => {
-      // Bottom-up so a cell that just moved down is not moved again this tick.
-      for (let y = ROWS - 2; y >= 0; y--) {
-        // Alternating scan direction each row cancels the drift a fixed
-        // left-to-right sweep would build up in the piles.
-        const ltr = Math.random() < 0.5
-        for (let i = 0; i < COLS; i++) {
-          const x = ltr ? i : COLS - 1 - i
-          const idx = y * COLS + x
-          const cell = grid[idx]
-          if (cell === EMPTY || cell === STONE) continue
-
-          const below = idx + COLS
-
-          if (grid[below] === EMPTY) {
-            grid[below] = cell
-            grid[idx] = EMPTY
-            continue
-          }
-
-          // Sand is denser than water, so it trades places and sinks.
-          if (cell === SAND && grid[below] === WATER) {
-            grid[below] = SAND
-            grid[idx] = WATER
-            continue
-          }
-
-          const dir = Math.random() < 0.5 ? -1 : 1
-          for (const d of [dir, -dir]) {
-            const nx = x + d
-            if (nx < 0 || nx >= COLS) continue
-            const diag = below + d
-            if (grid[diag] === EMPTY) {
-              grid[diag] = cell
-              grid[idx] = EMPTY
-              break
-            }
-            if (cell === SAND && grid[diag] === WATER) {
-              grid[diag] = SAND
-              grid[idx] = WATER
-              break
-            }
-            // Water alone also spreads sideways, which is what makes it level
-            // off instead of standing in a column like sand.
-            if (cell === WATER) {
-              const side = idx + d
-              if (grid[side] === EMPTY) {
-                grid[side] = WATER
-                grid[idx] = EMPTY
-                break
-              }
-            }
-          }
-        }
-      }
-    }
-
-    const draw = () => {
+      if (!images[m]) images[m] = ctx.createImageData(cols, rows)
+      const image = images[m]!
       const data = image.data
+      const grid = m === 'sand' ? sandRef.current : lifeRef.current
+
       for (let i = 0; i < grid.length; i++) {
         const o = i * 4
         const cell = grid[i]
-        if (cell === EMPTY) {
-          data[o + 3] = 0
-          continue
-        }
-        const c = COLORS[cell]
+        if (!cell) { data[o + 3] = 0; continue }
+        const c = m === 'life' ? ALIVE : COLORS[cell]
         data[o] = c[0]
         data[o + 1] = c[1]
         data[o + 2] = c[2]
@@ -177,11 +240,30 @@ export function FallingSand() {
       ctx.putImageData(image, 0, 0)
     }
 
-    const frame = () => {
+    const frame = (now: number) => {
+      const dt = now - prev
+      prev = now
+      const m = modeRef.current
       const p = pointerRef.current
       if (p.down) paint(p.x, p.y)
-      if (runningRef.current) step()
-      draw()
+
+      if (m === 'sand') {
+        if (runningRef.current) stepSand()
+      } else {
+        // Life advances on its own clock rather than once per frame, so the
+        // speed does not depend on the viewer's refresh rate.
+        lifeClockRef.current += runningRef.current ? dt : 0
+        while (lifeClockRef.current >= LIFE_STEP_MS) {
+          lifeClockRef.current -= LIFE_STEP_MS
+          stepLife()
+        }
+        if (stepOnceRef.current) {
+          stepOnceRef.current = false
+          stepLife()
+        }
+      }
+
+      draw(m)
       rafRef.current = requestAnimationFrame(frame)
     }
     rafRef.current = requestAnimationFrame(frame)
@@ -189,13 +271,14 @@ export function FallingSand() {
     return () => {
       if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current)
     }
-  }, [paint])
+  }, [paint, stepSand, stepLife, seedSand, seedLife])
 
   const toGrid = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const { cols, rows } = DIMS[modeRef.current]
     const rect = e.currentTarget.getBoundingClientRect()
     return {
-      x: Math.floor(((e.clientX - rect.left) / rect.width) * COLS),
-      y: Math.floor(((e.clientY - rect.top) / rect.height) * ROWS),
+      x: Math.floor(((e.clientX - rect.left) / rect.width) * cols),
+      y: Math.floor(((e.clientY - rect.top) / rect.height) * rows),
     }
   }
 
@@ -211,7 +294,18 @@ export function FallingSand() {
   }
   const onPointerUp = () => { pointerRef.current.down = false }
 
-  const clear = () => { gridRef.current.fill(EMPTY) }
+  const clear = () => {
+    if (mode === 'sand') sandRef.current.fill(EMPTY)
+    else lifeRef.current.fill(0)
+  }
+
+  const btn = (active = false): React.CSSProperties => ({
+    display: 'inline-flex', alignItems: 'center', gap: '7px',
+    padding: '7px 13px', fontSize: '13px', cursor: 'pointer', borderRadius: '8px',
+    color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
+    backgroundColor: active ? 'var(--bg-elevated)' : 'transparent',
+    border: `1px solid ${active ? 'var(--border-strong)' : 'var(--border-default)'}`,
+  })
 
   const MATERIALS: { value: Material; label: string; swatch: string }[] = [
     { value: SAND, label: t('sand'), swatch: 'rgb(214,158,74)' },
@@ -228,11 +322,11 @@ export function FallingSand() {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
-        aria-label={t('canvasLabel')}
+        aria-label={mode === 'sand' ? t('canvasLabel') : t('canvasLabelLife')}
         role="img"
         style={{
           width: '100%',
-          aspectRatio: `${COLS} / ${ROWS}`,
+          aspectRatio: `${DIMS.sand.cols} / ${DIMS.sand.rows}`,
           display: 'block',
           borderRadius: '12px',
           border: '1px solid var(--border-default)',
@@ -243,27 +337,30 @@ export function FallingSand() {
         }}
       />
 
-      <div style={{
-        display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px',
-        marginTop: '16px',
-      }}>
-        <div role="group" aria-label={t('materialLabel')} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {MATERIALS.map((m) => {
-            const active = material === m.value
-            return (
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
+        <div role="group" aria-label={t('modeLabel')} style={{ display: 'flex', gap: '8px' }}>
+          {(['sand', 'life'] as Mode[]).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              aria-pressed={mode === m}
+              style={btn(mode === m)}
+            >
+              {m === 'sand' ? t('modeSand') : t('modeLife')}
+            </button>
+          ))}
+        </div>
+
+        {mode === 'sand' && (
+          <div role="group" aria-label={t('materialLabel')} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {MATERIALS.map((m) => (
               <button
                 key={m.label}
                 type="button"
                 onClick={() => setMaterial(m.value)}
-                aria-pressed={active}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '7px',
-                  padding: '7px 13px', fontSize: '13px', cursor: 'pointer',
-                  borderRadius: '8px',
-                  color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  backgroundColor: active ? 'var(--bg-elevated)' : 'transparent',
-                  border: `1px solid ${active ? 'var(--border-strong)' : 'var(--border-default)'}`,
-                }}
+                aria-pressed={material === m.value}
+                style={btn(material === m.value)}
               >
                 <span aria-hidden="true" style={{
                   width: '11px', height: '11px', borderRadius: '3px',
@@ -272,14 +369,24 @@ export function FallingSand() {
                 }} />
                 {m.label}
               </button>
-            )
-          })}
-        </div>
+            ))}
+          </div>
+        )}
 
-        <label style={{
-          display: 'inline-flex', alignItems: 'center', gap: '8px',
-          fontSize: '13px', color: 'var(--text-secondary)',
-        }}>
+        {mode === 'life' && (
+          <div role="group" aria-label={t('materialLabel')} style={{ display: 'flex', gap: '8px' }}>
+            <button type="button" onClick={() => setMaterial(SAND)} aria-pressed={material !== EMPTY} style={btn(material !== EMPTY)}>
+              <span aria-hidden="true" style={{ width: '11px', height: '11px', borderRadius: '3px', backgroundColor: 'rgb(110,190,140)' }} />
+              {t('draw')}
+            </button>
+            <button type="button" onClick={() => setMaterial(EMPTY)} aria-pressed={material === EMPTY} style={btn(material === EMPTY)}>
+              <span aria-hidden="true" style={{ width: '11px', height: '11px', borderRadius: '3px', border: '1px dashed var(--border-strong)' }} />
+              {t('eraser')}
+            </button>
+          </div>
+        )}
+
+        <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
           {t('brush')}
           <input
             type="range" min={1} max={12} value={brush}
@@ -288,33 +395,27 @@ export function FallingSand() {
           />
         </label>
 
-        <button
-          type="button"
-          onClick={() => setRunning((r) => !r)}
-          style={{
-            padding: '7px 13px', fontSize: '13px', cursor: 'pointer',
-            borderRadius: '8px', color: 'var(--text-secondary)',
-            backgroundColor: 'transparent', border: '1px solid var(--border-default)',
-          }}
-        >
+        <button type="button" onClick={() => setRunning((r) => !r)} style={btn()}>
           {running ? t('pause') : t('play')}
         </button>
 
-        <button
-          type="button"
-          onClick={clear}
-          style={{
-            padding: '7px 13px', fontSize: '13px', cursor: 'pointer',
-            borderRadius: '8px', color: 'var(--text-secondary)',
-            backgroundColor: 'transparent', border: '1px solid var(--border-default)',
-          }}
-        >
+        {mode === 'life' && (
+          <button type="button" onClick={() => { stepOnceRef.current = true }} style={btn()}>
+            {t('step')}
+          </button>
+        )}
+
+        <button type="button" onClick={() => (mode === 'sand' ? seedSand() : seedLife())} style={btn()}>
+          {t('randomize')}
+        </button>
+
+        <button type="button" onClick={clear} style={btn()}>
           {t('clear')}
         </button>
       </div>
 
       <p style={{ marginTop: '12px', fontSize: '13px', color: 'var(--text-tertiary)' }}>
-        {t('hint')}
+        {mode === 'sand' ? t('hint') : t('hintLife')}
       </p>
     </div>
   )

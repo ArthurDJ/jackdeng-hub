@@ -183,7 +183,15 @@
       "clear": "Clear",
       "materialLabel": "Material",
       "canvasLabel": "Falling sand simulation. Drag on the canvas to draw.",
-      "hint": "Drag to pour. Sand piles up, water levels off, and sand sinks through water. Stone stays put."
+      "hint": "Drag to pour. Sand piles up, water levels off, and sand sinks through water. Stone stays put.",
+      "modeLabel": "Mode",
+      "modeSand": "Sand",
+      "modeLife": "Life",
+      "draw": "Draw",
+      "step": "Step",
+      "randomize": "Randomize",
+      "canvasLabelLife": "Conway's Game of Life. Drag on the canvas to draw cells.",
+      "hintLife": "Drag to draw cells. Each step, a cell with three neighbours is born and one with two or three survives. Edges wrap, so gliders keep going."
     }
   },
   "error": {

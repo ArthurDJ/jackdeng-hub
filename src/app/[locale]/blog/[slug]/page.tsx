@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { getPayload } from '@/lib/payload'
+import { getPayload, orEmpty } from '@/lib/payload'
 import { TagBadge } from '@/components/TagBadge'
 import { CategoryBadge } from '@/components/CategoryBadge'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
@@ -18,6 +18,8 @@ import { ReadingProgress } from '@/components/ReadingProgress'
 import { TableOfContents } from '@/components/TableOfContents'
 import { ShareButtons } from '@/components/ShareButtons'
 import { extractHeadings } from '@/lib/extractHeadings'
+import { asLocale } from '@/i18n/routing'
+import { populated, populatedList } from '@/lib/relations'
 
 export const revalidate = 3600
 
@@ -33,7 +35,7 @@ export async function generateStaticParams() {
   })
 
   const paths = []
-  for (const doc of docs as any[]) {
+  for (const doc of docs) {
     for (const locale of ['en', 'zh']) {
       paths.push({ locale, slug: doc.slug })
     }
@@ -49,18 +51,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     where: { slug: { equals: slug } },
     depth: 1,
     limit: 1,
-    locale: locale as any,
+    locale: asLocale(locale),
   })
-  const blog = docs[0] as any
+  const blog = docs[0]
   if (!blog) return { title: 'Not Found' }
 
   const title = blog.seo?.metaTitle ?? blog.title
   const description = blog.seo?.metaDescription ?? blog.excerpt
+  const og = populated(blog.seo?.ogImage)
+  const cover = populated(blog.coverImage)
   const ogImageUrl =
-    (blog.seo?.ogImage as any)?.sizes?.hero?.url ??
-    (blog.seo?.ogImage as any)?.url ??
-    (blog.coverImage as any)?.sizes?.hero?.url ??
-    (blog.coverImage as any)?.url
+    og?.sizes?.hero?.url ??
+    og?.url ??
+    cover?.sizes?.hero?.url ??
+    cover?.url
 
   const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
   const ogImage = ogImageUrl
@@ -99,29 +103,27 @@ export default async function BlogDetailPage({ params }: Props) {
     where: { slug: { equals: slug }, status: { equals: 'published' } },
     depth: 1,
     limit: 1,
-    locale: locale as any,
+    locale: asLocale(locale),
   })
 
-  const blog = docs[0] as any
+  const blog = docs[0]
   if (!blog) notFound()
 
   const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
 
-  const heroUrl =
-    (blog.coverImage as any)?.sizes?.hero?.url ?? (blog.coverImage as any)?.url
+  const cover = populated(blog.coverImage)
+  const heroUrl = cover?.sizes?.hero?.url ?? cover?.url
 
-  const category = typeof blog.category === 'object' ? blog.category : null
-  const tags: any[] = Array.isArray(blog.tags)
-    ? blog.tags.filter((t: any) => typeof t === 'object')
-    : []
+  const category = populated(blog.category)
+  const tags = populatedList(blog.tags)
 
-  const sidebar = await buildSidebarData({ locale: locale as any, activeCategory: category?.slug })
+  const sidebar = await buildSidebarData({ locale: asLocale(locale), activeCategory: category?.slug })
   const t = await getTranslations({ locale, namespace: 'blog' })
   const readMins = readingTime(blog.content)
   const tocHeadings = extractHeadings(blog.content)
 
   // ── Related Posts ──────────────────────────────────────────────────────────
-  const { docs: relatedDocs } = await payload.find({
+  const { docs: relatedDocs } = await orEmpty(payload.find({
     collection: 'blogs',
     where: {
       status: { equals: 'published' },
@@ -133,8 +135,8 @@ export default async function BlogDetailPage({ params }: Props) {
     limit: 2,
     sort: '-publishedAt',
     depth: 1,
-    locale: locale as any,
-  }).catch(() => ({ docs: [] }))
+    locale: asLocale(locale),
+  }))
 
   // ── JSON-LD structured data ──────────────────────────────────────────────
   const canonicalUrl = `${BASE}/${locale}/blog/${slug}`
@@ -206,7 +208,7 @@ export default async function BlogDetailPage({ params }: Props) {
         <div style={{ position: 'relative', width: '100%', aspectRatio: '21/9', maxHeight: 480, overflow: 'hidden', background: 'var(--bg-elevated)' }}>
           <Image
             src={heroUrl}
-            alt={(blog.coverImage as any)?.alt ?? blog.title}
+            alt={cover?.alt ?? blog.title}
             fill
             priority
             className="object-cover"
@@ -341,15 +343,15 @@ export default async function BlogDetailPage({ params }: Props) {
                   {locale === 'zh' ? '相关文章' : 'Related Posts'}
                 </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-                  {relatedDocs.map((related: any) => (
+                  {relatedDocs.map((related) => (
                     <BlogCard
                       key={related.id}
                       title={related.title}
                       slug={related.slug}
                       excerpt={related.excerpt}
-                      coverImage={related.coverImage}
-                      category={typeof related.category === 'object' ? related.category : null}
-                      tags={Array.isArray(related.tags) ? related.tags.filter((tag: any) => typeof tag === 'object') : []}
+                      coverImage={populated(related.coverImage)}
+                      category={populated(related.category)}
+                      tags={populatedList(related.tags)}
                       publishedAt={related.publishedAt}
                       featured={related.featured}
                       content={related.content}

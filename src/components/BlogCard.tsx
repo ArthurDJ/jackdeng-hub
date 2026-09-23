@@ -5,24 +5,15 @@ import { TagBadge } from './TagBadge'
 import { CategoryBadge } from './CategoryBadge'
 import { readingTime } from '@/lib/readingTime'
 import { formatDate } from '@/lib/formatDate'
-
-interface Tag     { id: string; name: string; slug: string; color: string }
-interface Category { id: string; name: string; slug: string }
-interface MediaDoc {
-  url?: string
-  sizes?: { card?: { url?: string }; thumbnail?: { url?: string } }
-  alt?: string
-  width?: number
-  height?: number
-}
+import type { Category, Media, Tag } from '@/payload-types'
 
 export interface BlogCardProps {
   title: string
   slug: string
   excerpt: string
-  coverImage?: MediaDoc | null
-  category?: Category | null
-  tags?: Tag[]
+  coverImage?: Pick<Media, 'url' | 'sizes' | 'alt'> | null
+  category?: Pick<Category, 'id' | 'name' | 'slug'> | null
+  tags?: Pick<Tag, 'id' | 'name' | 'slug' | 'color'>[]
   publishedAt?: string | null
   featured?: boolean
   content?: unknown

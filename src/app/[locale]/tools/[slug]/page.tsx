@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
 import { getBuiltinTool } from '@/components/tools/registry'
+import { asLocale } from '@/i18n/routing'
 
 export const revalidate = 3600
 
@@ -20,8 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     where: { slug: { equals: slug } },
     depth: 0,
     limit: 1,
-    locale: locale as any,
-  }) as any
+    locale: asLocale(locale),
+  })
 
   const tool = docs[0]
   if (!tool) return {}
@@ -72,8 +73,8 @@ export default async function ToolDetailPage({ params }: Props) {
     },
     depth: 0,
     limit: 1,
-    locale: locale as any,
-  }) as any
+    locale: asLocale(locale),
+  })
 
   const tool = docs[0]
   if (!tool) notFound()

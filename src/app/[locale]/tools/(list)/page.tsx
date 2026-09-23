@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
+import { asLocale } from '@/i18n/routing'
 
 export const revalidate = 3600
 
@@ -51,9 +52,9 @@ export default async function ToolsPage({ params }: Props) {
       ],
     },
     depth: 0,
-    locale: locale as any,
+    locale: asLocale(locale),
     limit: 50,
-  }) as any
+  })
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-base)' }}>
@@ -87,7 +88,7 @@ export default async function ToolsPage({ params }: Props) {
             gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: '20px',
           }}>
-            {tools.map((tool: any) => {
+            {tools.map((tool) => {
               const color = STATUS_COLOR[tool.status] ?? STATUS_COLOR.online
               const label = STATUS_LABEL[tool.status] ?? STATUS_LABEL.online
               return (

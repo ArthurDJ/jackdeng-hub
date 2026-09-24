@@ -5,7 +5,12 @@ export const runtime = 'edge'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
-  const title = searchParams.get('title') ?? 'Jack Deng'
+  // Capped: this renders whatever the query says onto an image served from
+  // this domain, so it should not take an essay.
+  const title = (searchParams.get('title') ?? 'Jack Deng').slice(0, 120)
+  // Optional line under the title — the home page and /about put the headline
+  // here, so a shared link says what the person does, not just their name.
+  const subtitle = searchParams.get('subtitle')?.slice(0, 120) ?? null
   const type = searchParams.get('type') ?? 'default' // 'blog' | 'default'
 
   return new ImageResponse(
@@ -34,8 +39,10 @@ export async function GET(request: NextRequest) {
         <div
           style={{
             display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
             flex: 1,
-            alignItems: 'center',
+            gap: '20px',
             padding: '40px 0',
           }}
         >
@@ -51,6 +58,11 @@ export async function GET(request: NextRequest) {
           >
             {title}
           </h1>
+          {subtitle && (
+            <p style={{ fontSize: '32px', color: '#a1a1aa', margin: 0, lineHeight: 1.3 }}>
+              {subtitle}
+            </p>
+          )}
         </div>
 
         {/* Bottom: author */}

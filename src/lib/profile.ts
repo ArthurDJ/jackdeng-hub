@@ -84,3 +84,34 @@ export const TIMELINE = [
     tech: ['SQL', 'Data Warehousing', 'Statistics', 'Python'],
   },
 ]
+
+/**
+ * schema.org Person for the home page and /about, so a search engine can tie
+ * this site, GitHub and LinkedIn to one person. Built from the same data the
+ * pages show — nothing here that a visitor cannot already read on the site.
+ *
+ * Two omissions on purpose: no `jobTitle` (the headline is the kind of work,
+ * not a title held, so it goes in `description`), and no email (the page
+ * already links it; structured data would only make it easier to harvest).
+ */
+export function personJsonLd(base: string, locale: 'en' | 'zh', headline: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': `${base}/#person`,
+    name: 'Jack Deng',
+    alternateName: 'Jie Deng',
+    url: `${base}/${locale}`,
+    description: headline,
+    address: { '@type': 'PostalAddress', addressRegion: 'CA', addressCountry: 'US' },
+    worksFor: { '@type': 'Organization', name: TIMELINE[0].place },
+    alumniOf: { '@type': 'CollegeOrUniversity', name: 'Northeastern University' },
+    knowsAbout: SKILLS.flatMap((s) => s.items),
+    sameAs: PROFILE_LINKS.filter((l) => l.href.startsWith('https://')).map((l) => l.href),
+  }
+}
+
+/** The share-card image for pages about the person: name, then the headline. */
+export function profileOgImage(base: string, headline: string) {
+  return `${base}/og?title=${encodeURIComponent('Jack Deng')}&subtitle=${encodeURIComponent(headline)}`
+}

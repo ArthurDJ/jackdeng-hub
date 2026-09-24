@@ -3,7 +3,9 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
-import { CONTACT_EMAIL, PROFILE_LINKS as LINKS, SKILLS, TIMELINE } from '@/lib/profile'
+import { CONTACT_EMAIL, PROFILE_LINKS as LINKS, SKILLS, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
+import { toJsonLd } from '@/lib/jsonLd'
+import { asLocale } from '@/i18n/routing'
 
 // Static per locale — generated at build time
 export async function generateStaticParams() {
@@ -21,6 +23,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: tNav('about'),
     description: `${t('subtitle')} — ${t('title')}`,
+    openGraph: {
+      siteName: 'Jack Deng',
+      type: 'profile',
+      title: `${tNav('about')} — Jack Deng`,
+      description: `${t('subtitle')} — ${t('title')}`,
+      images: [{ url: profileOgImage(BASE, t('subtitle')), width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: [profileOgImage(BASE, t('subtitle'))],
+    },
     alternates: {
       canonical: `${BASE}/${locale}/about`,
       languages: { en: `${BASE}/en/about`, zh: `${BASE}/zh/about` },
@@ -98,13 +111,25 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'about' })
-  const lang = locale as 'en' | 'zh'
+  const lang = asLocale(locale)
 
   return (
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
       <main id="main" style={{ flex: 1, maxWidth: 720, margin: '0 auto', padding: '64px 24px', display: 'flex', flexDirection: 'column', gap: 56 }}>
+        {/* The page is a profile of one person — see personJsonLd. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: toJsonLd({
+              '@context': 'https://schema.org',
+              '@type': 'ProfilePage',
+              url: `${BASE}/${lang}/about`,
+              mainEntity: personJsonLd(BASE, lang, t('subtitle')),
+            }),
+          }}
+        />
 
         {/* ── Bio ─────────────────────────────────────────────────────── */}
         <section style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

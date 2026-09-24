@@ -2,6 +2,7 @@
 
 import { Toaster as SonnerToaster } from 'sonner'
 import { useTheme } from 'next-themes'
+import { useTranslations } from 'next-intl'
 
 /**
  * Toast host. Mounted on the blog post page, beside the comment form — the
@@ -19,6 +20,7 @@ import { useTheme } from 'next-themes'
  */
 export function Toaster() {
   const { resolvedTheme } = useTheme()
+  const t = useTranslations('common')
 
   return (
     <SonnerToaster
@@ -28,6 +30,7 @@ export function Toaster() {
       gap={8}
       offset={20}
       toastOptions={{ className: 'ds-toast' }}
+      containerAriaLabel={t('notifications')}
     />
   )
 }

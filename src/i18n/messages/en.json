@@ -8,6 +8,7 @@
     "_5": "Run 'npm run i18n:check' before committing to catch zombie keys"
   },
   "common": {
+    "notifications": "Notifications",
     "loading": "Loading…",
     "submit": "Submit",
     "cancel": "Cancel",
@@ -29,6 +30,13 @@
     "skipToContent": "Skip to content"
   },
   "nav": {
+    "switchLanguage": "Switch language: 中文",
+    "menu": "Menu",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "themeSwitchTo": "Switch to {mode} theme",
+    "themeTitle": "Theme: {current}. Click for {next}.",
     "blog": "Blog",
     "about": "About",
     "projects": "Projects",
@@ -62,6 +70,8 @@
     "viewProject": "View project"
   },
   "blog": {
+    "shareOnTwitter": "Share on Twitter",
+    "shareOnLinkedIn": "Share on LinkedIn",
     "title": "Blog",
     "subtitle": "Thoughts on engineering, systems, and building things.",
     "readMore": "Read more →",
@@ -129,6 +139,7 @@
     "ctaBlogNote": "Or read what I've been <link>writing lately →</link>."
   },
   "search": {
+    "dialogLabel": "Search the site",
     "inputPlaceholder": "Search posts, projects, tools…",
     "keyNavigate": "navigate",
     "keyOpen": "open",

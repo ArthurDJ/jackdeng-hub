@@ -8,6 +8,7 @@
     "_5": "提交前运行 npm run i18n:check 检查僵尸 key"
   },
   "common": {
+    "notifications": "通知",
     "loading": "加载中…",
     "submit": "提交",
     "cancel": "取消",
@@ -29,6 +30,13 @@
     "skipToContent": "跳到主内容"
   },
   "nav": {
+    "switchLanguage": "切换语言：EN",
+    "menu": "菜单",
+    "themeLight": "浅色",
+    "themeDark": "深色",
+    "themeSystem": "跟随系统",
+    "themeSwitchTo": "切换到{mode}主题",
+    "themeTitle": "当前主题：{current}，点击切换到{next}",
     "blog": "文章",
     "about": "关于",
     "projects": "项目",
@@ -62,6 +70,8 @@
     "viewProject": "查看项目"
   },
   "blog": {
+    "shareOnTwitter": "分享到 Twitter",
+    "shareOnLinkedIn": "分享到 LinkedIn",
     "title": "文章",
     "subtitle": "关于工程、系统与构建的思考。",
     "readMore": "阅读更多 →",
@@ -129,6 +139,7 @@
     "ctaBlogNote": "或者看看我最近在<link>写什么 →</link>。"
   },
   "search": {
+    "dialogLabel": "站内搜索",
     "inputPlaceholder": "搜索文章、项目、工具…",
     "keyNavigate": "导航",
     "keyOpen": "打开",

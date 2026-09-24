@@ -171,7 +171,7 @@ export function Navbar() {
           {/* Language switcher */}
           <button
             onClick={switchLocale}
-            aria-label={`Switch to ${otherLocale === 'zh' ? '中文' : 'English'}`}
+            aria-label={t('switchLanguage')}
             style={{
               padding: '4px 9px',
               borderRadius: 6,
@@ -204,7 +204,7 @@ export function Navbar() {
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="sm:hidden"
-            aria-label="Toggle menu"
+            aria-label={t('menu')}
             aria-expanded={isMenuOpen}
             style={{
               padding: 6,

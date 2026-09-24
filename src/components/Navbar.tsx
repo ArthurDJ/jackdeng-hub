@@ -28,6 +28,7 @@ export function Navbar() {
 
   return (
     <header
+      className="print:hidden!"
       style={{
         position: 'sticky',
         top: 0,

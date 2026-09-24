@@ -12,6 +12,18 @@ export const CONTACT_EMAIL = 'dj3013158@gmail.com'
 
 export const RESUME_URL = '/resume.pdf'
 
+export const SITE_HOST = 'www.jackdeng.cc'
+
+/**
+ * A link as it should read on paper: no scheme, no trailing slash, and an
+ * email address rather than a mailto: URL. Printed pages cannot be clicked,
+ * so the contact line under the name spells every link out.
+ */
+export function printableUrl(href: string): string {
+  if (href.startsWith('mailto:')) return href.slice('mailto:'.length)
+  return href.replace(/^https?:\/\//, '').replace(/\/+$/, '')
+}
+
 export const PROFILE_LINKS = [
   { label: 'GitHub',    href: 'https://github.com/ArthurDJ', icon: 'github' },
   { label: 'LinkedIn',  href: 'https://linkedin.com/in/jie-deng-linkdin', icon: 'linkedin' },

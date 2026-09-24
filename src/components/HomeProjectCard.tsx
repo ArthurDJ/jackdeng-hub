@@ -50,9 +50,9 @@ export function HomeProjectCard({ project }: HomeProjectCardProps) {
   }
 
   const inner = (
-    <div className="ds-card-hover" style={cardStyle}>
-      {/* Gradient cover */}
-      <div style={{ height: 72, flexShrink: 0, background: getGradient(project.name ?? '') }} />
+    <div className="ds-card-hover print:break-inside-avoid" style={cardStyle}>
+      {/* Gradient cover — decoration, and a block of ink on paper */}
+      <div className="print:hidden!" style={{ height: 72, flexShrink: 0, background: getGradient(project.name ?? '') }} />
       <div style={{ padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
         <h3 style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)', lineHeight: 1.4 }}>
@@ -83,7 +83,7 @@ export function HomeProjectCard({ project }: HomeProjectCardProps) {
           ))}
         </div>
       )}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
+      <div className="print:hidden!" style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
         {hasSlug && (
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 4,

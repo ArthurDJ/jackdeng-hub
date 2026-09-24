@@ -12,7 +12,7 @@ export async function Footer({ className }: FooterProps) {
 
   return (
     <footer 
-      className={`border-t border-subtle py-12 ${className ?? ''}`}
+      className={`border-t border-subtle py-12 print:hidden! ${className ?? ''}`}
       style={{ backgroundColor: 'var(--bg-base)' }}
     >
       <div className="ds-container">

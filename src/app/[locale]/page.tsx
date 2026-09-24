@@ -10,6 +10,7 @@ import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
 import { CONTACT_EMAIL, PROFILE_LINKS, RESUME_URL, SKILLS, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
 import { toJsonLd } from '@/lib/jsonLd'
+import { PrintContact } from '@/components/PrintContact'
 import { projectStatusColors } from '@/lib/statusColors'
 
 export const revalidate = 3600
@@ -98,7 +99,7 @@ export default async function HomePage({ params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: toJsonLd(personJsonLd(BASE, lang, t('title'))) }}
         />
-        <section className="max-w-5xl mx-auto px-6 pt-20 pb-16 sm:pt-24 sm:pb-20">
+        <section className="max-w-5xl mx-auto px-6 pt-20 pb-16 sm:pt-24 sm:pb-20 print:py-0!">
           <div className="flex flex-col lg:flex-row lg:items-center lg:gap-12">
 
             {/* ── Left: text ──────────────────────────────────────────── */}
@@ -144,10 +145,11 @@ export default async function HomePage({ params }: Props) {
               >
                 {t('intro')}
               </p>
+              <PrintContact />
 
               {/* CTAs — the résumé and a way to reach me, where a recruiter
                   looks first. These used to live only at the bottom of /about. */}
-              <div className="flex flex-col sm:flex-row flex-wrap sm:items-center gap-3">
+              <div className="flex flex-col sm:flex-row flex-wrap sm:items-center gap-3 print:hidden!">
                 <a
                   href={RESUME_URL}
                   className="ds-accent-btn w-full sm:w-auto text-center justify-center"
@@ -220,7 +222,7 @@ export default async function HomePage({ params }: Props) {
 
             {/* ── Right: floating project preview cards ───────────────── */}
             {projects.length > 0 && (
-              <div className="hidden lg:flex flex-col gap-3 flex-shrink-0 w-72 relative pt-4">
+              <div className="hidden lg:flex flex-col gap-3 flex-shrink-0 w-72 relative pt-4 print:hidden!">
                 {projects.slice(0, 2).map((project, i) => {
                   const techStack: string[] = (project.techStack ?? []).map((ts) => ts.tech).filter(Boolean)
                   const sc = projectStatusColors(project.status)
@@ -289,14 +291,14 @@ export default async function HomePage({ params }: Props) {
 
         {/* ── Experience ───────────────────────────────────────────── */}
         <section
-          className="max-w-5xl mx-auto px-6 py-14"
+          className="max-w-5xl mx-auto px-6 py-14 print:py-5!"
           style={{ borderTop: '1px solid var(--border-subtle)' }}
         >
           <div className="flex items-baseline justify-between mb-8">
             <h2 style={{ fontSize: 20, fontWeight: 510, letterSpacing: '-0.3px', color: 'var(--text-primary)' }}>
               {t('experienceHeading')}
             </h2>
-            <Link href="/about" style={{ fontSize: 13, color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 510 }}>
+            <Link href="/about" className="print:hidden!" style={{ fontSize: 13, color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 510 }}>
               {t('experienceMore')}
             </Link>
           </div>
@@ -304,7 +306,7 @@ export default async function HomePage({ params }: Props) {
             {TIMELINE.map(({ year, role, place, bullets, tech }) => (
               <li
                 key={year.en}
-                className="grid gap-2 sm:gap-6 sm:grid-cols-[160px_1fr]"
+                className="grid gap-2 sm:gap-6 sm:grid-cols-[160px_1fr] print:break-inside-avoid"
                 style={{
                   background: 'var(--bg-panel)',
                   border: '1px solid var(--border-default)',
@@ -342,7 +344,7 @@ export default async function HomePage({ params }: Props) {
 
         {/* ── Skills ───────────────────────────────────────────────── */}
         <section
-          className="max-w-5xl mx-auto px-6 py-14"
+          className="max-w-5xl mx-auto px-6 py-14 print:py-5!"
           style={{ borderTop: '1px solid var(--border-subtle)' }}
         >
           <h2
@@ -375,7 +377,7 @@ export default async function HomePage({ params }: Props) {
 
         {/* ── Latest Projects ──────────────────────────────────────────── */}
         <section
-          className="max-w-5xl mx-auto px-6 py-14"
+          className="max-w-5xl mx-auto px-6 py-14 print:py-5!"
           style={{ borderTop: '1px solid var(--border-subtle)' }}
         >
           <div className="flex items-baseline justify-between mb-8">
@@ -384,6 +386,7 @@ export default async function HomePage({ params }: Props) {
             </h2>
             <Link
               href="/projects"
+              className="print:hidden!"
               style={{ fontSize: 13, color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 500 }}
             >
               {t('projects')} →
@@ -440,7 +443,7 @@ export default async function HomePage({ params }: Props) {
         {/* ── Latest Posts ─────────────────────────────────────────────── */}
         {blogs.length > 0 && (
           <section
-            className="max-w-5xl mx-auto px-6 py-14"
+            className="max-w-5xl mx-auto px-6 py-14 print:hidden!"
             style={{ borderTop: '1px solid var(--border-subtle)' }}
           >
             <div className="flex items-baseline justify-between mb-8">

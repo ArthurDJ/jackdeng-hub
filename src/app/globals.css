@@ -533,3 +533,52 @@
 @media (prefers-reduced-motion: reduce) {
   .ds-skip-link { transition: none; }
 }
+
+/* ── Print ────────────────────────────────────────────────────────────────
+   The home page and /about stand in for a résumé, and a résumé gets printed
+   or saved as PDF. On paper:
+   - Always the light palette. A visitor in dark mode would otherwise print
+     near-white text, onto white paper once the browser drops backgrounds.
+   - No site chrome: the navbar, footer, skip link and toasts are hidden
+     with print:hidden! on the components, and the ones below here.
+   - No cards split across a page, no heading stranded at the bottom of one.
+   Per-page choices (what to hide, the contact line) live in the pages. */
+@media print {
+  :root,
+  :root.light,
+  :root.dark {
+    --bg-base:        #ffffff;
+    --bg-panel:       #ffffff;
+    --bg-elevated:    #ffffff;
+    --bg-overlay:     #ffffff;
+    --bg-hover:       transparent;
+    --bg-subtle:      transparent;
+    --text-primary:   #111111;
+    --text-secondary: #333333;
+    --text-tertiary:  #555555;
+    --border-subtle:  #e5e5e5;
+    --border-default: #d4d4d4;
+    --border-strong:  #bdbdbd;
+    --accent-primary: #1d4ed8;
+    color-scheme: light;
+  }
+  html,
+  body {
+    background: #ffffff !important;
+  }
+  @page {
+    margin: 14mm 14mm 16mm;
+  }
+  .ds-skip-link,
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+  h1, h2, h3 {
+    break-after: avoid;
+  }
+  p, li {
+    orphans: 2;
+    widows: 2;
+  }
+}
+

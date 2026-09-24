@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
+import { PrintContact } from '@/components/PrintContact'
 import { CONTACT_EMAIL, PROFILE_LINKS as LINKS, SKILLS, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
 import { toJsonLd } from '@/lib/jsonLd'
 import { asLocale } from '@/i18n/routing'
@@ -95,7 +96,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 /* ── section heading helper ── */
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p style={{
+    <p className="print:break-after-avoid" style={{
       fontSize: 11,
       fontWeight: 510,
       letterSpacing: '0.1em',
@@ -117,7 +118,7 @@ export default async function AboutPage({ params }: Props) {
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      <main id="main" style={{ flex: 1, maxWidth: 720, margin: '0 auto', padding: '64px 24px', display: 'flex', flexDirection: 'column', gap: 56 }}>
+      <main id="main" className="print:py-0! print:gap-8!" style={{ flex: 1, maxWidth: 720, margin: '0 auto', padding: '64px 24px', display: 'flex', flexDirection: 'column', gap: 56 }}>
         {/* The page is a profile of one person — see personJsonLd. */}
         <script
           type="application/ld+json"
@@ -141,6 +142,7 @@ export default async function AboutPage({ params }: Props) {
               <p style={{ fontSize: 14, color: 'var(--text-tertiary)', fontWeight: 400 }}>
                 {t('subtitle')}
               </p>
+              <PrintContact />
             </div>
             {/* Avatar — initials */}
             <div style={{
@@ -180,7 +182,7 @@ export default async function AboutPage({ params }: Props) {
           <SectionLabel>{t('skillsHeading')}</SectionLabel>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
             {SKILLS.map(({ group, items }) => (
-              <div key={group.en} style={{
+              <div key={group.en} className="print:break-inside-avoid" style={{
                 background: 'var(--bg-panel)',
                 border: '1px solid var(--border-default)',
                 borderRadius: 12,
@@ -214,7 +216,7 @@ export default async function AboutPage({ params }: Props) {
           <SectionLabel>{t('experienceHeading')}</SectionLabel>
           <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 0 }}>
             {TIMELINE.map(({ year, role, place, bullets, tech }, i) => (
-              <li key={year.en} style={{ display: 'flex', gap: 20, position: 'relative', paddingBottom: i < TIMELINE.length - 1 ? 32 : 0 }}>
+              <li key={year.en} className="print:break-inside-avoid" style={{ display: 'flex', gap: 20, position: 'relative', paddingBottom: i < TIMELINE.length - 1 ? 32 : 0 }}>
                 {/* Spine */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, width: 16 }}>
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-primary)', marginTop: 6, flexShrink: 0 }} />
@@ -257,7 +259,9 @@ export default async function AboutPage({ params }: Props) {
         </section>
 
         {/* ── Links ───────────────────────────────────────────────────── */}
-        <section>
+        {/* On paper these are pills with no address; PrintContact under the
+            name spells them out instead. */}
+        <section className="print:hidden!">
           <SectionLabel>{t('findMeHeading')}</SectionLabel>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {LINKS.map(({ label, href, icon }) => (
@@ -289,7 +293,7 @@ export default async function AboutPage({ params }: Props) {
         </section>
 
         {/* ── CTA ─────────────────────────────────────────────────────── */}
-        <section style={{
+        <section className="print:hidden!" style={{
           background: 'var(--bg-panel)',
           border: '1px solid var(--border-default)',
           borderRadius: 12,

@@ -1,8 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { NextRequest } from 'next/server'
 
-export const runtime = 'edge'
-
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
   // Capped: this renders whatever the query says onto an image served from

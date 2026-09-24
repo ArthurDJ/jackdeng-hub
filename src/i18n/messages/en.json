@@ -90,6 +90,7 @@
     "commentErrorRateLimited": "You have posted a few comments already. Please try again later.",
     "commentErrorUnavailable": "Comments are unavailable right now. Please try again later.",
     "archive": "Archive",
+    "archiveDescription": "Every post on Jack Deng's blog, by year and month.",
     "post": "post",
     "posts": "posts",
     "minRead": "{count} min read",

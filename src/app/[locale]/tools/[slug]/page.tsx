@@ -70,7 +70,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         zh: `${BASE}/zh/tools/${slug}`,
       },
     },
-    openGraph: { title: `${title} — Jack Deng`, description },
+    // A page-level openGraph replaces the layout's whole, image included, so
+    // the tool has to bring its own card or links to it share without one.
+    openGraph: {
+      title: `${title} — Jack Deng`,
+      description,
+      images: [{ url: `${BASE}/og?title=${encodeURIComponent(title)}&subtitle=${encodeURIComponent(description)}`, width: 1200, height: 630 }],
+    },
   }
 }
 

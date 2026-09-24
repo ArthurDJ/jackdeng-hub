@@ -10,7 +10,8 @@ import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
 import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
-import { POSTS_PER_PAGE } from '@/lib/pagination'
+import { POSTS_PER_PAGE, pageHref } from '@/lib/pagination'
+import { localeAlternates } from '@/lib/alternates'
 
 export async function categoryMetadata(locale: string, slug: string, page: number): Promise<Metadata> {
   const payload = await getPayload()
@@ -28,6 +29,8 @@ export async function categoryMetadata(locale: string, slug: string, page: numbe
       ? `${t('categoryMetaTitle', { name: cat.name })} · ${t('pagination.page', { page })}`
       : t('categoryMetaTitle', { name: cat.name }),
     description: cat.description ?? t('categoryMetaDescription', { name: cat.name }),
+    // Each page is its own canonical URL, as on /blog.
+    alternates: localeAlternates(locale, pageHref(`/blog/category/${slug}`, page)),
   }
 }
 

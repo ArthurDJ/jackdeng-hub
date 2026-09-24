@@ -11,7 +11,8 @@ import { TagBadge } from '@/components/TagBadge'
 import { buildSidebarData } from '@/lib/sidebarData'
 import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
-import { POSTS_PER_PAGE } from '@/lib/pagination'
+import { POSTS_PER_PAGE, pageHref } from '@/lib/pagination'
+import { localeAlternates } from '@/lib/alternates'
 
 export async function tagMetadata(locale: string, slug: string, page: number): Promise<Metadata> {
   const payload = await getPayload()
@@ -28,7 +29,13 @@ export async function tagMetadata(locale: string, slug: string, page: number): P
     title: page > 1
       ? `${t('tagMetaTitle', { name: tag.name })} · ${t('pagination.page', { page })}`
       : t('tagMetaTitle', { name: tag.name }),
-    description: tag.description ?? t('tagMetaDescription', { name: tag.name }),
+    // Tags are not localized: their descriptions are written in English, so
+    // the Chinese page gets the translated template rather than English copy.
+    description: locale === 'en' && tag.description
+      ? `${t('tagMetaDescription', { name: tag.name })} ${tag.description}.`
+      : t('tagMetaDescription', { name: tag.name }),
+    // Each page is its own canonical URL, as on /blog.
+    alternates: localeAlternates(locale, pageHref(`/blog/tag/${slug}`, page)),
   }
 }
 

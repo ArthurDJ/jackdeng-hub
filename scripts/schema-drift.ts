@@ -41,6 +41,13 @@ async function push() {
   // localhost DATABASE_URI, and Payload pushes only outside production.
   process.env.DATABASE_URI = url
   process.env.PAYLOAD_SCHEMA_PUSH = '1'
+  // The Vercel Blob storage plugin is enabled only when this token is set
+  // (payload.config.ts), and production always has it. Without it the
+  // plugin's fields vanish from the pushed schema, so the check compared a
+  // schema production does not have: it passed the Payload 3.90 upgrade while
+  // media._objectkey was missing, and the build caught it instead. The value
+  // is never used to talk to Blob; nothing here uploads.
+  process.env.BLOB_READ_WRITE_TOKEN ??= 'vercel_blob_rw_schemadrift_placeholder'
   if (process.env.NODE_ENV === 'production') throw new Error('push runs only outside NODE_ENV=production')
   const { getPayload } = await import('payload')
   const { default: config } = await import('../src/payload.config')

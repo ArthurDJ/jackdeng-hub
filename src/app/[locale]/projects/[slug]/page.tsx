@@ -10,6 +10,7 @@ import { getTranslations } from 'next-intl/server'
 import { getPayload, orEmpty } from '@/lib/payload'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
 import { Navbar } from '@/components/Navbar'
+import { projectStatusColors } from '@/lib/statusColors'
 
 // ISR, same as blog/[slug]. This page was force-dynamic from v1.3.1 until
 // now; the DYNAMIC_SERVER_USAGE 500 that prompted it was the layout reading
@@ -96,18 +97,12 @@ export default async function ProjectDetailPage({ params }: Props) {
   const techStack: string[] = (project.techStack ?? []).map((t) => t.tech).filter(Boolean)
   const coverUrl: string | null = populated(project.coverImage)?.url ?? null
   const logoUrl: string | null = populated(project.logo)?.url ?? null
-
-  const statusColors: Record<string, { bg: string; text: string; border: string }> = {
-    active:    { bg: 'rgba(16,185,129,0.10)', text: '#10b981', border: 'rgba(16,185,129,0.20)' },
-    completed: { bg: 'rgba(94,106,210,0.10)', text: '#7170ff', border: 'rgba(94,106,210,0.20)' },
-    'on-hold': { bg: 'rgba(245,158,11,0.10)', text: '#f59e0b', border: 'rgba(245,158,11,0.20)' },
-  }
   const statusLabel: Record<string, string> = {
     active:    tHome('projectStatus.active'),
     completed: tHome('projectStatus.completed'),
     'on-hold': tHome('projectStatus.onHold'),
   }
-  const sc = statusColors[project.status] ?? statusColors['active']
+  const sc = projectStatusColors(project.status)
 
   // Other projects (exclude current). Optional: the page is still worth
   // serving without them.
@@ -225,7 +220,7 @@ export default async function ProjectDetailPage({ params }: Props) {
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: 6,
                     padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-                    background: 'var(--accent-primary)', color: '#fff', textDecoration: 'none',
+                    background: 'var(--accent-solid)', color: '#fff', textDecoration: 'none',
                     border: 'none',
                   }}
                 >
@@ -283,7 +278,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
               {otherProjects.filter(p => p.slug).map((other) => {
-                const oSc = statusColors[other.status] ?? statusColors['active']
+                const oSc = projectStatusColors(other.status)
                 const oTech: string[] = (other.techStack ?? []).map((t) => t.tech).filter(Boolean)
                 return (
                   <Link

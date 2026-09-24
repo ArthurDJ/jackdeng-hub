@@ -245,7 +245,7 @@ export function CommentForm({ postId }: Props) {
         type="submit"
         disabled={state === 'submitting'}
         className="ds-accent-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-        style={{ background: 'var(--accent-primary)', color: '#fff', fontWeight: 590, border: '1px solid transparent' }}
+        style={{ background: 'var(--accent-solid)', color: '#fff', fontWeight: 590, border: '1px solid transparent' }}
       >
         {state === 'submitting' ? (
           <>

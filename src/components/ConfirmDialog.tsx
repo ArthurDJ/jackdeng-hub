@@ -12,7 +12,7 @@ export interface ConfirmDialogProps {
   description?: string
   confirmLabel?: string
   cancelLabel?: string
-  /** `danger` paints the confirm button with --status-error. */
+  /** `danger` paints the confirm button with --danger-solid. */
   variant?: 'default' | 'danger'
   /**
    * When set, the confirm button stays disabled until the user types this
@@ -87,7 +87,7 @@ export function ConfirmDialog({
 
   const phraseSatisfied = !confirmPhrase || typed === confirmPhrase
   const confirmDisabled = busy || !phraseSatisfied
-  const confirmColor = variant === 'danger' ? 'var(--status-error)' : 'var(--accent-primary)'
+  const confirmColor = variant === 'danger' ? 'var(--danger-solid)' : 'var(--accent-solid)'
 
   return (
     <dialog
@@ -177,6 +177,7 @@ export function ConfirmDialog({
             disabled={confirmDisabled}
             autoFocus={!confirmPhrase}
             className="ds-dialog-confirm"
+            data-variant={variant}
             style={{
               padding: '7px 14px',
               borderRadius: 6,

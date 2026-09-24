@@ -13,7 +13,13 @@ interface TagBadgeProps {
 
 /**
  * Renders a coloured pill for a blog tag.
- * Background is a 15% opacity version of the tag's hex colour.
+ * Background is a 12% opacity version of the tag's hex colour; the dot carries
+ * the colour itself.
+ *
+ * The label is the tag colour mixed 35/65 into --text-primary, so it keeps the
+ * hue and still reads in both themes. It used to be the raw brand colour,
+ * which on the light theme's white put JavaScript's yellow at 1.3:1 and
+ * React's cyan at 1.5:1. Every tag colour in use clears 5:1 after the mix.
  */
 export function TagBadge({ name, slug, color = '#3B82F6', static: isStatic }: TagBadgeProps) {
   const hex = color.replace('#', '')
@@ -31,7 +37,7 @@ export function TagBadge({ name, slug, color = '#3B82F6', static: isStatic }: Ta
 
   // Calculate perceived luminance (ITU-R BT.709)
   const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
-  // If the luminance is too low, the color is effectively black and invisible on dark mode
+  // A near-black dot disappears on the dark theme; draw it in the text colour
   const isTooDark = luminance < 0.2
 
   const style = {
@@ -42,16 +48,14 @@ export function TagBadge({ name, slug, color = '#3B82F6', static: isStatic }: Ta
   const inner = (
     <span
       style={style}
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-        isTooDark ? 'text-zinc-900 dark:text-zinc-200' : ''
-      }`}
+      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border"
     >
       <span
         className="w-1.5 h-1.5 rounded-full"
         style={{ backgroundColor: isTooDark ? 'currentColor' : color }}
         aria-hidden
       />
-      <span style={!isTooDark ? { color } : undefined}>{name}</span>
+      <span style={{ color: `color-mix(in srgb, ${color} 35%, var(--text-primary))` }}>{name}</span>
     </span>
   )
 

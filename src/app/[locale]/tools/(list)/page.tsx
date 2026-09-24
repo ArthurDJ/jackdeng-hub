@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
 import { asLocale } from '@/i18n/routing'
+import { toolStatusColors } from '@/lib/statusColors'
 
 export const revalidate = 3600
 
@@ -22,12 +23,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: { en: `${BASE}/en/tools`, zh: `${BASE}/zh/tools` },
     },
   }
-}
-
-const STATUS_COLOR: Record<string, string> = {
-  online:      '#10b981',
-  offline:     '#71717a',
-  maintenance: '#f59e0b',
 }
 
 export default async function ToolsPage({ params }: Props) {
@@ -89,7 +84,7 @@ export default async function ToolsPage({ params }: Props) {
             gap: '20px',
           }}>
             {tools.map((tool) => {
-              const color = STATUS_COLOR[tool.status] ?? STATUS_COLOR.online
+              const sc = toolStatusColors(tool.status)
               const label = STATUS_LABEL[tool.status] ?? STATUS_LABEL.online
               return (
                 <Link
@@ -113,9 +108,9 @@ export default async function ToolsPage({ params }: Props) {
                       <span style={{
                         fontSize: '11px',
                         fontWeight: 600,
-                        color: color,
-                        background: color + '18',
-                        border: `1px solid ${color}30`,
+                        color: sc.text,
+                        background: sc.bg,
+                        border: `1px solid ${sc.border}`,
                         borderRadius: '4px',
                         padding: '2px 8px',
                       }}>

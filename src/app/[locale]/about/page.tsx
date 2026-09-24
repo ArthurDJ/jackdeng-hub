@@ -196,7 +196,7 @@ export default async function AboutPage({ params }: Props) {
                       fontWeight: 400,
                       padding: '3px 10px',
                       borderRadius: 9999,
-                      background: 'rgba(255,255,255,0.05)',
+                      background: 'var(--bg-hover)',
                       border: '1px solid var(--border-default)',
                       color: 'var(--text-secondary)',
                     }}>
@@ -243,7 +243,7 @@ export default async function AboutPage({ params }: Props) {
                       {tech.map((tch) => (
                         <span key={tch} style={{
                           fontSize: 11, fontWeight: 400, padding: '2px 9px', borderRadius: 9999,
-                          background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-default)', color: 'var(--text-tertiary)',
+                          background: 'var(--bg-hover)', border: '1px solid var(--border-default)', color: 'var(--text-tertiary)',
                         }}>
                           {tch}
                         </span>
@@ -312,7 +312,7 @@ export default async function AboutPage({ params }: Props) {
               gap: 8,
               padding: '10px 24px',
               borderRadius: 9999,
-              background: 'var(--accent-primary)',
+              background: 'var(--accent-solid)',
               color: '#ffffff',
               fontSize: 14,
               fontWeight: 500,

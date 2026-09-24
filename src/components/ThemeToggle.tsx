@@ -66,7 +66,7 @@ export function ThemeToggle() {
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLButtonElement
-        el.style.background = 'rgba(255,255,255,0.05)'
+        el.style.background = 'var(--bg-hover)'
         el.style.color = 'var(--text-secondary)'
       }}
       onMouseLeave={(e) => {

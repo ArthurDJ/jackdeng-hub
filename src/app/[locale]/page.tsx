@@ -10,6 +10,7 @@ import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
 import { CONTACT_EMAIL, PROFILE_LINKS, RESUME_URL, SKILLS, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
 import { toJsonLd } from '@/lib/jsonLd'
+import { projectStatusColors } from '@/lib/statusColors'
 
 export const revalidate = 3600
 
@@ -156,7 +157,7 @@ export default async function HomePage({ params }: Props) {
                     gap: 8,
                     padding: '10px 22px',
                     borderRadius: 9999,
-                    background: 'var(--accent-primary)',
+                    background: 'var(--accent-solid)',
                     color: '#ffffff',
                     fontSize: 14,
                     fontWeight: 500,
@@ -222,21 +223,7 @@ export default async function HomePage({ params }: Props) {
               <div className="hidden lg:flex flex-col gap-3 flex-shrink-0 w-72 relative pt-4">
                 {projects.slice(0, 2).map((project, i) => {
                   const techStack: string[] = (project.techStack ?? []).map((ts) => ts.tech).filter(Boolean)
-                  const statusBg: Record<string, string> = {
-                    active:    'rgba(16,185,129,0.10)',
-                    completed: 'rgba(94,106,210,0.10)',
-                    'on-hold': 'rgba(245,158,11,0.10)',
-                  }
-                  const statusText: Record<string, string> = {
-                    active:    '#10b981',
-                    completed: '#7170ff',
-                    'on-hold': '#f59e0b',
-                  }
-                  const statusBorder: Record<string, string> = {
-                    active:    'rgba(16,185,129,0.20)',
-                    completed: 'rgba(94,106,210,0.20)',
-                    'on-hold': 'rgba(245,158,11,0.20)',
-                  }
+                  const sc = projectStatusColors(project.status)
                   const href = project.slug ? `/projects/${project.slug}` : '/projects'
                   return (
                     <Link
@@ -263,9 +250,9 @@ export default async function HomePage({ params }: Props) {
                         {project.status && (
                           <span style={{
                             fontSize: 10, fontWeight: 510, padding: '2px 7px', borderRadius: 9999, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 6,
-                            background: statusBg[project.status] ?? statusBg.active,
-                            color: statusText[project.status] ?? statusText.active,
-                            border: `1px solid ${statusBorder[project.status] ?? statusBorder.active}`,
+                            background: sc.bg,
+                            color: sc.text,
+                            border: `1px solid ${sc.border}`,
                           }}>
                             {STATUS_LABEL[project.status] ?? project.status}
                           </span>

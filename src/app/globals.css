@@ -9,6 +9,13 @@
 /* ════════════════════════════════════════════════════
    DESIGN TOKENS — Linear-inspired (see DESIGN.md)
    Dark-mode-native. Light mode overrides via .light.
+
+   Every text colour here clears WCAG AA (4.5:1) on every background it
+   sits on: base, panel, elevated, and its own 10–12% tint when it is a
+   badge. --text-disabled is the one exception, and is only for things that
+   are actually disabled. White text goes on --accent-solid, never on
+   --accent-primary: in dark mode the one colour cannot be both readable on
+   black and readable under white.
    ════════════════════════════════════════════════════ */
 @layer base {
 
@@ -23,7 +30,7 @@
     /* Text */
     --text-primary:   #ededed;
     --text-secondary: #a1a1aa;
-    --text-tertiary:  #71717a;
+    --text-tertiary:  #8b8b94;
     --text-disabled:  #52525b;
 
     /* Borders */
@@ -32,15 +39,30 @@
     --border-strong:  rgba(255, 255, 255, 0.15);
 
     /* Accent — blue (dark mode) */
-    --accent-primary: #3b82f6;
+    --accent-primary: #4d8ff8;
     --accent-hover:   #60a5fa;
     --accent-subtle:  rgba(59, 130, 246, 0.12);
+    /* Filled buttons with white text */
+    --accent-solid:       #2563eb;
+    --accent-solid-hover: #1d4ed8;
+    --danger-solid:       #dc2626;
 
     /* Status */
-    --status-success: #10b981;
-    --status-warning: #f59e0b;
-    --status-error:   #ef4444;
-    --status-info:    #3b82f6;
+    --status-success:   #10b981;
+    --status-warning:   #f59e0b;
+    --status-error:     #f87171;
+    --status-info:      #4d8ff8;
+    --status-completed: #8b8aff;
+    --status-neutral:   #a1a1aa;
+
+    /* Sticky navbar — translucent over the page */
+    --nav-bg:     rgba(8, 9, 10, 0.80);
+    --nav-border: rgba(255, 255, 255, 0.06);
+    --nav-menu-bg: rgba(8, 9, 10, 0.95);
+
+    /* Faint fills for hover and resting controls */
+    --bg-hover:  rgba(255, 255, 255, 0.05);
+    --bg-subtle: rgba(255, 255, 255, 0.03);
 
     /* Motion */
     --duration-fast:  100ms;
@@ -62,8 +84,8 @@
     --bg-overlay:   #ebebeb;
 
     --text-primary:   #171717;
-    --text-secondary: #666666;
-    --text-tertiary:  #999999;
+    --text-secondary: #525252;
+    --text-tertiary:  #6b6b6b;
     --text-disabled:  #cccccc;
 
     --border-subtle:  rgba(0, 0, 0, 0.05);
@@ -71,9 +93,26 @@
     --border-strong:  rgba(0, 0, 0, 0.13);
 
     /* Accent — Develop Blue (light mode) */
-    --accent-primary: #0a72ef;
-    --accent-hover:   #1a7ff5;
+    --accent-primary: #005cc5;
+    --accent-hover:   #004fa8;
     --accent-subtle:  rgba(10, 114, 239, 0.10);
+    --accent-solid:       #005cc5;
+    --accent-solid-hover: #004fa8;
+    --danger-solid:       #b91c1c;
+
+    --status-success:   #047857;
+    --status-warning:   #92400e;
+    --status-error:     #b91c1c;
+    --status-info:      #005cc5;
+    --status-completed: #4f46e5;
+    --status-neutral:   #52525b;
+
+    --nav-bg:     rgba(255, 255, 255, 0.85);
+    --nav-border: rgba(0, 0, 0, 0.07);
+    --nav-menu-bg: rgba(255, 255, 255, 0.97);
+
+    --bg-hover:  rgba(0, 0, 0, 0.04);
+    --bg-subtle: rgba(0, 0, 0, 0.02);
   }
 
   /* ── Base resets ── */
@@ -184,7 +223,7 @@
     background-color: var(--bg-elevated);
   }
   .ds-accent-btn:hover {
-    background-color: var(--accent-hover);
+    background-color: var(--accent-solid-hover);
     transform: scale(1.03);
   }
   .ds-ghost-btn:hover {
@@ -281,8 +320,8 @@
 
   .ds-pagination-item.active {
     font-weight: 510;
-    border-color: var(--accent-primary);
-    background-color: var(--accent-primary);
+    border-color: var(--accent-solid);
+    background-color: var(--accent-solid);
     color: #ffffff;
   }
 
@@ -305,8 +344,8 @@
     color: var(--text-primary);
   }
   .ds-page-btn[aria-current="page"]:hover {
-    background-color: var(--accent-hover);
-    border-color: var(--accent-hover);
+    background-color: var(--accent-solid-hover);
+    border-color: var(--accent-solid-hover);
   }
 
   /* ── Prose design-system override ──────────────────────────────────────
@@ -403,8 +442,8 @@
     dialog.ds-dialog[open]::backdrop { animation: none; }
   }
 
-  .ds-dialog-confirm:hover:not(:disabled) {
-    background-color: var(--accent-hover) !important;
+  .ds-dialog-confirm:not([data-variant="danger"]):hover:not(:disabled) {
+    background-color: var(--accent-solid-hover) !important;
   }
   .ds-dialog-confirm:focus-visible,
   .ds-dialog .ds-ghost-btn:focus-visible {
@@ -480,7 +519,7 @@
   z-index: 100;
   padding: 10px 16px;
   border-radius: 6px;
-  background: var(--accent-primary);
+  background: var(--accent-solid);
   color: #fff;
   font-size: 14px;
   font-weight: 510;

@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import type { Project } from '@/payload-types'
+import { projectStatusColors } from '@/lib/statusColors'
 
 interface HomeProjectCardProps {
   project: Project
@@ -27,18 +28,12 @@ function getGradient(name: string): string {
 
 export function HomeProjectCard({ project }: HomeProjectCardProps) {
   const t = useTranslations('home')
-
-  const statusColors: Record<string, { bg: string; text: string; border: string }> = {
-    active:    { bg: 'rgba(16,185,129,0.10)', text: '#10b981', border: 'rgba(16,185,129,0.20)' },
-    completed: { bg: 'rgba(94,106,210,0.10)', text: '#7170ff', border: 'rgba(94,106,210,0.20)' },
-    'on-hold': { bg: 'rgba(245,158,11,0.10)', text: '#f59e0b', border: 'rgba(245,158,11,0.20)' },
-  }
   const statusLabel: Record<string, string> = {
     active:    t('projectStatus.active'),
     completed: t('projectStatus.completed'),
     'on-hold': t('projectStatus.onHold'),
   }
-  const sc = statusColors[project.status] ?? statusColors['active']
+  const sc = projectStatusColors(project.status)
   const techStack: string[] = (project.techStack ?? []).map((ts) => ts.tech).filter(Boolean)
   const hasSlug = Boolean(project.slug)
 
@@ -95,7 +90,7 @@ export function HomeProjectCard({ project }: HomeProjectCardProps) {
             fontSize: 12, fontWeight: 510, color: 'var(--accent-primary)',
           }}>
             {t('viewProject')}
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M14 5l7 7m0 0l-7 7m7-7H3"/>
             </svg>
           </span>

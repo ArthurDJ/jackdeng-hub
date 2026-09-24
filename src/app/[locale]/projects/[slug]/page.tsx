@@ -11,6 +11,7 @@ import { getPayload, orEmpty } from '@/lib/payload'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
 import { Navbar } from '@/components/Navbar'
 import { projectStatusColors } from '@/lib/statusColors'
+import { toJsonLd } from '@/lib/jsonLd'
 
 // ISR, same as blog/[slug]. This page was force-dynamic from v1.3.1 until
 // now; the DYNAMIC_SERVER_USAGE 500 that prompted it was the layout reading
@@ -130,7 +131,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLd(jsonLd) }}
       />
 
       <Navbar />

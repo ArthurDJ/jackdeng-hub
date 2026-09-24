@@ -23,6 +23,7 @@ import { ShareButtons } from '@/components/ShareButtons'
 import { extractHeadings } from '@/lib/extractHeadings'
 import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
+import { toJsonLd } from '@/lib/jsonLd'
 
 export const revalidate = 3600
 
@@ -200,11 +201,11 @@ export default async function BlogDetailPage({ params }: Props) {
       {/* JSON-LD structured data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingSchema) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLd(blogPostingSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLd(breadcrumbSchema) }}
       />
 
       {/* Hero image */}

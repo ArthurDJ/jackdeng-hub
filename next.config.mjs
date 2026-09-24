@@ -3,15 +3,49 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
+// The full policy, sent report-only: browsers enforce none of it, and post
+// every violation to /api/csp-report, which logs it (src/app/api/csp-report).
+// Once the logs show only noise, it moves into Content-Security-Policy.
+//
+// What each source is for:
+//   challenges.cloudflare.com         Turnstile on the comment form: its
+//                                     script, its iframe, its API calls
+//   *.public.blob.vercel-storage.com  covers and media (Vercel Blob)
+//   data: / blob:                     inline SVG icons, Payload admin previews
+//
+// 'unsafe-inline' stays in script-src: Next streams each page as inline
+// <script> chunks, and the alternative, a per-request nonce, would make every
+// cached page render on every request. What the policy still buys: no
+// scripts from any other host, no plugins, no <base> hijack, forms that only
+// post back here, and frames only from here and Turnstile.
+//
+// A tool embedded by URL (embedType iframe or script) will show up here
+// as a violation; add its origin when one exists.
+const CSP_REPORT_ONLY = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
+  "font-src 'self' data:",
+  "connect-src 'self' https://challenges.cloudflare.com",
+  "frame-src 'self' https://challenges.cloudflare.com",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self'",
+  'report-uri /api/csp-report',
+].join('; ')
+
 // Sent on every response, /admin included. Until these, the only security
 // header was the HSTS Vercel adds, so any site could frame /admin and
 // clickjack a signed-in editor.
 //
-// The CSP carries frame-ancestors only. A full policy would also have to
-// allow Payload's admin, the Turnstile widget and Vercel's scripts; that
-// wants a report-only period first, not a guess.
+// The enforced CSP carries frame-ancestors only; the rest of the policy is
+// on trial as Content-Security-Policy-Report-Only, above.
 const SECURITY_HEADERS = [
   { key: 'Content-Security-Policy', value: "frame-ancestors 'self'" },
+  { key: 'Content-Security-Policy-Report-Only', value: CSP_REPORT_ONLY },
   // For browsers that predate frame-ancestors.
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },

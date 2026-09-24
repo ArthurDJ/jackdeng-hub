@@ -1,0 +1,74 @@
+# Weekly dependency updates.
+#
+# Until this file, updates happened when someone thought to run
+# `npm outdated`. That is how #64 found Next.js 16.3.6 (a critical RCE fix in
+# next/og) and Payload 3.90 ("critical security fixes, upgrade as soon as
+# possible") days after release, by chance.
+#
+# What a Dependabot PR still needs from a person:
+#
+# - Payload releases can add columns. CI's schema-drift check fails the PR
+#   when they do ("code only: <table> | <column>"), and the Vercel preview
+#   fails too, because it prerenders against the production database. Write
+#   the migration on the PR branch (see src/migrations/ and #64), run it on
+#   production before merging — additive migrations are safe to run ahead
+#   of the deploy — then re-run the preview.
+# - Read the release notes for anything marked security or breaking.
+#
+# Security fixes also arrive as Dependabot security updates once the repo's
+# vulnerability alerts are on (GitHub → Settings → Code security).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: America/Los_Angeles
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore(deps)
+    groups:
+      # Every @payloadcms/* package pins payload to the exact same version, so
+      # they can only move together; one at a time fails with ERESOLVE.
+      payload:
+        patterns:
+          - payload
+          - '@payloadcms/*'
+      next:
+        patterns:
+          - next
+          - next-intl
+          - '@next/*'
+      react:
+        patterns:
+          - react
+          - react-dom
+          - '@types/react'
+          - '@types/react-dom'
+      # Everything else, minor and patch only, in one PR a week.
+      other:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Majors are their own project: TypeScript 7, GraphQL 17 (a Payload
+      # peer) and the like need Payload and Next to support them first.
+      # Security fixes land in the supported major and still come through.
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns:
+          - '*'

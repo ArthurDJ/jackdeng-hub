@@ -50,8 +50,13 @@ type Props = {
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params
 
-  // Validate locale
+  // Validate locale. Paths with a dot skip the middleware (see proxy.ts), so
+  // /foo.txt, /wp-login.php or /.env arrive here as locale "foo.txt". Seed a
+  // real locale before bailing out: otherwise the 404 page's translations
+  // fall back to reading request headers, which a statically rendered route
+  // may not do, and every such probe answered 500 instead of 404.
   if (!routing.locales.includes(locale as 'en' | 'zh')) {
+    setRequestLocale(routing.defaultLocale)
     notFound()
   }
 

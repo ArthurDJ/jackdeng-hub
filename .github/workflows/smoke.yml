@@ -96,11 +96,16 @@ jobs:
           # time, because the pages that should exist did.
           #
           # One probe per route that calls notFound(), with a slug no document
-          # can plausibly have.
+          # can plausibly have. Plus two that no route claims at all (#57):
+          # a path under a locale, which used to fall through to the bare
+          # root 404, and a path with a dot, which skips the middleware and
+          # used to answer 500 — the shape of every scanner probe
+          # (/wp-login.php, /.env).
           nope=ci-smoke-probe-no-such-slug
           missing=$(printf '%s\n' "/en/blog/$nope" "/zh/blog/$nope" \
                                    "/en/tools/$nope" "/en/projects/$nope" \
-                                   "/en/blog/category/$nope" "/en/blog/tag/$nope")
+                                   "/en/blog/category/$nope" "/en/blog/tag/$nope" \
+                                   "/en/$nope/deeper" "/$nope.php")
 
           while IFS= read -r r; do
             [ -n "$r" ] || continue

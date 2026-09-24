@@ -5,8 +5,6 @@ import { Navbar } from '@/components/Navbar'
 export default async function NotFound() {
   // next-intl automatically picks the locale from the URL segment
   const t = await getTranslations('notFound')
-  const tCommon = await getTranslations('common')
-  const tFooter = await getTranslations('footer')
 
   return (
     <div style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -56,13 +54,7 @@ export default async function NotFound() {
         </div>
       </main>
 
-      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '20px 24px' }}>
-        <div className="max-w-5xl mx-auto flex items-center justify-between"
-          style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
-          <span>{tCommon('copyright', { year: new Date().getFullYear() })}</span>
-          <span>{tFooter('builtWith')}</span>
-        </div>
-      </footer>
+      {/* The footer comes from the locale layout, which wraps this page too. */}
     </div>
   )
 }

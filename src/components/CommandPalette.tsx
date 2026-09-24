@@ -9,7 +9,6 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import type { SearchResult, SearchType } from '@/lib/search'
 import { useCommandPaletteStore } from '@/store/commandPaletteStore'
-import { useCommandPalette } from '@/hooks/useCommandPalette'
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -113,10 +112,9 @@ async function fetchResults(query: string, locale: string, signal: AbortSignal):
 
 // ─── Component ──────────────────────────────────────────────────────────────────
 
+// Loaded on demand by CommandPaletteHost, which owns the keyboard shortcut.
+// Registering it here as well would toggle twice per keypress.
 export function CommandPalette() {
-  // Register global keyboard shortcut
-  useCommandPalette()
-
   const { isOpen, close } = useCommandPaletteStore()
   const router = useRouter()
   const locale = useLocale()

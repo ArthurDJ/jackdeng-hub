@@ -3,14 +3,13 @@ import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, setRequestLocale } from 'next-intl/server'
 import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
+import { GeistMono } from '@/lib/fonts'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Footer } from '@/components/Footer'
 import { routing } from '@/i18n/routing'
 import { profileOgImage } from '@/lib/profile'
 import { ThemeProvider } from '@/components/ThemeProvider'
-import { CommandPalette } from '@/components/CommandPalette'
-import { Toaster } from '@/components/Toaster'
+import { CommandPaletteHost } from '@/components/CommandPaletteHost'
 import '../globals.css'
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
@@ -98,8 +97,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             </a>
             {children}
             <Footer />
-            <CommandPalette />
-            <Toaster />
+            <CommandPaletteHost />
           </ThemeProvider>
         </NextIntlClientProvider>
         <SpeedInsights />

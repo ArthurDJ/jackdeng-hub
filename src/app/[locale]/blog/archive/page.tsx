@@ -5,6 +5,7 @@ import { getPayload } from '@/lib/payload'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
 import { asLocale } from '@/i18n/routing'
+import { localeAlternates } from '@/lib/alternates'
 import type { Blog } from '@/payload-types'
 
 export const revalidate = 3600
@@ -32,7 +33,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale, namespace: 'blog' })
   return {
     title: t('archive'),
-    description: 'All blog posts organized by year and month.',
+    description: t('archiveDescription'),
+    alternates: localeAlternates(locale, '/blog/archive'),
   }
 }
 

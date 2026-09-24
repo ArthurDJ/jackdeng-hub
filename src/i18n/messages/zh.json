@@ -90,6 +90,7 @@
     "commentErrorRateLimited": "你刚才已经发过几条评论了，请稍后再试。",
     "commentErrorUnavailable": "评论功能暂时不可用，请稍后再试。",
     "archive": "归档",
+    "archiveDescription": "Jack Deng 博客的全部文章，按年月归档。",
     "post": "篇文章",
     "posts": "篇文章",
     "minRead": "{count} 分钟阅读",

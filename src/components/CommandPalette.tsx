@@ -149,13 +149,16 @@ export function CommandPalette() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const abortRef    = useRef<AbortController | null>(null)
 
-  // Focus input when opened
+  // Start the next open from a clean slate. This used to run on open, with
+  // the input focused 50 ms later: whatever a visitor typed straight after
+  // ⌘K either went nowhere (no focus yet) or was wiped when the reset ran
+  // after the first render. Resetting on close, and focusing through
+  // autoFocus as the input mounts, keeps every keystroke.
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) {
       setQuery('')
       setResults([])
       setActiveIdx(0)
-      setTimeout(() => inputRef.current?.focus(), 50)
     }
   }, [isOpen])
 
@@ -259,6 +262,7 @@ export function CommandPalette() {
           </svg>
           <input
             ref={inputRef}
+            autoFocus
             type="text"
             placeholder={t('inputPlaceholder')}
             value={query}

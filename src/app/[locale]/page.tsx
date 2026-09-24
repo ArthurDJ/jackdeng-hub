@@ -8,7 +8,8 @@ import { HomeProjectCard } from '@/components/HomeProjectCard'
 import { getPayload } from '@/lib/payload'
 import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
-import { CONTACT_EMAIL, PROFILE_LINKS, RESUME_URL, SKILLS, TIMELINE } from '@/lib/profile'
+import { CONTACT_EMAIL, PROFILE_LINKS, RESUME_URL, SKILLS, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
+import { toJsonLd } from '@/lib/jsonLd'
 
 export const revalidate = 3600
 
@@ -24,6 +25,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // same route segment, so the homepage has to carry the name itself.
     title: `Jack Deng — ${t('title')}`,
     description: t('metaDescription'),
+    openGraph: {
+      siteName: 'Jack Deng',
+      type: 'profile',
+      title: `Jack Deng — ${t('title')}`,
+      description: t('metaDescription'),
+      images: [{ url: profileOgImage(BASE, t('title')), width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Jack Deng — ${t('title')}`,
+      description: t('metaDescription'),
+      images: [profileOgImage(BASE, t('title'))],
+    },
     alternates: {
       canonical: `${BASE}/${locale}`,
       languages: { en: `${BASE}/en`, zh: `${BASE}/zh` },
@@ -78,6 +92,11 @@ export default async function HomePage({ params }: Props) {
       <Navbar />
 
       <main id="main" className="flex-1">
+        {/* Who this page is about, for search engines — see personJsonLd. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: toJsonLd(personJsonLd(BASE, lang, t('title'))) }}
+        />
         <section className="max-w-5xl mx-auto px-6 pt-20 pb-16 sm:pt-24 sm:pb-20">
           <div className="flex flex-col lg:flex-row lg:items-center lg:gap-12">
 

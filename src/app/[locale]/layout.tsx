@@ -7,6 +7,7 @@ import { GeistMono } from 'geist/font/mono'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Footer } from '@/components/Footer'
 import { routing } from '@/i18n/routing'
+import { profileOgImage } from '@/lib/profile'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { CommandPalette } from '@/components/CommandPalette'
 import { Toaster } from '@/components/Toaster'
@@ -31,11 +32,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(BASE),
   openGraph: {
     siteName: 'Jack Deng',
-    images: [{ url: `${BASE}/og?title=Jack+Deng`, width: 1200, height: 630 }],
+    // The fallback card for pages without their own; the home page and /about
+    // set a localized one.
+    images: [{ url: profileOgImage(BASE, 'Full-Stack Engineer · Backend & Data'), width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
-    images: [`${BASE}/og?title=Jack+Deng`],
+    images: [profileOgImage(BASE, 'Full-Stack Engineer · Backend & Data')],
   },
 }
 

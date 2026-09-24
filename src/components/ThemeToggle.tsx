@@ -1,6 +1,7 @@
 'use client'
 
 import { useTheme } from 'next-themes'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 
 const SunIcon = () => (
@@ -25,9 +26,9 @@ const SystemIcon = () => (
 )
 
 const THEMES = [
-  { value: 'light', label: 'Light', icon: <SunIcon /> },
-  { value: 'dark',  label: 'Dark',  icon: <MoonIcon /> },
-  { value: 'system', label: 'System', icon: <SystemIcon /> },
+  { value: 'light', label: 'themeLight', icon: <SunIcon /> },
+  { value: 'dark',  label: 'themeDark',  icon: <MoonIcon /> },
+  { value: 'system', label: 'themeSystem', icon: <SystemIcon /> },
 ] as const
 
 /**
@@ -37,19 +38,20 @@ const THEMES = [
  */
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
+  const t = useTranslations('nav')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
   if (!mounted) return <div className="w-8 h-8" aria-hidden />
 
-  const current = THEMES.find((t) => t.value === theme) ?? THEMES[2]
-  const next = THEMES[(THEMES.findIndex((t) => t.value === theme) + 1) % THEMES.length]
+  const current = THEMES.find((m) => m.value === theme) ?? THEMES[2]
+  const next = THEMES[(THEMES.findIndex((m) => m.value === theme) + 1) % THEMES.length]
 
   return (
     <button
       onClick={() => setTheme(next.value)}
-      title={`Current: ${current.label} — Click for ${next.label}`}
-      aria-label={`Switch to ${next.label} mode`}
+      title={t('themeTitle', { current: t(current.label), next: t(next.label) })}
+      aria-label={t('themeSwitchTo', { mode: t(next.label) })}
       style={{
         position: 'relative',
         display: 'flex',
@@ -77,7 +79,6 @@ export function ThemeToggle() {
       className=""
     >
       {current.icon}
-      <span className="sr-only">{current.label} mode</span>
     </button>
   )
 }

@@ -226,6 +226,12 @@ export function CommandPalette() {
         e.preventDefault()
         if (displayItems[activeIdx]) navigate(displayItems[activeIdx].href)
         break
+      case 'Tab':
+        // The input is the dialog's only focusable element (results are
+        // chosen with the arrow keys), so Tab stays put rather than walking
+        // out into the page behind the modal.
+        e.preventDefault()
+        break
     }
   }
 
@@ -238,7 +244,7 @@ export function CommandPalette() {
       onClick={close}
       aria-modal="true"
       role="dialog"
-      aria-label="Command palette"
+      aria-label={t('dialogLabel')}
     >
       {/* Blur overlay */}
       <div className="absolute inset-0 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} aria-hidden="true" />
@@ -264,6 +270,11 @@ export function CommandPalette() {
             ref={inputRef}
             autoFocus
             type="text"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="command-palette-results"
+            aria-autocomplete="list"
+            aria-activedescendant={displayItems[activeIdx] ? `command-palette-option-${activeIdx}` : undefined}
             placeholder={t('inputPlaceholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -290,6 +301,7 @@ export function CommandPalette() {
         {/* Results list */}
         <ul
           ref={listRef}
+          id="command-palette-results"
           className="max-h-72 overflow-y-auto py-2"
           role="listbox"
         >
@@ -302,6 +314,7 @@ export function CommandPalette() {
           {displayItems.map((item, idx) => (
             <li
               key={item.id}
+              id={`command-palette-option-${idx}`}
               data-active={idx === activeIdx}
               role="option"
               aria-selected={idx === activeIdx}

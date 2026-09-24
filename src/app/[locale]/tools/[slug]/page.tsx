@@ -7,6 +7,7 @@ import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
 import { getBuiltinTool } from '@/components/tools/registry'
 import { asLocale, routing } from '@/i18n/routing'
+import { toolStatusColors } from '@/lib/statusColors'
 
 export const revalidate = 3600
 
@@ -73,12 +74,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-const TOOL_STATUS_COLOR: Record<string, string> = {
-  online:      '#10b981',
-  offline:     '#71717a',
-  maintenance: '#f59e0b',
-}
-
 export default async function ToolDetailPage({ params }: Props) {
   const { locale, slug } = await params
   const t = await getTranslations({ locale, namespace: 'tools' })
@@ -103,7 +98,7 @@ export default async function ToolDetailPage({ params }: Props) {
   const tool = docs[0]
   if (!tool) notFound()
 
-  const statusColor = TOOL_STATUS_COLOR[tool.status] ?? TOOL_STATUS_COLOR.online
+  const sc = toolStatusColors(tool.status)
   // Resolved by slug, not by toolType. The old code rendered the visa monitor
   // for *any* automation tool, and never handled embedType 'builtin' at all.
   const BuiltinTool = getBuiltinTool(slug)
@@ -144,9 +139,9 @@ export default async function ToolDetailPage({ params }: Props) {
               </h1>
               <span style={{
                 fontSize: '11px', fontWeight: 600,
-                color: statusColor,
-                background: statusColor + '18',
-                border: `1px solid ${statusColor}30`,
+                color: sc.text,
+                background: sc.bg,
+                border: `1px solid ${sc.border}`,
                 borderRadius: '4px', padding: '2px 8px',
               }}>
                 {STATUS_LABEL[tool.status] ?? STATUS_LABEL.online}

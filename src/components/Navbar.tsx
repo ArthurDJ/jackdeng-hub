@@ -34,22 +34,18 @@ export function Navbar() {
         zIndex: 50,
         width: '100%',
         height: isMenuOpen ? 'auto' : 52,
-        background: 'rgba(8,9,10,0.80)',
+        // Theme tokens, not literals. This used to be a dark literal with a
+        // light override keyed on header[data-navbar] — but the attribute sat
+        // on <nav>, so the override never matched and light mode got a dark
+        // bar with near-black text on it.
+        background: 'var(--nav-bg)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid var(--nav-border)',
         transition: 'height 200ms var(--ease-default)',
       }}
     >
-      {/* Light-mode override via CSS — background becomes rgba(255,255,255,0.85) */}
-      <style>{`
-        .light header[data-navbar] {
-          background: rgba(255,255,255,0.85) !important;
-          border-bottom-color: rgba(0,0,0,0.07) !important;
-        }
-      `}</style>
       <nav
-        data-navbar
         className="max-w-5xl mx-auto px-6 h-[52px] flex items-center justify-between gap-4"
       >
         {/* Logo */}
@@ -90,7 +86,7 @@ export function Navbar() {
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLAnchorElement
                   el.style.color = 'var(--text-primary)'
-                  el.style.background = 'rgba(255,255,255,0.05)'
+                  el.style.background = 'var(--bg-hover)'
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLAnchorElement
@@ -116,7 +112,7 @@ export function Navbar() {
               padding: '5px 10px',
               borderRadius: 6,
               border: '1px solid var(--border-default)',
-              background: 'rgba(255,255,255,0.03)',
+              background: 'var(--bg-subtle)',
               color: 'var(--text-tertiary)',
               fontSize: 12,
               fontWeight: 400,
@@ -158,7 +154,7 @@ export function Navbar() {
             }}
             onMouseEnter={(e) => {
               const el = e.currentTarget as HTMLButtonElement
-              el.style.background = 'rgba(255,255,255,0.05)'
+              el.style.background = 'var(--bg-hover)'
               el.style.color = 'var(--text-secondary)'
             }}
             onMouseLeave={(e) => {
@@ -180,7 +176,7 @@ export function Navbar() {
               padding: '4px 9px',
               borderRadius: 6,
               border: '1px solid var(--border-default)',
-              background: 'rgba(255,255,255,0.03)',
+              background: 'var(--bg-subtle)',
               color: 'var(--text-tertiary)',
               fontSize: 11,
               fontWeight: 510,
@@ -209,6 +205,7 @@ export function Navbar() {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="sm:hidden"
             aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
             style={{
               padding: 6,
               borderRadius: 6,
@@ -233,7 +230,9 @@ export function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {isMenuOpen && (
-        <div className="sm:hidden px-6 py-4 border-t border-[rgba(255,255,255,0.06)] bg-[rgba(8,9,10,0.95)] backdrop-blur-md">
+        <div className="sm:hidden px-6 py-4 backdrop-blur-md"
+          style={{ borderTop: '1px solid var(--nav-border)', background: 'var(--nav-menu-bg)' }}
+        >
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
             {NAV_LINKS.map(({ href, label }) => (
               <li key={href}>

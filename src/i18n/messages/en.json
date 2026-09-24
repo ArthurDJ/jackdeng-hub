@@ -59,7 +59,7 @@
       "completed": "Completed",
       "onHold": "On Hold"
     },
-    "viewProject": "View project →"
+    "viewProject": "View project"
   },
   "blog": {
     "title": "Blog",
@@ -169,7 +169,7 @@
     "techStack": "Tech Stack",
     "relatedProjects": "Other Projects",
     "noProjects": "No projects found.",
-    "viewDetails": "View details →"
+    "viewDetails": "View details"
   },
   "tools": {
     "title": "Tools",

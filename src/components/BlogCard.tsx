@@ -84,7 +84,7 @@ export async function BlogCard({ title, slug, excerpt, coverImage, category, tag
             </time>
           )}
           {minutes != null && (
-            <span style={{ fontSize: 12, color: 'var(--text-disabled)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+            <span style={{ fontSize: 12, color: 'var(--text-tertiary)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
               {t('minRead', { count: minutes })}
             </span>
           )}

@@ -59,7 +59,7 @@
       "completed": "已完成",
       "onHold": "暂停"
     },
-    "viewProject": "查看项目 →"
+    "viewProject": "查看项目"
   },
   "blog": {
     "title": "文章",
@@ -169,7 +169,7 @@
     "techStack": "技术栈",
     "relatedProjects": "其他项目",
     "noProjects": "暂无项目。",
-    "viewDetails": "查看详情 →"
+    "viewDetails": "查看详情"
   },
   "tools": {
     "title": "工具箱",

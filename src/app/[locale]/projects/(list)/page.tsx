@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
 import { asLocale } from '@/i18n/routing'
+import { projectStatusColors } from '@/lib/statusColors'
 
 export const revalidate = 3600
 
@@ -38,12 +39,6 @@ export default async function ProjectsPage({ params }: Props) {
     locale: asLocale(locale),
   })
 
-  const statusColors: Record<string, { bg: string; text: string; border: string }> = {
-    active:    { bg: 'rgba(16,185,129,0.10)', text: '#10b981', border: 'rgba(16,185,129,0.20)' },
-    completed: { bg: 'rgba(94,106,210,0.10)', text: '#7170ff', border: 'rgba(94,106,210,0.20)' },
-    'on-hold': { bg: 'rgba(245,158,11,0.10)', text: '#f59e0b', border: 'rgba(245,158,11,0.20)' },
-  }
-
   return (
     <>
       <Navbar />
@@ -64,7 +59,7 @@ export default async function ProjectsPage({ params }: Props) {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
           {projects.map((project) => {
-            const sc = statusColors[project.status] ?? statusColors['active']
+            const sc = projectStatusColors(project.status)
             const statusLabel: Record<string, string> = {
               active:    tHome('projectStatus.active'),
               completed: tHome('projectStatus.completed'),
@@ -135,7 +130,7 @@ export default async function ProjectsPage({ params }: Props) {
                     fontSize: 12, fontWeight: 510, color: 'var(--accent-primary)', marginTop: 4,
                   }}>
                     {t('viewDetails')}
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                     </svg>
                   </span>

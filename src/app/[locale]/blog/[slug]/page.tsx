@@ -243,7 +243,7 @@ export default async function BlogDetailPage({ params }: Props) {
               </Link>
               {category && (
                 <>
-                  <span style={{ opacity: 0.4 }}>/</span>
+                  <span aria-hidden="true" style={{ opacity: 0.4 }}>/</span>
                   <Link href={`/blog/category/${category.slug}`}
                     className="ds-breadcrumb"
                     style={{ color: 'var(--text-tertiary)', textDecoration: 'none' }}
@@ -263,7 +263,7 @@ export default async function BlogDetailPage({ params }: Props) {
                     {formatDate(blog.publishedAt, locale)}
                   </time>
                 )}
-                <span style={{ fontSize: 13, color: 'var(--text-disabled)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+                <span style={{ fontSize: 13, color: 'var(--text-tertiary)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
                   {t('minRead', { count: readMins })}
                 </span>
                 <Link

@@ -44,7 +44,7 @@ export default async function NotFound() {
               gap: 8,
               padding: '10px 24px',
               borderRadius: 9999,
-              background: 'var(--accent-primary)',
+              background: 'var(--accent-solid)',
               color: '#ffffff',
               fontSize: 14,
               fontWeight: 500,

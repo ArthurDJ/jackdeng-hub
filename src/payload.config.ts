@@ -16,6 +16,7 @@ import { Tools } from './collections/Tools'
 import { ToolRuns } from './collections/ToolRuns'
 import { Media } from './collections/Media'
 import { Users } from './collections/Users'
+import { isLocalDatabaseUrl } from './lib/localDatabase'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -94,7 +95,13 @@ export const config = buildConfig({
     // so every `npm run dev` or tsx script was a live DDL run against prod.
     // That is how prod drifted from the migrations (enum columns the
     // migrations create as varchar, a dropped index, an extra NOT NULL).
-    push: false,
+    //
+    // The one exception is CI's schema-drift check (scripts/schema-drift.ts),
+    // which pushes the code's schema into a throwaway database to compare it
+    // with what the migrations build. It has to ask for that explicitly, and
+    // even then only a database on localhost qualifies — no setting of either
+    // variable can make this push to a remote database again.
+    push: process.env.PAYLOAD_SCHEMA_PUSH === '1' && isLocalDatabaseUrl(process.env.DATABASE_URI),
   }),
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [

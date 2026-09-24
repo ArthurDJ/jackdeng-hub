@@ -4,7 +4,11 @@ import { Toaster as SonnerToaster } from 'sonner'
 import { useTheme } from 'next-themes'
 
 /**
- * Site-wide toast host. Mounted once in [locale]/layout.tsx.
+ * Toast host. Mounted on the blog post page, beside the comment form — the
+ * one thing that raises toasts. It used to sit in [locale]/layout.tsx, which
+ * put sonner (~20 KB gzipped) in the bundle of every page, the home page
+ * included, for a toast only a failed comment submit can show. Anything new
+ * that calls toast() needs a <Toaster /> on its page.
  *
  * Colours come from the `[data-sonner-toast]` overrides in globals.css so
  * toasts read as part of the design system rather than as sonner's defaults —

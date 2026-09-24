@@ -17,6 +17,7 @@ import { formatDate } from '@/lib/formatDate'
 import { buildSidebarData } from '@/lib/sidebarData'
 import { CommentList } from '@/components/CommentList'
 import { CommentForm } from '@/components/CommentForm'
+import { Toaster } from '@/components/Toaster'
 import { ReadingProgress } from '@/components/ReadingProgress'
 import { TableOfContents } from '@/components/TableOfContents'
 import { ShareButtons } from '@/components/ShareButtons'
@@ -380,6 +381,7 @@ export default async function BlogDetailPage({ params }: Props) {
                   {t('leaveComment')}
                 </h2>
                 <CommentForm postId={blog.id} />
+                <Toaster />
                 <p style={{ marginTop: 12, fontSize: 12, color: 'var(--text-tertiary)' }}>
                   {t('commentDisclaimer')}
                 </p>

@@ -102,6 +102,19 @@ export const config = buildConfig({
     // even then only a database on localhost qualifies — no setting of either
     // variable can make this push to a remote database again.
     push: process.env.PAYLOAD_SCHEMA_PUSH === '1' && isLocalDatabaseUrl(process.env.DATABASE_URI),
+    // A tool's runs go with it. Payload gives every single relationship
+    // ON DELETE SET NULL, but tool_runs.tool is required (NOT NULL), so that
+    // rule could only ever fail: deleting a tool that had runs errored. The
+    // migrations always said CASCADE; this makes the code say it too, and
+    // 20260924_000003 brings production in line.
+    beforeSchemaInit: [
+      ({ adapter, schema }) => {
+        const column = adapter.rawTables.tool_runs?.columns.tool
+        if (!column?.reference) throw new Error('tool_runs.tool_id foreign key not found in the raw schema')
+        column.reference.onDelete = 'cascade'
+        return schema
+      },
+    ],
   }),
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [

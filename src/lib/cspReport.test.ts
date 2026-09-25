@@ -1,5 +1,45 @@
 import { describe, expect, it } from 'vitest'
-import { MAX_REPORTS_PER_REQUEST, parseCspReports, stripUrl } from './cspReport'
+import { MAX_REPORTS_PER_REQUEST, parseCspReports, readCapped, stripUrl } from './cspReport'
+
+describe('readCapped', () => {
+  function stream(chunks: string[], onCancel?: () => void) {
+    const enc = new TextEncoder()
+    let i = 0
+    return new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (i < chunks.length) controller.enqueue(enc.encode(chunks[i++]))
+        else controller.close()
+      },
+      cancel: onCancel,
+    })
+  }
+
+  it('returns the whole body when it fits', async () => {
+    expect(await readCapped(stream(['{"a":', '"é"}']), 100)).toBe('{"a":"é"}')
+  })
+
+  it('treats a missing body as empty', async () => {
+    expect(await readCapped(null, 100)).toBe('')
+  })
+
+  it('stops reading and cancels once the body passes the cap', async () => {
+    let cancelled = false
+    let pulled = 0
+    const chunks = Array.from({ length: 50 }, () => 'x'.repeat(10))
+    const s = stream(chunks, () => { cancelled = true })
+    const counting = s.pipeThrough(new TransformStream({
+      transform(chunk, c) { pulled++; c.enqueue(chunk) },
+    }))
+    expect(await readCapped(counting, 25)).toBeNull()
+    expect(pulled).toBeLessThan(10)
+    expect(cancelled).toBe(true)
+  })
+
+  it('counts bytes, not characters', async () => {
+    // 10 characters, 30 bytes in UTF-8
+    expect(await readCapped(stream(['中'.repeat(10)]), 20)).toBeNull()
+  })
+})
 
 describe('parseCspReports', () => {
   it('reads the report-uri shape', () => {

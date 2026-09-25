@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages, setRequestLocale } from 'next-intl/server'
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from '@/lib/fonts'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Footer } from '@/components/Footer'
-import { routing } from '@/i18n/routing'
+import { asLocale, routing } from '@/i18n/routing'
 import { profileOgImage } from '@/lib/profile'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { CommandPaletteHost } from '@/components/CommandPaletteHost'
@@ -22,23 +22,30 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }
 
-export const metadata: Metadata = {
-  title: {
-    default: 'Jack Deng',
-    template: '%s — Jack Deng',
-  },
-  description: 'Jack Deng — full-stack engineer focused on backend and data. Data platforms, integrations and internal tools.',
-  metadataBase: new URL(BASE),
-  openGraph: {
-    siteName: 'Jack Deng',
-    // The fallback card for pages without their own; the home page and /about
-    // set a localized one.
-    images: [{ url: profileOgImage(BASE, 'Full-Stack Engineer · Backend & Data'), width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    images: [profileOgImage(BASE, 'Full-Stack Engineer · Backend & Data')],
-  },
+export async function generateMetadata({ params }: Pick<Props, 'params'>): Promise<Metadata> {
+  // asLocale: dotted probes (/wp-login.php) reach this layout as locale
+  // "wp-login.php" before it answers 404 (see below).
+  const locale = asLocale((await params).locale)
+  const t = await getTranslations({ locale, namespace: 'home' })
+  // The fallback card for pages without their own, with the headline in the
+  // page's language: it used to be the English headline on every /zh page.
+  const card = profileOgImage(BASE, t('title'))
+  return {
+    title: {
+      default: 'Jack Deng',
+      template: '%s — Jack Deng',
+    },
+    description: 'Jack Deng — full-stack engineer focused on backend and data. Data platforms, integrations and internal tools.',
+    metadataBase: new URL(BASE),
+    openGraph: {
+      siteName: 'Jack Deng',
+      images: [{ url: card, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: [card],
+    },
+  }
 }
 
 type Props = {

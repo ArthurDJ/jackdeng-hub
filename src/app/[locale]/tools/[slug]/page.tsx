@@ -8,6 +8,7 @@ import { Navbar } from '@/components/Navbar'
 import { getBuiltinTool } from '@/components/tools/registry'
 import { asLocale, routing } from '@/i18n/routing'
 import { toolStatusColors } from '@/lib/statusColors'
+import { ogCardUrl } from '@/lib/ogCard'
 
 export const revalidate = 3600
 
@@ -75,7 +76,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: `${title} — Jack Deng`,
       description,
-      images: [{ url: `${BASE}/og?title=${encodeURIComponent(title)}&subtitle=${encodeURIComponent(description)}`, width: 1200, height: 630 }],
+      images: [{ url: ogCardUrl(BASE, { title, subtitle: description }), width: 1200, height: 630 }],
     },
   }
 }

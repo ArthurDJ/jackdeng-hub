@@ -1,3 +1,5 @@
+import { ogCardUrl } from './ogCard'
+
 // Who the site is about, in one place. The home page and About both read from
 // here, so the contact address, the headline and the timeline cannot drift
 // apart again (the About page used to offer two different email addresses,
@@ -125,5 +127,5 @@ export function personJsonLd(base: string, locale: 'en' | 'zh', headline: string
 
 /** The share-card image for pages about the person: name, then the headline. */
 export function profileOgImage(base: string, headline: string) {
-  return `${base}/og?title=${encodeURIComponent('Jack Deng')}&subtitle=${encodeURIComponent(headline)}`
+  return ogCardUrl(base, { title: 'Jack Deng', subtitle: headline })
 }

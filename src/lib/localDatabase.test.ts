@@ -18,6 +18,12 @@ describe('isLocalDatabaseUrl', () => {
     expect(isLocalDatabaseUrl('postgresql://u:p@evil.com/localhost')).toBe(false)
   })
 
+  it('refuses a query string, which pg can use to replace the host', () => {
+    expect(isLocalDatabaseUrl('postgresql://u:p@localhost:5432/db?host=evil.com')).toBe(false)
+    expect(isLocalDatabaseUrl('postgresql://u:p@localhost/db?sslmode=disable')).toBe(false)
+    expect(isLocalDatabaseUrl('postgresql://u:p@localhost/db#x')).toBe(false)
+  })
+
   it('refuses nothing at all', () => {
     expect(isLocalDatabaseUrl(undefined)).toBe(false)
     expect(isLocalDatabaseUrl('')).toBe(false)

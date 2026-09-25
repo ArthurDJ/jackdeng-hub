@@ -30,6 +30,38 @@ export const MAX_REPORT_BYTES = 16 * 1024
 /** A browser can batch several reports into one POST. */
 export const MAX_REPORTS_PER_REQUEST = 20
 
+/**
+ * The body as text, or null once it passes `max` bytes. Reads the stream
+ * itself and stops there, so a sender that leaves out Content-Length (or
+ * understates it) cannot make the route buffer more than `max`.
+ */
+export async function readCapped(
+  body: ReadableStream<Uint8Array> | null,
+  max: number,
+): Promise<string | null> {
+  if (!body) return ''
+  const reader = body.getReader()
+  const chunks: Uint8Array[] = []
+  let size = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    size += value.byteLength
+    if (size > max) {
+      await reader.cancel()
+      return null
+    }
+    chunks.push(value)
+  }
+  const bytes = new Uint8Array(size)
+  let offset = 0
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset)
+    offset += chunk.byteLength
+  }
+  return new TextDecoder().decode(bytes)
+}
+
 type Raw = Record<string, unknown>
 
 function str(v: unknown): string | undefined {

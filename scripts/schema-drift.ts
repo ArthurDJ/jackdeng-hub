@@ -65,15 +65,16 @@ async function snapshot(url: string) {
       from information_schema.columns
       where table_schema = 'public' and table_name <> 'payload_migrations'
       order by 1, 2`),
+    // The whole definition, not just the columns: which table a foreign key
+    // points at and its ON DELETE / ON UPDATE rules are part of the schema,
+    // and so are CHECK constraints. Names are left out, as before.
     constraints: await q(`
-      select tc.table_name, tc.constraint_type,
-             string_agg(kcu.column_name, ',' order by kcu.ordinal_position)
-      from information_schema.table_constraints tc
-      left join information_schema.key_column_usage kcu
-        on tc.constraint_name = kcu.constraint_name and tc.table_schema = kcu.table_schema
-      where tc.table_schema = 'public' and tc.table_name <> 'payload_migrations'
-        and tc.constraint_type in ('PRIMARY KEY', 'FOREIGN KEY', 'UNIQUE')
-      group by 1, 2, tc.constraint_name
+      select con.conrelid::regclass::text, con.contype, pg_get_constraintdef(con.oid)
+      from pg_constraint con
+      join pg_namespace n on n.oid = con.connamespace
+      where n.nspname = 'public' and con.conrelid <> 0
+        and con.conrelid::regclass::text <> 'payload_migrations'
+        and con.contype in ('p', 'f', 'u', 'c')
       order by 1, 2, 3`),
     indexes: await q(`
       select tablename, indexname, regexp_replace(indexdef, 'INDEX \\S+ ON', 'INDEX ON')

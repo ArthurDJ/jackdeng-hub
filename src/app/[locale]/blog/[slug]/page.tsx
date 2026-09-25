@@ -25,6 +25,7 @@ import { extractHeadings } from '@/lib/extractHeadings'
 import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
 import { toJsonLd } from '@/lib/jsonLd'
+import { ogCardUrl } from '@/lib/ogCard'
 
 export const revalidate = 3600
 
@@ -74,7 +75,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
   const ogImage = ogImageUrl
     ? ogImageUrl
-    : `${BASE}/og?title=${encodeURIComponent(title)}&type=blog`
+    : ogCardUrl(BASE, { title, type: 'blog' })
 
   return {
     title,

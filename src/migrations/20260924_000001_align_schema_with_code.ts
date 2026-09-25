@@ -22,7 +22,11 @@ import type { MigrateUpArgs, MigrateDownArgs } from '@payloadcms/db-postgres'
  *
  * Every step checks before it acts, so on production — already in the target
  * shape — up() changes nothing. On a database built from the migrations it
- * applies all 26.
+ * applies all 26. Where old data could stop a step, it is handled first:
+ * blog posts with no status become drafts (the collection's default, so
+ * nothing gets published by it), and a status column holding a value the new
+ * enum lacks stops the migration with that value named, rather than with a
+ * bare cast error, since there is no safe value to turn it into.
  *
  * down() restores the chain's previous shape, which is what a fresh database
  * looked like before this migration. On production that is a shape the code
@@ -36,6 +40,12 @@ const toEnum = (table: string, column: string, type: string, def: string | null)
   IF EXISTS (SELECT 1 FROM information_schema.columns
              WHERE table_schema = 'public' AND table_name = '${table}'
                AND column_name = '${column}' AND udt_name = 'varchar') THEN
+    SELECT string_agg(DISTINCT "${column}", ', ') INTO bad FROM "${table}"
+      WHERE "${column}" IS NOT NULL
+        AND "${column}" <> ALL (enum_range(NULL::"public"."${type}")::text[]);
+    IF bad IS NOT NULL THEN
+      RAISE EXCEPTION '${table}.${column} holds values the enum ${type} does not have: %. Fix or remove those rows, then migrate again.', bad;
+    END IF;
     ALTER TABLE "${table}" ALTER COLUMN "${column}" DROP DEFAULT;
     ALTER TABLE "${table}" ALTER COLUMN "${column}"
       SET DATA TYPE "public"."${type}" USING "${column}"::"public"."${type}";
@@ -73,7 +83,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       CREATE TYPE "public"."enum_tool_runs_status" AS ENUM('running', 'found', 'booked', 'heartbeat', 'error', 'exited');
     EXCEPTION WHEN duplicate_object THEN null; END $$;
 
-    DO $$ BEGIN
+    DO $$ DECLARE bad text; BEGIN
       ${COLUMNS.map((c) => toEnum(...c)).join('\n')}
 
       IF EXISTS (SELECT 1 FROM information_schema.columns
@@ -94,7 +104,14 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
     END $$;
 
     ALTER TABLE "tool_runs" ALTER COLUMN "run_at" DROP DEFAULT;
-    ALTER TABLE "blogs" ALTER COLUMN "status" SET NOT NULL;
+    DO $$ BEGIN
+      IF EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_schema = 'public' AND table_name = 'blogs'
+                   AND column_name = 'status' AND is_nullable = 'YES') THEN
+        UPDATE "blogs" SET "status" = 'draft' WHERE "status" IS NULL;
+        ALTER TABLE "blogs" ALTER COLUMN "status" SET NOT NULL;
+      END IF;
+    END $$;
 
     DROP INDEX IF EXISTS "categories_locales_name_idx";
     CREATE UNIQUE INDEX IF NOT EXISTS "categories_name_idx" ON "categories_locales" USING btree ("name", "_locale");

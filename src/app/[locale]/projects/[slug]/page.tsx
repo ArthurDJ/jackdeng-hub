@@ -12,6 +12,7 @@ import { LexicalRenderer } from '@/components/LexicalRenderer'
 import { Navbar } from '@/components/Navbar'
 import { projectStatusColors } from '@/lib/statusColors'
 import { toJsonLd } from '@/lib/jsonLd'
+import { ogCardUrl } from '@/lib/ogCard'
 
 // ISR, same as blog/[slug]. This page was force-dynamic from v1.3.1 until
 // now; the DYNAMIC_SERVER_USAGE 500 that prompted it was the layout reading
@@ -63,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = project.name
   const description = project.shortDescription
   const coverUrl = populated(project.coverImage)?.url
-  const ogImage = coverUrl ?? `${BASE}/og?title=${encodeURIComponent(title)}&type=project`
+  const ogImage = coverUrl ?? ogCardUrl(BASE, { title, type: 'project' })
 
   return {
     title,

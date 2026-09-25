@@ -560,6 +560,15 @@
     --border-default: #d4d4d4;
     --border-strong:  #bdbdbd;
     --accent-primary: #1d4ed8;
+    --accent-solid:   #1d4ed8;
+    /* The light theme's badge colours: printed from dark mode, the dark
+       theme's greens and ambers would sit on white at ~2.5:1. */
+    --status-success:   #047857;
+    --status-warning:   #92400e;
+    --status-error:     #b91c1c;
+    --status-info:      #005cc5;
+    --status-completed: #4f46e5;
+    --status-neutral:   #52525b;
     color-scheme: light;
   }
   html,

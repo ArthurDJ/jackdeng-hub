@@ -32,7 +32,7 @@ export async function tagMetadata(locale: string, slug: string, page: number): P
     // Tags are not localized: their descriptions are written in English, so
     // the Chinese page gets the translated template rather than English copy.
     description: locale === 'en' && tag.description
-      ? `${t('tagMetaDescription', { name: tag.name })} ${tag.description}.`
+      ? `${t('tagMetaDescription', { name: tag.name })} ${tag.description.trim().replace(/[.!?]+$/, '')}.`
       : t('tagMetaDescription', { name: tag.name }),
     // Each page is its own canonical URL, as on /blog.
     alternates: localeAlternates(locale, pageHref(`/blog/tag/${slug}`, page)),

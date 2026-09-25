@@ -115,7 +115,7 @@ async function fetchResults(query: string, locale: string, signal: AbortSignal):
 // Loaded on demand by CommandPaletteHost, which owns the keyboard shortcut.
 // Registering it here as well would toggle twice per keypress.
 export function CommandPalette() {
-  const { isOpen, close } = useCommandPaletteStore()
+  const { isOpen, close, closeForNavigation } = useCommandPaletteStore()
   const router = useRouter()
   const locale = useLocale()
   const t = useTranslations('search')
@@ -206,10 +206,10 @@ export function CommandPalette() {
 
   const navigate = useCallback(
     (href: string) => {
-      close()
+      closeForNavigation()
       router.push(href)
     },
-    [close, router],
+    [closeForNavigation, router],
   )
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

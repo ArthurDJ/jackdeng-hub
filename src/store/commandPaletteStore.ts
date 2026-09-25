@@ -45,6 +45,15 @@ export const commandPaletteStore = {
   close() {
     if (isOpen) { isOpen = false; notify(); restoreFocus() }
   },
+  /**
+   * Close because a result was chosen. Focus is not handed back: the page it
+   * came from is being left, and focusing an element on it would scroll it
+   * into view for a frame before the new route renders.
+   */
+  closeForNavigation() {
+    returnFocus = null
+    if (isOpen) { isOpen = false; notify() }
+  },
   toggle() {
     if (isOpen) commandPaletteStore.close()
     else commandPaletteStore.open()
@@ -65,6 +74,7 @@ export function useCommandPaletteStore() {
     isOpen: open_,
     open: commandPaletteStore.open,
     close: commandPaletteStore.close,
+    closeForNavigation: commandPaletteStore.closeForNavigation,
     toggle: commandPaletteStore.toggle,
   }
 }

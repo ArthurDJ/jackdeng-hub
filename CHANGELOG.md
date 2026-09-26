@@ -10,6 +10,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.14.0] — 2026-09-26
+
+### Added — 访问统计：Vercel Web Analytics（#76）
+
+之前只装了 Speed Insights，它只测性能。有没有人来、从哪来、看了哪些页，一概不知道。
+
+- 在 `[locale]` 布局里挂上 `@vercel/analytics` 的 `<Analytics />`，后台 `(payload)` 不统计。
+- 脚本和上报都走同域 `/_vercel/insights/*`，现有 CSP（`script-src` / `connect-src 'self'`）不用改，
+  `src/proxy.ts` 的 matcher 本来就排除了 `_vercel`。它不写 cookie，不需要同意弹窗。
+- 部署后要在 Vercel 项目的 Analytics 页面打开 Web Analytics，否则脚本会 404、不记录任何数据。
+
 ## [1.13.5] — 2026-09-26
 
 ### Fixed — 侧栏、sitemap 和索引不再指向没有文章的分类和标签（#75）

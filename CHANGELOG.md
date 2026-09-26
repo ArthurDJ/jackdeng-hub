@@ -10,6 +10,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.16.1] — 2026-09-26
+
+### Fixed — 首批文章的标签与内容对上，两篇 AI 新闻汇编改回草稿（#84）
+
+四篇首批文章的标签是从预置列表里挑的，没有照着内容来：讲欧盟 AI 法案的那篇标了 REST API，讲系统工程的那篇标了
+PostgreSQL，还有一篇标了 NetSuite 和 Boomi，正文里却一个都没提到。内容审查还认为，两篇 AI 新闻汇编大多是二手统计，
+又复用了同一段故事。
+
+- 新增 `scripts/retag-posts.ts`，默认只读、只打印计划，带 `--apply` 才写入，写入受 `requireApply` 约束。
+  它新建四个标签：AI、Security、Systems Engineering、Data Engineering，并给四篇文章重打标签：
+  last-mile → AI、REST API；systems-engineering → Systems Engineering、Data Engineering；
+  three-dates → AI；agent-key → AI、Security。
+- three-dates 和 agent-key 改为草稿（没有删除），等重写或决定不要。
+- 2026-09-26 已对生产执行，并紧接着部署 #83，页面缓存随新部署刷新，撤稿立即生效。线上核对结果：
+  - 两篇草稿都返回 404，也不在 sitemap 里。
+  - 侧栏只剩 2 个分类、4 个标签；NetSuite、Boomi、PostgreSQL、Security 这几个标签页带 noindex。
+
 ## [1.16.0] — 2026-09-26
 
 ### Changed — `/tools` 改名 Playground（实验室）（#83）

@@ -35,9 +35,10 @@
 
 - 分支保护只要求一个 check：`typecheck`。这个 job 里依次跑 typecheck、`npm test`、
   `i18n:check`，再用一次性 Postgres 比对「迁移建出的库」和「代码定义的 schema」
-  （`scripts/schema-drift.ts`）。新的检查加进这个 job，另开 job 会跑但拦不住合并。
-- `.github/workflows/smoke.yml` 在生产部署成功后请求线上页面，包括应该返回 404 的路径和
-  所有站内链接。
+  （`scripts/schema-drift.ts`），最后往这个库里 seed（`scripts/seed.ts`）、`next build`、
+  启动并跑 `scripts/smoke.py`。新的检查加进这个 job，另开 job 会跑但拦不住合并。
+- `.github/workflows/smoke.yml` 在生产部署成功后和每天一次，用同一个 `scripts/smoke.py`
+  请求线上页面，包括应该返回 404 的路径和所有站内链接。
 - `next dev` 不做静态渲染，请求期的错误在 dev 里看不到（#26）。改了渲染路径，用
   `next build && next start` 验证。
 

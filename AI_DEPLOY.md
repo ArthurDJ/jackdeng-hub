@@ -15,7 +15,8 @@ Production runs on Vercel's Git integration. Nothing is deployed by hand and the
 - **Production:** every push to `main` builds and deploys www.jackdeng.cc (region `sfo1`, see `vercel.json`). Changes normally reach `main` as squash-merged PRs, and the one required check is `typecheck`. Admins can bypass it.
 - **Previews:** every PR gets a preview deployment. Previews use the **production database**: the build prerenders against it, and `/admin` on a preview writes to it.
 - **Build:** `npm run build` is just `next build`. It does **not** run migrations. If the new code reads a column production does not have yet, the preview and production builds fail at prerender.
-- **After each production deploy:** `.github/workflows/smoke.yml` runs on the `deployment_status` event. It requests key pages in both languages, checks that made-up slugs return 404, and follows every internal link.
+- **Before merge:** the `typecheck` job in `ci.yml` seeds its throwaway Postgres (`scripts/seed.ts`), runs `next build` against it, starts the build and runs `scripts/smoke.py` on it. A request-time error fails the PR instead of reaching production.
+- **After each production deploy, and daily:** `.github/workflows/smoke.yml` runs the same `scripts/smoke.py` against www.jackdeng.cc. It requests key pages in both languages, checks that made-up slugs return 404, and follows every internal link.
 - **Rollback:** Vercel's Instant Rollback promotes an earlier deployment. That only works if the older code still runs against the current schema, which holds while the migrations since then have only added things. This is one reason columns are dropped in a separate, later migration.
 
 ### Environment variables

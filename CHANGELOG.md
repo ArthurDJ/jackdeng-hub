@@ -10,6 +10,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.15.1] — 2026-09-26
+
+### Added — CI 在合并前构建网站并跑冒烟检查（#79）
+
+CI 从来不跑 `next build`：理由是构建要连库，而唯一的库是生产库。构建因此只在 Vercel 的 preview 部署上跑，
+这有两个代价：每次 preview 构建（包括 Dependabot 的）都带着生产库凭证；preview 失败了也拦不住合并。
+冒烟检查也只在生产部署之后跑，#26 那类请求期错误要等上线后才发现。
+
+- `typecheck` job 在 schema-drift 之后接三步：往已经跑过迁移的一次性 Postgres 里 seed，
+  `next build`，启动构建产物并跑冒烟检查。任何一步失败，PR 都合不进去。
+- `smoke.yml` 里的 bash 路由检查和 Python 链接爬虫合并成 `scripts/smoke.py <base-url>`，只用标准库。
+  CI 用它测本地构建，`smoke.yml` 用它测线上。新脚本对 sitemap 里的页面本身也要求返回 200，原来只检查这些页面上的链接。
+- `smoke.yml` 除了生产部署后运行，每天还会定时跑一次，这样两次部署之间出的问题也不用等下一次 push 才暴露。
+- `scripts/seed.ts` 补上一个分类、一个标签、一个项目和落沙工具，这样构建和冒烟检查每类页面都能覆盖到。
+  seed 失败时也会以非零码退出：原来失败只打一行日志，打开的数据库连接池让进程一直挂着，CI 会卡住而不是报错。
+
+本机用 Postgres 16 容器按 CI 的步骤演练过：迁移、seed、`next build`、`next start`、`smoke.py`，全部通过。
+新的 `smoke.py` 对线上跑一遍，结果与原来的检查一致（22 个 sitemap 页面、26 条站内链接）。
+
 ## [1.15.0] — 2026-09-26
 
 ### Added — 在后台保存后立即更新页面（#78）

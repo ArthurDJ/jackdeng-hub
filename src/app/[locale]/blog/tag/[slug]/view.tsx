@@ -25,6 +25,10 @@ export async function tagMetadata(locale: string, slug: string, page: number): P
   const tag = docs[0]
   const t = await getTranslations({ locale, namespace: 'blog' })
   if (!tag) return { title: t('tagNotFound') }
+  const { totalDocs } = await payload.count({
+    collection: 'blogs',
+    where: { status: { equals: 'published' }, 'tags.slug': { in: [slug] } },
+  })
   return {
     title: page > 1
       ? `${t('tagMetaTitle', { name: tag.name })} · ${t('pagination.page', { page })}`
@@ -36,6 +40,9 @@ export async function tagMetadata(locale: string, slug: string, page: number): P
       : t('tagMetaDescription', { name: tag.name }),
     // Each page is its own canonical URL, as on /blog.
     alternates: localeAlternates(locale, pageHref(`/blog/tag/${slug}`, page)),
+    // A tag no published post uses yet renders "no posts found". Keep it out
+    // of the index; the sitemap leaves it out too.
+    ...(totalDocs === 0 && { robots: { index: false, follow: true } }),
   }
 }
 

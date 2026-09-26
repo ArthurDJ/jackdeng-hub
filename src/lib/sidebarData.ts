@@ -2,6 +2,7 @@ import 'server-only'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from './payload'
 import { populated } from './relations'
+import { countPostsByTaxonomy, withPosts } from './taxonomyCounts'
 
 const MONTHS = [
   'January','February','March','April','May','June',
@@ -40,7 +41,7 @@ const getCachedSidebarBase = unstable_cache(
         depth: 0,
         limit: 200,
         locale,
-        select: { publishedAt: true, category: true },
+        select: { publishedAt: true, category: true, tags: true },
       }),
     ])
 
@@ -61,26 +62,24 @@ const getCachedSidebarBase = unstable_cache(
       .sort((a, b) => b.year - a.year || b.month - a.month)
       .slice(0, 12)
 
-    // Count posts per category
-    const catCount: Record<string, number> = {}
-    for (const blog of countSource.docs) {
-      const catId = typeof blog.category === 'object' ? blog.category?.id : blog.category
-      if (catId) catCount[catId] = (catCount[catId] ?? 0) + 1
-    }
+    // Only the categories and tags some published post uses, most-used first:
+    // "Tags" listed the whole seeded set, most of it leading to empty pages.
+    const counts = countPostsByTaxonomy(countSource.docs)
 
-    const categories = categoriesResult.docs.map((c) => ({
-      id: c.id,
-      name: c.name,
-      slug: c.slug,
-      _count: catCount[c.id] ?? 0,
-    }))
+    const categories = withPosts(
+      categoriesResult.docs.map((c) => ({ id: c.id, name: c.name, slug: c.slug })),
+      counts.categories,
+    )
 
-    const tags = tagsResult.docs.map((t) => ({
-      id: t.id,
-      name: t.name,
-      slug: t.slug,
-      color: t.color ?? '#3B82F6',
-    }))
+    const tags = withPosts(
+      tagsResult.docs.map((t) => ({
+        id: t.id,
+        name: t.name,
+        slug: t.slug,
+        color: t.color ?? '#3B82F6',
+      })),
+      counts.tags,
+    )
 
     const recentPosts = recentResult.docs.map((b) => ({
       title: b.title,

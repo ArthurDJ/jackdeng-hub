@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { getPayload } from '@/lib/payload'
+import { countPostsByTaxonomy, withPosts } from '@/lib/taxonomyCounts'
 
 export const revalidate = 86400 // regenerate once per day
 
@@ -37,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       sort: '-publishedAt',
       depth: 0,
       limit: 200,
-      select: { slug: true, publishedAt: true, updatedAt: true },
+      select: { slug: true, publishedAt: true, updatedAt: true, category: true, tags: true },
     }),
     payload.find({
       collection: 'categories',
@@ -89,13 +90,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     (blog) => entry(`/blog/${blog.slug}`, blog.publishedAt ?? blog.updatedAt),
   )
 
-  // ── Category pages ──
-  const categoryEntries: MetadataRoute.Sitemap = categoriesResult.docs.map(
+  // ── Category and tag pages ──
+  // Only the ones some published post uses: the rest render "no posts found"
+  // and carry noindex, so listing them here would contradict the page.
+  const counts = countPostsByTaxonomy(blogsResult.docs)
+
+  const categoryEntries: MetadataRoute.Sitemap = withPosts(categoriesResult.docs, counts.categories).map(
     (cat) => entry(`/blog/category/${cat.slug}`, undefined),
   )
 
-  // ── Tag pages ──
-  const tagEntries: MetadataRoute.Sitemap = tagsResult.docs.map(
+  const tagEntries: MetadataRoute.Sitemap = withPosts(tagsResult.docs, counts.tags).map(
     (tag) => entry(`/blog/tag/${tag.slug}`, undefined),
   )
 

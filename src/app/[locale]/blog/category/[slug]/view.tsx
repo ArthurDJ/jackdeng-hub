@@ -24,6 +24,10 @@ export async function categoryMetadata(locale: string, slug: string, page: numbe
   const cat = docs[0]
   const t = await getTranslations({ locale, namespace: 'blog' })
   if (!cat) return { title: t('categoryNotFound') }
+  const { totalDocs } = await payload.count({
+    collection: 'blogs',
+    where: { status: { equals: 'published' }, 'category.slug': { equals: slug } },
+  })
   return {
     title: page > 1
       ? `${t('categoryMetaTitle', { name: cat.name })} · ${t('pagination.page', { page })}`
@@ -31,6 +35,9 @@ export async function categoryMetadata(locale: string, slug: string, page: numbe
     description: cat.description ?? t('categoryMetaDescription', { name: cat.name }),
     // Each page is its own canonical URL, as on /blog.
     alternates: localeAlternates(locale, pageHref(`/blog/category/${slug}`, page)),
+    // An empty category renders "no posts found". Keep it out of the index;
+    // the sitemap leaves it out too.
+    ...(totalDocs === 0 && { robots: { index: false, follow: true } }),
   }
 }
 

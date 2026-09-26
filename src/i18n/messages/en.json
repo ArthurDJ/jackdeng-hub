@@ -104,7 +104,6 @@
     "post": "post",
     "posts": "posts",
     "minRead": "{count} min read",
-    "readIn": "Read in {lang}",
     "pagination": {
       "previous": "← Previous",
       "next": "Next →",
@@ -122,7 +121,8 @@
     "tagEyebrow": "Tag",
     "tagMetaTitle": "#{name} — Blog",
     "tagMetaDescription": "Posts tagged with {name}.",
-    "tagNotFound": "Tag not found"
+    "tagNotFound": "Tag not found",
+    "readOtherLanguage": "Read in Chinese"
   },
   "about": {
     "title": "Jack Deng",
@@ -136,7 +136,14 @@
     "ctaText": "Interested in working together or have an integration challenge?",
     "ctaBtn": "Get in touch",
     "ctaBlogLinkText": "writing lately →",
-    "ctaBlogNote": "Or read what I've been <link>writing lately →</link>."
+    "ctaBlogNote": "Or read what I've been <link>writing lately →</link>.",
+    "links": {
+      "github": "GitHub",
+      "linkedin": "LinkedIn",
+      "leetcode": "LeetCode",
+      "email": "Email",
+      "resume": "Résumé"
+    }
   },
   "search": {
     "dialogLabel": "Search the site",

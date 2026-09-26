@@ -5,16 +5,20 @@ name: smoke
 # the error was thrown at request time, not build time. Nothing in CI actually
 # fetched a page. This does.
 #
-# It runs after a production deployment succeeds, not on pull requests, because
-# it needs a deployed URL and the production database behind it.
+# It runs after a production deployment succeeds, and once a day so that
+# something breaking between deploys (an expired token, a database that went
+# away) does not wait for the next push to show. Pull requests get the same
+# checks from CI, against a local build (the `typecheck` job in ci.yml).
 on:
   deployment_status:
   workflow_dispatch:
+  schedule:
+    - cron: '17 14 * * *' # 07:17 in California
 
 jobs:
   smoke:
     name: smoke
-    # Only once the deployment is live, and only for production.
+    # By hand, on the schedule, or once a production deployment is live.
     #
     # Match on the prefix alone. Vercel's environment name depends on how many
     # projects are attached to the repo: with two it disambiguates by appending
@@ -29,148 +33,15 @@ jobs:
     # mode to prefer over silently not running at all.
     if: >-
       github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
       (github.event.deployment_status.state == 'success' &&
        startsWith(github.event.deployment_status.environment, 'Production'))
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch the routes a build cannot check
-        env:
-          BASE: https://www.jackdeng.cc
-        run: |
-          set -u
-          fail=0
-
-          # A post detail page is the only statically rendered route, which is
-          # exactly why it broke in a way nothing else caught. Both locales.
-          slug=$(curl -fsS "$BASE/api/blogs?limit=1&depth=0" | sed -n 's/.*"slug":"\([^"]*\)".*/\1/p' | head -1)
-
-          # One route per line, read with `while read` rather than `for x in $var`
-          # so this does not depend on the shell doing word splitting.
-          routes=$(printf '%s\n' /en /zh /en/blog /zh/blog /en/projects /en/tools \
-                                  /zh/about /robots.txt /sitemap.xml /feed.xml)
-          if [ -n "$slug" ]; then
-            routes=$(printf '%s\n%s\n%s\n' "$routes" "/en/blog/$slug" "/zh/blog/$slug")
-          else
-            echo "note: no published posts, skipping the detail-page checks"
-          fi
-
-          # Same idea for tools. /api/tools only returns online + public ones to
-          # an anonymous caller, so this picks up whatever is actually listed
-          # rather than hardcoding a slug that a rename would silently break.
-          tool=$(curl -fsS "$BASE/api/tools?limit=1&depth=0" | sed -n 's/.*"slug":"\([^"]*\)".*/\1/p' | head -1)
-          if [ -n "$tool" ]; then
-            routes=$(printf '%s\n%s\n%s\n' "$routes" "/en/tools/$tool" "/zh/tools/$tool")
-          else
-            echo "note: no public tools, skipping the tool-page checks"
-          fi
-
-          # A 200 is not enough on its own. /blog and /projects sit under a
-          # loading.tsx, so the status is committed before the page renders
-          # (#34), and a query that throws there still goes out as a 200 with
-          # error.tsx streamed in. Next marks that in the HTML as a numeric
-          # data-dgst; the non-numeric ones (BAILOUT_TO_CLIENT_SIDE_RENDERING)
-          # are normal.
-          body=$(mktemp)
-          while IFS= read -r r; do
-            [ -n "$r" ] || continue
-            code=$(curl -s -o "$body" -w '%{http_code}' -L "$BASE$r")
-            if [ "$code" != "200" ]; then
-              echo "FAIL $code  $r"
-              fail=1
-            elif grep -qE 'data-dgst="[0-9]+"' "$body"; then
-              echo "FAIL $code  $r  (server error rendered under a 200)"
-              fail=1
-            else
-              echo "ok   $code  $r"
-            fi
-          done <<< "$routes"
-
-          # The other half: pages that must NOT exist.
-          #
-          # #34 shipped five routes that answered a made-up slug with HTTP 200
-          # and a 404 page. Adding loading.tsx to the list pages had pulled the
-          # detail routes into the same Suspense boundary, and streaming commits
-          # the status line with the first chunk — so notFound() ran after 200
-          # was already sent, and search engines were free to index every URL
-          # anyone invented. Every positive assertion above passed the whole
-          # time, because the pages that should exist did.
-          #
-          # One probe per route that calls notFound(), with a slug no document
-          # can plausibly have. Plus two that no route claims at all (#57):
-          # a path under a locale, which used to fall through to the bare
-          # root 404, and a path with a dot, which skips the middleware and
-          # used to answer 500 — the shape of every scanner probe
-          # (/wp-login.php, /.env).
-          nope=ci-smoke-probe-no-such-slug
-          missing=$(printf '%s\n' "/en/blog/$nope" "/zh/blog/$nope" \
-                                   "/en/tools/$nope" "/en/projects/$nope" \
-                                   "/en/blog/category/$nope" "/en/blog/tag/$nope" \
-                                   "/en/$nope/deeper" "/$nope.php")
-
-          while IFS= read -r r; do
-            [ -n "$r" ] || continue
-            code=$(curl -s -o /dev/null -w '%{http_code}' -L "$BASE$r")
-            if [ "$code" = "404" ]; then
-              echo "ok   $code  $r  (absent, and says so)"
-            else
-              echo "FAIL $code  $r  — a made-up slug must answer 404"
-              fail=1
-            fi
-          done <<< "$missing"
-
-          exit $fail
-
-      # Every internal link on every page in the sitemap, without following
-      # redirects. The step above only fetches a fixed list of URLs with -L,
-      # so it never looked at the links a visitor actually clicks: the home
-      # page's project cards pointed at /en/en/projects/… and 404'd in
-      # production for months, and most blog links were bare /blog/… paths
-      # that each cost a 307 through the locale middleware. Fails on a doubled
-      # prefix, a missing prefix, or a target that does not answer 200.
-      - name: Every internal link resolves without a redirect
-        env:
-          BASE: https://www.jackdeng.cc
-        run: |
-          python3 - <<'PY'
-          import os, re, sys, urllib.request, urllib.error
-
-          base = os.environ['BASE']
-
-          class NoRedirect(urllib.request.HTTPRedirectHandler):
-              def redirect_request(self, *args, **kwargs):
-                  return None
-          opener = urllib.request.build_opener(NoRedirect)
-
-          def get(path):
-              try:
-                  with opener.open(base + path, timeout=30) as r:
-                      return r.status, r.read().decode('utf-8', 'replace')
-              except urllib.error.HTTPError as e:
-                  return e.code, ''
-
-          _, sitemap = get('/sitemap.xml')
-          pages = sorted({re.sub(r'^https?://[^/]+', '', u) for u in re.findall(r'<loc>([^<]+)</loc>', sitemap)})
-          skip = ('/_next', '/api', '/admin', '/og', '/icon', '/apple-icon', '/favicon')
-          links = {}
-          for page in pages:
-              _, html = get(page)
-              for href in set(re.findall(r'href="(/[^"#?]*)', html)):
-                  if href.startswith(skip) or '.' in href.rsplit('/', 1)[-1]:
-                      continue
-                  links.setdefault(href, page)
-
-          fail = 0
-          for href, page in sorted(links.items()):
-              if re.match(r'^/(en|zh)/(en|zh)(/|$)', href):
-                  why = 'locale prefix doubled'
-              elif not re.match(r'^/(en|zh)(/|$)', href):
-                  why = 'no locale prefix: every click is a 307 through the middleware'
-              else:
-                  code, _ = get(href)
-                  why = None if code == 200 else f'answers {code}'
-              if why:
-                  print(f'FAIL {href}  (linked from {page}) — {why}')
-                  fail = 1
-          print(f'{len(pages)} pages, {len(links)} distinct internal links, {"FAIL" if fail else "all ok"}')
-          sys.exit(fail)
-          PY
+      # For a deployment, the commit that was deployed, so the checks match
+      # the code under test.
+      - uses: actions/checkout@v7
+      # The checks live in scripts/smoke.py so CI can run them on a local
+      # build before merge; see that file for what each one guards against.
+      - name: Smoke-test production
+        run: python3 scripts/smoke.py https://www.jackdeng.cc

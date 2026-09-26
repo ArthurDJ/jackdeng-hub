@@ -1,8 +1,17 @@
+/**
+ * Sample content for an empty database: three bilingual posts, one category
+ * and one tag on the first of them, a project and the falling-sand tool.
+ *
+ * CI runs this against its throwaway Postgres before `next build`, so the
+ * build and the smoke check see one of every page type: a post, a category
+ * and a tag page with a post on them, a project and a tool. It is also what a
+ * fresh local database needs to look like the site.
+ */
 import { loadEnv, requireApply } from './lib/env'
 import { getPayload } from 'payload'
 
 loadEnv()
-requireApply({ script: 'scripts/seed.ts', writes: ['blogs'] })
+requireApply({ script: 'scripts/seed.ts', writes: ['blogs', 'categories', 'tags', 'projects', 'tools'] })
 
 const createParagraph = (text: string): any => ({
   root: {
@@ -116,8 +125,72 @@ async function run() {
     },
   })
 
+  console.log('Creating a category and a tag on post 1...')
+  const category = await payload.create({
+    collection: 'categories',
+    locale: 'en',
+    data: { name: 'Backend', slug: 'backend' },
+  })
+  await payload.update({ collection: 'categories', id: category.id, locale: 'zh', data: { name: '后端' } })
+  const tag = await payload.create({
+    collection: 'tags',
+    data: { name: 'Boomi', slug: 'boomi', color: '#3B82F6' },
+  })
+  await payload.update({ collection: 'blogs', id: post1.id, data: { category: category.id, tags: [tag.id] } })
+
+  console.log('Creating a project...')
+  const project = await payload.create({
+    collection: 'projects',
+    locale: 'en',
+    data: {
+      name: 'Sample Integration Project',
+      slug: 'sample-integration-project',
+      shortDescription: 'A sample project so the project pages have something to render.',
+      longDescription: createParagraph('The detail page renders this rich text.'),
+      status: 'completed',
+      isPinned: true,
+      techStack: [{ tech: 'Boomi' }, { tech: 'NetSuite' }],
+    },
+  })
+  await payload.update({
+    collection: 'projects',
+    id: project.id,
+    locale: 'zh',
+    data: {
+      name: '示例集成项目',
+      shortDescription: '一个示例项目，让项目页面有内容可渲染。',
+      longDescription: createParagraph('详情页会渲染这段富文本。'),
+    },
+  })
+
+  console.log('Creating the falling-sand tool...')
+  const tool = await payload.create({
+    collection: 'tools',
+    locale: 'en',
+    data: {
+      name: 'Falling Sand',
+      slug: 'falling-sand',
+      description: 'A cellular automaton that runs in the browser.',
+      toolType: 'interactive',
+      accessControl: 'public',
+      status: 'online',
+      embedType: 'builtin',
+    },
+  })
+  await payload.update({
+    collection: 'tools',
+    id: tool.id,
+    locale: 'zh',
+    data: { name: '落沙', description: '在浏览器里运行的元胞自动机。' },
+  })
+
   console.log('Seed complete!')
   process.exit(0)
 }
 
-run().catch(console.error)
+// Exit on failure too: the open database pool would otherwise keep the
+// process alive, and CI would hang on a failed seed instead of failing.
+run().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})

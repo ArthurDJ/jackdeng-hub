@@ -38,17 +38,9 @@ jobs:
 
       - run: npm ci
 
-      # Deliberately typecheck only — no `next build` here.
-      #
-      # Payload reads DATABASE_URI while the config is evaluated, so a build in
-      # CI would need real database credentials as repository secrets, and the
-      # only database this project has is production. Vercel already runs the
-      # full build on every preview deployment, and next.config.mjs does not set
-      # typescript.ignoreBuildErrors, so build breakage is caught there.
-      #
-      # What Vercel does NOT do is *block a merge*. That gate is this job's
-      # entire job. tsconfig.json includes **/*.ts, so this covers src/,
-      # scripts/ and src/scripts/ alike.
+      # tsconfig.json includes **/*.ts, so this covers src/, scripts/ and
+      # src/scripts/ alike. The build at the end of this job typechecks too,
+      # but this fails in seconds rather than minutes.
       - run: npm run typecheck
 
       # Unit tests over the pure helpers only — no database, no browser, so
@@ -99,3 +91,49 @@ jobs:
           MIGRATED_URI: postgresql://postgres:ci@localhost:5432/migrated
           PUSHED_URI: postgresql://postgres:ci@localhost:5432/pushed
         run: npx tsx scripts/schema-drift.ts compare
+
+      # Build the site and fetch it before merge.
+      #
+      # This used to be left to Vercel's preview deployments, on the grounds that
+      # a build needs a database and the only one was production. That had two
+      # costs: every preview build, Dependabot's included, ran with production
+      # credentials, and a preview can report a broken build but cannot block a
+      # merge. The throwaway Postgres above already holds the migrated schema,
+      # so the build runs against that instead: seed it, `next build`, start it,
+      # and run the same smoke check production gets after each deploy
+      # (scripts/smoke.py). Request-time errors like #26 fail here, before merge.
+      #
+      # BLOB_READ_WRITE_TOKEN only switches the storage plugin on, so the config
+      # matches production's (see scripts/schema-drift.ts); nothing uploads.
+      - name: 'Build: seed the migrated database'
+        env:
+          DATABASE_URI: postgresql://postgres:ci@localhost:5432/migrated
+          PAYLOAD_SECRET: ci-build-throwaway
+          BLOB_READ_WRITE_TOKEN: vercel_blob_rw_ci_placeholder
+        run: npx tsx scripts/seed.ts
+      - name: 'Build: next build'
+        env:
+          DATABASE_URI: postgresql://postgres:ci@localhost:5432/migrated
+          PAYLOAD_SECRET: ci-build-throwaway
+          BLOB_READ_WRITE_TOKEN: vercel_blob_rw_ci_placeholder
+          NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: npm run build
+      - name: 'Build: start and smoke-test'
+        env:
+          DATABASE_URI: postgresql://postgres:ci@localhost:5432/migrated
+          PAYLOAD_SECRET: ci-build-throwaway
+          BLOB_READ_WRITE_TOKEN: vercel_blob_rw_ci_placeholder
+          NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: |
+          npm start -- -p 3000 > next-start.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -fs -o /dev/null http://localhost:3000/en && break
+            sleep 1
+          done
+          python3 scripts/smoke.py http://localhost:3000 || {
+            echo '--- next start log ---'
+            cat next-start.log
+            exit 1
+          }

@@ -29,14 +29,12 @@ export const Comments: CollectionConfig = {
     // open to anonymous callers is what made the widget optional: skipping the
     // form and posting straight to `/api/comments` wrote a comment anyway.
     create: ({ req }) => Boolean(req.user),
-    // Only admins can read, update, delete
-    read: ({ req }) => {
-      if (req.user) return true
-      // Public can read approved comments (filtered in frontend query)
-      return {
-        status: { equals: 'approved' },
-      }
-    },
+    // Admins only. Approved comments reach the page through the Local API
+    // (CommentList: `overrideAccess` plus its own `status` filter), so nothing
+    // public needs this route. It used to answer anonymous callers with every
+    // approved comment, and a REST read returns whole documents: commenters'
+    // email and IP address along with their name.
+    read: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => Boolean(req.user),
   },
@@ -107,6 +105,9 @@ export const Comments: CollectionConfig = {
       type: 'email',
       label: { en: 'Email', zh: '邮箱' },
       required: true,
+      // Personal data. Collection `read` is admin-only already; this keeps the
+      // field hidden if that is ever reopened to show approved comments.
+      access: { read: ({ req }) => Boolean(req.user) },
       admin: {
         description: { en: 'Not displayed publicly.', zh: '不会公开显示。' },
       },
@@ -148,6 +149,9 @@ export const Comments: CollectionConfig = {
       name: 'ip',
       type: 'text',
       label: { en: 'IP Address', zh: 'IP 地址' },
+      // Personal data, for the same reason as authorEmail. The rate limit
+      // queries it with `overrideAccess`, which skips field access too.
+      access: { read: ({ req }) => Boolean(req.user) },
       admin: {
         position: 'sidebar',
         readOnly: true,

@@ -21,6 +21,15 @@ import { isLocalDatabaseUrl } from './lib/localDatabase'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+// Payload signs admin session tokens with this. The old fallback was a string
+// published in this repository, so a deployment that lacked the variable would
+// have accepted a session token anyone could sign. Refusing to start turns
+// that into a failed build instead of a quiet hole.
+const secret = process.env.PAYLOAD_SECRET
+if (!secret) {
+  throw new Error('PAYLOAD_SECRET is not set. Payload signs admin session tokens with it; see .env.example.')
+}
+
 export const config = buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
   admin: {
@@ -74,7 +83,7 @@ export const config = buildConfig({
     defaultLocale: 'zh',
     fallback: true,
   },
-  secret: process.env.PAYLOAD_SECRET || 'YOUR_SECRET_HERE',
+  secret,
   // No email service needed — admin uses Google OAuth only
   email: (() => ({
     name: 'noop',
@@ -140,8 +149,11 @@ export const config = buildConfig({
       },
     }),
   ],
+  // Nothing calls GraphQL: the site reads through the Local API and the admin
+  // panel through REST. Left on, it was a second public query surface over
+  // every collection, with introspection, that no page or test exercised.
   graphQL: {
-    schemaOutputFile: path.resolve(dirname, 'schema.graphql'),
+    disable: true,
   },
 })
 

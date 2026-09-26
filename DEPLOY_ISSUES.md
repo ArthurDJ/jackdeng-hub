@@ -44,6 +44,10 @@ graphQL: {
 ```
 **Commit**：`5c86b9b`
 
+> **2026-09-26 起已作废（#74）**：GraphQL 整体关闭（`graphQL: { disable: true }`），
+> `src/app/(payload)/api/graphql/route.ts` 已删除。现在 `/api/graphql` 返回 404 是预期行为，
+> 不要照上面的修法恢复。原因见 CHANGELOG 1.13.4。
+
 ---
 
 ## Issue 3 — Vercel 部署被 Block（Hobby 私有仓库限制）

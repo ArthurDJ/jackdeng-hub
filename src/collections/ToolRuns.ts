@@ -14,7 +14,10 @@ export const ToolRuns: CollectionConfig = {
   },
   access: {
     read: ({ req }) => Boolean(req.user),
-    create: () => true, // Allow API callback (authenticated via secret)
+    // Automation tools report through POST /api/tools/[slug]/callback, which
+    // checks x-cron-secret and then writes with the Local API. Opening create
+    // for that route opened `POST /api/tool-runs` as well, which checks nothing.
+    create: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => Boolean(req.user),
   },

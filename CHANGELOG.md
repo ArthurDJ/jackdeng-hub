@@ -10,6 +10,78 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.13.4] — 2026-09-26
+
+### Security — 收紧 Payload 自动生成的 REST 接口（#74）
+
+Payload 给每个集合都生成 `/api/<slug>`，不管有没有页面用到，挡在访客和数据表之间的只有
+`access`。公开页面都走 Local API，所以下面两条规则放得比网站需要的宽，却从没在页面上表现出来：
+
+- **`comments` 的 `read`** 对匿名调用者返回所有已批准的评论。REST 返回整条文档，包括评论者的
+  `authorEmail` 和 `ip`。2026-09-26 只读查询生产：已批准的评论 0 条，还没有泄露过。`read`
+  改为只限登录；`authorEmail`、`ip` 另加字段级 `access.read`，以后就算重新对匿名开放已批准
+  评论，这两个字段也不会出去。文章页的 `CommentList` 用 `overrideAccess` 加自己的 `status`
+  过滤，不受影响；限流查询 `ip` 也带 `overrideAccess`，字段权限同样跳过。
+- **`tool-runs` 的 `create`** 是 `() => true`，本意是给自动化工具回调用。但回调走的是
+  `POST /api/tools/[slug]/callback`（先验 `x-cron-secret`，再用 Local API 写），这条规则顺带
+  放开了什么都不验的 `POST /api/tool-runs`，任何人都能伪造运行记录。改为只限登录。回调里的
+  `create` / `update` 显式写上 `overrideAccess: true`：这本来就是 Local API 的默认值，写出来
+  是为了让这次写入不再悄悄依赖默认值。
+
+### Security — 缺 `PAYLOAD_SECRET` 时拒绝启动（#74）
+
+原来是 `secret: process.env.PAYLOAD_SECRET || 'YOUR_SECRET_HERE'`，缺变量就回落到仓库里公开的
+字符串。Payload 用它签发后台 session token，哪个部署缺了这个变量，任何人都能自己签一个管理员
+token。生产和 Preview 都配了这个变量：生产的依据是 `vercel env pull` 拉下的 production 快照，
+Preview 的依据是本 PR 的 preview 构建通过了（缺这个变量，构建在加载配置时就会失败）。所以此前
+没有哪个部署真的在用那个公开字符串。现在 `payload.config.ts` 读不到变量就直接抛错：缺变量的部署
+会构建失败，不会悄悄用公开的密钥。
+
+CI 的 schema-drift 前两步（`payload migrate`、`schema-drift.ts push`）要加载配置，`ci.yml`
+里给这两步写了一个一次性的值。它不是 repository secret，所以 Dependabot 的 PR 也拿得到。
+
+**以后**：新建任何 Vercel 环境都要配 `PAYLOAD_SECRET`，否则构建失败。
+
+### Removed — GraphQL（#74）
+
+没有任何代码调用 GraphQL：页面走 Local API，后台走 REST。开着它，每个集合就多一个公开查询
+入口（生产上 `POST /api/graphql` 能匿名查询，还带 introspection），却没有页面或测试覆盖它。
+改为 `graphQL: { disable: true }`，删除 `src/app/(payload)/api/graphql/route.ts`，
+`/api/graphql` 现在返回 404。`graphql` 依赖保留，它是 `payload` 的 peer dependency。
+`DEPLOY_ISSUES.md` 的 Issue 2 当年修的正是「`/api/graphql` 返回 404」，加注说明现在的 404
+是预期行为，不要按旧修法恢复。
+
+### Added — 集合访问规则的单元测试（#74）
+
+`src/collections/access.test.ts` 以 `req.user = null` 调用每个集合的 `create` / `read` /
+`update` / `delete`，以及集合额外定义的访问键（比如 `readVersions`），断言结果：
+
+- 允许匿名做的事列在一张表里（blogs 读已发布、categories 和 tags 读、tools 读在线且公开），
+  表里没有的操作一律必须拒绝。集合没写的操作按 Payload 的默认规则（登录才行）计算。
+- `comments.authorEmail` / `.ip` 匿名读不到，登录后读得到。
+- `src/collections` 下每个集合文件都要登记在测试里，新集合忘了登记会变红。
+
+变异验证：把 `ToolRuns.create` 改回 `() => true`、`Comments.read` 改回已批准过滤、去掉 `ip`
+的字段权限、给 Blogs 加 `readVersions: () => true`、给 Tags 加 `update: () => true`、新建一个
+没登记的集合文件，六种情况各有一条测试变红。
+
+### 验证
+
+`typecheck`、`npm test`（162 个，新增 39 个）、`i18n:check` 通过。在一次性 Postgres 16
+（Docker）上 `payload migrate` → `next build && next start`，环境变量全部显式指向本地库：
+
+- 匿名 `GET /api/comments`、`/api/comments/1`、按 `ip` 过滤都是 403；登录后 200，含
+  `authorEmail` 和 `ip`。
+- 匿名 `POST /api/tool-runs` 403，登录后 201。callback 不带 secret 或 secret 错误 401，
+  secret 正确 200，写入运行记录并更新工具的 `lastRunStatus`。
+- `GET` / `POST /api/graphql` 404。
+- 文章页照常渲染已批准的评论（作者名和内容），HTML 里没有邮箱和 IP。
+- 匿名 `/api/blogs`、`/api/tools` 的结果不变，`/admin` 200。
+- `PAYLOAD_SECRET` 为空时，`payload migrate` 和 schema-drift push 都报错退出；带上 CI 里的值，
+  schema-drift 比对通过。
+
+---
+
 ## [1.13.3] — 2026-09-26
 
 ### Changed — 重写 `AI_DEPLOY.md` 的部署和工具引擎两节（#73）

@@ -77,15 +77,22 @@ jobs:
       #
       # Steps in this job rather than a new one, for the same reason as the
       # i18n check: `typecheck` is the check branch protection requires.
+      #
+      # Both of the first two steps load payload.config.ts, which refuses to
+      # start without PAYLOAD_SECRET. The value here signs nothing that
+      # outlives the job: the databases go away with the runner. It is not a
+      # repository secret, so Dependabot PRs get it too.
       - name: 'Schema drift: migrate'
         env:
           DATABASE_URI: postgresql://postgres:ci@localhost:5432/migrated
           NODE_ENV: production
+          PAYLOAD_SECRET: ci-schema-drift-throwaway
         run: npx payload migrate
       - name: 'Schema drift: push the code schema'
         env:
           PUSHED_URI: postgresql://postgres:ci@localhost:5432/pushed
           NODE_ENV: development
+          PAYLOAD_SECRET: ci-schema-drift-throwaway
         run: npx tsx scripts/schema-drift.ts push
       - name: 'Schema drift: compare'
         env:

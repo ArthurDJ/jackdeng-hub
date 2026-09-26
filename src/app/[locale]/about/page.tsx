@@ -286,7 +286,9 @@ export default async function AboutPage({ params }: Props) {
                 }}
               >
                 {ICON_MAP[icon]}
-                {label}
+                {/* Brand names stay as they are; email and résumé are words, so
+                    they come from the messages ("Email" sat on the Chinese page). */}
+                {t(`links.${icon}`)}
               </a>
             ))}
           </div>

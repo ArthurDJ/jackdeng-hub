@@ -10,6 +10,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.16.2] — 2026-09-26
+
+### Fixed — 中文页面上残留的英文（#85）
+
+- **文章页的语言切换**：中文页原来显示「以 English 阅读」，英文页显示「Read in 中文」。文案是用
+  `locale === 'en' ? '中文' : 'English'` 这个三元表达式拼出来的，#77 清理同类写法时漏掉了这一处。
+  现在换成每种语言各一句完整的话：中文页「阅读英文版」，英文页「Read in Chinese」。
+- **About 页的链接**：文字原来直接取自 `PROFILE_LINKS` 里写死的英文 label，所以中文页上出现了「Email」「Resume」。
+  现在改从 `about.links` 读取，中文页显示「邮箱」「简历」，英文页显示「Email」「Résumé」。GitHub、LinkedIn、LeetCode
+  是品牌名，保持不变。
+
 ## [1.16.1] — 2026-09-26
 
 ### Fixed — 首批文章的标签与内容对上，两篇 AI 新闻汇编改回草稿（#84）

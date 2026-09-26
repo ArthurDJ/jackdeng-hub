@@ -286,7 +286,7 @@ export default async function BlogDetailPage({ params }: Props) {
                   }}
                   className="ds-link-hover"
                 >
-                  {t('readIn', { lang: locale === 'en' ? '中文' : 'English' })}
+                  {t('readOtherLanguage')}
                 </Link>
               </div>
 

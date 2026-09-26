@@ -104,7 +104,6 @@
     "post": "篇文章",
     "posts": "篇文章",
     "minRead": "{count} 分钟阅读",
-    "readIn": "以 {lang} 阅读",
     "pagination": {
       "previous": "← 上一页",
       "next": "下一页 →",
@@ -122,7 +121,8 @@
     "tagEyebrow": "标签",
     "tagMetaTitle": "#{name} — 文章",
     "tagMetaDescription": "带有 {name} 标签的文章。",
-    "tagNotFound": "未找到该标签"
+    "tagNotFound": "未找到该标签",
+    "readOtherLanguage": "阅读英文版"
   },
   "about": {
     "title": "Jack Deng",
@@ -136,7 +136,14 @@
     "ctaText": "有合作意向，或者有集成难题想聊聊？",
     "ctaBtn": "联系我",
     "ctaBlogLinkText": "写什么 →",
-    "ctaBlogNote": "或者看看我最近在<link>写什么 →</link>。"
+    "ctaBlogNote": "或者看看我最近在<link>写什么 →</link>。",
+    "links": {
+      "github": "GitHub",
+      "linkedin": "LinkedIn",
+      "leetcode": "LeetCode",
+      "email": "邮箱",
+      "resume": "简历"
+    }
   },
   "search": {
     "dialogLabel": "站内搜索",

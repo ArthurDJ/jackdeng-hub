@@ -5,7 +5,7 @@ import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { getLocale, getTranslations } from 'next-intl/server'
 import { TagBadge } from './TagBadge'
-import { formatDate } from '@/lib/formatDate'
+import { formatDate, formatMonth } from '@/lib/formatDate'
 import type { Category as CategoryDoc, Media, Tag as TagDoc } from '@/payload-types'
 
 type Category   = Pick<CategoryDoc, 'id' | 'name' | 'slug'> & { _count?: number }
@@ -36,15 +36,6 @@ function SidebarHeading({ children }: { children: React.ReactNode }) {
       {children}
     </p>
   )
-}
-
-/* ── archive label helper ── */
-const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December']
-const MONTHS_ZH = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']
-
-function getArchiveLabel(year: number, month: number, locale: string) {
-  if (locale === 'zh') return `${year}年${MONTHS_ZH[month - 1]}`
-  return `${MONTHS_EN[month - 1]} ${year}`
 }
 
 export async function Sidebar({ categories = [], tags = [], recentPosts = [], archives = [], activeCategory, activeTag }: SidebarProps) {
@@ -172,7 +163,7 @@ export async function Sidebar({ categories = [], tags = [], recentPosts = [], ar
                     transition: 'background 150ms, color 150ms',
                   }}
                 >
-                  <span>{getArchiveLabel(entry.year, entry.month, locale)}</span>
+                  <span>{formatMonth(entry.year, entry.month, locale)}</span>
                   <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
                     {entry.count}
                   </span>

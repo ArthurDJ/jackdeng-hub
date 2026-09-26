@@ -158,9 +158,6 @@
     "pageToolsDesc": "Small tools that run in the browser",
     "pageAboutDesc": "About me"
   },
-  "footer": {
-    "builtWith": "Built with Next.js + Payload CMS."
-  },
   "notFound": {
     "title": "Page not found",
     "message": "Sorry, we couldn't find the page you're looking for.",
@@ -223,5 +220,10 @@
     "message": "This page hit an unexpected error. Retrying often clears it — if it keeps happening, the reference below helps me trace it.",
     "retry": "Try again",
     "reference": "Reference"
+  },
+  "feed": {
+    "title": "Jack Deng's Blog",
+    "description": "Tech & Thoughts",
+    "language": "en"
   }
 }

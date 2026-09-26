@@ -10,6 +10,32 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.14.1] — 2026-09-26
+
+### Removed — 用不到的依赖、文件和一次性脚本（#77）
+
+- **依赖**：`otplib`、`qrcode`、`@types/qrcode` 在 4 月去掉 MFA 后就没人用了；`lucide-react`、
+  `cross-env` 从没被 import 过。`@payloadcms/translations` 是反过来：`payload.config.ts` 在用，却只靠
+  传递依赖装上。现在按 Payload 锁步规则写成 `3.90.2` 精确版本，Dependabot 的 payload 分组会带着它一起升。
+- **Docker**：`Dockerfile` 用的 Node 20 低于 `engines` 要求的 24，还会复制一个不存在的根目录
+  `payload.config.ts`。部署走 Vercel，没有任何地方引用这三份 Docker 文件。
+- **文档**：`v1_SPRINT_SPEC.md`，v1 冲刺早已结束，也没有文件链接到它。
+- **一次性脚本**：测试图片那组（`upload-test-images`、`purge-test-media`、`reset-media-and-apply`），
+  测试图片在 1.9.2 已经清空；`apply-projects-localization`，迁移早已跑完；`cleanup-blogs`，内容上线前
+  用来清空文章和评论。`src/scripts/seed-taxonomy.ts` 带着 `--apply` 会先删光所有分类和标签，再按一套
+  写死的列表重建，现有文章的分类和标签关联会全部断掉；`verify-taxonomy` 是和它配套的。
+
+### Fixed — 几处违反 CLAUDE.md 约定的写法（#77）
+
+- **RSS 标题和描述**写的是 `locale === 'zh' ? … : …`，改为从新的 `feed` 命名空间读取。未知的
+  `?locale=` 以前会原样传给 `payload.find`，现在按英文处理。`footer.builtWith` 没人读，删掉，
+  `i18n:check` 的警告归零。
+- **项目页**的链接用的是 `next/link`，并手写 `/${locale}/` 前缀，改用 `@/i18n/navigation` 的 `Link`。
+- **日期格式**统一走 `src/lib/formatDate.ts`：新增 `formatMonth` 和 `formatMonthName`，删掉
+  `CommentList`、归档页、侧栏各自的副本。侧栏归档原来显示「2026年九月」，现在是「2026年9月」。
+- **页脚**去掉了每页都有的 Admin 链接。后台地址不变，访客不需要看到它。
+- **`vitest.config.ts`** 排除 `.claude/**`。本地跑测试时，Claude Code worktree 里的测试副本会被重复计入。
+
 ## [1.14.0] — 2026-09-26
 
 ### Added — 访问统计：Vercel Web Analytics（#76）

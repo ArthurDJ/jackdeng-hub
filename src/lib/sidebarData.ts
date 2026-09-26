@@ -4,11 +4,6 @@ import { getPayload } from './payload'
 import { populated } from './relations'
 import { countPostsByTaxonomy, withPosts } from './taxonomyCounts'
 
-const MONTHS = [
-  'January','February','March','April','May','June',
-  'July','August','September','October','November','December',
-]
-
 type Locale = 'en' | 'zh'
 
 interface SidebarOptions {

@@ -1,5 +1,7 @@
-import { getPayload } from '@/lib/payload'
+import { getTranslations } from 'next-intl/server'
 import { NextResponse } from 'next/server'
+import { asLocale } from '@/i18n/routing'
+import { getPayload } from '@/lib/payload'
 
 export const revalidate = 86400 // regenerate once per day
 
@@ -15,7 +17,9 @@ function escape(str: string): string {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const locale = (searchParams.get('locale') ?? 'en') as 'en' | 'zh'
+  // An unknown ?locale= used to reach payload.find as-is; it now means English.
+  const locale = asLocale(searchParams.get('locale') ?? 'en')
+  const t = await getTranslations({ locale, namespace: 'feed' })
 
   const payload = await getPayload()
   const { docs } = await payload.find({
@@ -27,9 +31,8 @@ export async function GET(request: Request) {
     locale,
   })
 
-  const isZh = locale === 'zh'
-  const title = isZh ? 'Jack Deng 的博客' : "Jack Deng's Blog"
-  const description = isZh ? '技术与思考' : 'Tech & Thoughts'
+  const title = t('title')
+  const description = t('description')
 
   const items = docs
     .map((post) => {
@@ -57,7 +60,7 @@ export async function GET(request: Request) {
     <title>${escape(title)}</title>
     <link>${BASE}/${locale}/blog</link>
     <description>${escape(description)}</description>
-    <language>${isZh ? 'zh-CN' : 'en'}</language>
+    <language>${t('language')}</language>
     <atom:link href="${BASE}/feed.xml?locale=${locale}" rel="self" type="application/rss+xml"/>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     ${items}

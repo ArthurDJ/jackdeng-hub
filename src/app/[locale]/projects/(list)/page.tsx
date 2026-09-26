@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
@@ -139,7 +139,7 @@ export default async function ProjectsPage({ params }: Props) {
             )
 
             return hasSlug ? (
-              <Link key={project.id} href={`/${locale}/projects/${project.slug}`} style={{ textDecoration: 'none', display: 'flex' }}>
+              <Link key={project.id} href={`/projects/${project.slug}`} style={{ textDecoration: 'none', display: 'flex' }}>
                 {CardInner}
               </Link>
             ) : (

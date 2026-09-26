@@ -1,16 +1,9 @@
 import { getLocale, getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
+import { formatDate } from '@/lib/formatDate'
 
 type Props = {
   postId: number
-}
-
-function formatDate(dateStr: string, locale: string) {
-  return new Date(dateStr).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
 }
 
 function Avatar({ name }: { name: string }) {

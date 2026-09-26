@@ -32,13 +32,15 @@ Payload 给每个集合都生成 `/api/<slug>`，不管有没有页面用到，�
 
 原来是 `secret: process.env.PAYLOAD_SECRET || 'YOUR_SECRET_HERE'`，缺变量就回落到仓库里公开的
 字符串。Payload 用它签发后台 session token，哪个部署缺了这个变量，任何人都能自己签一个管理员
-token。生产配了（`vercel env pull` 的 production 快照里有），Preview 在本地无法确认。现在
-`payload.config.ts` 读不到就直接抛错：缺变量的部署会构建失败，不会悄悄用公开的密钥。
+token。生产和 Preview 都配了这个变量：生产的依据是 `vercel env pull` 拉下的 production 快照，
+Preview 的依据是本 PR 的 preview 构建通过了（缺这个变量，构建在加载配置时就会失败）。所以此前
+没有哪个部署真的在用那个公开字符串。现在 `payload.config.ts` 读不到变量就直接抛错：缺变量的部署
+会构建失败，不会悄悄用公开的密钥。
 
 CI 的 schema-drift 前两步（`payload migrate`、`schema-drift.ts push`）要加载配置，`ci.yml`
 里给这两步写了一个一次性的值。它不是 repository secret，所以 Dependabot 的 PR 也拿得到。
 
-**部署前提**：Vercel 的 Preview 环境也必须有 `PAYLOAD_SECRET`，否则 preview 构建失败。
+**以后**：新建任何 Vercel 环境都要配 `PAYLOAD_SECRET`，否则构建失败。
 
 ### Removed — GraphQL（#74）
 

@@ -10,6 +10,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.16.0] — 2026-09-26
+
+### Changed — `/tools` 改名 Playground（实验室）（#83）
+
+这一页只有一个落沙小游戏，副标题却写着「实用开发小工具，免费在线使用」，这个说法和内容对不上。改成 Playground
+（中文导航叫「实验」，页面标题叫「实验室」），副标题改为「在浏览器里跑的小实验」，标题图标从 🛠️ 换成 🧪。
+URL 仍然是 `/tools`，已有的链接和 sitemap 都不受影响。
+
+### Removed — 自动化工具引擎，第一步（#83）
+
+自动化工具在别处运行，通过 `POST /api/tools/[slug]/callback` 往站里回报结果。自从签证监控在 #33 删掉以后，
+再也没有自动化工具在跑。对生产的只读检查结果：唯一的工具是落沙（交互类型），`tool_runs` 表是空的。
+
+- 删掉 callback 路由、详情页上的 Automation 徽章、`.env.example` 里的 `CRON_SECRET`，以及文档里讲回调协议的那一节。
+- 详情页的可见性条件加上 `toolType: interactive`，和列表页、sitemap 保持一致，残留的自动化记录不会再渲染出一个没人链接的页面。
+- `ToolRuns` 集合、`toolType` 和 5 个自动化字段在 `/admin` 里隐藏，但暂时留在 schema 里。
+  按删列分两步的规矩，由后续一条单独的迁移删除（`tool_runs` 表、这 5 列，以及 enum 里的 `automation`）。
+- 合并后请在 Vercel 删掉 Production 环境的 `CRON_SECRET`。
+
 ## [1.15.4] — 2026-09-26
 
 ### Security — 收回 Supabase API 角色对全部数据的读写权限（#82）

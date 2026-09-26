@@ -45,7 +45,7 @@
     "searchShortcut": "⌘K",
     "switchToZh": "中文",
     "switchToEn": "EN",
-    "tools": "工具"
+    "tools": "实验"
   },
   "home": {
     "title": "全栈工程师 · 专注后端与数据",
@@ -155,7 +155,7 @@
     "pageHomeDesc": "回到首页",
     "pageBlogDesc": "全部文章",
     "pageProjectsDesc": "做过的东西",
-    "pageToolsDesc": "在浏览器里跑的小工具",
+    "pageToolsDesc": "在浏览器里跑的小实验",
     "pageAboutDesc": "关于我"
   },
   "notFound": {
@@ -181,12 +181,11 @@
     "viewDetails": "查看详情"
   },
   "tools": {
-    "title": "工具箱",
-    "subtitle": "实用开发小工具，免费在线使用。",
-    "noTools": "暂无可用工具。",
-    "backToTools": "← 返回工具箱",
+    "title": "实验室",
+    "subtitle": "在浏览器里跑的小实验。",
+    "noTools": "这里还没有内容。",
+    "backToTools": "← 返回实验室",
     "comingSoon": "工具页面建设中，敬请期待。",
-    "automation": "自动化",
     "enableJs": "请启用 JavaScript 以使用本工具。",
     "status": {
       "online": "在线",

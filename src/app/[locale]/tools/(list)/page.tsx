@@ -65,7 +65,7 @@ export default async function ToolsPage({ params }: Props) {
             letterSpacing: '-0.02em',
             marginBottom: '12px',
           }}>
-            🛠️ {t('title')}
+            🧪 {t('title')}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '16px' }}>
             {t('subtitle')}

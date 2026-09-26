@@ -28,6 +28,8 @@
 - Vercel 构建不跑迁移（`build` 就是 `next build`）。新迁移合并后要手动对生产执行
   `npm run migrate`，这一步要人确认。只加列的迁移可以先于部署执行。
 - 迁移手写，不用 `payload migrate:create`：它的 schema 快照停在 2026-04-10，会拿旧快照算差异。
+- Supabase 的 `anon` / `authenticated` 角色对 `public` 没有任何权限，表上都开了 RLS（#82）：它们是 Data API 用的，
+  这个站不用 Data API。新迁移不要 GRANT 给这两个角色；新表不用手动收回权限，默认权限已经不再授出。
 - 删列分两步：先加新结构、保留旧列上线，确认后再用单独一条迁移 DROP（#27/#29、#31/#32），
   这样两种部署顺序都不会出现破损窗口。
 

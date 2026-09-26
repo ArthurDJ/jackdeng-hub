@@ -10,6 +10,36 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.13.2] — 2026-09-26
+
+### Added — `CLAUDE.md`（#72）
+
+CHANGELOG 从 #16 起停更了 55 个 PR（见本文件顶部的说明）。原因是记 CHANGELOG 的规定只写在
+`AI_DEPLOY.md` 里，仓库没有 `CLAUDE.md`，接手的 agent 不会自动读到它。新增 `CLAUDE.md`，
+写明：
+
+- 每个 PR 同步 CHANGELOG 和 roadmap，提交前跑 `typecheck`、`npm test`、`i18n:check`。
+- `.env.local` 指向生产库；schema 推送和写库脚本各有守卫；写生产库之前先问。
+- 迁移要手动对生产执行、手写、删列分两步。
+- CI 只有 `typecheck` 一个 required check，新检查要加进这个 job。
+- 反复踩过的坑：`payload.find()` 不传 `locale`、用 `next/link`、硬编码中英三元、吞掉
+  查询错误、`loading.tsx` 的作用域、Payload 包不锁步。
+
+另外注明 `AI_DEPLOY.md` 有两节已经过时：一键部署一节写着 `nohup npm run start`，还说迁移
+「部署时自动执行」；「Extending the Tools Engine」一节指向不存在的
+`src/app/(app)/tools/[slug]/page.tsx`。
+
+### Removed — 仓库根目录的一次性脚本 `.tmp-online.ts`（#72）
+
+#31 上线落沙后，用来把它的记录改成 `online` 的一次性脚本，随 #32 误提交进了仓库根目录。
+它早已执行完（落沙现在是 `online`），删除。
+
+### Docs
+
+- #72：回填 1.10.0–1.13.1，roadmap 补记 #69–#71。
+
+---
+
 ## [1.13.1] — 2026-09-26
 
 ### Changed — `/og` 分享卡改用 Node.js 运行时（#69）

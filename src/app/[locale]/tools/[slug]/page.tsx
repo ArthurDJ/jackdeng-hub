@@ -21,14 +21,10 @@ export const revalidate = 3600
 // Maintenance tools stay visible — the page shows them with a badge. Private
 // ones are 404 for every visitor: they are managed in /admin, and checking the
 // session here would make this page dynamic.
-//
-// Interactive only, as on the list page and in the sitemap: automation tools
-// were retired, and a leftover row must not render a page no one links to.
 const VISIBLE: Where = {
   and: [
     { status: { not_equals: 'offline' } },
     { accessControl: { equals: 'public' } },
-    { toolType: { equals: 'interactive' } },
   ],
 }
 

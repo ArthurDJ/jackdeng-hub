@@ -10,6 +10,27 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.17.0] — 2026-09-26
+
+### Removed — 自动化工具引擎，第二步：schema（#86）
+
+#83 已经删掉 callback 接口，并把自动化字段在后台隐藏。这一步把代码和数据库里剩下的部分全部删掉：
+
+- **代码**：删掉 `ToolRuns` 集合，以及它在 `payload.config.ts` 里强制外键 `ON DELETE CASCADE` 的 `beforeSchemaInit`；
+  删掉 `Tools` 的 5 个自动化字段和 `toolType` 本身。自动化没了以后，每个工具都是交互式的，这个字段已经不表达任何信息，
+  所以列表页、详情页、sitemap 和搜索索引里的 `toolType: interactive` 过滤条件也一并去掉。`payload-types.ts` 已重新生成，
+  集合访问规则的测试同步减去 `tool-runs`（180 → 176 个测试）。
+- **迁移 `20260926_000002_drop_automation`**：删除 `tool_runs` 表和 `payload_locked_documents_rels.tool_runs_id`、`tools` 上的
+  6 列，以及 3 个 enum 类型。它用 `DROP COLUMN` 让依赖这些列的外键和索引一起删除，这样就不依赖约束的具体名字。
+  `down()` 会把空表和空列按原样重建。
+- **部署顺序**：先部署新代码，再执行迁移。新代码不再读这些列；`tool_type` 在数据库里有默认值，所以在两步之间新建工具也不会出错。
+  已经验证过：新代码连着生产库当前的 schema 构建，冒烟检查全部通过。
+
+在本机 `postgres:16` 上按 CI 的方式演练过：
+- up 之后与代码定义的 schema 完全一致（163 列、45 个约束、88 个索引、7 个 enum）。
+- down 之后与迁移前完全一致（179 列、48 个约束、93 个索引、10 个 enum）。
+- 再 up 一次，仍然一致。
+
 ## [1.16.2] — 2026-09-26
 
 ### Fixed — 中文页面上残留的英文（#85）

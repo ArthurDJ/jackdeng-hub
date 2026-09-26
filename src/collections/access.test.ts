@@ -9,7 +9,6 @@ import { Comments } from './Comments'
 import { Media } from './Media'
 import { Projects } from './Projects'
 import { Tags } from './Tags'
-import { ToolRuns } from './ToolRuns'
 import { Tools } from './Tools'
 import { Users } from './Users'
 
@@ -20,7 +19,7 @@ import { Users } from './Users'
  * the route, so `access` is all that stands between a visitor and the table.
  * Two rules were wider than anything the site needed (#74): `comments`
  * answered with approved comments whole, email and IP included, and
- * `tool-runs` accepted anonymous writes. Neither showed up anywhere, because
+ * `tool-runs` (since removed, #86) accepted anonymous writes. Neither showed up anywhere, because
  * the pages go through the Local API.
  *
  * `true` means allowed outright; a Where is the filter Payload applies to an
@@ -41,7 +40,7 @@ const PRIVATE_FIELDS: Record<string, string[]> = {
 }
 
 const collections: Record<string, CollectionConfig> = {
-  Blogs, Categories, Comments, Media, Projects, Tags, ToolRuns, Tools, Users,
+  Blogs, Categories, Comments, Media, Projects, Tags, Tools, Users,
 }
 
 // What Payload uses for an operation a collection leaves out

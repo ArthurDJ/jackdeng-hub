@@ -40,7 +40,6 @@ export const getSearchIndex = unstable_cache(
           and: [
             { status: { equals: 'online' } },
             { accessControl: { equals: 'public' } },
-            { toolType: { equals: 'interactive' } },
           ],
         },
         depth: 0,

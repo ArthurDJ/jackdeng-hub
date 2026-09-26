@@ -171,7 +171,6 @@ async function run() {
       name: 'Falling Sand',
       slug: 'falling-sand',
       description: 'A cellular automaton that runs in the browser.',
-      toolType: 'interactive',
       accessControl: 'public',
       status: 'online',
       embedType: 'builtin',

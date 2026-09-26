@@ -43,7 +43,6 @@ export default async function ToolsPage({ params }: Props) {
       and: [
         { status: { equals: 'online' } },
         { accessControl: { equals: 'public' } },
-        { toolType: { equals: 'interactive' } },
       ],
     },
     depth: 0,

@@ -30,7 +30,6 @@ Set these in the Vercel project settings. `.env.example` lists the same set.
 | `NEXT_PUBLIC_SERVER_URL` | The site origin, used for absolute URLs: canonical links, the sitemap, `robots.txt`, the feed. |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob. Without it the storage plugin is off, and uploads land in `public/media` on whichever machine ran them. |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Comment spam protection. Without the secret, `POST /api/comments/submit` answers 503 in production and writes nothing. As of #49 only Production had them, so previews and local dev do not load the widget. |
-| `CRON_SECRET` | The shared secret automation tools send as `x-cron-secret` to `POST /api/tools/[slug]/callback`. |
 
 ### Migrations
 
@@ -61,9 +60,9 @@ npm run dev
 
 ## 🛠 Extending the Tools Engine (Instructions for Agents)
 
-A tool is a record in the `Tools` collection. A built-in tool also has a component in the repo.
+A tool is a record in the `Tools` collection. A built-in tool also has a component in the repo. The section is headed `/tools` in the code and Playground (实验室) on the site: small client-side experiments, not utilities.
 
-**Visibility.** A tool is listed on `/tools`, in the sitemap and in search only when it is `status: online` and `accessControl: public`. Its detail page, `/[locale]/tools/[slug]`, also renders `maintenance` tools, with a badge. A `private` or `offline` tool returns 404 to everyone, the signed-in owner included; manage those in `/admin`. Pages query through Payload's Local API, which skips collection access control, so every public query filters on these two fields itself (#50).
+**Visibility.** A tool is listed on `/tools`, in the sitemap and in search only when it is `status: online`, `accessControl: public` and `toolType: interactive`. Its detail page, `/[locale]/tools/[slug]`, also renders `maintenance` tools, with a badge. A `private` or `offline` tool returns 404 to everyone, the signed-in owner included; manage those in `/admin`. Pages query through Payload's Local API, which skips collection access control, so every public query filters on these two fields itself (#50).
 
 **What the detail page renders** (`src/app/[locale]/tools/[slug]/page.tsx`), first match wins:
 1. The component registered for the slug.
@@ -80,7 +79,7 @@ A tool is a record in the `Tools` collection. A built-in tool also has a compone
 3. **Add the UI strings** under a `tools.<name>` namespace in both `src/i18n/messages/en.json` and `zh.json`. `FallingSand` uses `tools.sand`.
 4. **Create the record** in `/admin`.
    - Fill in the name and description in both languages; both fields are localized.
-   - Set `toolType: interactive` and `embedType: builtin`.
+   - Set `embedType: builtin`. `toolType` is hidden and defaults to `interactive`, the only type left.
    - Leave it at `status: maintenance` until the deploy that contains the component is live, then switch it to `online`. Otherwise `/tools` links to a placeholder.
 5. **The caches follow on their own.** Saving the record in `/admin` expires every cached page, the sitemap and search (`src/lib/revalidate.ts`), so it appears on `/tools` at once. A record written by a tsx script is the exception: scripts run outside Next.js, so it shows up with the hourly revalidation.
 
@@ -93,19 +92,9 @@ Set `embedType` to `iframe` or `script`, and set `embedUrl`.
 - **Allow the origin in the CSP.** The policy in `next.config.mjs` allows frames and scripts only from `'self'` and Cloudflare Turnstile. Add the tool's origin to `frame-src` (iframe) or `script-src` (script), or the embed will be blocked once the policy is enforced. The policy is in report-only mode for now (#58).
 - **A script embed runs third-party code on this site's origin.** Prefer an iframe. A script embed mounts into the element marked `data-container="tool-embed-root"`.
 
-### Automation tools
+### Automation tools (retired)
 
-Automation tools run somewhere else and push their results in. The site never starts them.
-
-- **The callback:** `POST /api/tools/[slug]/callback`.
-  - Send the header `x-cron-secret: $CRON_SECRET`.
-  - The body is `{ status, summary, detail?, metadata? }`, and `status` must be one of `running`, `found`, `booked`, `heartbeat`, `error`, `exited`.
-- **What each call does:**
-  - It writes a `ToolRuns` row and updates the tool's `lastRunAt` / `lastRunStatus`.
-  - `found`, `booked` and `error` are also forwarded to the tool's `notifyWebhook`, if one is set.
-- **Access and deletion:** any signed-in Payload user can read `ToolRuns`. Deleting a tool deletes its runs (`ON DELETE CASCADE`, #70).
-- **There is no runs dashboard.** The visa-checker panel was deleted along with its tool (#33). A new automation tool registers its own component in `registry.tsx`.
-- **There is no way to trigger a tool from the site,** no "run now" button. That outbound channel is still an open roadmap item.
+Tools that ran elsewhere and reported in through `POST /api/tools/[slug]/callback` are gone (#83). None had run since the visa checker was deleted (#33), `tool_runs` was empty, and there was no way to start one from the site. The callback route and `CRON_SECRET` were removed; the `ToolRuns` collection and the automation fields on `Tools` are hidden in `/admin` and stay in the schema until a separate migration drops them, per the two-step column rule.
 
 ## 🚨 Troubleshooting Guidelines
 - **500 Errors on `/admin` during Local Dev (Cloudflare Tunnel):** Check `next.config.mjs`. Payload strictly enforces CORS and origin checks. Ensure `allowedDevOrigins` includes the active Cloudflare Tunnel hostname.

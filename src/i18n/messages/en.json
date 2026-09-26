@@ -45,7 +45,7 @@
     "searchShortcut": "⌘K",
     "switchToZh": "中文",
     "switchToEn": "EN",
-    "tools": "Tools"
+    "tools": "Playground"
   },
   "home": {
     "title": "Full-Stack Engineer · Backend & Data",
@@ -155,7 +155,7 @@
     "pageHomeDesc": "Back to homepage",
     "pageBlogDesc": "All posts",
     "pageProjectsDesc": "Things I have built",
-    "pageToolsDesc": "Small tools that run in the browser",
+    "pageToolsDesc": "Small experiments that run in the browser",
     "pageAboutDesc": "About me"
   },
   "notFound": {
@@ -181,12 +181,11 @@
     "viewDetails": "View details"
   },
   "tools": {
-    "title": "Tools",
-    "subtitle": "Handy dev tools, free to use online.",
-    "noTools": "No tools available yet.",
-    "backToTools": "← Back to Tools",
+    "title": "Playground",
+    "subtitle": "Small experiments that run in your browser.",
+    "noTools": "Nothing here yet.",
+    "backToTools": "← Back to Playground",
     "comingSoon": "Tool page coming soon.",
-    "automation": "Automation",
     "enableJs": "Please enable JavaScript to use this tool.",
     "status": {
       "online": "Online",

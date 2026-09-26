@@ -21,10 +21,14 @@ export const revalidate = 3600
 // Maintenance tools stay visible — the page shows them with a badge. Private
 // ones are 404 for every visitor: they are managed in /admin, and checking the
 // session here would make this page dynamic.
+//
+// Interactive only, as on the list page and in the sitemap: automation tools
+// were retired, and a leftover row must not render a page no one links to.
 const VISIBLE: Where = {
   and: [
     { status: { not_equals: 'offline' } },
     { accessControl: { equals: 'public' } },
+    { toolType: { equals: 'interactive' } },
   ],
 }
 
@@ -109,7 +113,6 @@ export default async function ToolDetailPage({ params }: Props) {
   // Resolved by slug, not by toolType. The old code rendered the visa monitor
   // for *any* automation tool, and never handled embedType 'builtin' at all.
   const BuiltinTool = getBuiltinTool(slug)
-  const isAutomation = tool.toolType === 'automation'
   const hasIframe = Boolean(tool.embedUrl) && tool.embedType === 'iframe'
   const hasScript = Boolean(tool.embedUrl) && tool.embedType === 'script'
 
@@ -153,17 +156,6 @@ export default async function ToolDetailPage({ params }: Props) {
               }}>
                 {STATUS_LABEL[tool.status] ?? STATUS_LABEL.online}
               </span>
-              {isAutomation && (
-                <span style={{
-                  fontSize: '11px', fontWeight: 600,
-                  color: '#a78bfa',
-                  background: '#a78bfa18',
-                  border: '1px solid #a78bfa30',
-                  borderRadius: '4px', padding: '2px 8px',
-                }}>
-                  {t('automation')}
-                </span>
-              )}
             </div>
             {tool.description && (
               <p style={{ fontSize: '16px', color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0 }}>
@@ -175,7 +167,7 @@ export default async function ToolDetailPage({ params }: Props) {
 
         {/* ── Content ──────────────────────────────────────────────────── */}
         {BuiltinTool ? (
-          // In-repo page: automation dashboards and client-side toys alike.
+          // In-repo page: a client-side component registered by slug.
           <BuiltinTool slug={slug} />
         ) : hasIframe ? (
           <div style={{

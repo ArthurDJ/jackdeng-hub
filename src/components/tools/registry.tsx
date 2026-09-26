@@ -9,14 +9,10 @@ import dynamic from 'next/dynamic'
  *   isAutomation ? <VisaMonitorDashboard /> : hasIframe ? ... : hasScript ? ...
  *
  * which meant every automation tool rendered VisaMonitorDashboard — a component
- * named after one specific tool — and `embedType: 'builtin'`, an option the
- * admin UI offers as "Built-in page", fell through to a 🚧 placeholder because
- * nothing handled it. Both were invisible while the collection was empty.
- *
- * That dashboard has since been deleted along with the visa-checker tool it
- * was written for. The generic automation plumbing it used — the ToolRuns
- * collection and POST /api/tools/[slug]/callback — is still here, so a future
- * automation tool registers its own component below and reuses it.
+ * that only made sense for the one tool it was written for. That tool and its
+ * dashboard went first (#33); the automation plumbing behind them (the ToolRuns
+ * collection and POST /api/tools/[slug]/callback) was retired in #83, with no
+ * automation running. Everything here is a client-side component, keyed by slug.
  *
  * A slug that is not listed here still falls through to the placeholder, which
  * is the honest outcome: the record exists but its page has not been written.

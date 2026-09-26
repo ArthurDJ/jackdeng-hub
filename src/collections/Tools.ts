@@ -88,9 +88,12 @@ export const Tools: CollectionConfig = {
       defaultValue: 'interactive',
       options: [
         { label: { en: 'Interactive (public embed)', zh: '交互工具（公开嵌入）' }, value: 'interactive' },
-        { label: { en: 'Automation (private backend)', zh: '自动化（私有后台）' }, value: 'automation' },
+        { label: { en: 'Automation (retired)', zh: '自动化（已停用）' }, value: 'automation' },
       ],
-      admin: { position: 'sidebar' },
+      // Only 'interactive' is left in use (#83). The field and the automation
+      // fields below stay in the schema until a separate migration drops them,
+      // per the two-step column rule; hidden meanwhile so no one sets them.
+      admin: { position: 'sidebar', hidden: true },
     },
     {
       name: 'accessControl',
@@ -151,7 +154,7 @@ export const Tools: CollectionConfig = {
       type: 'text',
       label: { en: 'Cron Schedule', zh: 'Cron 表达式' },
       admin: {
-        condition: (data) => data?.toolType === 'automation',
+        hidden: true,
         description: { en: 'e.g. 0 */6 * * * (every 6h)', zh: '例如 0 */6 * * *（每6小时）' },
         position: 'sidebar',
       },
@@ -161,7 +164,7 @@ export const Tools: CollectionConfig = {
       type: 'json',
       label: { en: 'Config', zh: '配置参数' },
       admin: {
-        condition: (data) => data?.toolType === 'automation',
+        hidden: true,
         description: {
           en: 'Tool-specific configuration (stored as JSON, visible only to admins)',
           zh: '工具专属配置，以 JSON 存储，仅管理员可见',
@@ -173,7 +176,7 @@ export const Tools: CollectionConfig = {
       type: 'date',
       label: { en: 'Last Run At', zh: '最后运行时间' },
       admin: {
-        condition: (data) => data?.toolType === 'automation',
+        hidden: true,
         readOnly: true,
         position: 'sidebar',
         date: { pickerAppearance: 'dayAndTime' },
@@ -192,7 +195,7 @@ export const Tools: CollectionConfig = {
         { label: { en: 'Exited',    zh: '已退出' },  value: 'exited'    },
       ],
       admin: {
-        condition: (data) => data?.toolType === 'automation',
+        hidden: true,
         readOnly: true,
         position: 'sidebar',
       },
@@ -202,7 +205,7 @@ export const Tools: CollectionConfig = {
       type: 'text',
       label: { en: 'Notify Webhook', zh: '通知 Webhook' },
       admin: {
-        condition: (data) => data?.toolType === 'automation',
+        hidden: true,
         description: {
           en: 'POST to this URL when a notable event occurs (e.g. slot found)',
           zh: '发现目标事件时推送到此地址（如微信机器人、Telegram）',

@@ -6,7 +6,10 @@ export const ToolRuns: CollectionConfig = {
     singular: { en: 'Tool Run', zh: '运行记录' },
     plural: { en: 'Tool Runs', zh: '运行记录' },
   },
+  // Retired with the automation callback (#83) and hidden from /admin; the
+  // table goes in the follow-up DROP migration.
   admin: {
+    hidden: true,
     useAsTitle: 'runAt',
     defaultColumns: ['tool', 'status', 'summary', 'runAt'],
     listSearchableFields: ['summary', 'detail'],

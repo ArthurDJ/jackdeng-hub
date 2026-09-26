@@ -10,6 +10,32 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.15.4] — 2026-09-26
+
+### Security — 收回 Supabase API 角色对全部数据的读写权限（#82）
+
+Supabase 通过 Data API（PostgREST）对持有项目 anon key 的人开放 `public` schema，并用默认权限把 `postgres`
+建的每张表的全部权限授给 `anon` 和 `authenticated`。Payload 的表都是以 `postgres` 身份建的，而且一张都没开 RLS。
+2026-09-26 对生产的只读检查结果：这两个角色对全部 22 张表都有 SELECT、INSERT、UPDATE、DELETE 和 TRUNCATE，
+其中包括 `users`（管理员密码哈希）、`users_sessions`、`comments`（评论者的邮箱和 IP）。换句话说，拿到 anon key
+就能读出这些数据、改掉或删光全部内容。这个站从来不用 Data API，anon key 也从未出现在仓库或环境变量里，所以它大概率
+没有外流过；但 anon key 本来就是设计成可以公开的（前提是开了 RLS），除了它，没有别的东西挡在数据前面。
+
+新迁移 `20260926_000001_lock_down_supabase_api_roles` 做两层防护：
+
+- 收回两个角色在全部表和序列上的权限，并收回默认权限，这样以后的迁移新建表时也不会再自动授给它们。
+- 所有表开 RLS，不加任何 policy。Payload 以 `postgres` 连接，它是表的所有者，并且有 BYPASSRLS，不受影响。
+- 这两个角色只在 Supabase 上存在，CI 和本地容器里会跳过收回权限这一步；RLS 在所有环境都会开启，schema-drift 不比对 RLS。
+
+在模拟 Supabase 角色和默认权限的 `postgres:17` 上演练过：
+
+- 迁移前是 22/22 张表可读写、0 张开 RLS，与生产一致。
+- up 之后 0 权限、22 张开 RLS，默认权限清空；down 完整恢复；再 up 又回到收紧状态。
+- `anon` 查询 `users` 得到 `permission denied`；之后新建的表 `anon` 没有权限。
+- 即使所有者既不是超级用户也没有 BYPASSRLS，开了 RLS 后照样能读到全部数据。
+
+另外还要在 Supabase 控制台关掉 Data API（Settings → API），这一步由维护者手动完成。这条迁移保证即使以后有人把它重新打开，数据也不会重新暴露。
+
 ## [1.15.2] — 2026-09-26
 
 ### Security — 关掉 Preview 部署（#80）

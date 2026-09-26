@@ -81,7 +81,7 @@ A tool is a record in the `Tools` collection. A built-in tool also has a compone
    - Fill in the name and description in both languages; both fields are localized.
    - Set `toolType: interactive` and `embedType: builtin`.
    - Leave it at `status: maintenance` until the deploy that contains the component is live, then switch it to `online`. Otherwise `/tools` links to a placeholder.
-5. **Allow for the caches.** The tool pages revalidate hourly and the sitemap daily, so a new or edited record can take up to an hour to appear on `/tools`.
+5. **The caches follow on their own.** Saving the record in `/admin` expires every cached page, the sitemap and search (`src/lib/revalidate.ts`), so it appears on `/tools` at once. A record written by a tsx script is the exception: scripts run outside Next.js, so it shows up with the hourly revalidation.
 
 The smoke check picks its tool from `/api/tools`, which only returns online, public tools, so the workflow needs no change.
 

@@ -1,5 +1,6 @@
 import 'server-only'
 import { unstable_cache } from 'next/cache'
+import { CACHE_TAGS } from './revalidate'
 import { getPayload } from './payload'
 import { lexicalToText, type SearchDoc } from './search'
 
@@ -123,5 +124,6 @@ export const getSearchIndex = unstable_cache(
     return docs
   },
   ['search-index'],
-  { revalidate: 3600 },
+  // An hour at most; content changes expire it at once (src/lib/revalidate.ts).
+  { revalidate: 3600, tags: [CACHE_TAGS.search] },
 )

@@ -2,10 +2,13 @@ import { APIError, type CollectionConfig } from 'payload'
 // Relative, not `@/` — this module is also loaded through the Payload CLI
 // (`payload migrate`) and the tsx scripts, which do not read tsconfig paths.
 import type { CommentRejection } from '../lib/commentSubmission'
+import { revalidateAfterChange, revalidateAfterDelete } from '../lib/revalidate'
 
 /** Anonymous submissions per IP per window. */
 const RATE_MAX = 5
 const RATE_WINDOW_MS = 60 * 60 * 1000
+
+const isApproved = (doc: Record<string, unknown>) => doc.status === 'approved'
 
 export const Comments: CollectionConfig = {
   slug: 'comments',
@@ -39,6 +42,10 @@ export const Comments: CollectionConfig = {
     delete: ({ req }) => Boolean(req.user),
   },
   hooks: {
+    // Only approved comments are shown, so a new submission (always pending)
+    // leaves the caches alone; approving, unapproving or deleting one does not.
+    afterChange: [revalidateAfterChange(isApproved)],
+    afterDelete: [revalidateAfterDelete(isApproved)],
     beforeChange: [
       // ── Anti-spam for anonymous submissions ───────────────────────────────
       //

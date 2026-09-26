@@ -10,6 +10,37 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.13.3] — 2026-09-26
+
+### Changed — 重写 `AI_DEPLOY.md` 的部署和工具引擎两节（#73）
+
+这两节是 4 月写的，之后项目换了部署方式和工具架构，照着做会出错：
+
+- **部署一节**让 agent 在本机 `npm run build` 再 `nohup npm run start`，还说迁移「部署时
+  自动执行」。实际是 Vercel 的 Git 集成，push 到 `main` 即部署；构建只是 `next build`，
+  不跑迁移（也没有配 `prodMigrations`），迁移要手动对生产执行。
+- **工具一节**让人把工具写进 `src/app/(app)/tools/[slug]/page.tsx`，这个路径不存在。
+
+新的「Deployment」一节写明：
+
+- production、preview 和部署后冒烟检查各是怎么触发的。preview 连的也是生产库。
+- 回滚的前提：只要之后的迁移都只做加法，旧代码就还能跑在当前 schema 上。
+- 环境变量逐项说明。`CRON_SECRET` 不在 `.env.example` 里，这里补上。
+- 迁移的执行顺序和彩排方式，以及为什么不用 `payload migrate:create`。
+- 本地开发要注意 `.env.local` 连的是生产库。
+
+新的「Extending the Tools Engine」一节写明：
+
+- 工具的可见性规则，以及详情页按什么顺序选渲染方式。
+- 加一个内置工具的五步。
+- 嵌入外部工具时要把来源加进 CSP 的 `frame-src` / `script-src`。
+- 自动化工具 callback 的请求格式和状态取值。
+- 目前没有运行记录面板，也没有出站触发。
+
+`CLAUDE.md` 里「这两节已过时」的提示改为指向新内容。
+
+---
+
 ## [1.13.2] — 2026-09-26
 
 ### Added — `CLAUDE.md`（#72）

@@ -59,7 +59,8 @@
 
 - `/tools` 的内置工具按 slug 注册在 `src/components/tools/registry.tsx`，详情页是
   `src/app/[locale]/tools/[slug]/page.tsx`，是否对外可见由 `Tools` 集合的 `status` 和
-  `accessControl` 决定。`AI_DEPLOY.md` 的「One-Click Deployment」和「Extending the Tools
-  Engine」两节已经过时，以这里为准。
+  `accessControl` 决定。加工具的步骤、嵌入外部工具时的 CSP、自动化工具的 callback，见
+  `AI_DEPLOY.md` 的「Extending the Tools Engine」；部署、环境变量、迁移顺序见同一文件的
+  「Deployment」。
 - `scripts/publish-drafts.ts` 把 markdown 转成 Lexical 写进数据库（中英双语，建为 draft）。
   上传题图需要 `BLOB_READ_WRITE_TOKEN`，没有时脚本会拒绝上传。

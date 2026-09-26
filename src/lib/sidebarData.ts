@@ -3,6 +3,7 @@ import { unstable_cache } from 'next/cache'
 import { getPayload } from './payload'
 import { populated } from './relations'
 import { countPostsByTaxonomy, withPosts } from './taxonomyCounts'
+import { CACHE_TAGS } from './revalidate'
 
 type Locale = 'en' | 'zh'
 
@@ -86,7 +87,8 @@ const getCachedSidebarBase = unstable_cache(
     return { categories, tags, recentPosts, archives }
   },
   ['sidebar-base'],
-  { revalidate: 3600 }, // cache for 1 hour
+  // An hour at most; content changes expire it at once (src/lib/revalidate.ts).
+  { revalidate: 3600, tags: [CACHE_TAGS.sidebar] },
 )
 
 export async function buildSidebarData(options: SidebarOptions = {}) {

@@ -10,6 +10,29 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.15.0] — 2026-09-26
+
+### Added — 在后台保存后立即更新页面（#78）
+
+所有页面缓存一小时（`revalidate = 3600`），sitemap 缓存一天，而内容变了却没有任何东西通知缓存。
+在 `/admin` 发布一篇文章，最多要等一小时才出现；撤回一篇，它在线上还能多挂一小时，sitemap 里还要多挂一天。
+
+- 新增 `src/lib/revalidate.ts`（带测试）。`revalidateSite()` 用 `revalidatePath('/', 'layout')` 让所有页面和
+  sitemap 失效，再用 `revalidateTag(tag, { expire: 0 })` 让侧栏和搜索索引两个 `unstable_cache` 失效，两者都是立即过期，
+  不走 stale-while-revalidate。搜索索引由 `/api/search` 填充，不在任何页面之下，所以两个缓存都加了显式 tag。
+- Blogs、Comments、Projects、Tools、Categories、Tags 挂上 `afterChange` / `afterDelete`。Blogs 只在保存前后
+  任一版本是已发布时才触发，Comments 同理只看已批准，所以保存草稿或收到新评论（总是待审核）都不会清缓存。
+- tsx 脚本（`publish-drafts`、CI 的 seed）在 Next 请求之外运行，`next/cache` 会抛出
+  `Invariant: static generation store missing`。hook 捕获这个异常、记一条日志后跳过，写入照常进行，
+  页面按原来的一小时周期更新。
+- 各页面的 `revalidate = 3600` 保留，作为兜底。
+
+在本机一次性的 Postgres 16 上端到端验证过（迁移、seed、`next build && next start`，改动通过 REST 写入）：
+
+- 保存草稿后，文章列表仍然命中缓存（`HIT`）。
+- 修改已发布文章的标题后，下一个请求就是 `MISS` 并拿到新标题，文章列表和搜索同时更新。
+- 撤回后页面立即 404，sitemap 里也不再列出；重新发布后两处都恢复。
+
 ## [1.14.1] — 2026-09-26
 
 ### Removed — 用不到的依赖、文件和一次性脚本（#77）

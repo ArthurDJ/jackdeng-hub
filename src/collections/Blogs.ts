@@ -1,4 +1,7 @@
 import type { CollectionConfig } from 'payload'
+import { revalidateAfterChange, revalidateAfterDelete } from '../lib/revalidate'
+
+const isPublished = (doc: Record<string, unknown>) => doc.status === 'published'
 
 export const Blogs: CollectionConfig = {
   slug: 'blogs',
@@ -34,6 +37,9 @@ export const Blogs: CollectionConfig = {
         return data
       },
     ],
+    // Drafts are invisible to visitors, so saving one leaves the caches alone.
+    afterChange: [revalidateAfterChange(isPublished)],
+    afterDelete: [revalidateAfterDelete(isPublished)],
   },
   fields: [
     // ── Core ─────────────────────────────────────────────────────

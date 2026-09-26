@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { revalidateAfterChange, revalidateAfterDelete } from '../lib/revalidate'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
@@ -11,6 +12,10 @@ export const Projects: CollectionConfig = {
     defaultColumns: ['name', 'status', 'isPinned', 'slug'],
     listSearchableFields: ['name', 'slug'],
     group: { en: 'Portfolio', zh: '作品' },
+  },
+  hooks: {
+    afterChange: [revalidateAfterChange()],
+    afterDelete: [revalidateAfterDelete()],
   },
   fields: [
     {

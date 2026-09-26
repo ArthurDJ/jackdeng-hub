@@ -58,6 +58,10 @@ export async function POST(
       metadata: body.metadata ?? null,
       runAt: new Date().toISOString(),
     },
+    // `create` on tool-runs is closed to anonymous callers; the secret check
+    // above is the permission. This is the Local API default, spelled out so
+    // the write does not depend on it silently.
+    overrideAccess: true,
   })
 
   // ── Update tool's last run fields ─────────────────────────────
@@ -68,6 +72,7 @@ export async function POST(
       lastRunAt: new Date().toISOString(),
       lastRunStatus: body.status,
     },
+    overrideAccess: true,
   })
 
   // ── Forward to webhook if configured and event is notable ─────

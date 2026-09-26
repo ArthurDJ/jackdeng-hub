@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from '@/lib/fonts'
+import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Footer } from '@/components/Footer'
 import { asLocale, routing } from '@/i18n/routing'
@@ -107,6 +108,9 @@ export default async function LocaleLayout({ children, params }: Props) {
             <CommandPaletteHost />
           </ThemeProvider>
         </NextIntlClientProvider>
+        {/* Page views, same-origin under /_vercel/insights and cookie-free, so
+            neither the CSP nor a consent banner needs to change. */}
+        <Analytics />
         <SpeedInsights />
       </body>
     </html>

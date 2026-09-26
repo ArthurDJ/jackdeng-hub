@@ -10,6 +10,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.15.3] — 2026-09-26
+
+### Added — 每晚加密备份生产库（#81）
+
+仓库里没有备份方案，也看不出 Supabase 当前的计划有没有自带备份。生产库只有 14 MB，但它是唯一的一份。
+
+- 新增 `.github/workflows/backup.yml`：每天 03:23（加州时间）运行，也可以手动触发。它用一个只读角色经 session pooler 导出
+  `public` schema（Payload 的全部数据），用 age 加密后上传为 artifact，保留 30 天。
+- **必须先加密再上传**：仓库是公开的，artifact 谁都能下载，而库里有评论者的邮箱和 IP、管理员的密码哈希。
+  加密用的是公钥（`AGE_RECIPIENT`），私钥只在维护者手里，所以泄漏的 artifact 和这个 workflow 本身都解不开。
+- `pg_dump` 按服务器的大版本从 PGDG 安装（现在是 17），因为它不接受比自己新的服务器。
+- 三种情况会让运行直接失败，而不是悄悄产出一份没用的备份：配置缺失；角色一行数据都读不到
+  （开了 RLS 却没有 BYPASSRLS，导出的就是空表）；加密后的文件小得不合理。
+- `AI_DEPLOY.md` 新增「Backups」一节，写明一次性设置（只读角色的 SQL、age 密钥、GitHub 的 secret 和变量）
+  和恢复步骤。恢复流程在 `postgres:17` 上完整演练过：导出、加密、解密、恢复、核对行数。演练中发现新建的库自带
+  `public` schema，恢复前要先删掉，否则 `pg_restore` 会报 `schema "public" already exists`，这一步已写进文档。
+
 ## [1.15.2] — 2026-09-26
 
 ### Security — 关掉 Preview 部署（#80）

@@ -1,0 +1,95 @@
+name: backup
+
+# A nightly copy of the production database that does not depend on Supabase.
+#
+# The dump is encrypted before it leaves the runner. This repository is
+# public, so anyone can download its artifacts, and the database holds
+# commenters' email and IP addresses and the admin's password hash. It is
+# encrypted with age to a public key (the AGE_RECIPIENT variable); the private
+# key never comes near GitHub, so neither a leaked artifact nor this workflow
+# can decrypt it. Setup and restore: AI_DEPLOY.md, "Backups".
+#
+# Needs:
+#   secrets.BACKUP_DATABASE_URI  a read-only role through the session pooler (port 5432)
+#   vars.AGE_RECIPIENT           the age public key, age1…
+on:
+  schedule:
+    - cron: '23 10 * * *' # 03:23 in California, a quiet hour
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    name: backup
+    runs-on: ubuntu-latest
+    steps:
+      # A backup that silently did not happen is the failure this job exists to
+      # prevent, so missing configuration fails the run rather than skipping it.
+      - name: Check the configuration
+        env:
+          BACKUP_DATABASE_URI: ${{ secrets.BACKUP_DATABASE_URI }}
+          AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
+        run: |
+          [ -n "$BACKUP_DATABASE_URI" ] || { echo '::error::secret BACKUP_DATABASE_URI is not set (AI_DEPLOY.md, "Backups")'; exit 1; }
+          case "$AGE_RECIPIENT" in
+            age1*) ;;
+            *) echo '::error::variable AGE_RECIPIENT is not an age public key (AI_DEPLOY.md, "Backups")'; exit 1 ;;
+          esac
+
+      # pg_dump refuses a server newer than itself, and Supabase moves major
+      # versions on its own schedule, so the client is picked from the server.
+      - name: Install pg_dump for the server's version, and age
+        env:
+          BACKUP_DATABASE_URI: ${{ secrets.BACKUP_DATABASE_URI }}
+        run: |
+          set -euo pipefail
+          command -v psql >/dev/null || sudo apt-get install -y -q postgresql-client
+          major=$(psql "$BACKUP_DATABASE_URI" -tAc 'show server_version_num' | cut -c1-2)
+          echo "server major version: $major"
+          sudo apt-get install -y -q postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -q "postgresql-client-$major" age
+          echo "/usr/lib/postgresql/$major/bin" >> "$GITHUB_PATH"
+
+      # A role that cannot see the rows (row-level security without BYPASSRLS)
+      # dumps empty tables and exits 0. Every database this site has ever run
+      # has applied migrations and an admin user, so zero of either means the
+      # dump would be worthless.
+      - name: Check the role can read the data
+        env:
+          BACKUP_DATABASE_URI: ${{ secrets.BACKUP_DATABASE_URI }}
+        run: |
+          set -euo pipefail
+          migrations=$(psql "$BACKUP_DATABASE_URI" -tAc 'select count(*) from payload_migrations')
+          users=$(psql "$BACKUP_DATABASE_URI" -tAc 'select count(*) from users')
+          echo "payload_migrations: $migrations, users: $users"
+          [ "$migrations" -gt 0 ] && [ "$users" -gt 0 ] || { echo '::error::the backup role sees no rows; it needs BYPASSRLS'; exit 1; }
+
+      # Only the public schema: that is all of Payload's data. Supabase's own
+      # schemas (auth, storage, …) are unused here and not readable by this role.
+      - name: Dump and encrypt
+        id: dump
+        env:
+          BACKUP_DATABASE_URI: ${{ secrets.BACKUP_DATABASE_URI }}
+          AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
+        run: |
+          set -euo pipefail
+          file="jackdeng-$(date -u +%Y-%m-%dT%H%MZ).dump.age"
+          pg_dump --format=custom --schema=public --no-owner --no-privileges "$BACKUP_DATABASE_URI" \
+            | age --encrypt --recipient "$AGE_RECIPIENT" --output "$file"
+          size=$(stat -c %s "$file")
+          echo "$file: $size bytes"
+          [ "$size" -gt 10000 ] || { echo '::error::the encrypted dump is implausibly small'; exit 1; }
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.dump.outputs.file }}
+          path: ${{ steps.dump.outputs.file }}
+          retention-days: 30
+          # Already compressed by pg_dump and then encrypted: zipping it again
+          # only costs time.
+          compression-level: 0
+          if-no-files-found: error

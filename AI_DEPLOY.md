@@ -62,7 +62,7 @@ npm run dev
 
 A tool is a record in the `Tools` collection. A built-in tool also has a component in the repo. The section is headed `/tools` in the code and Playground (实验室) on the site: small client-side experiments, not utilities.
 
-**Visibility.** A tool is listed on `/tools`, in the sitemap and in search only when it is `status: online`, `accessControl: public` and `toolType: interactive`. Its detail page, `/[locale]/tools/[slug]`, also renders `maintenance` tools, with a badge. A `private` or `offline` tool returns 404 to everyone, the signed-in owner included; manage those in `/admin`. Pages query through Payload's Local API, which skips collection access control, so every public query filters on these two fields itself (#50).
+**Visibility.** A tool is listed on `/tools`, in the sitemap and in search only when it is `status: online` and `accessControl: public`. Its detail page, `/[locale]/tools/[slug]`, also renders `maintenance` tools, with a badge. A `private` or `offline` tool returns 404 to everyone, the signed-in owner included; manage those in `/admin`. Pages query through Payload's Local API, which skips collection access control, so every public query filters on these two fields itself (#50).
 
 **What the detail page renders** (`src/app/[locale]/tools/[slug]/page.tsx`), first match wins:
 1. The component registered for the slug.
@@ -79,7 +79,7 @@ A tool is a record in the `Tools` collection. A built-in tool also has a compone
 3. **Add the UI strings** under a `tools.<name>` namespace in both `src/i18n/messages/en.json` and `zh.json`. `FallingSand` uses `tools.sand`.
 4. **Create the record** in `/admin`.
    - Fill in the name and description in both languages; both fields are localized.
-   - Set `embedType: builtin`. `toolType` is hidden and defaults to `interactive`, the only type left.
+   - Set `embedType: builtin`.
    - Leave it at `status: maintenance` until the deploy that contains the component is live, then switch it to `online`. Otherwise `/tools` links to a placeholder.
 5. **The caches follow on their own.** Saving the record in `/admin` expires every cached page, the sitemap and search (`src/lib/revalidate.ts`), so it appears on `/tools` at once. A record written by a tsx script is the exception: scripts run outside Next.js, so it shows up with the hourly revalidation.
 
@@ -92,9 +92,9 @@ Set `embedType` to `iframe` or `script`, and set `embedUrl`.
 - **Allow the origin in the CSP.** The policy in `next.config.mjs` allows frames and scripts only from `'self'` and Cloudflare Turnstile. Add the tool's origin to `frame-src` (iframe) or `script-src` (script), or the embed will be blocked once the policy is enforced. The policy is in report-only mode for now (#58).
 - **A script embed runs third-party code on this site's origin.** Prefer an iframe. A script embed mounts into the element marked `data-container="tool-embed-root"`.
 
-### Automation tools (retired)
+### Automation tools (removed)
 
-Tools that ran elsewhere and reported in through `POST /api/tools/[slug]/callback` are gone (#83). None had run since the visa checker was deleted (#33), `tool_runs` was empty, and there was no way to start one from the site. The callback route and `CRON_SECRET` were removed; the `ToolRuns` collection and the automation fields on `Tools` are hidden in `/admin` and stay in the schema until a separate migration drops them, per the two-step column rule.
+Tools that ran elsewhere and reported in through `POST /api/tools/[slug]/callback` are gone. None had run since the visa checker was deleted (#33), `tool_runs` was empty, and there was no way to start one from the site. #83 removed the callback route and `CRON_SECRET`; #86 removed the `ToolRuns` collection, the automation fields and `toolType` (every tool is interactive now), and its migration drops their tables, columns and enums.
 
 ## 🚨 Troubleshooting Guidelines
 - **500 Errors on `/admin` during Local Dev (Cloudflare Tunnel):** Check `next.config.mjs`. Payload strictly enforces CORS and origin checks. Ensure `allowedDevOrigins` includes the active Cloudflare Tunnel hostname.

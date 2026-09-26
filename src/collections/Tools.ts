@@ -9,7 +9,7 @@ export const Tools: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'toolType', 'status', 'accessControl'],
+    defaultColumns: ['name', 'status', 'accessControl'],
     listSearchableFields: ['name', 'slug', 'description'],
     group: { en: 'Tools', zh: '工具' },
   },
@@ -81,21 +81,6 @@ export const Tools: CollectionConfig = {
 
     // ── Type & Access ─────────────────────────────────────────────
     {
-      name: 'toolType',
-      type: 'select',
-      label: { en: 'Tool Type', zh: '工具类型' },
-      required: true,
-      defaultValue: 'interactive',
-      options: [
-        { label: { en: 'Interactive (public embed)', zh: '交互工具（公开嵌入）' }, value: 'interactive' },
-        { label: { en: 'Automation (retired)', zh: '自动化（已停用）' }, value: 'automation' },
-      ],
-      // Only 'interactive' is left in use (#83). The field and the automation
-      // fields below stay in the schema until a separate migration drops them,
-      // per the two-step column rule; hidden meanwhile so no one sets them.
-      admin: { position: 'sidebar', hidden: true },
-    },
-    {
       name: 'accessControl',
       type: 'select',
       label: { en: 'Access', zh: '访问权限' },
@@ -119,13 +104,12 @@ export const Tools: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
 
-    // ── Interactive tool fields ───────────────────────────────────
+    // ── Embedding ───────────────────────────────────
     {
       name: 'embedUrl',
       type: 'text',
       label: { en: 'Embed URL', zh: '嵌入地址' },
       admin: {
-        condition: (data) => data?.toolType === 'interactive',
         description: {
           en: 'External URL of the standalone tool (e.g. https://tool.jackdeng.cc)',
           zh: '独立工具的外部地址，留空则使用内置页面',
@@ -142,75 +126,8 @@ export const Tools: CollectionConfig = {
         { label: 'Script / Web Component', value: 'script' },
         { label: { en: 'Built-in page', zh: '内置页面' }, value: 'builtin' },
       ],
-      admin: {
-        condition: (data) => data?.toolType === 'interactive',
-        position: 'sidebar',
-      },
+      admin: { position: 'sidebar' },
     },
 
-    // ── Automation tool fields ────────────────────────────────────
-    {
-      name: 'cronSchedule',
-      type: 'text',
-      label: { en: 'Cron Schedule', zh: 'Cron 表达式' },
-      admin: {
-        hidden: true,
-        description: { en: 'e.g. 0 */6 * * * (every 6h)', zh: '例如 0 */6 * * *（每6小时）' },
-        position: 'sidebar',
-      },
-    },
-    {
-      name: 'config',
-      type: 'json',
-      label: { en: 'Config', zh: '配置参数' },
-      admin: {
-        hidden: true,
-        description: {
-          en: 'Tool-specific configuration (stored as JSON, visible only to admins)',
-          zh: '工具专属配置，以 JSON 存储，仅管理员可见',
-        },
-      },
-    },
-    {
-      name: 'lastRunAt',
-      type: 'date',
-      label: { en: 'Last Run At', zh: '最后运行时间' },
-      admin: {
-        hidden: true,
-        readOnly: true,
-        position: 'sidebar',
-        date: { pickerAppearance: 'dayAndTime' },
-      },
-    },
-    {
-      name: 'lastRunStatus',
-      type: 'select',
-      label: { en: 'Last Run Status', zh: '最后运行状态' },
-      options: [
-        { label: { en: 'Running',   zh: '运行中' }, value: 'running'   },
-        { label: { en: 'Found',     zh: '找到名额' }, value: 'found'     },
-        { label: { en: 'Booked',    zh: '已改签' },  value: 'booked'    },
-        { label: { en: 'Heartbeat', zh: '心跳' },   value: 'heartbeat' },
-        { label: { en: 'Error',     zh: '错误' },    value: 'error'     },
-        { label: { en: 'Exited',    zh: '已退出' },  value: 'exited'    },
-      ],
-      admin: {
-        hidden: true,
-        readOnly: true,
-        position: 'sidebar',
-      },
-    },
-    {
-      name: 'notifyWebhook',
-      type: 'text',
-      label: { en: 'Notify Webhook', zh: '通知 Webhook' },
-      admin: {
-        hidden: true,
-        description: {
-          en: 'POST to this URL when a notable event occurs (e.g. slot found)',
-          zh: '发现目标事件时推送到此地址（如微信机器人、Telegram）',
-        },
-      },
-    },
   ],
 }

@@ -19,6 +19,7 @@ import * as migration_20260924_000001_align_schema_with_code from './20260924_00
 import * as migration_20260924_000002_payload_3_90 from './20260924_000002_payload_3_90';
 import * as migration_20260924_000003_tool_runs_cascade from './20260924_000003_tool_runs_cascade';
 import * as migration_20260926_000001_lock_down_supabase_api_roles from './20260926_000001_lock_down_supabase_api_roles';
+import * as migration_20260926_000002_drop_automation from './20260926_000002_drop_automation';
 
 export const migrations = [
   {
@@ -125,5 +126,10 @@ export const migrations = [
     up: migration_20260926_000001_lock_down_supabase_api_roles.up,
     down: migration_20260926_000001_lock_down_supabase_api_roles.down,
     name: '20260926_000001_lock_down_supabase_api_roles',
+  },
+  {
+    up: migration_20260926_000002_drop_automation.up,
+    down: migration_20260926_000002_drop_automation.down,
+    name: '20260926_000002_drop_automation',
   },
 ];

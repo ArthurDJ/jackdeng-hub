@@ -66,7 +66,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         and: [
           { status: { equals: 'online' } },
           { accessControl: { equals: 'public' } },
-          { toolType: { equals: 'interactive' } },
         ],
       },
       depth: 0,

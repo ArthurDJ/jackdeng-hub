@@ -20,7 +20,7 @@ Production runs on Vercel's Git integration. Nothing is deployed by hand and the
 
 ### Environment variables
 
-Set these in the Vercel project settings. `.env.example` lists all of them except `CRON_SECRET`.
+Set these in the Vercel project settings. `.env.example` lists the same set.
 
 | Variable | What it does |
 |---|---|

@@ -25,7 +25,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - production、preview 和部署后冒烟检查各是怎么触发的。preview 连的也是生产库。
 - 回滚的前提：只要之后的迁移都只做加法，旧代码就还能跑在当前 schema 上。
-- 环境变量逐项说明。`CRON_SECRET` 不在 `.env.example` 里，这里补上。
+- 环境变量逐项说明。`.env.example` 原来缺 `CRON_SECRET`（automation 工具 callback 的共享密钥），
+  一并补上。
 - 迁移的执行顺序和彩排方式，以及为什么不用 `payload migrate:create`。
 - 本地开发要注意 `.env.local` 连的是生产库。
 

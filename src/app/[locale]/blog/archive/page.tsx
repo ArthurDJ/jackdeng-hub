@@ -6,6 +6,7 @@ import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
 import { asLocale } from '@/i18n/routing'
 import { localeAlternates } from '@/lib/alternates'
+import { formatDate, formatMonthName } from '@/lib/formatDate'
 import type { Blog } from '@/payload-types'
 
 export const revalidate = 3600
@@ -15,17 +16,6 @@ type Props = { params: Promise<{ locale: string }> }
 /** The fragment a month's section carries; the sidebar links to it. */
 function monthAnchor(year: number, month: number) {
   return `${year}-${month}`
-}
-
-function monthName(month: number, locale: string) {
-  // Intl rather than a hardcoded English array, which the zh page showed too.
-  return new Date(Date.UTC(2000, month - 1, 1)).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', { month: 'long', timeZone: 'UTC' })
-}
-
-function formatDate(iso: string, locale: string) {
-  return new Date(iso).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
-    year: 'numeric', month: 'short', day: 'numeric',
-  })
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -126,7 +116,7 @@ export default async function ArchivePage({ params }: Props) {
                             }}
                             className="ds-link-hover"
                           >
-                            {monthName(month, locale)}
+                            {formatMonthName(month, locale)}
                             <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11, letterSpacing: 0 }}>
                               ({posts.length})
                             </span>

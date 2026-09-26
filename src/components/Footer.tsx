@@ -54,13 +54,6 @@ export async function Footer({ className }: FooterProps) {
             >
               RSS
             </a>
-            <a
-              href="/admin"
-              className="text-body-sm ds-link-hover no-underline"
-              style={{ color: 'var(--text-tertiary)' }}
-            >
-              Admin
-            </a>
           </nav>
         </div>
       </div>

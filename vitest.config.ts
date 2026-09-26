@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
@@ -8,5 +8,8 @@ export default defineConfig({
     // UTC+12, which would break the suite for a contributor in New Zealand
     // while CI, which runs in UTC, stayed green.
     env: { TZ: 'UTC' },
+    // Claude Code worktrees live under .claude/ with their own copy of the
+    // tests; without this a local run counted each of them again.
+    exclude: [...configDefaults.exclude, '.claude/**'],
   },
 })

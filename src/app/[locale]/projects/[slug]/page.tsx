@@ -4,7 +4,7 @@ import { asLocale } from '@/i18n/routing'
 import { populated } from '@/lib/relations'
 import type { Project } from '@/payload-types'
 import Image from 'next/image'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { getPayload, orEmpty } from '@/lib/payload'
@@ -139,7 +139,7 @@ export default async function ProjectDetailPage({ params }: Props) {
       <main id="main" className="ds-container" style={{ paddingTop: '2.5rem', paddingBottom: '4rem' }}>
         {/* Breadcrumb */}
         <nav style={{ marginBottom: '1.5rem', fontSize: 13, color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Link href={`/${locale}/projects`} style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
+          <Link href="/projects" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
             {t('title')}
           </Link>
           <span>/</span>
@@ -265,7 +265,7 @@ export default async function ProjectDetailPage({ params }: Props) {
 
           {/* Back link */}
           <Link
-            href={`/${locale}/projects`}
+            href="/projects"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500 }}
           >
             {t('backToProjects')}
@@ -285,7 +285,7 @@ export default async function ProjectDetailPage({ params }: Props) {
                 return (
                   <Link
                     key={other.id}
-                    href={`/${locale}/projects/${other.slug}`}
+                    href={`/projects/${other.slug}`}
                     style={{ textDecoration: 'none' }}
                   >
                     <div className="ds-card-hover" style={{

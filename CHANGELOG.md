@@ -10,6 +10,24 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.15.2] — 2026-09-26
+
+### Security — 关掉 Preview 部署（#80）
+
+Vercel 给每个 PR 建 preview 部署，而 preview 连的是生产库：构建时拿生产库凭证预渲染，preview 上的 `/admin`
+也直接写生产库。这样一来，任何 PR 分支里的代码都能拿到生产库的可写连接串，Dependabot 的 PR 也不例外，
+而它升级后的依赖正是在构建时运行。preview 唯一的用处是在合并前跑一次 `next build`，这件事 #79 已经交给
+CI：CI 在一次性 Postgres 上构建，而且和 preview 不同，失败了能拦住合并。
+
+- `vercel.json` 加上 `ignoreCommand`，调用 `scripts/vercel-ignore-build.sh`：`VERCEL_ENV` 为 `preview`
+  或 `development` 时跳过构建，其他情况照常构建。变量缺失时也构建，这样即使这一步出了意外，生产部署也
+  不会悄悄停掉；而误触发的 preview 构建会因为 Preview 环境里没有数据库地址而失败，不会连上任何库。
+- PR 上的 Vercel 检查以后会显示为已跳过。分支保护本来就只要求 `typecheck`。
+- 同步更新 `AI_DEPLOY.md`、`CLAUDE.md` 和 `dependabot.yml` 的注释：Dependabot 带来新列时，在 PR 分支上
+  补迁移直到 CI 通过，合并前对生产执行，不再有「重跑 preview」这一步。
+- 需要在 Vercel 控制台手动删掉 Preview 环境里的 `DATABASE_URI`、`PAYLOAD_SECRET`、`CRON_SECRET` 和
+  `BLOB_READ_WRITE_TOKEN`。跳过构建之后，这些变量虽然不会再被用到，但只要还在，就还是一份多余的副本。
+
 ## [1.15.1] — 2026-09-26
 
 ### Added — CI 在合并前构建网站并跑冒烟检查（#79）

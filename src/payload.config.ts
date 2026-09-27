@@ -1,6 +1,6 @@
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { lexicalEditor, BlocksFeature, CodeBlock } from '@payloadcms/richtext-lexical'
+import { lexicalEditor, BlocksFeature, CodeBlock, EXPERIMENTAL_TableFeature } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { en } from '@payloadcms/translations/languages/en'
 import { zh } from '@payloadcms/translations/languages/zh'
@@ -114,6 +114,9 @@ export const config = buildConfig({
     features: ({ defaultFeatures }) => [
       ...defaultFeatures,
       BlocksFeature({ blocks: [CodeBlock()] }),
+      // Posts written by scripts/publish-drafts.ts can contain tables; without
+      // the feature /admin cannot open them, and a save there would drop them.
+      EXPERIMENTAL_TableFeature(),
     ],
   }),
   sharp,

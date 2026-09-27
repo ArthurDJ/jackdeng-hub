@@ -2,16 +2,22 @@
  * Upload hero images and write blog posts, in both locales, as drafts.
  *
  * Content is authored as markdown in the drafts folder and converted to the
- * Lexical node shape Payload stores. Only headings, paragraphs and inline
- * bold/code are handled, which is all these two posts use.
+ * Lexical node shape Payload stores (scripts/lib/markdown.ts: headings,
+ * paragraphs, lists, fenced code, tables, inline bold/code/links).
  *
  * Posts are created with status 'draft' on purpose. Blogs.access.read hides
  * anything that is not 'published' from anonymous visitors, so nothing goes
  * public until someone flips the field in /admin.
  *
- *   npx tsx scripts/publish-drafts.ts --apply
+ *   DRAFTS_DIR=… npx tsx scripts/publish-drafts.ts --only <slug>           # read-only: print the plan
+ *   DRAFTS_DIR=… npx tsx scripts/publish-drafts.ts --only <slug> --apply   # write it
+ *
+ * Without --only every post below is processed, and for a slug that exists
+ * its body is rewritten from the markdown, in both locales. That is how a
+ * parser fix reaches old posts, and also how an edit made in /admin gets
+ * overwritten, so name the post unless that is the point.
  */
-import { loadEnv, requireApply } from './lib/env'
+import { loadEnv, requireApply, describeTarget } from './lib/env'
 import { toLexical } from './lib/markdown'
 import { getPayload } from 'payload'
 import fs from 'fs'
@@ -25,9 +31,27 @@ if (!DRAFTS) {
   process.exit(1)
 }
 
+const apply = process.argv.includes('--apply')
+const onlyAt = process.argv.indexOf('--only')
+const only = onlyAt > -1 ? process.argv[onlyAt + 1] : undefined
+
 // Checked after the env guards above, so a missing variable fails before this
-// prints that it is about to write.
-requireApply({ script: 'scripts/publish-drafts.ts', writes: ['media', 'blogs'] })
+// prints that it is about to write. A run without --apply writes nothing.
+if (apply) requireApply({ script: 'scripts/publish-drafts.ts', writes: ['media', 'blogs', 'categories', 'tags'] })
+
+/**
+ * Taxonomy a post may need that does not exist yet. Created on --apply, only
+ * when a post being written refers to it; posts otherwise fail on a missing
+ * slug, so a typo cannot quietly invent a tag.
+ */
+const NEW_CATEGORIES = [
+  { slug: 'data', name: { en: 'Data', zh: '数据' } },
+]
+const NEW_TAGS = [
+  { slug: 'dbt', name: 'dbt' },
+  { slug: 'databricks', name: 'Databricks' },
+  { slug: 'sql-server', name: 'SQL Server' },
+]
 
 /**
  * Without this token vercelBlobStorage is disabled (see payload.config.ts) and
@@ -65,7 +89,7 @@ const POSTS = [
     excerpt:
       '80% of enterprise apps now embed an agent, and under 10% have scaled one to real value. I do not think that gap is a model problem.',
     category: 'backend',
-    tags: ['netsuite', 'boomi', 'rest-api'],
+    tags: ['ai', 'rest-api'],
   },
   {
     md: '02-sys5113-en.md',
@@ -80,7 +104,7 @@ const POSTS = [
     excerpt:
       'I expected vocabulary from a systems engineering degree. Three ideas followed me back to my desk instead, and each corrected an old habit.',
     category: 'career-thoughts',
-    tags: ['postgresql'],
+    tags: ['systems-engineering', 'data-engineering'],
   },
   {
     md: '03-dates-en.md',
@@ -95,7 +119,7 @@ const POSTS = [
     excerpt:
       'An aggregator told me NVIDIA shipped robotics models in September. NVIDIA dates it to 5 January. Three things I checked, and the dates they carry.',
     category: 'career-thoughts',
-    tags: ['rest-api'],
+    tags: ['ai'],
   },
   {
     md: '04-before-the-key-en.md',
@@ -110,7 +134,22 @@ const POSTS = [
     excerpt:
       'Shadow AI featured in 43% of AI-related breaches, and 38% of organisations hold a company-wide policy. An agent leaks a capability, not a document.',
     category: 'backend',
-    tags: ['rest-api', 'postgresql'],
+    tags: ['ai', 'security'],
+  },
+  {
+    md: 'sqlserver-to-databricks.en.md',
+    mdZh: 'sqlserver-to-databricks.zh.md',
+    titleZh: '迁移笔记里写着“最多差 1”，实际差了 2 天',
+    excerptZh: '把报表 SQL 从 SQL Server 搬到 Databricks 时，迁移笔记说周数最多差 1。落到工作日上，这是 2 天。另外几处看起来一样、其实不一样的地方也在这里。',
+    hero: 'hero-time-clock.jpg',
+    heroAlt: 'Thomas Edison, seen from behind, punching a time clock beside a wall rack of time cards in 1921',
+    heroCredit: 'Thomas Edison punching a time clock on his 74th birthday, 1921, Library of Congress, no known restrictions',
+    slug: 'from-sql-server-to-databricks',
+    title: 'The migration notes said "off by at most one." It was two days.',
+    excerpt:
+      'Moving reporting SQL from SQL Server to Databricks, a note said weeks were off by at most one. In business days, that is two.',
+    category: 'data',
+    tags: ['data-engineering', 'dbt', 'databricks', 'sql-server'],
   },
 ]
 
@@ -118,7 +157,12 @@ const POSTS = [
 // localized "摘要 is invalid", which says nothing about which post or by how much,
 // so check here first.
 const LIMIT = 150
-for (const post of POSTS) {
+const SELECTED = only ? POSTS.filter((p) => p.slug === only) : POSTS
+if (only && !SELECTED.length) {
+  console.error(`  ⛔ --only ${only}: no post with that slug. Slugs: ${POSTS.map((p) => p.slug).join(', ')}`)
+  process.exit(1)
+}
+for (const post of SELECTED) {
   for (const [field, value] of [['excerpt', post.excerpt], ['excerptZh', post.excerptZh]] as const) {
     if (value.length > LIMIT) {
       console.error(`  ⛔ ${post.slug}: ${field} is ${value.length} characters, limit is ${LIMIT}`)
@@ -181,9 +225,65 @@ async function uploadHero(payload: any, post: any) {
   return media.id
 }
 
+/** What --apply would do, read-only: files, conversion, taxonomy, create or update. */
+async function plan(payload: any) {
+  console.log(`DRY RUN (read-only) against ${describeTarget().host}\n`)
+  const exists = async (collection: string, slug: string) =>
+    (await payload.find({ collection, where: { slug: { equals: slug } }, limit: 1, depth: 0 })).docs[0]
+  for (const post of SELECTED) {
+    console.log(post.slug)
+    for (const file of [post.md, post.mdZh]) {
+      const doc: any = toLexical(fs.readFileSync(path.join(DRAFTS!, file), 'utf-8'))
+      const counts: Record<string, number> = {}
+      for (const n of doc.root.children) counts[n.type] = (counts[n.type] ?? 0) + 1
+      console.log(`  ${file}: ${Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(', ')}`)
+    }
+    const hero = path.join(DRAFTS!, post.hero)
+    console.log(`  cover: ${post.hero} ${fs.existsSync(hero) ? `(${Math.round(fs.statSync(hero).size / 1024)} KB)` : 'MISSING'}${blobConfigured() ? '' : ' — would not upload, no BLOB_READ_WRITE_TOKEN'}`)
+    const cat = await exists('categories', post.category)
+    const catNew = NEW_CATEGORIES.find((c) => c.slug === post.category)
+    console.log(`  category: ${post.category} ${cat ? '(exists)' : catNew ? `(would create: ${catNew.name.en} / ${catNew.name.zh})` : '(MISSING, would fail)'}`)
+    for (const t of post.tags) {
+      const tag = await exists('tags', t)
+      const tagNew = NEW_TAGS.find((x) => x.slug === t)
+      console.log(`  tag: ${t} ${tag ? '(exists)' : tagNew ? `(would create: ${tagNew.name})` : '(MISSING, would fail)'}`)
+    }
+    const existing = await exists('blogs', post.slug)
+    console.log(existing
+      ? `  post: exists (id ${existing.id}, ${existing.status}): would REWRITE its body in both locales`
+      : `  post: would create as draft ("${post.title}" / "${post.titleZh}")`)
+  }
+  console.log('\nNothing written. Re-run with --apply to write.')
+}
+
+/** Create the taxonomy in NEW_CATEGORIES / NEW_TAGS that the selected posts use and the database lacks. */
+async function ensureTaxonomy(payload: any) {
+  for (const cat of NEW_CATEGORIES) {
+    if (!SELECTED.some((p) => p.category === cat.slug)) continue
+    const found = await payload.find({ collection: 'categories', where: { slug: { equals: cat.slug } }, limit: 1, depth: 0 })
+    if (found.docs.length) continue
+    const doc = await payload.create({ collection: 'categories', locale: 'en', data: { name: cat.name.en, slug: cat.slug } })
+    await payload.update({ collection: 'categories', id: doc.id, locale: 'zh', data: { name: cat.name.zh } })
+    console.log(`category ${doc.id}  ${cat.slug}  created`)
+  }
+  for (const tag of NEW_TAGS) {
+    if (!SELECTED.some((p) => p.tags.includes(tag.slug))) continue
+    const found = await payload.find({ collection: 'tags', where: { slug: { equals: tag.slug } }, limit: 1, depth: 0 })
+    if (found.docs.length) continue
+    const doc = await payload.create({ collection: 'tags', data: { name: tag.name, slug: tag.slug } })
+    console.log(`tag ${doc.id}  ${tag.slug}  created`)
+  }
+}
+
 async function run() {
   const config = (await import('../src/payload.config')).default
   const payload = await getPayload({ config })
+
+  if (!apply) {
+    await plan(payload)
+    return
+  }
+  await ensureTaxonomy(payload)
 
   // Resolve taxonomy by slug. Raw primary keys would silently file a post under
   // whatever row happens to hold that id in another copy of the database.
@@ -195,7 +295,7 @@ async function run() {
     return r.docs[0].id
   }
 
-  for (const post of POSTS) {
+  for (const post of SELECTED) {
     const md = fs.readFileSync(path.join(DRAFTS, post.md), 'utf-8')
     const content = toLexical(md) as any
 

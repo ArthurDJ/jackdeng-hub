@@ -22,9 +22,43 @@ function getNodeText(node: any): string {
 
 // ── converters ─────────────────────────────────────────────────────────────
 
-/** Converter for CodeBlock blocks (adds copy button) */
+/**
+ * Tables. Payload's default converter puts every row in <tbody>, header row
+ * included, with an inline `1px solid #ccc` border, so the prose-ds table
+ * styles (tokens, both themes) never applied. Header rows go in <thead> here
+ * and take their look from the typography plugin; the wrapper scrolls a wide
+ * table sideways instead of widening the page on a phone.
+ */
+const tableConverters = {
+  table: ({ node, nodesToJSX }: any) => {
+    const rows: any[] = node.children ?? []
+    const isHeader = (row: any) => (row.children ?? []).every((cell: any) => cell.headerState > 0)
+    const head = rows.filter(isHeader)
+    const body = rows.filter((row) => !isHeader(row))
+    return (
+      <div className="ds-table-scroll">
+        <table>
+          {head.length > 0 && <thead>{nodesToJSX({ nodes: head })}</thead>}
+          <tbody>{nodesToJSX({ nodes: body })}</tbody>
+        </table>
+      </div>
+    )
+  },
+  tablerow: ({ node, nodesToJSX }: any) => <tr>{nodesToJSX({ nodes: node.children })}</tr>,
+  tablecell: ({ node, nodesToJSX }: any) => {
+    const Tag = node.headerState > 0 ? 'th' : 'td'
+    return (
+      <Tag colSpan={node.colSpan > 1 ? node.colSpan : undefined} rowSpan={node.rowSpan > 1 ? node.rowSpan : undefined}>
+        {nodesToJSX({ nodes: node.children })}
+      </Tag>
+    )
+  },
+}
+
+/** Converter for CodeBlock blocks (adds copy button) and tables */
 const codeBlockConverter: JSXConvertersFunction = ({ defaultConverters }) => ({
   ...defaultConverters,
+  ...tableConverters,
   blocks: {
     ...((defaultConverters as any).blocks ?? {}),
     Code: ({ node }: any) => {

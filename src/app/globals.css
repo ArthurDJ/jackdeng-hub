@@ -388,6 +388,12 @@
     --tw-prose-invert-th-borders:    var(--border-default);
     --tw-prose-invert-td-borders:    var(--border-subtle);
   }
+
+  /* Tables from LexicalRenderer: scroll sideways inside the column rather
+     than widen the page, and no paragraph margins inside a cell. */
+  .prose-ds .ds-table-scroll { overflow-x: auto; }
+  .prose-ds .ds-table-scroll table { margin: 0; }
+  .prose-ds th > p, .prose-ds td > p { margin: 0; }
 }
 
 /* ════════════════════════════════════════════════════

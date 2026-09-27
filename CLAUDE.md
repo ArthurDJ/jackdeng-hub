@@ -67,5 +67,6 @@
   `accessControl` 决定，站上叫 Playground（实验室）。自动化工具已删除（#83、#86），所有工具都是交互式的。加工具的步骤、嵌入外部工具时的 CSP，见
   `AI_DEPLOY.md` 的「Extending the Tools Engine」；部署、环境变量、迁移顺序见同一文件的
   「Deployment」。
-- `scripts/publish-drafts.ts` 把 markdown 转成 Lexical 写进数据库（中英双语，建为 draft）。
+- `scripts/publish-drafts.ts` 把 markdown 转成 Lexical 写进数据库（中英双语，建为 draft）。默认只读、打印计划，
+  `--apply` 才写；用 `--only <slug>` 只处理一篇，不带它会重写所有已有文章的正文。
   上传题图需要 `BLOB_READ_WRITE_TOKEN`，没有时脚本会拒绝上传。

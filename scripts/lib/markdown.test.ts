@@ -87,3 +87,59 @@ describe('toLexical', () => {
     expect(empty.root.children).toEqual([])
   })
 })
+
+describe('toLexical: code, tables and numbered lists', () => {
+  it('turns a fenced block into a Code block, keeping indentation and blank lines', () => {
+    const [block] = children('```sql\nselect 1\n\n  from t\n```')
+    expect(block.type).toBe('block')
+    expect(block.fields.blockType).toBe('Code')
+    expect(block.fields.language).toBe('sql')
+    expect(block.fields.code).toBe('select 1\n\n  from t')
+    expect(block.fields.id).toMatch(/^[0-9a-f]{24}$/)
+  })
+
+  it('does not parse markdown inside a fence', () => {
+    const nodes = children('```\n- not a list\n| not | a table |\n```')
+    expect(nodes).toHaveLength(1)
+    expect(nodes[0].fields.code).toBe('- not a list\n| not | a table |')
+    expect(nodes[0].fields.language).toBe('plaintext')
+  })
+
+  it('refuses an unclosed fence rather than swallowing the rest of the post', () => {
+    expect(() => toLexical('```sql\nselect 1')).toThrow(/unclosed/)
+  })
+
+  it('turns a table into a header row and body rows', () => {
+    const [t] = children('| A | B |\n|---|---|\n| `x` | **y** |\n| 1 | 2 |')
+    expect(t.type).toBe('table')
+    expect(t.children).toHaveLength(3)
+    const [head, first] = t.children
+    expect(head.children.map((c: any) => c.headerState)).toEqual([1, 1])
+    expect(first.children.map((c: any) => c.headerState)).toEqual([0, 0])
+    expect(head.children.map(texts)).toEqual(['A', 'B'])
+    // Cell text goes through the inline parser.
+    expect(first.children[0].children[0].children[0].format).toBe(16)
+    expect(first.children[1].children[0].children[0].format).toBe(1)
+  })
+
+  it('leaves pipe lines without a separator as text', () => {
+    const nodes = children('| just | pipes |')
+    expect(nodes.map((n: any) => n.type)).toEqual(['paragraph'])
+  })
+
+  it('turns 1. 2. 3. into a numbered list, apart from an adjacent bullet list', () => {
+    const [ol, ul] = children('1. one\n2. two\n- three')
+    expect(ol.listType).toBe('number')
+    expect(ol.tag).toBe('ol')
+    expect(ol.children.map(texts)).toEqual(['one', 'two'])
+    expect(ul.listType).toBe('bullet')
+  })
+})
+
+describe('inline: double-backtick code', () => {
+  it('keeps a backtick inside the code span', () => {
+    const [code] = inline('`` `Column Name` ``')
+    expect(code.format).toBe(16)
+    expect(code.text).toBe('`Column Name`')
+  })
+})

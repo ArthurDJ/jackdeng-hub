@@ -227,6 +227,52 @@
       "randomize": "Randomize",
       "canvasLabelLife": "Conway's Game of Life. Drag on the canvas to draw cells.",
       "hintLife": "Drag to draw cells. Each step, a cell with three neighbours is born and one with two or three survives. Edges wrap, so gliders keep going."
+    },
+    "terminal": {
+      "screenLabel": "dbt output",
+      "inputLabel": "Command",
+      "breakTest": "Break a test",
+      "clear": "Clear",
+      "helpIntro": "Commands:",
+      "helpBuild": "seeds, models and tests, in dependency order",
+      "helpRun": "models only",
+      "helpTest": "tests only",
+      "helpSeed": "load the CSV seeds",
+      "helpClear": "clear the screen",
+      "unknownDbt": "dbt: try dbt build, dbt run, dbt test or dbt seed",
+      "finished": "Run finished. {summary}",
+      "hint": "Nothing runs here. The log is what dbt would print for jaffle_shop, the demo project dbt Labs publishes. Type help for the commands. With a test broken, dbt build still runs that model's other tests, then skips every model and test downstream of it."
+    },
+    "vortex": {
+      "canvasLabel": "Rings of the text \"{phrase}\" turning around the centre.",
+      "phrase": "Text",
+      "presets": "Presets",
+      "presetWork": "Work (EN)",
+      "presetWorkZh": "Work (中文)",
+      "presetName": "Name",
+      "pause": "Pause",
+      "play": "Spin",
+      "pull": "Pull in",
+      "hint": "Move the pointer through the rings to scatter the letters. Press and hold to pull every ring toward the centre, or use the Pull in button from the keyboard. With reduced motion the rings don't turn on their own, but the pointer still works."
+    },
+    "blueprint": {
+      "sheetLabel": "Blueprint sheet with draggable letters",
+      "letterRole": "draggable letter",
+      "letterLabel": "{ch}, x {x}, y {y}",
+      "stamp": "SHEET {w}×{h} · GRID {grid}PX",
+      "word": "Word",
+      "snap": "Snap to {grid}px grid",
+      "scatter": "Scatter",
+      "reset": "Reset",
+      "hint": "Drag a letter, or Tab to one and move it with the arrow keys, one grid step at a time or one pixel with Shift. This site's layout uses the same 8px grid."
+    },
+    "skills": {
+      "boxLabel": "Skills",
+      "drop": "Drop",
+      "dropAgain": "Drop again",
+      "shake": "Shake",
+      "legend": "Skill groups",
+      "hint": "The same skills as the About page, coloured by group. Pick one up and throw it. The physics engine is matter-js, and it only loads once the box is on screen. With reduced motion nothing falls until you press Drop."
     }
   },
   "error": {

@@ -10,6 +10,29 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.21.0] — 2026-09-28
+
+### Added — Playground 新增四个实验：dbt 终端、文字漩涡、蓝图字标、技能掉落（#93）
+
+界面调研的第三批。点子来自 ThreeUI（CRT 终端、Typography Vortex）和 React Bits（Tech Text、Falling Text），代码都是自己写的，没有复制源码。
+四个组件按 slug 注册、按需加载，只在各自的页面下载；逻辑放在 `src/lib/`，带测试。
+
+- **dbt 终端**（`dbt-terminal`）：一块用 CSS 画的 CRT 屏幕（扫描线、暗角、荧光），滚进视野后自动敲一次 `dbt build`，重放 dbt Labs
+  示例项目 jaffle_shop 的运行日志：3 个 seed、5 个模型、20 个测试。可以输入 `dbt build / run / test / seed`、`help`、`clear`，
+  上下键翻历史。打开「弄挂一个测试」后，`accepted_values_stg_orders_status` 会失败，`dbt build` 照常跑 stg_orders 的其他测试，
+  下游的模型和测试全部 SKIP。日志由 `src/lib/dbtLog.ts` 生成，页面上写明了是模拟的。
+- **文字漩涡**（`text-vortex`）：画布上一圈圈文字，内圈转得快。鼠标划过会把字冲散，按住会把所有圈吸向中心；文字可以自己输入，
+  有中英文预设。滚出视野就停止绘制。
+- **蓝图字标**（`blueprint-type`）：8px 网格上的空心字，可以拖动，也可以用方向键移动（按住 Shift 一次 1 像素）。选中的字母显示坐标、
+  辅助线和宽度。字号按画布宽度自动缩放，手机上也放得下。
+- **技能掉落**（`falling-skills`）：About 页的 25 个技能做成有物理效果的标签，掉进盒子里，按分类上色，可以抓起来扔，也可以「摇一摇」。
+  物理引擎是 matter-js（MIT，新增依赖），盒子进入视野才加载。拖动是用约束自己实现的，没用 matter-js 的 MouseConstraint：
+  它会拦掉滚轮和触摸事件，鼠标停在盒子上时页面滚不动。
+- **减少动效**：终端直接打印完整日志，漩涡不自己转，技能要点「放下」才会掉。
+- **工具记录**：新增 `scripts/lib/playgroundTools.ts`，列出五个内置工具的中英文名称、描述和图标。`scripts/seed.ts` 用它给 CI 的库
+  建全部工具，CI 构建时会预渲染每个工具页，冒烟检查也会访问到。`scripts/add-playground-tools.ts` 给生产库补建缺的记录：默认只读，
+  带 `--apply` 才写，已有的记录不动。`AI_DEPLOY.md` 补上了这一步。
+
 ## [1.20.0] — 2026-09-28
 
 ### Changed — 界面第二批：语言与搜索按钮、首页经历展开、时间线滚动填充、博客骨架屏、404 翻牌（#92）

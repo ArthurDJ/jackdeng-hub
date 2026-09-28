@@ -30,6 +30,8 @@ export const BUILTIN_TOOLS: Record<string, ComponentType<BuiltinToolProps>> = {
     import('./BlueprintType').then((m) => m.BlueprintType)),
   'falling-skills': dynamic(() =>
     import('./FallingSkills').then((m) => m.FallingSkills)),
+  'dev-day': dynamic(() =>
+    import('./DevDay').then((m) => m.DevDay)),
 }
 
 export function getBuiltinTool(slug: string) {

@@ -273,6 +273,117 @@
       "shake": "摇一摇",
       "legend": "技能分类",
       "hint": "技能和 About 页上是同一份，颜色代表分类，可以抓起来扔。物理效果用的是 matter-js，盒子滚动到屏幕里才会加载。开了减少动效的话，要点「放下」才会掉下来。"
+    },
+    "devDay": {
+      "intro": "九点整，你刚坐到工位上。收件箱里已经有活了，下午还有两个会。",
+      "rule1": "每个选择占一小时。认真做，进度稳；糙快猛快一倍，但会加技术债。技术债越多，下午越容易出事故。",
+      "rule2": "错过截止、不去开会都会扣老板的满意度；满意度扣光，或者精力耗尽，这一天就提前结束。",
+      "rule3": "咖啡前两杯提神，第三杯开始手抖。摸鱼能回血，就是可能被老板撞见。",
+      "start": "开始上班",
+      "best": "最高 {n} 分",
+      "day": "第 {n} 天",
+      "offWork": "已下班",
+      "hoursLeft": "离下班 {n} 小时",
+      "stats": {
+        "energy": "精力",
+        "focus": "专注",
+        "debt": "技术债",
+        "mood": "满意度"
+      },
+      "inbox": "收件箱",
+      "inboxEmpty": "收件箱清空了。可以还点技术债，或者摸会儿鱼。",
+      "thisHour": "这一小时",
+      "meetings": {
+        "standup": "站会",
+        "review": "需求评审"
+      },
+      "meetingTitles": {
+        "standup": "站会",
+        "review": "需求评审"
+      },
+      "skipWarn": "不去会扣满意度。",
+      "attend": "去开会",
+      "coffee": "喝咖啡",
+      "break": "摸鱼",
+      "refactor": "还技术债",
+      "schedule": "今天的会",
+      "logTitle": "动态",
+      "log": {
+        "morning": "九点，你坐到工位上，打开了电脑。",
+        "worked": "{task}：做了一小时，进度 {n}%。",
+        "done": "{task}：搞定，满意度 +{n}。",
+        "doneHack": "{task}：糙快猛搞定，满意度 +{n}，技术债也涨了。",
+        "coffee": "第 {n} 杯咖啡，精神多了。",
+        "jitters": "第 {n} 杯咖啡，手开始抖，反而更难集中。",
+        "break": "下楼走了一圈，脑子清醒了。",
+        "caught": "摸鱼被老板撞见了，满意度 −7。",
+        "refactor": "重构了一段老代码。技术债少了，但没人看得见。",
+        "meeting": "参加了{meeting}。",
+        "skipped": "没去{meeting}，老板注意到了，满意度 −9。",
+        "missed": "{task}：错过截止，满意度 −{n}。",
+        "slack": "Slack 上有人 @ 你问问题，思路断了。",
+        "arrived": "新任务：{task}",
+        "incident": "告警：{task}",
+        "wrap": "六点，下班。"
+      },
+      "kinds": {
+        "incident": "事故",
+        "bug": "Bug",
+        "feature": "需求",
+        "request": "杂事"
+      },
+      "tasks": {
+        "dbtFailed": "生产环境 dbt build 挂了",
+        "erpStuck": "ERP 同步卡住，订单没进库",
+        "ciRed": "CI 红了",
+        "wrongKpi": "看板上的准时率算错了",
+        "nullCustomer": "客户表里冒出一堆空值",
+        "newDashboard": "PM 要的新看板",
+        "apiEndpoint": "给移动端加个接口",
+        "excelExport": "财务要一份导出，Excel 就行",
+        "accessRequest": "给新同事开数据库权限"
+      },
+      "due": "截止 {time}",
+      "left": "还需约 {n} 小时",
+      "atRisk": "照现在的速度来不及",
+      "careful": "认真做",
+      "hack": "糙快猛",
+      "hackHint": "快一倍，加技术债",
+      "endingLabel": "今天的结局",
+      "endings": {
+        "burnout": {
+          "title": "累倒了",
+          "text": "精力见底，还没到下班，你已经趴在了键盘上。"
+        },
+        "fired": {
+          "title": "被叫去谈话",
+          "text": "老板的耐心用完了，把你叫进了会议室。"
+        },
+        "legend": {
+          "title": "靠谱",
+          "text": "该交的都交了，一个截止没错过，代码也还干净。这样的日子不多。"
+        },
+        "firefighter": {
+          "title": "今天的英雄",
+          "text": "活都干完了，可全是糙快猛。技术债堆起来了，今晚值班祝你好运。"
+        },
+        "rough": {
+          "title": "焦头烂额",
+          "text": "错过了好几个截止，收件箱也没清完。明天的站会可能不太好过。"
+        },
+        "invisible": {
+          "title": "代码很干净，可惜没人看见",
+          "text": "技术债还了不少，交付的东西却太少，老板不太满意。"
+        },
+        "normal": {
+          "title": "普通的一天",
+          "text": "有的做完了，剩下的明天再说。大多数日子都是这样。"
+        }
+      },
+      "score": "{n} 分",
+      "summary": "完成 {done} · 错过 {missed} · 咖啡 {coffees} 杯",
+      "again": "再来一天",
+      "replay": "重玩第 {n} 天"
     }
   },
   "error": {

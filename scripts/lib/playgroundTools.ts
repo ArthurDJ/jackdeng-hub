@@ -57,4 +57,16 @@ export const PLAYGROUND_TOOLS: PlaygroundTool[] = [
     },
     zh: { name: '技能掉落', description: 'About 页上的技能做成有重量的标签，掉进盒子里，可以抓起来扔。' },
   },
+  {
+    slug: 'dev-day',
+    icon: '⌨️',
+    en: {
+      name: 'Dev Day',
+      description: 'A programmer simulator. From 9 to 6, decide what each hour goes to: an incident, a feature, a meeting, coffee or tech debt. The end of the day tells you how it went.',
+    },
+    zh: {
+      name: '程序员的一天',
+      description: '早上九点到下午六点，每小时决定干什么：修事故、赶需求、开会、喝咖啡，还是还技术债。下班时看看你是哪种结局。',
+    },
+  },
 ]

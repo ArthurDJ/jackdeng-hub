@@ -71,7 +71,7 @@ export default async function ProjectsPage({ params }: Props) {
 
             const CardInner = (
               <div
-                className={hasSlug ? 'ds-card-hover ds-spotlight' : undefined}
+                className={hasSlug ? 'ds-card-hover ds-spotlight ds-tilt' : undefined}
                 style={{
                   background: 'var(--bg-panel)',
                   border: '1px solid var(--border-default)',

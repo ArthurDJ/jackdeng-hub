@@ -32,7 +32,7 @@ export async function BlogCard({ title, slug, excerpt, coverImage, category, tag
 
   return (
     <article
-      className="ds-card-hover ds-spotlight"
+      className="ds-card-hover ds-spotlight ds-tilt"
       style={{
         display: 'flex',
         flexDirection: 'column',

@@ -74,6 +74,12 @@
 
     /* Typography */
     --font-feature: "cv01", "ss03";
+
+    /* Aurora behind the home hero: blue (the accent), violet, cyan */
+    --aurora-1: rgb(77 143 248);
+    --aurora-2: rgb(139 92 246);
+    --aurora-3: rgb(34 211 238);
+    --aurora-opacity: 0.26;
   }
 
   /* ── Light mode overrides — see DESIGN.md §3 ── */
@@ -113,6 +119,11 @@
 
     --bg-hover:  rgba(0, 0, 0, 0.04);
     --bg-subtle: rgba(0, 0, 0, 0.02);
+
+    --aurora-1: rgb(59 130 246);
+    --aurora-2: rgb(168 85 247);
+    --aurora-3: rgb(45 212 191);
+    --aurora-opacity: 0.18;
   }
 
   /* ── Base resets ── */
@@ -243,6 +254,88 @@
     background-position: center top;
     -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 0%, #000 35%, transparent 80%);
             mask-image: radial-gradient(ellipse 70% 65% at 50% 0%, #000 35%, transparent 80%);
+  }
+
+  /* ── Aurora: three blurred colour fields drifting behind the home hero ──
+     Only transform animates; the blur is painted once. Reduced motion stops
+     the drift (the site-wide rule), and print hides it. */
+  .ds-aurora {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+            mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  }
+  .ds-aurora > span {
+    position: absolute;
+    width: max(280px, 44vw);
+    max-width: 640px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    filter: blur(72px);
+    opacity: var(--aurora-opacity);
+    will-change: transform;
+  }
+  .ds-aurora > span:nth-child(1) { background: var(--aurora-1); top: -30%; left: 4%; animation: ds-aurora-a 22s ease-in-out infinite alternate; }
+  .ds-aurora > span:nth-child(2) { background: var(--aurora-2); top: -18%; right: 0; animation: ds-aurora-b 27s ease-in-out infinite alternate; }
+  .ds-aurora > span:nth-child(3) { background: var(--aurora-3); top: 28%; left: 36%; width: max(220px, 32vw); animation: ds-aurora-c 31s ease-in-out infinite alternate; }
+  @keyframes ds-aurora-a { to { transform: translate(14vw, 10%) scale(1.15); } }
+  @keyframes ds-aurora-b { to { transform: translate(-12vw, 16%) scale(0.88); } }
+  @keyframes ds-aurora-c { to { transform: translate(-10vw, -12%) scale(1.2); } }
+
+  /* ── Cards: tilt towards the pointer, and a gentle float in the hero ──
+     SpotlightTracker writes --tilt-x / --tilt-y on .ds-tilt cards. Hover
+     devices without reduced motion only; elsewhere the cards stay flat. */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .ds-tilt {
+      transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(var(--lift, 0px));
+      transition:
+        transform 200ms var(--ease-default),
+        border-color var(--duration-base) var(--ease-default),
+        background-color var(--duration-base) var(--ease-default);
+    }
+    .ds-tilt:hover { --lift: -3px; }
+    /* The dots on a project card drift while it is hovered. */
+    .ds-tilt:hover .ds-dot-cover { animation: ds-dots 2.4s linear infinite; }
+  }
+  @keyframes ds-dots { to { background-position: 12px 12px, 0 0; } }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ds-float { animation: ds-float 6s ease-in-out infinite alternate; }
+    .ds-float + .ds-float { animation-delay: -3s; }
+  }
+  /* `translate`, not `transform`, so it adds to the card's own tilt. */
+  @keyframes ds-float { to { translate: 0 -8px; } }
+
+  /* Skill chips lift and pick up the accent on hover. */
+  .ds-chip {
+    transition:
+      border-color var(--duration-base) var(--ease-default),
+      color var(--duration-base) var(--ease-default),
+      translate var(--duration-base) var(--ease-default);
+  }
+  .ds-chip:hover { border-color: var(--accent-primary) !important; }
+  @media (prefers-reduced-motion: no-preference) {
+    .ds-chip:hover { translate: 0 -1px; }
+  }
+
+  /* ── Reveal: fade in and rise as a block scrolls into view ──
+     Scroll-driven, no JavaScript. It animates `translate` and `opacity`, so
+     a card's tilt transform is left alone. Without support for
+     animation-timeline, with reduced motion, or in print, it just shows. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .ds-reveal {
+        animation: ds-reveal linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 90%;
+      }
+    }
+  }
+  @keyframes ds-reveal { from { opacity: 0; translate: 0 28px; } }
+  @media print {
+    .ds-reveal { animation: none !important; }
   }
 
   /* ── Dot cover: the strip at the top of a project card ──

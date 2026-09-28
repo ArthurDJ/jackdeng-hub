@@ -1,14 +1,15 @@
 /**
  * Sample content for an empty database: three bilingual posts, one category
- * and one tag on the first of them, a project and the falling-sand tool.
+ * and one tag on the first of them, a project and the Playground tools.
  *
  * CI runs this against its throwaway Postgres before `next build`, so the
  * build and the smoke check see one of every page type: a post, a category
- * and a tag page with a post on them, a project and a tool. It is also what a
+ * and a tag page with a post on them, a project and every tool. It is also what a
  * fresh local database needs to look like the site.
  */
 import { loadEnv, requireApply } from './lib/env'
 import { getPayload } from 'payload'
+import { PLAYGROUND_TOOLS } from './lib/playgroundTools'
 
 loadEnv()
 requireApply({ script: 'scripts/seed.ts', writes: ['blogs', 'categories', 'tags', 'projects', 'tools'] })
@@ -178,25 +179,15 @@ async function run() {
     },
   })
 
-  console.log('Creating the falling-sand tool...')
-  const tool = await payload.create({
-    collection: 'tools',
-    locale: 'en',
-    data: {
-      name: 'Falling Sand',
-      slug: 'falling-sand',
-      description: 'A cellular automaton that runs in the browser.',
-      accessControl: 'public',
-      status: 'online',
-      embedType: 'builtin',
-    },
-  })
-  await payload.update({
-    collection: 'tools',
-    id: tool.id,
-    locale: 'zh',
-    data: { name: '落沙', description: '在浏览器里运行的元胞自动机。' },
-  })
+  for (const t of PLAYGROUND_TOOLS) {
+    console.log(`Creating the ${t.slug} tool...`)
+    const tool = await payload.create({
+      collection: 'tools',
+      locale: 'en',
+      data: { ...t.en, slug: t.slug, icon: t.icon, accessControl: 'public', status: 'online', embedType: 'builtin' },
+    })
+    await payload.update({ collection: 'tools', id: tool.id, locale: 'zh', data: t.zh })
+  }
 
   console.log('Seed complete!')
   process.exit(0)

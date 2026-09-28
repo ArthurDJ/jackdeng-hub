@@ -77,10 +77,9 @@ A tool is a record in the `Tools` collection. A built-in tool also has a compone
    - Respect `prefers-reduced-motion`, and check the layout at 375px.
 2. **Register the slug** in `BUILTIN_TOOLS` in `src/components/tools/registry.tsx`, loading the component with `next/dynamic`.
 3. **Add the UI strings** under a `tools.<name>` namespace in both `src/i18n/messages/en.json` and `zh.json`. `FallingSand` uses `tools.sand`.
-4. **Create the record** in `/admin`.
-   - Fill in the name and description in both languages; both fields are localized.
-   - Set `embedType: builtin`.
-   - Leave it at `status: maintenance` until the deploy that contains the component is live, then switch it to `online`. Otherwise `/tools` links to a placeholder.
+4. **Create the record**, either in `/admin` or from the script.
+   - In `/admin`: fill in the name and description in both languages (both fields are localized), set `embedType: builtin`, and leave it at `status: maintenance` until the deploy that contains the component is live, then switch it to `online`. Otherwise `/tools` links to a placeholder.
+   - From the script: add the tool to `scripts/lib/playgroundTools.ts`, then, once the deploy is live, run `npx tsx scripts/add-playground-tools.ts` (read-only, prints the plan) and again with `--apply`. It creates only the slugs the database lacks, as online and public, and never touches an existing record. The same list seeds CI's database (`scripts/seed.ts`), so CI builds and smoke-tests every tool page before merge.
 5. **The caches follow on their own.** Saving the record in `/admin` expires every cached page, the sitemap and search (`src/lib/revalidate.ts`), so it appears on `/tools` at once. A record written by a tsx script is the exception: scripts run outside Next.js, so it shows up with the hourly revalidation.
 
 The smoke check picks its tool from `/api/tools`, which only returns online, public tools, so the workflow needs no change.

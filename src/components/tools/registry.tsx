@@ -22,6 +22,14 @@ export type BuiltinToolProps = { slug: string }
 export const BUILTIN_TOOLS: Record<string, ComponentType<BuiltinToolProps>> = {
   'falling-sand': dynamic(() =>
     import('./FallingSand').then((m) => m.FallingSand)),
+  'dbt-terminal': dynamic(() =>
+    import('./DbtTerminal').then((m) => m.DbtTerminal)),
+  'text-vortex': dynamic(() =>
+    import('./TextVortex').then((m) => m.TextVortex)),
+  'blueprint-type': dynamic(() =>
+    import('./BlueprintType').then((m) => m.BlueprintType)),
+  'falling-skills': dynamic(() =>
+    import('./FallingSkills').then((m) => m.FallingSkills)),
 }
 
 export function getBuiltinTool(slug: string) {

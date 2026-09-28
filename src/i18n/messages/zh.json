@@ -227,6 +227,52 @@
       "randomize": "随机",
       "canvasLabelLife": "康威生命游戏。在画布上拖动即可绘制细胞。",
       "hintLife": "拖动即可绘制细胞。每一步，有三个邻居的格子诞生，有两个或三个邻居的存活。边界是环形的，所以滑翔机不会撞死在墙上。"
+    },
+    "terminal": {
+      "screenLabel": "dbt 输出",
+      "inputLabel": "命令",
+      "breakTest": "弄挂一个测试",
+      "clear": "清屏",
+      "helpIntro": "可用命令：",
+      "helpBuild": "按依赖顺序跑 seed、模型和测试",
+      "helpRun": "只跑模型",
+      "helpTest": "只跑测试",
+      "helpSeed": "导入 CSV seed",
+      "helpClear": "清屏",
+      "unknownDbt": "dbt：可以试试 dbt build、dbt run、dbt test 或 dbt seed",
+      "finished": "运行结束。{summary}",
+      "hint": "这里没有真的在跑 dbt。屏幕上的日志是模拟的，照着 dbt 跑 jaffle_shop（dbt Labs 公开的示例项目）时的输出来写。输入 help 可以看命令。弄挂一个测试后再跑 dbt build，同一个模型的其他测试照常跑，下游的模型和测试会全部跳过。"
+    },
+    "vortex": {
+      "canvasLabel": "文字「{phrase}」排成一圈圈，绕着中心转。",
+      "phrase": "文字",
+      "presets": "预设",
+      "presetWork": "工作（英文）",
+      "presetWorkZh": "工作（中文）",
+      "presetName": "名字",
+      "pause": "暂停",
+      "play": "转动",
+      "pull": "吸向中心",
+      "hint": "鼠标划过会把字冲散，按住不放，所有圈都会往中心收；用键盘的话，点「吸向中心」按钮。系统开了减少动效时，圈不会自己转，鼠标照样能玩。"
+    },
+    "blueprint": {
+      "sheetLabel": "可拖动字母的蓝图",
+      "letterRole": "可拖动的字母",
+      "letterLabel": "{ch}，x {x}，y {y}",
+      "stamp": "SHEET {w}×{h} · GRID {grid}PX",
+      "word": "文字",
+      "snap": "吸附到 {grid}px 网格",
+      "scatter": "打乱",
+      "reset": "复位",
+      "hint": "拖动字母，或者按 Tab 选中后用方向键移动，每次一格；按住 Shift 每次移动 1 像素。这个网站的排版用的也是 8px 网格。"
+    },
+    "skills": {
+      "boxLabel": "技能",
+      "drop": "放下",
+      "dropAgain": "重新掉落",
+      "shake": "摇一摇",
+      "legend": "技能分类",
+      "hint": "技能和 About 页上是同一份，颜色代表分类，可以抓起来扔。物理效果用的是 matter-js，盒子滚动到屏幕里才会加载。开了减少动效的话，要点「放下」才会掉下来。"
     }
   },
   "error": {

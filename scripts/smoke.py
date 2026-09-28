@@ -106,6 +106,23 @@ for route in (f'/en/blog/{nope}', f'/zh/blog/{nope}', f'/en/tools/{nope}',
     else:
         fail(f'{status}  {route}  (a made-up URL must answer 404)')
 
+# ── 2b. A draft stays private ──────────────────────────────────────────────
+# CI seeds a draft and names it here. Its page must answer 404 and nothing in
+# that response may carry its title: the post page's metadata once found
+# drafts, and Next ships a 404's metadata in the RSC payload (#89).
+import os
+draft_slug, draft_title = os.environ.get('SMOKE_DRAFT_SLUG'), os.environ.get('SMOKE_DRAFT_TITLE')
+if draft_slug and draft_title:
+    for locale in ('en', 'zh'):
+        route = f'/{locale}/blog/{draft_slug}'
+        status, body = get(route)
+        if status != 404:
+            fail(f'{status}  {route}  (a draft must answer 404)')
+        elif draft_title in body:
+            fail(f'{status}  {route}  (the draft\'s title is in the 404 response)')
+        else:
+            print(f'ok   {status}  {route}  (draft, private)')
+
 # ── 3. Every internal link, without following redirects ───────────────────
 # The checks above fetch a fixed list, so they never looked at the links a
 # visitor clicks: the home page's project cards pointed at /en/en/projects/…

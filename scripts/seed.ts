@@ -125,6 +125,21 @@ async function run() {
     },
   })
 
+  // A draft, so the smoke check can prove drafts stay private: its slug must
+  // answer 404 and its title must not appear anywhere in that response (#89).
+  console.log('Creating a draft that must stay private...')
+  await payload.create({
+    collection: 'blogs',
+    locale: 'en',
+    data: {
+      title: 'CI draft title that must not leak',
+      slug: 'ci-draft-post',
+      excerpt: 'CI draft excerpt that must not leak',
+      content: createParagraph('A draft.'),
+      status: 'draft',
+    },
+  })
+
   console.log('Creating a category and a tag on post 1...')
   const category = await payload.create({
     collection: 'categories',

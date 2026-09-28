@@ -52,15 +52,23 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, locale } = await params
   const payload = await getPayload()
+  // Published only, as in the page below. The Local API skips access control,
+  // and this used to find drafts too: the page answered 404, but the draft's
+  // title, excerpt and cover URL still went out in the RSC payload of that 404
+  // for anyone who tried the slug. Next leaves the metadata out of <head> when
+  // the page calls notFound(); it does not leave it out of the flight data.
   const { docs } = await payload.find({
     collection: 'blogs',
-    where: { slug: { equals: slug } },
+    where: { slug: { equals: slug }, status: { equals: 'published' } },
     depth: 1,
     limit: 1,
     locale: asLocale(locale),
   })
   const blog = docs[0]
-  if (!blog) return { title: 'Not Found' }
+  if (!blog) {
+    const t = await getTranslations({ locale, namespace: 'notFound' })
+    return { title: t('title') }
+  }
 
   const title = blog.seo?.metaTitle ?? blog.title
   const description = blog.seo?.metaDescription ?? blog.excerpt

@@ -102,7 +102,8 @@ export default async function HomePage({ params }: Props) {
         />
         {/* Full-bleed wrapper so the grid texture spans the viewport while
             the content keeps the page width. */}
-        <div className="relative">
+        <div className="relative overflow-hidden">
+        <div aria-hidden="true" className="ds-aurora print:hidden!"><span /><span /><span /></div>
         <div aria-hidden="true" className="ds-hero-grid print:hidden!" />
         <section className="relative max-w-5xl mx-auto px-6 pt-20 pb-16 sm:pt-24 sm:pb-20 print:py-0!">
           <div className="flex flex-col lg:flex-row lg:items-center lg:gap-12">
@@ -232,19 +233,19 @@ export default async function HomePage({ params }: Props) {
                   const techStack: string[] = (project.techStack ?? []).map((ts) => ts.tech).filter(Boolean)
                   const sc = projectStatusColors(project.status)
                   const href = project.slug ? `/projects/${project.slug}` : '/projects'
+                  // The wrapper holds the resting angle and the float; the
+                  // card inside tilts towards the pointer.
                   return (
+                    <div key={project.id} className="ds-float" style={i === 0 ? { rotate: '-1.2deg', marginLeft: 10 } : { rotate: '0.8deg' }}>
                     <Link
-                      key={project.id}
                       href={href}
-                      className="ds-card-hover"
+                      className="ds-card-hover ds-tilt"
                       style={{
                         display: 'block',
                         background: 'var(--bg-panel)',
                         border: '1px solid var(--border-default)',
                         borderRadius: 12,
                         padding: '14px 16px',
-                        transform: i === 0 ? 'rotate(-1.2deg) translateX(10px)' : 'rotate(0.8deg)',
-                        transition: 'transform 0.2s ease',
                         textDecoration: 'none',
                         color: 'inherit',
                       }}
@@ -279,6 +280,7 @@ export default async function HomePage({ params }: Props) {
                         ))}
                       </div>
                     </Link>
+                    </div>
                   )
                 })}
               </div>
@@ -304,7 +306,7 @@ export default async function HomePage({ params }: Props) {
             {TIMELINE.map(({ year, role, place, bullets, tech }) => (
               <li
                 key={year.en}
-                className="grid gap-2 sm:gap-6 sm:grid-cols-[160px_1fr] print:break-inside-avoid"
+                className="ds-reveal grid gap-2 sm:gap-6 sm:grid-cols-[160px_1fr] print:break-inside-avoid"
                 style={{
                   background: 'var(--bg-panel)',
                   border: '1px solid var(--border-default)',
@@ -369,13 +371,13 @@ export default async function HomePage({ params }: Props) {
           </h2>
           <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
             {SKILLS.map(({ group, items }) => (
-              <div key={group.en}>
+              <div key={group.en} className="ds-reveal">
                 <dt style={{ fontSize: 11, fontWeight: 510, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 8 }}>
                   {group[lang]}
                 </dt>
                 <dd style={{ margin: 0, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {items.map((item) => (
-                    <span key={item} style={{
+                    <span key={item} className="ds-chip" style={{
                       fontSize: 13, padding: '3px 10px', borderRadius: 9999,
                       background: 'var(--bg-panel)', color: 'var(--text-primary)',
                       border: '1px solid var(--border-default)',
@@ -410,7 +412,7 @@ export default async function HomePage({ params }: Props) {
           {projects.length > 0 ? (
             <div className={BENTO_GRID}>
               {projects.map((project, i) => (
-                <div key={project.id} className={`flex ${bentoSpan(i, projects.length)}`}>
+                <div key={project.id} className={`ds-reveal flex ${bentoSpan(i, projects.length)}`}>
                   <HomeProjectCard project={project} />
                 </div>
               ))}
@@ -475,8 +477,8 @@ export default async function HomePage({ params }: Props) {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {blogs.map((blog) => (
+                <div key={blog.id} className="ds-reveal grid">
                 <BlogCard
-                  key={blog.id}
                   title={blog.title}
                   slug={blog.slug}
                   excerpt={blog.excerpt}
@@ -487,6 +489,7 @@ export default async function HomePage({ params }: Props) {
                   featured={blog.featured}
                   content={blog.content}
                 />
+                </div>
               ))}
             </div>
           </section>

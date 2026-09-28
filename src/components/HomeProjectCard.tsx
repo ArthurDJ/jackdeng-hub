@@ -34,7 +34,7 @@ export function HomeProjectCard({ project }: HomeProjectCardProps) {
   }
 
   const inner = (
-    <div className="ds-card-hover ds-spotlight print:break-inside-avoid" style={cardStyle}>
+    <div className="ds-card-hover ds-spotlight ds-tilt print:break-inside-avoid" style={cardStyle}>
       {/* Dot cover: decoration in the theme's tokens, and left off paper */}
       <div aria-hidden="true" className="ds-dot-cover print:hidden!" style={{ height: 72, flexShrink: 0 }} />
       <div style={{ padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>

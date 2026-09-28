@@ -60,6 +60,8 @@
     "bioGroup": "Bio",
     "bioShort": "Short",
     "bioLong": "Long",
+    "sectionNav": "On this page",
+    "aboutHeading": "About",
     "introLong1": "I work on the backend and data side: pipelines, integrations and the internal tools people run their day on.",
     "introLong2": "Since January 2024 I've been at Value Windows & Doors. There I built a data platform on Databricks + dbt, layered Bronze→Silver→Gold→Mart. It turns raw ERP data into models that the manufacturing, inventory, sales and workforce reports read directly. I also write data-migration and integration pipelines in C# and Python, and build Power BI dashboards and React internal portals.",
     "introLong3": "Before that I interned at APEXUS-TECH, writing Python + MySQL services that ingested financial-market data, and ETL pipelines. During my M.S. in Analytics at Northeastern University I was a tutor for the data warehousing and SQL course (ALY6030).",

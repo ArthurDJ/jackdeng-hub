@@ -17,3 +17,13 @@ export function bentoSpan(index: number, count: number): string {
 
 /** The grid the spans above are written for. */
 export const BENTO_GRID = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
+
+/**
+ * Two columns, for the home page's narrower right column. An odd last card
+ * spans both, so the grid never ends on a gap.
+ */
+export function pairSpan(index: number, count: number): string {
+  return count % 2 === 1 && index === count - 1 ? 'sm:col-span-2' : ''
+}
+
+export const PAIR_GRID = 'grid grid-cols-1 sm:grid-cols-2 gap-4'

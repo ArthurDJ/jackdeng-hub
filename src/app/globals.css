@@ -284,7 +284,7 @@
   @keyframes ds-aurora-b { to { transform: translate(-12vw, 16%) scale(0.88); } }
   @keyframes ds-aurora-c { to { transform: translate(-10vw, -12%) scale(1.2); } }
 
-  /* ── Cards: tilt towards the pointer, and a gentle float in the hero ──
+  /* ── Cards: tilt towards the pointer ──
      SpotlightTracker writes --tilt-x / --tilt-y on .ds-tilt cards. Hover
      devices without reduced motion only; elsewhere the cards stay flat. */
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
@@ -301,13 +301,6 @@
   }
   @keyframes ds-dots { to { background-position: 12px 12px, 0 0; } }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .ds-float { animation: ds-float 6s ease-in-out infinite alternate; }
-    .ds-float + .ds-float { animation-delay: -3s; }
-  }
-  /* `translate`, not `transform`, so it adds to the card's own tilt. */
-  @keyframes ds-float { to { translate: 0 -8px; } }
-
   /* Skill chips lift and pick up the accent on hover. */
   .ds-chip {
     transition:
@@ -321,8 +314,8 @@
   }
 
   /* ── Reveal: fade in and rise as a block scrolls into view ──
-     Scroll-driven, no JavaScript. It animates `translate` and `opacity`, so
-     a card's tilt transform is left alone. Without support for
+     Scroll-driven, no JavaScript. It animates `translate` and a filter, so
+     a card's tilt transform and the sibling dim's opacity are left alone. Without support for
      animation-timeline, with reduced motion, or in print, it just shows. */
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
@@ -333,9 +326,55 @@
       }
     }
   }
-  @keyframes ds-reveal { from { opacity: 0; translate: 0 28px; } }
+  /* filter: opacity() rather than opacity, which the sibling dim below uses. */
+  @keyframes ds-reveal { from { filter: opacity(0); translate: 0 28px; } }
   @media print {
     .ds-reveal { animation: none !important; }
+  }
+
+  /* ── Home: sticky left column's section list and the sibling dim ──
+     After brittanychiang.com. The current section's line grows; hovering one
+     entry of a list dims the others. Sections leave room for the navbar
+     when jumped to. */
+  .ds-section { scroll-margin-top: 72px; }
+  @media (prefers-reduced-motion: no-preference) {
+    html:has(.ds-toc) { scroll-behavior: smooth; }
+  }
+  .ds-toc {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 48px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ds-toc a {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 12px;
+    font-weight: 590;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    transition: color var(--duration-base) var(--ease-default);
+  }
+  .ds-toc a::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: currentColor;
+    transition: width 220ms var(--ease-default);
+  }
+  .ds-toc a:hover,
+  .ds-toc a[aria-current='true'] { color: var(--text-primary); }
+  .ds-toc a:hover::before,
+  .ds-toc a[aria-current='true']::before { width: 64px; }
+  .ds-toc a:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 4px; border-radius: 2px; }
+  @media (hover: hover) {
+    .ds-dim-item { transition: opacity var(--duration-slow) var(--ease-default); }
+    .ds-dim-group:has(> .ds-dim-item:hover) > .ds-dim-item:not(:hover) { opacity: 0.5; }
   }
 
   /* ── Dot cover: the strip at the top of a project card ──

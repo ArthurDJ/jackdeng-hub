@@ -6,14 +6,14 @@ import { Footer } from '@/components/Footer'
 import { BlogCard } from '@/components/BlogCard'
 import { HomeProjectCard } from '@/components/HomeProjectCard'
 import { IntroSwitch } from '@/components/IntroSwitch'
-import { BENTO_GRID, bentoSpan } from '@/lib/bento'
+import { SectionNav } from '@/components/SectionNav'
+import { PAIR_GRID, pairSpan } from '@/lib/bento'
 import { getPayload } from '@/lib/payload'
 import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
 import { CONTACT_EMAIL, PROFILE_LINKS, RESUME_URL, SKILLS, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
 import { toJsonLd } from '@/lib/jsonLd'
 import { PrintContact } from '@/components/PrintContact'
-import { projectStatusColors } from '@/lib/statusColors'
 
 export const revalidate = 3600
 
@@ -56,12 +56,6 @@ export default async function HomePage({ params }: Props) {
   const tCommon = await getTranslations({ locale, namespace: 'common' })
 
   const lang = asLocale(locale)
-  // Static map — next-intl keys must stay statically analysable
-  const STATUS_LABEL: Record<string, string> = {
-    active: t('projectStatus.active'),
-    completed: t('projectStatus.completed'),
-    'on-hold': t('projectStatus.onHold'),
-  }
   const github = PROFILE_LINKS.find((l) => l.icon === 'github')!
   const linkedin = PROFILE_LINKS.find((l) => l.icon === 'linkedin')!
 
@@ -103,14 +97,19 @@ export default async function HomePage({ params }: Props) {
         />
         {/* Full-bleed wrapper so the grid texture spans the viewport while
             the content keeps the page width. */}
-        <div className="relative overflow-hidden">
-        <div aria-hidden="true" className="ds-aurora print:hidden!"><span /><span /><span /></div>
-        <div aria-hidden="true" className="ds-hero-grid print:hidden!" />
-        <section className="relative max-w-5xl mx-auto px-6 pt-20 pb-16 sm:pt-24 sm:pb-20 print:py-0!">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:gap-12">
-
-            {/* ── Left: text ──────────────────────────────────────────── */}
-            <div className="flex-1 min-w-0">
+        <div className="relative">
+        {/* Decoration for the top of the page. It clips itself: overflow:
+            hidden on an ancestor would stop the left column from sticking. */}
+        <div aria-hidden="true" className="absolute inset-x-0 top-0 h-[780px] overflow-hidden pointer-events-none print:hidden!">
+          <div className="ds-aurora"><span /><span /><span /></div>
+          <div className="ds-hero-grid" />
+        </div>
+        {/* Two columns from lg, after brittanychiang.com: who this is and
+            where to go stay put on the left while the record scrolls on the
+            right. Phones and print get one column, in the same order. */}
+        <div className="relative max-w-5xl mx-auto px-6 lg:flex lg:gap-16">
+          <header className="pt-20 pb-6 sm:pt-24 lg:w-[40%] lg:shrink-0 lg:sticky lg:top-[52px] lg:self-start lg:pt-24 lg:pb-12 print:pt-0! print:pb-4!">
+            <div>
               {/* Location */}
               <p className="mb-5" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 510, color: 'var(--text-tertiary)' }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -140,11 +139,6 @@ export default async function HomePage({ params }: Props) {
                 {t('title')}
               </p>
 
-              <IntroSwitch
-                short={t('intro')}
-                long={[t('introLong1'), t('introLong2'), t('introLong3'), t('introLong4')]}
-                labels={{ group: t('bioGroup'), short: t('bioShort'), long: t('bioLong') }}
-              />
               <PrintContact />
 
               {/* CTAs — the résumé and a way to reach me, where a recruiter
@@ -220,72 +214,34 @@ export default async function HomePage({ params }: Props) {
               </div>
             </div>
 
-            {/* ── Right: floating project preview cards ───────────────── */}
-            {projects.length > 0 && (
-              <div className="hidden lg:flex flex-col gap-3 flex-shrink-0 w-72 relative pt-4 print:hidden!">
-                {projects.slice(0, 2).map((project, i) => {
-                  const techStack: string[] = (project.techStack ?? []).map((ts) => ts.tech).filter(Boolean)
-                  const sc = projectStatusColors(project.status)
-                  const href = project.slug ? `/projects/${project.slug}` : '/projects'
-                  // The wrapper holds the resting angle and the float; the
-                  // card inside tilts towards the pointer.
-                  return (
-                    <div key={project.id} className="ds-float" style={i === 0 ? { rotate: '-1.2deg', marginLeft: 10 } : { rotate: '0.8deg' }}>
-                    <Link
-                      href={href}
-                      className="ds-card-hover ds-tilt"
-                      style={{
-                        display: 'block',
-                        background: 'var(--bg-panel)',
-                        border: '1px solid var(--border-default)',
-                        borderRadius: 12,
-                        padding: '14px 16px',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.3 }}>
-                          {project.name}
-                        </span>
-                        {project.status && (
-                          <span style={{
-                            fontSize: 10, fontWeight: 510, padding: '2px 7px', borderRadius: 9999, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 6,
-                            background: sc.bg,
-                            color: sc.text,
-                            border: `1px solid ${sc.border}`,
-                          }}>
-                            {STATUS_LABEL[project.status] ?? project.status}
-                          </span>
-                        )}
-                      </div>
-                      <p style={{ fontSize: 11, color: 'var(--text-tertiary)', lineHeight: 1.5, marginBottom: 8 }}>
-                        {(project.shortDescription ?? '').slice(0, 72)}{project.shortDescription?.length > 72 ? '…' : ''}
-                      </p>
-                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                        {techStack.slice(0, 3).map((tech: string) => (
-                          <span key={tech} style={{
-                            fontSize: 10, padding: '2px 6px', borderRadius: 9999,
-                            background: 'var(--bg-elevated)', color: 'var(--text-secondary)',
-                            border: '1px solid var(--border-default)',
-                          }}>
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </Link>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
+            <SectionNav
+              label={t('sectionNav')}
+              items={[
+                { id: 'about', label: t('aboutHeading') },
+                { id: 'experience', label: t('experienceHeading') },
+                { id: 'skills', label: t('skillsHeading') },
+                { id: 'projects', label: t('selectedProjects') },
+                ...(blogs.length > 0 ? [{ id: 'posts', label: t('latestPosts') }] : []),
+              ]}
+            />
+          </header>
+
+          {/* ── Right: the record ── */}
+          <div className="min-w-0 lg:flex-1 lg:pt-24 lg:pb-12">
+        {/* A large scroll margin sends the "About" link to the very top of the
+            page, where the section list marks it current. */}
+        <section id="about" aria-label={t('aboutHeading')} className="ds-section pb-10" style={{ scrollMarginTop: 400 }}>
+          <IntroSwitch
+            short={t('intro')}
+            long={[t('introLong1'), t('introLong2'), t('introLong3'), t('introLong4')]}
+            labels={{ group: t('bioGroup'), short: t('bioShort'), long: t('bioLong') }}
+          />
         </section>
-        </div>
 
         {/* ── Experience ───────────────────────────────────────────── */}
         <section
-          className="max-w-5xl mx-auto px-6 py-14 print:py-5!"
+          id="experience"
+          className="ds-section py-12 print:py-5!"
           style={{ borderTop: '1px solid var(--border-subtle)' }}
         >
           <div className="flex items-baseline justify-between mb-8">
@@ -296,11 +252,11 @@ export default async function HomePage({ params }: Props) {
               {t('experienceMore')}
             </Link>
           </div>
-          <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <ol className="ds-dim-group" style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {TIMELINE.map(({ year, role, place, bullets, tech }) => (
               <li
                 key={year.en}
-                className="ds-reveal grid gap-2 sm:gap-6 sm:grid-cols-[160px_1fr] print:break-inside-avoid"
+                className="ds-reveal ds-dim-item grid gap-2 sm:gap-5 sm:grid-cols-[132px_1fr] print:break-inside-avoid"
                 style={{
                   background: 'var(--bg-panel)',
                   border: '1px solid var(--border-default)',
@@ -354,7 +310,8 @@ export default async function HomePage({ params }: Props) {
 
         {/* ── Skills ───────────────────────────────────────────────── */}
         <section
-          className="max-w-5xl mx-auto px-6 py-14 print:py-5!"
+          id="skills"
+          className="ds-section py-12 print:py-5!"
           style={{ borderTop: '1px solid var(--border-subtle)' }}
         >
           <h2
@@ -363,7 +320,7 @@ export default async function HomePage({ params }: Props) {
           >
             {t('skillsHeading')}
           </h2>
-          <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
             {SKILLS.map(({ group, items }) => (
               <div key={group.en} className="ds-reveal">
                 <dt style={{ fontSize: 11, fontWeight: 510, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 8 }}>
@@ -387,7 +344,8 @@ export default async function HomePage({ params }: Props) {
 
         {/* ── Latest Projects ──────────────────────────────────────────── */}
         <section
-          className="max-w-5xl mx-auto px-6 py-14 print:py-5!"
+          id="projects"
+          className="ds-section py-12 print:py-5!"
           style={{ borderTop: '1px solid var(--border-subtle)' }}
         >
           <div className="flex items-baseline justify-between mb-8">
@@ -404,9 +362,9 @@ export default async function HomePage({ params }: Props) {
           </div>
 
           {projects.length > 0 ? (
-            <div className={BENTO_GRID}>
+            <div className={`${PAIR_GRID} ds-dim-group`}>
               {projects.map((project, i) => (
-                <div key={project.id} className={`ds-reveal flex ${bentoSpan(i, projects.length)}`}>
+                <div key={project.id} className={`ds-reveal ds-dim-item flex ${pairSpan(i, projects.length)}`}>
                   <HomeProjectCard project={project} />
                 </div>
               ))}
@@ -455,7 +413,8 @@ export default async function HomePage({ params }: Props) {
         {/* ── Latest Posts ─────────────────────────────────────────────── */}
         {blogs.length > 0 && (
           <section
-            className="max-w-5xl mx-auto px-6 py-14 print:hidden!"
+            id="posts"
+            className="ds-section py-12 print:hidden!"
             style={{ borderTop: '1px solid var(--border-subtle)' }}
           >
             <div className="flex items-baseline justify-between mb-8">
@@ -469,9 +428,9 @@ export default async function HomePage({ params }: Props) {
                 {tCommon('viewAll')}
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {blogs.map((blog) => (
-                <div key={blog.id} className="ds-reveal grid">
+            <div className={`${PAIR_GRID} ds-dim-group`}>
+              {blogs.map((blog, i) => (
+                <div key={blog.id} className={`ds-reveal ds-dim-item grid ${pairSpan(i, blogs.length)}`}>
                 <BlogCard
                   title={blog.title}
                   slug={blog.slug}
@@ -488,6 +447,9 @@ export default async function HomePage({ params }: Props) {
             </div>
           </section>
         )}
+          </div>
+        </div>
+        </div>
 
       </main>
     </div>

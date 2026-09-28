@@ -16,8 +16,9 @@ export const revalidate = 3600
 // this filter is the check — for the page, its metadata and the prerender
 // alike. The page used to filter only `status`, so a private tool that was
 // online rendered, name and all, for anyone who had its slug. (The metadata
-// filtered nothing either; that one did not leak, because Next drops a page's
-// metadata when the page calls notFound(), but it should not depend on that.)
+// filtered nothing either. Next leaves a page's metadata out of <head> when the
+// page calls notFound(), but not out of the RSC payload, so the name went out
+// in the 404 too; the blog post page leaked drafts the same way until #89.)
 // Maintenance tools stay visible — the page shows them with a badge. Private
 // ones are 404 for every visitor: they are managed in /admin, and checking the
 // session here would make this page dynamic.

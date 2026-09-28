@@ -10,6 +10,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.18.1] — 2026-09-28
+
+### Security — 草稿的标题和摘要不再出现在 404 响应里（#89）
+
+文章详情页的 `generateMetadata` 按 slug 查询时没有过滤 `status`，而 Local API 默认跳过访问控制，所以连草稿也能查到。页面本身
+返回 404，`<title>` 也只是站名，但 Next 仍会把 metadata 放进 404 响应的 RSC 数据里。这样一来，只要试一下草稿的 slug，就能拿到它的
+标题、摘要和封面地址。2026-09-28 在生产上确认过：新文章还是草稿时，它的中文 404 响应里就带着标题。两篇改回草稿的 AI 汇编也是一样，
+不过它们以前公开过，影响不大。
+
+- metadata 查询只找 `status: published` 的文章，和页面本身的查询一致；找不到时的标题改为从 `notFound` 文案读取，不再写死英文。
+- `tools/[slug]` 里的注释原来写着「Next 在 notFound() 时会丢掉 metadata，所以没有泄露」，这句不对，已经改正。那个页面用的是
+  `VISIBLE` 过滤，不受这次问题影响。
+- 回归检查：`scripts/seed.ts` 额外建一篇草稿，CI 的冒烟检查通过 `SMOKE_DRAFT_SLUG` / `SMOKE_DRAFT_TITLE` 确认它在两种语言下
+  都返回 404，并且响应里找不到它的标题。把这项检查对准修复前的生产环境跑，会报出这个泄露；对准修复后的构建跑，则全部通过。
+
 ## [1.18.0] — 2026-09-26
 
 ### Added — 文章正文支持代码块、表格和编号列表；发文脚本可以只处理一篇、先预演（#87）

@@ -1,10 +1,22 @@
 'use client'
 
 import { useTranslations, useLocale } from 'next-intl'
-import { useState } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import { Link, usePathname, useRouter } from '@/i18n/navigation'
+import { routing } from '@/i18n/routing'
 import { ThemeToggle } from './ThemeToggle'
 import { commandPaletteStore } from '@/store/commandPaletteStore'
+
+const noopSubscribe = () => () => {}
+
+/** Apple platforms show ⌘K, everything else Ctrl K; the server renders ⌘K. */
+function useIsApplePlatform() {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => /Mac|iPhone|iPad|iPod/.test(navigator.platform),
+    () => true,
+  )
+}
 
 export function Navbar() {
   const t = useTranslations('nav')
@@ -12,6 +24,7 @@ export function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const shortcut = t(useIsApplePlatform() ? 'searchShortcut' : 'searchShortcutCtrl')
 
   const otherLocale = locale === 'en' ? 'zh' : 'en'
 
@@ -107,36 +120,15 @@ export function Navbar() {
           {/* Search — desktop */}
           <button
             onClick={commandPaletteStore.open}
-            aria-label={`${t('search')} (${t('searchShortcut')})`}
-            className="hidden sm:flex items-center gap-2"
-            style={{
-              padding: '5px 10px',
-              borderRadius: 6,
-              border: '1px solid var(--border-default)',
-              background: 'var(--bg-subtle)',
-              color: 'var(--text-tertiary)',
-              fontSize: 12,
-              fontWeight: 400,
-              cursor: 'pointer',
-              transition: 'border-color 150ms, color 150ms',
-              gap: 6,
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLButtonElement
-              el.style.borderColor = 'var(--border-strong)'
-              el.style.color = 'var(--text-secondary)'
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLButtonElement
-              el.style.borderColor = 'var(--border-default)'
-              el.style.color = 'var(--text-tertiary)'
-            }}
+            aria-label={`${t('search')} (${shortcut})`}
+            aria-keyshortcuts="Meta+K Control+K"
+            className="ds-search-btn hidden sm:flex"
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <span>{t('search')}</span>
-            <kbd style={{ fontSize: 10, opacity: 0.6, fontFamily: 'monospace' }}>{t('searchShortcut')}</kbd>
+            <kbd className="ds-kbd">{shortcut}</kbd>
           </button>
 
           {/* Search — mobile */}
@@ -169,10 +161,24 @@ export function Navbar() {
             </svg>
           </button>
 
-          {/* Language switcher */}
+          {/* Language: both options from sm up, the current one filled. Phones
+              keep the single button that shows the other language. */}
+          <div role="group" aria-label={t('language')} className="ds-seg-group hidden sm:flex">
+            {routing.locales.map((l) => {
+              const label = t(l === 'zh' ? 'switchToZh' : 'switchToEn')
+              return l === locale ? (
+                <span key={l} className="ds-seg" aria-current="true" lang={l}>{label}</span>
+              ) : (
+                <Link key={l} href={pathname} locale={l} className="ds-seg" lang={l} hrefLang={l}>
+                  {label}
+                </Link>
+              )
+            })}
+          </div>
           <button
             onClick={switchLocale}
             aria-label={t('switchLanguage')}
+            className="sm:hidden"
             style={{
               padding: '4px 9px',
               borderRadius: 6,
@@ -182,21 +188,10 @@ export function Navbar() {
               fontSize: 11,
               fontWeight: 510,
               cursor: 'pointer',
-              transition: 'border-color 150ms, color 150ms',
               letterSpacing: '0.02em',
             }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLButtonElement
-              el.style.borderColor = 'var(--border-strong)'
-              el.style.color = 'var(--text-primary)'
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLButtonElement
-              el.style.borderColor = 'var(--border-default)'
-              el.style.color = 'var(--text-tertiary)'
-            }}
           >
-            {otherLocale === 'zh' ? '中文' : 'EN'}
+            {t(otherLocale === 'zh' ? 'switchToZh' : 'switchToEn')}
           </button>
 
           <ThemeToggle />

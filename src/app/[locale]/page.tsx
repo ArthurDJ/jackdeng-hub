@@ -319,10 +319,26 @@ export default async function HomePage({ params }: Props) {
                   <p style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)', marginBottom: 6 }}>
                     {role[lang]} <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>@ {place}</span>
                   </p>
-                  {/* The lead achievement only; the rest is one click away. */}
+                  {/* The lead achievement, with the rest behind a disclosure.
+                      Print keeps the one-line version. */}
                   <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 10 }}>
                     {bullets[lang][0]}
                   </p>
+                  {bullets[lang].length > 1 && (
+                    <details className="ds-more print:hidden!" style={{ marginBottom: 12 }}>
+                      <summary>
+                        <span className="ds-more-closed">{t('experienceShowMore', { count: bullets[lang].length - 1 })}</span>
+                        <span className="ds-more-open">{t('experienceShowLess')}</span>
+                      </summary>
+                      <ul style={{ margin: '8px 0 0', paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {bullets[lang].slice(1).map((b) => (
+                          <li key={b} style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, listStyle: 'disc' }}>
+                            {b}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                     {tech.slice(0, 6).map((tch) => (
                       <span key={tch} style={{

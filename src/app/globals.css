@@ -278,38 +278,157 @@
     .ds-spotlight:hover::before { opacity: 1; }
   }
 
-  /* ── Theme segmented control (ThemeToggle, md and up) ── */
-  .ds-theme-group {
+  /* ── Segmented controls: theme (ThemeToggle) and language (Navbar) ──
+     A pill track with the current option filled. Theme options are radios
+     (aria-checked); language options are links, the current one a span
+     with aria-current. */
+  .ds-seg-group {
     align-items: center;
     gap: 2px;
     padding: 2px;
     border: 1px solid var(--border-default);
     border-radius: 9999px;
   }
-  .ds-theme-seg {
+  .ds-seg {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 26px;
+    min-width: 26px;
     height: 24px;
+    padding: 0 7px;
     border: none;
     border-radius: 9999px;
     background: transparent;
     color: var(--text-tertiary);
+    font-size: 11px;
+    font-weight: 510;
+    letter-spacing: 0.02em;
+    text-decoration: none;
     cursor: pointer;
     transition:
       background-color var(--duration-base) var(--ease-default),
       color var(--duration-base) var(--ease-default);
   }
-  .ds-theme-seg:hover { color: var(--text-secondary); }
-  .ds-theme-seg[aria-checked='true'] {
+  .ds-seg:hover { color: var(--text-secondary); }
+  .ds-seg[aria-checked='true'],
+  .ds-seg[aria-current='true'] {
     background: var(--bg-elevated);
     color: var(--text-primary);
+    cursor: default;
   }
-  .ds-theme-seg:focus-visible {
+  .ds-seg:focus-visible {
     outline: 2px solid var(--accent-primary);
     outline-offset: 1px;
   }
+
+  /* ── Search button with a keycap (Navbar, sm and up) ── */
+  .ds-search-btn {
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 10px;
+    border: 1px solid var(--border-default);
+    border-radius: 6px;
+    background: var(--bg-subtle);
+    color: var(--text-tertiary);
+    font-size: 12px;
+    cursor: pointer;
+    transition:
+      border-color var(--duration-base) var(--ease-default),
+      color var(--duration-base) var(--ease-default);
+  }
+  .ds-search-btn:hover { border-color: var(--border-strong); color: var(--text-secondary); }
+  .ds-search-btn:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+  .ds-kbd {
+    padding: 1px 5px;
+    border: 1px solid var(--border-default);
+    border-radius: 4px;
+    background: var(--bg-elevated);
+    color: var(--text-tertiary);
+    font-family: var(--font-geist-mono, ui-monospace, monospace);
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  /* ── Timeline spine that fills as it scrolls into view (/about) ──
+     Scroll-driven, no JavaScript. Without support for animation-timeline,
+     or with reduced motion, the plain border-coloured line stays. */
+  .ds-spine { position: relative; overflow: hidden; }
+  .ds-spine::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent-primary);
+    opacity: 0.6;
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .ds-spine::after {
+        animation: ds-spine-fill linear both;
+        animation-timeline: view();
+        animation-range: entry 10% cover 55%;
+      }
+    }
+  }
+  @keyframes ds-spine-fill { to { transform: scaleY(1); } }
+  @media print { .ds-spine::after { display: none; } }
+
+  /* ── "Show N more" under an experience entry (home) ── */
+  .ds-more > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    font-size: 12px;
+    font-weight: 510;
+    color: var(--accent-primary);
+    cursor: pointer;
+  }
+  .ds-more > summary::-webkit-details-marker { display: none; }
+  .ds-more > summary::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform var(--duration-base) var(--ease-default);
+  }
+  .ds-more[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
+  .ds-more[open] .ds-more-closed,
+  .ds-more:not([open]) .ds-more-open { display: none; }
+  .ds-more > summary:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; border-radius: 4px; }
+
+  /* ── Split-flap tiles (404) ── */
+  .ds-flap-row { display: inline-flex; gap: 8px; }
+  .ds-flap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 84px;
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    font-family: var(--font-geist-mono, ui-monospace, monospace);
+    font-size: 48px;
+    font-weight: 590;
+    perspective: 240px;
+  }
+  .ds-flap::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: var(--border-default);
+  }
+  .ds-flap > span { display: inline-block; animation: ds-flap-in 70ms var(--ease-default) both; }
+  @keyframes ds-flap-in { from { transform: rotateX(-80deg); opacity: 0.4; } }
   .ds-ghost-btn:hover {
     background-color: var(--bg-elevated);
     border-color: var(--border-strong);

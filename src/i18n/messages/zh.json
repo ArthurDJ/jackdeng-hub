@@ -60,6 +60,8 @@
     "bioGroup": "简介",
     "bioShort": "简短",
     "bioLong": "详细",
+    "sectionNav": "页面目录",
+    "aboutHeading": "关于",
     "introLong1": "我做后端与数据：数据管道、系统集成，以及大家每天在用的内部工具。",
     "introLong2": "2024 年 1 月起在 Value Windows & Doors。我在 Databricks + dbt 上搭了按 Bronze→Silver→Gold→Mart 分层的数据平台，把 ERP 的原始数据整理成模型，制造、库存、销售和人力效率报表直接拿来用。另外也用 C# 和 Python 写数据迁移和集成管道，做 Power BI 看板和 React 内部门户。",
     "introLong3": "在那之前在 APEXUS-TECH 实习，用 Python + MySQL 写后端服务，把金融市场数据自动接进来存好，也写 ETL 管道。在 Northeastern University 读分析学硕士期间，当过数据仓库与 SQL 课程（ALY6030）的助教。",

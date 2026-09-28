@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bentoSpan } from './bento'
+import { bentoSpan, pairSpan } from './bento'
 
 // How many of the three lg columns each card takes.
 const lgWidth = (cls: string) => Number(cls.match(/lg:col-span-(\d)/)![1])
@@ -31,5 +31,14 @@ describe('bentoSpan', () => {
     expect(lgRows(5)).toEqual([[2, 1], [1, 2], [3]])
     expect(bentoSpan(4, 5)).toContain('sm:col-span-2')
     expect(bentoSpan(0, 5)).not.toContain('sm:col-span-2')
+  })
+})
+
+describe('pairSpan', () => {
+  it('spans an odd last card across both columns', () => {
+    expect([0, 1, 2].map((i) => pairSpan(i, 3))).toEqual(['', '', 'sm:col-span-2'])
+  })
+  it('spans nothing when the count is even', () => {
+    expect([0, 1, 2, 3].map((i) => pairSpan(i, 4)).every((c) => c === '')).toBe(true)
   })
 })

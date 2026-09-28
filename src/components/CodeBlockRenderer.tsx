@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface CodeBlockRendererProps {
   code: string
@@ -9,6 +10,7 @@ interface CodeBlockRendererProps {
 
 export function CodeBlockRenderer({ code, language }: CodeBlockRendererProps) {
   const [copied, setCopied] = useState(false)
+  const t = useTranslations('common')
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code)
@@ -25,17 +27,17 @@ export function CodeBlockRenderer({ code, language }: CodeBlockRendererProps) {
       )}
       <button
         onClick={handleCopy}
-        aria-label="Copy code"
+        aria-label={copied ? t('copied') : t('copyCode')}
         className="
           absolute top-2 right-2
           px-2 py-1 rounded text-xs font-mono
           bg-[var(--bg-elevated)] text-[var(--text-secondary)]
-          opacity-0 group-hover:opacity-100
+          opacity-0 group-hover:opacity-100 focus-visible:opacity-100
           hover:text-[var(--text-primary)]
           transition-opacity duration-150
         "
       >
-        {copied ? '✓ Copied' : 'Copy'}
+        {copied ? `✓ ${t('copied')}` : t('copy')}
       </button>
       <pre className="overflow-x-auto rounded-lg bg-[var(--bg-elevated)] px-4 pt-8 pb-4 text-sm leading-relaxed">
         <code className={language ? `language-${language}` : undefined}>

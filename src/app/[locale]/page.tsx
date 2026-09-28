@@ -5,6 +5,7 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { BlogCard } from '@/components/BlogCard'
 import { HomeProjectCard } from '@/components/HomeProjectCard'
+import { BENTO_GRID, bentoSpan } from '@/lib/bento'
 import { getPayload } from '@/lib/payload'
 import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
@@ -99,7 +100,11 @@ export default async function HomePage({ params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: toJsonLd(personJsonLd(BASE, lang, t('title'))) }}
         />
-        <section className="max-w-5xl mx-auto px-6 pt-20 pb-16 sm:pt-24 sm:pb-20 print:py-0!">
+        {/* Full-bleed wrapper so the grid texture spans the viewport while
+            the content keeps the page width. */}
+        <div className="relative">
+        <div aria-hidden="true" className="ds-hero-grid print:hidden!" />
+        <section className="relative max-w-5xl mx-auto px-6 pt-20 pb-16 sm:pt-24 sm:pb-20 print:py-0!">
           <div className="flex flex-col lg:flex-row lg:items-center lg:gap-12">
 
             {/* ── Left: text ──────────────────────────────────────────── */}
@@ -238,9 +243,8 @@ export default async function HomePage({ params }: Props) {
                         border: '1px solid var(--border-default)',
                         borderRadius: 12,
                         padding: '14px 16px',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.07)',
                         transform: i === 0 ? 'rotate(-1.2deg) translateX(10px)' : 'rotate(0.8deg)',
-                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                        transition: 'transform 0.2s ease',
                         textDecoration: 'none',
                         color: 'inherit',
                       }}
@@ -277,17 +281,11 @@ export default async function HomePage({ params }: Props) {
                     </Link>
                   )
                 })}
-                {/* Decorative glow */}
-                <div style={{
-                  position: 'absolute', bottom: -32, right: -24, width: 140, height: 140,
-                  borderRadius: '50%',
-                  background: 'radial-gradient(circle, rgba(94,106,210,0.15) 0%, transparent 70%)',
-                  pointerEvents: 'none',
-                }} />
               </div>
             )}
           </div>
         </section>
+        </div>
 
         {/* ── Experience ───────────────────────────────────────────── */}
         <section
@@ -394,9 +392,11 @@ export default async function HomePage({ params }: Props) {
           </div>
 
           {projects.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {projects.map((project) => (
-                <HomeProjectCard key={project.id} project={project} />
+            <div className={BENTO_GRID}>
+              {projects.map((project, i) => (
+                <div key={project.id} className={`flex ${bentoSpan(i, projects.length)}`}>
+                  <HomeProjectCard project={project} />
+                </div>
               ))}
             </div>
           ) : (

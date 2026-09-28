@@ -11,6 +11,7 @@ import { asLocale, routing } from '@/i18n/routing'
 import { profileOgImage } from '@/lib/profile'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { CommandPaletteHost } from '@/components/CommandPaletteHost'
+import { SpotlightTracker } from '@/components/SpotlightTracker'
 import '../globals.css'
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
@@ -106,6 +107,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             {children}
             <Footer />
             <CommandPaletteHost />
+            <SpotlightTracker />
           </ThemeProvider>
         </NextIntlClientProvider>
         {/* Page views, same-origin under /_vercel/insights and cookie-free, so

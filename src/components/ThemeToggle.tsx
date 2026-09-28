@@ -2,7 +2,7 @@
 
 import { useTheme } from 'next-themes'
 import { useTranslations } from 'next-intl'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const SunIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,23 +31,61 @@ const THEMES = [
   { value: 'system', label: 'themeSystem', icon: <SystemIcon /> },
 ] as const
 
+/** Left to right in the segmented control: light, follow the system, dark. */
+const SEGMENTS = [THEMES[0], THEMES[2], THEMES[1]] as const
+
 /**
- * Three-state theme toggle: Light → Dark → System.
- * Persists choice to localStorage under key "jd-theme".
- * Mounted check prevents SSR hydration mismatch.
+ * Theme choice: Light, System, Dark. Persists to localStorage under "jd-theme".
+ *
+ * From md up it is a segmented radio group, so all three options and the
+ * current one are visible; arrow keys move between them. The single button
+ * cycled Light → Dark → System and showed only the current icon, which hid
+ * the other two choices. Phones keep that button, where the navbar has no
+ * room for three. The mounted check prevents an SSR hydration mismatch.
  */
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
   const t = useTranslations('nav')
   const [mounted, setMounted] = useState(false)
+  const refs = useRef<(HTMLButtonElement | null)[]>([])
 
   useEffect(() => { setMounted(true) }, [])
-  if (!mounted) return <div className="w-8 h-8" aria-hidden />
+  if (!mounted) return <div className="w-8 h-8 md:w-[86px]" aria-hidden />
 
   const current = THEMES.find((m) => m.value === theme) ?? THEMES[2]
   const next = THEMES[(THEMES.findIndex((m) => m.value === theme) + 1) % THEMES.length]
+  const selected = SEGMENTS.findIndex((m) => m.value === current.value)
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0
+    if (!step) return
+    e.preventDefault()
+    const i = (selected + step + SEGMENTS.length) % SEGMENTS.length
+    setTheme(SEGMENTS[i].value)
+    refs.current[i]?.focus()
+  }
 
   return (
+    <>
+    <div role="radiogroup" aria-label={t('themeGroup')} className="ds-theme-group hidden md:flex" onKeyDown={onKeyDown}>
+      {SEGMENTS.map((m, i) => (
+        <button
+          key={m.value}
+          ref={(el) => { refs.current[i] = el }}
+          type="button"
+          role="radio"
+          aria-checked={i === selected}
+          tabIndex={i === selected ? 0 : -1}
+          aria-label={t(m.label)}
+          title={t(m.label)}
+          onClick={() => setTheme(m.value)}
+          className="ds-theme-seg"
+        >
+          {m.icon}
+        </button>
+      ))}
+    </div>
+    <span className="md:hidden">
     <button
       onClick={() => setTheme(next.value)}
       title={t('themeTitle', { current: t(current.label), next: t(next.label) })}
@@ -76,9 +114,10 @@ export function ThemeToggle() {
         el.style.background = 'transparent'
         el.style.color = 'var(--text-tertiary)'
       }}
-      className=""
     >
       {current.icon}
     </button>
+    </span>
+    </>
   )
 }

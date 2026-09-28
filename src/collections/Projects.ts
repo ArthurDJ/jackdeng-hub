@@ -102,6 +102,27 @@ export const Projects: CollectionConfig = {
         ],
       },
     },
+    // Both feed the project archive table (/projects/archive). Optional:
+    // an empty one shows as a dash rather than a guess.
+    {
+      name: 'year',
+      type: 'text',
+      label: { en: 'Year', zh: '年份' },
+      admin: {
+        position: 'sidebar',
+        description: { en: 'When the work happened, e.g. 2024 or 2022–2023. Shown in the project archive.', zh: '项目做的时间，例如 2024 或 2022–2023，显示在项目归档表里。' },
+      },
+    },
+    {
+      name: 'madeAt',
+      type: 'text',
+      label: { en: 'Made at', zh: '在哪做的' },
+      localized: true,
+      admin: {
+        position: 'sidebar',
+        description: { en: '🌐 Bilingual. Employer, school, or Personal. Shown in the project archive.', zh: '🌐 多语言字段。公司、学校或「个人项目」，显示在项目归档表里。' },
+      },
+    },
     {
       name: 'techStack',
       type: 'array',

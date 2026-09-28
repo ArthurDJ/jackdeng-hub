@@ -202,7 +202,16 @@
     "techStack": "技术栈",
     "relatedProjects": "其他项目",
     "noProjects": "暂无项目。",
-    "viewDetails": "查看详情"
+    "viewDetails": "查看详情",
+    "archiveTitle": "项目归档",
+    "archiveSubtitle": "全部项目，从新到旧排列。",
+    "archiveLink": "查看完整项目归档 →",
+    "colYear": "年份",
+    "colProject": "项目",
+    "colMadeAt": "在哪做的",
+    "colBuiltWith": "技术栈",
+    "colLink": "链接",
+    "notSet": "未填写"
   },
   "tools": {
     "title": "实验室",

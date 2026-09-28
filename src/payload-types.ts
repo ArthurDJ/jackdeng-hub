@@ -383,6 +383,14 @@ export interface Project {
    * URL path identifier, e.g. "jackdeng-hub"
    */
   slug?: string | null;
+  /**
+   * When the work happened, e.g. 2024 or 2022–2023. Shown in the project archive.
+   */
+  year?: string | null;
+  /**
+   * 🌐 Bilingual. Employer, school, or Personal. Shown in the project archive.
+   */
+  madeAt?: string | null;
   techStack?:
     | {
         tech: string;
@@ -616,6 +624,8 @@ export interface ProjectsSelect<T extends boolean = true> {
   status?: T;
   isPinned?: T;
   slug?: T;
+  year?: T;
+  madeAt?: T;
   techStack?:
     | T
     | {

@@ -20,6 +20,7 @@ import * as migration_20260924_000002_payload_3_90 from './20260924_000002_paylo
 import * as migration_20260924_000003_tool_runs_cascade from './20260924_000003_tool_runs_cascade';
 import * as migration_20260926_000001_lock_down_supabase_api_roles from './20260926_000001_lock_down_supabase_api_roles';
 import * as migration_20260926_000002_drop_automation from './20260926_000002_drop_automation';
+import * as migration_20260928_000001_projects_year_made_at from './20260928_000001_projects_year_made_at';
 
 export const migrations = [
   {
@@ -131,5 +132,10 @@ export const migrations = [
     up: migration_20260926_000002_drop_automation.up,
     down: migration_20260926_000002_drop_automation.down,
     name: '20260926_000002_drop_automation',
+  },
+  {
+    up: migration_20260928_000001_projects_year_made_at.up,
+    down: migration_20260928_000001_projects_year_made_at.down,
+    name: '20260928_000001_projects_year_made_at',
   },
 ];

@@ -23,9 +23,13 @@ export const CACHE_TAGS = {
  */
 export function revalidateSite(reason: string) {
   try {
-    // '/' with 'layout' matches the implicit tag every route carries, pages
-    // and the sitemap alike.
+    // '/' with 'layout' matches the implicit tag every page carries.
     revalidatePath('/', 'layout')
+    // The sitemap is named on its own. Locally the layout tag reached it too,
+    // but on Vercel it did not: on 2026-09-28 a post published from /admin
+    // was live on its page, in the sidebar and in the feed, while
+    // /sitemap.xml still left it out.
+    revalidatePath('/sitemap.xml')
     // The search index is filled by /api/search, outside any page, so it has
     // to be reached by its own tag; the sidebar gets one too rather than
     // depending on which page happened to fill it first.

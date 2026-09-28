@@ -2,7 +2,9 @@ import type { MetadataRoute } from 'next'
 import { getPayload } from '@/lib/payload'
 import { countPostsByTaxonomy, withPosts } from '@/lib/taxonomyCounts'
 
-export const revalidate = 86400 // regenerate once per day
+// Hourly, like the pages. Saves in /admin expire it at once (src/lib/revalidate.ts);
+// this bounds how stale it gets when something is written outside Next.js.
+export const revalidate = 3600
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
 const LOCALES = ['en', 'zh'] as const
@@ -30,7 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ── Fetch all published blogs, categories, tags, projects, tools in parallel ──
   // No fallbacks. An empty result would drop every URL of that type from the
-  // sitemap for a day (revalidate = 86400); a throw keeps yesterday's version.
+  // sitemap until the next regeneration; a throw keeps the previous version.
   const [blogsResult, categoriesResult, tagsResult, projectsResult, toolsResult] = await Promise.all([
     payload.find({
       collection: 'blogs',

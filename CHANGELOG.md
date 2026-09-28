@@ -10,6 +10,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.18.2] — 2026-09-28
+
+### Fixed — 在后台保存后，sitemap 也随即更新（#90）
+
+2026-09-28 在 `/admin` 发布新文章后，文章页、侧栏和 RSS 都立刻更新了，只有 `/sitemap.xml` 还是旧的：既没有这篇文章，也没有新建的分类和标签。
+本地演练时，`revalidatePath('/', 'layout')` 能把 sitemap 一起刷新；到了 Vercel 上却刷新不到。
+
+- `revalidateSite()` 另外单独调用 `revalidatePath('/sitemap.xml')`。
+- sitemap 的 `revalidate` 从一天改为一小时，与各页面一致。这样即使以后再有写入绕开了 hook，比如脚本，sitemap 最多也只会旧一小时。
+
 ## [1.18.1] — 2026-09-28
 
 ### Security — 草稿的标题和摘要不再出现在 404 响应里（#89）

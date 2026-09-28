@@ -5,6 +5,7 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { BlogCard } from '@/components/BlogCard'
 import { HomeProjectCard } from '@/components/HomeProjectCard'
+import { IntroSwitch } from '@/components/IntroSwitch'
 import { BENTO_GRID, bentoSpan } from '@/lib/bento'
 import { getPayload } from '@/lib/payload'
 import { asLocale } from '@/i18n/routing'
@@ -139,18 +140,11 @@ export default async function HomePage({ params }: Props) {
                 {t('title')}
               </p>
 
-              <p
-                className="mb-8"
-                style={{
-                  fontSize: 16,
-                  fontWeight: 400,
-                  color: 'var(--text-secondary)',
-                  lineHeight: 1.65,
-                  maxWidth: 520,
-                }}
-              >
-                {t('intro')}
-              </p>
+              <IntroSwitch
+                short={t('intro')}
+                long={[t('introLong1'), t('introLong2'), t('introLong3'), t('introLong4')]}
+                labels={{ group: t('bioGroup'), short: t('bioShort'), long: t('bioLong') }}
+              />
               <PrintContact />
 
               {/* CTAs — the résumé and a way to reach me, where a recruiter

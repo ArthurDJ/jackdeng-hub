@@ -371,6 +371,20 @@
     .ds-spotlight:hover::before { opacity: 1; }
   }
 
+  /* ── Theme switch: the new theme grows as a circle (useThemeSwitch) ──
+     The default cross-fade is replaced by a clip-path animation on the new
+     snapshot, and transitions are off while the snapshots are taken. */
+  html.ds-theme-vt::view-transition-old(root),
+  html.ds-theme-vt::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+  html.ds-theme-vt *,
+  html.ds-theme-vt *::before,
+  html.ds-theme-vt *::after {
+    transition: none !important;
+  }
+
   /* ── Segmented controls: theme (ThemeToggle) and language (Navbar) ──
      A pill track with the current option filled. Theme options are radios
      (aria-checked); language options are links, the current one a span
@@ -404,7 +418,8 @@
   }
   .ds-seg:hover { color: var(--text-secondary); }
   .ds-seg[aria-checked='true'],
-  .ds-seg[aria-current='true'] {
+  .ds-seg[aria-current='true'],
+  .ds-seg[aria-pressed='true'] {
     background: var(--bg-elevated);
     color: var(--text-primary);
     cursor: default;
@@ -413,6 +428,10 @@
     outline: 2px solid var(--accent-primary);
     outline-offset: 1px;
   }
+
+  /* Content swapped in place (the home intro's Short / Long) fades in. */
+  .ds-fade:not([hidden]) { animation: ds-fade-in 240ms var(--ease-default); }
+  @keyframes ds-fade-in { from { opacity: 0; translate: 0 4px; } }
 
   /* ── Search button with a keycap (Navbar, sm and up) ── */
   .ds-search-btn {

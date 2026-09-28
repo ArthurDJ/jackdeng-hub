@@ -1,6 +1,7 @@
 'use client'
 
 import { useTheme } from 'next-themes'
+import { useThemeSwitch } from './useThemeSwitch'
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 
@@ -44,7 +45,8 @@ const SEGMENTS = [THEMES[0], THEMES[2], THEMES[1]] as const
  * room for three. The mounted check prevents an SSR hydration mismatch.
  */
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
+  const { theme } = useTheme()
+  const switchTheme = useThemeSwitch()
   const t = useTranslations('nav')
   const [mounted, setMounted] = useState(false)
   const refs = useRef<(HTMLButtonElement | null)[]>([])
@@ -61,7 +63,7 @@ export function ThemeToggle() {
     if (!step) return
     e.preventDefault()
     const i = (selected + step + SEGMENTS.length) % SEGMENTS.length
-    setTheme(SEGMENTS[i].value)
+    switchTheme(SEGMENTS[i].value, refs.current[i])
     refs.current[i]?.focus()
   }
 
@@ -78,7 +80,7 @@ export function ThemeToggle() {
           tabIndex={i === selected ? 0 : -1}
           aria-label={t(m.label)}
           title={t(m.label)}
-          onClick={() => setTheme(m.value)}
+          onClick={(e) => switchTheme(m.value, e.currentTarget)}
           className="ds-seg"
         >
           {m.icon}
@@ -87,7 +89,7 @@ export function ThemeToggle() {
     </div>
     <span className="md:hidden">
     <button
-      onClick={() => setTheme(next.value)}
+      onClick={(e) => switchTheme(next.value, e.currentTarget)}
       title={t('themeTitle', { current: t(current.label), next: t(next.label) })}
       aria-label={t('themeSwitchTo', { mode: t(next.label) })}
       style={{

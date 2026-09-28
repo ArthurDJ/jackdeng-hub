@@ -273,6 +273,117 @@
       "shake": "Shake",
       "legend": "Skill groups",
       "hint": "The same skills as the About page, coloured by group. Pick one up and throw it. The physics engine is matter-js, and it only loads once the box is on screen. With reduced motion nothing falls until you press Drop."
+    },
+    "devDay": {
+      "intro": "It's 9:00 and you've just sat down. There's already work in the inbox, and two meetings this afternoon.",
+      "rule1": "Every choice takes an hour. Careful work is steady; the quick way is twice as fast but adds tech debt, and the more debt there is, the likelier an incident later.",
+      "rule2": "Missed deadlines and skipped meetings cost the boss's goodwill. Run out of that, or of energy, and the day ends early.",
+      "rule3": "The first two coffees help; the third gives you the jitters. A break restores you, if the boss doesn't catch you taking it.",
+      "start": "Clock in",
+      "best": "Best: {n}",
+      "day": "Day {n}",
+      "offWork": "Off work",
+      "hoursLeft": "{n, plural, one {# hour} other {# hours}} to go",
+      "stats": {
+        "energy": "Energy",
+        "focus": "Focus",
+        "debt": "Tech debt",
+        "mood": "Boss mood"
+      },
+      "inbox": "Inbox",
+      "inboxEmpty": "Inbox zero. Pay down some debt, or take a break.",
+      "thisHour": "This hour",
+      "meetings": {
+        "standup": "standup",
+        "review": "requirements review"
+      },
+      "meetingTitles": {
+        "standup": "Standup",
+        "review": "Requirements review"
+      },
+      "skipWarn": "Skipping it costs boss mood.",
+      "attend": "Go to the meeting",
+      "coffee": "Coffee",
+      "break": "Take a break",
+      "refactor": "Pay down debt",
+      "schedule": "Meetings today",
+      "logTitle": "What happened",
+      "log": {
+        "morning": "9:00. You sit down and open the laptop.",
+        "worked": "{task}: an hour in, {n}% done.",
+        "done": "{task}: done. Boss mood +{n}.",
+        "doneHack": "{task}: done the quick way. Boss mood +{n}, and the debt went up too.",
+        "coffee": "Coffee number {n}. Much better.",
+        "jitters": "Coffee number {n}. Your hands are shaking and it's harder to focus.",
+        "break": "A walk round the block clears your head.",
+        "caught": "The boss caught you on a break. Boss mood −7.",
+        "refactor": "You refactored some old code. Less debt, though nobody will notice.",
+        "meeting": "You sat through the {meeting}.",
+        "skipped": "You skipped the {meeting}, and the boss noticed. Boss mood −9.",
+        "missed": "{task}: missed the deadline. Boss mood −{n}.",
+        "slack": "Someone @-mentions you on Slack with a question. There goes your train of thought.",
+        "arrived": "New task: {task}",
+        "incident": "Alert: {task}",
+        "wrap": "18:00. Time to go home."
+      },
+      "kinds": {
+        "incident": "Incident",
+        "bug": "Bug",
+        "feature": "Feature",
+        "request": "Request"
+      },
+      "tasks": {
+        "dbtFailed": "dbt build failed in production",
+        "erpStuck": "ERP sync is stuck, orders are missing",
+        "ciRed": "CI is red",
+        "wrongKpi": "The dashboard's on-time rate is wrong",
+        "nullCustomer": "Nulls all over the customer table",
+        "newDashboard": "The new dashboard the PM wants",
+        "apiEndpoint": "An endpoint for the mobile app",
+        "excelExport": "An export for finance (Excel is fine)",
+        "accessRequest": "Database access for the new hire"
+      },
+      "due": "due {time}",
+      "left": "about {n, plural, one {# hour} other {# hours}} left",
+      "atRisk": "won't make it at this pace",
+      "careful": "Do it properly",
+      "hack": "Quick and dirty",
+      "hackHint": "2× speed, adds debt",
+      "endingLabel": "How the day went",
+      "endings": {
+        "burnout": {
+          "title": "Burned out",
+          "text": "Your energy ran out before the day did, and you ended up face-down on the keyboard."
+        },
+        "fired": {
+          "title": "A word in private",
+          "text": "The boss ran out of patience and called you into a meeting room."
+        },
+        "legend": {
+          "title": "Reliable",
+          "text": "Everything shipped, no deadline slipped, and the code is still clean. Days like this are rare."
+        },
+        "firefighter": {
+          "title": "Hero of the day",
+          "text": "It all shipped, all of it the quick way. The debt is piling up. Good luck on call tonight."
+        },
+        "rough": {
+          "title": "Underwater",
+          "text": "Several deadlines slipped and the inbox isn't empty. Tomorrow's standup could be awkward."
+        },
+        "invisible": {
+          "title": "Clean code nobody saw",
+          "text": "You paid down a lot of debt but shipped too little for the boss's liking."
+        },
+        "normal": {
+          "title": "An ordinary day",
+          "text": "Some things got done; the rest can wait until tomorrow. Most days are like this."
+        }
+      },
+      "score": "{n} points",
+      "summary": "{done} done · {missed} missed · {coffees, plural, one {# coffee} other {# coffees}}",
+      "again": "Another day",
+      "replay": "Replay day {n}"
     }
   },
   "error": {

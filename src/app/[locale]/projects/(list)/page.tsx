@@ -152,6 +152,13 @@ export default async function ProjectsPage({ params }: Props) {
           })}
         </div>
       )}
+      {projects.length > 0 && (
+        <p style={{ marginTop: '2rem', textAlign: 'right' }}>
+          <Link href="/projects/archive" style={{ fontSize: 13, fontWeight: 510, color: 'var(--accent-primary)', textDecoration: 'none' }}>
+            {t('archiveLink')}
+          </Link>
+        </p>
+      )}
       </main>
     </>
   )

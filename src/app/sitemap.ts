@@ -83,6 +83,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry('/about', undefined),
     entry('/blog/archive', undefined),
     entry('/projects', undefined),    // projects list
+    entry('/projects/archive', undefined),
     entry('/tools', undefined),       // tools list
   ]
 

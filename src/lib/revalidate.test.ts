@@ -18,6 +18,10 @@ const del = (doc: object) => ({ doc: { id: 1, ...doc }, collection }) as unknown
 
 const isPublished = (doc: Record<string, unknown>) => doc.status === 'published'
 
+// How many times the whole site was expired: one ('/', 'layout') call each.
+const siteRevalidations = () =>
+  vi.mocked(revalidatePath).mock.calls.filter(([path, type]) => path === '/' && type === 'layout').length
+
 beforeEach(() => {
   vi.mocked(revalidatePath).mockReset()
   vi.mocked(revalidateTag).mockReset()
@@ -27,6 +31,7 @@ describe('revalidateSite', () => {
   it('expires every page and both data caches immediately', () => {
     revalidateSite('test')
     expect(revalidatePath).toHaveBeenCalledWith('/', 'layout')
+    expect(revalidatePath).toHaveBeenCalledWith('/sitemap.xml')
     expect(revalidateTag).toHaveBeenCalledWith('sidebar', { expire: 0 })
     expect(revalidateTag).toHaveBeenCalledWith('search', { expire: 0 })
   })
@@ -46,7 +51,7 @@ describe('revalidateSite', () => {
 describe('revalidateAfterChange', () => {
   it('revalidates on every save when there is no visibility rule', () => {
     revalidateAfterChange()(change({}))
-    expect(revalidatePath).toHaveBeenCalledOnce()
+    expect(siteRevalidations()).toBe(1)
   })
 
   it('revalidates when a post is published, edited while published, or unpublished', () => {
@@ -54,7 +59,7 @@ describe('revalidateAfterChange', () => {
     hook(change({ status: 'published' }, { status: 'draft' }))
     hook(change({ status: 'published' }, { status: 'published' }))
     hook(change({ status: 'draft' }, { status: 'published' }))
-    expect(revalidatePath).toHaveBeenCalledTimes(3)
+    expect(siteRevalidations()).toBe(3)
   })
 
   it('leaves the caches alone for a draft that was never public', () => {
@@ -73,7 +78,7 @@ describe('revalidateAfterChange', () => {
 describe('revalidateAfterDelete', () => {
   it('revalidates when the deleted document was public', () => {
     revalidateAfterDelete(isPublished)(del({ status: 'published' }))
-    expect(revalidatePath).toHaveBeenCalledOnce()
+    expect(siteRevalidations()).toBe(1)
   })
 
   it('leaves the caches alone when it was not', () => {

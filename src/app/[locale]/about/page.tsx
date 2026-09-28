@@ -221,7 +221,7 @@ export default async function AboutPage({ params }: Props) {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, width: 16 }}>
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-primary)', marginTop: 6, flexShrink: 0 }} />
                   {i < TIMELINE.length - 1 && (
-                    <div style={{ width: 1, flex: 1, background: 'var(--border-default)', marginTop: 6 }} />
+                    <div className="ds-spine" style={{ width: 1, flex: 1, background: 'var(--border-default)', marginTop: 6 }} />
                   )}
                 </div>
                 <div style={{ paddingBottom: i < TIMELINE.length - 1 ? 0 : 0 }}>

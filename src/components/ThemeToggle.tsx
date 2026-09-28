@@ -67,7 +67,7 @@ export function ThemeToggle() {
 
   return (
     <>
-    <div role="radiogroup" aria-label={t('themeGroup')} className="ds-theme-group hidden md:flex" onKeyDown={onKeyDown}>
+    <div role="radiogroup" aria-label={t('themeGroup')} className="ds-seg-group hidden md:flex" onKeyDown={onKeyDown}>
       {SEGMENTS.map((m, i) => (
         <button
           key={m.value}
@@ -79,7 +79,7 @@ export function ThemeToggle() {
           aria-label={t(m.label)}
           title={t(m.label)}
           onClick={() => setTheme(m.value)}
-          className="ds-theme-seg"
+          className="ds-seg"
         >
           {m.icon}
         </button>

@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
+import { SplitFlap } from '@/components/SplitFlap'
 
 export default async function NotFound() {
   // next-intl automatically picks the locale from the URL segment
@@ -12,18 +13,9 @@ export default async function NotFound() {
 
       <main id="main" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 24px' }}>
         <div style={{ textAlign: 'center', maxWidth: 480 }}>
-          {/* 404 display number */}
-          <p style={{
-            fontSize: 80,
-            fontWeight: 590,
-            letterSpacing: '-4px',
-            lineHeight: 1,
-            color: 'var(--border-strong)',
-            marginBottom: 24,
-            fontVariantNumeric: 'tabular-nums',
-          }}>
-            404
-          </p>
+          <div style={{ marginBottom: 28 }}>
+            <SplitFlap text="404" />
+          </div>
 
           <h1 style={{ fontSize: 24, fontWeight: 510, letterSpacing: '-0.3px', color: 'var(--text-primary)', marginBottom: 12 }}>
             {t('title')}

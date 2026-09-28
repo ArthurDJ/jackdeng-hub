@@ -27,7 +27,10 @@
     "errorSomething": "出错了，请稍后再试。",
     "copyright": "© {year} Jack Deng",
     "typeToConfirm": "输入 {phrase} 以确认",
-    "skipToContent": "跳到主内容"
+    "skipToContent": "跳到主内容",
+    "copy": "复制",
+    "copied": "已复制",
+    "copyCode": "复制代码"
   },
   "nav": {
     "switchLanguage": "切换语言：EN",
@@ -45,7 +48,8 @@
     "searchShortcut": "⌘K",
     "switchToZh": "中文",
     "switchToEn": "EN",
-    "tools": "实验"
+    "tools": "实验",
+    "themeGroup": "主题"
   },
   "home": {
     "title": "全栈工程师 · 专注后端与数据",

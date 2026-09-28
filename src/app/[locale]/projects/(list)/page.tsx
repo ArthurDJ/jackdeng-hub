@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Link } from '@/i18n/navigation'
+import { BENTO_GRID, bentoSpan } from '@/lib/bento'
 import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
@@ -57,8 +58,8 @@ export default async function ProjectsPage({ params }: Props) {
       {projects.length === 0 ? (
         <p style={{ color: 'var(--text-secondary)' }}>{t('noProjects')}</p>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
-          {projects.map((project) => {
+        <div className={BENTO_GRID}>
+          {projects.map((project, i) => {
             const sc = projectStatusColors(project.status)
             const statusLabel: Record<string, string> = {
               active:    tHome('projectStatus.active'),
@@ -70,7 +71,7 @@ export default async function ProjectsPage({ params }: Props) {
 
             const CardInner = (
               <div
-                className={hasSlug ? 'ds-card-hover' : undefined}
+                className={hasSlug ? 'ds-card-hover ds-spotlight' : undefined}
                 style={{
                   background: 'var(--bg-panel)',
                   border: '1px solid var(--border-default)',
@@ -80,6 +81,7 @@ export default async function ProjectsPage({ params }: Props) {
                   flexDirection: 'column',
                   gap: 10,
                   height: '100%',
+                  width: '100%',
                   textDecoration: 'none',
                   color: 'inherit',
                 }}
@@ -139,11 +141,11 @@ export default async function ProjectsPage({ params }: Props) {
             )
 
             return hasSlug ? (
-              <Link key={project.id} href={`/projects/${project.slug}`} style={{ textDecoration: 'none', display: 'flex' }}>
+              <Link key={project.id} href={`/projects/${project.slug}`} className={bentoSpan(i, projects.length)} style={{ textDecoration: 'none', display: 'flex' }}>
                 {CardInner}
               </Link>
             ) : (
-              <div key={project.id} style={{ display: 'flex' }}>
+              <div key={project.id} className={bentoSpan(i, projects.length)} style={{ display: 'flex' }}>
                 {CardInner}
               </div>
             )

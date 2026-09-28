@@ -27,7 +27,10 @@
     "errorSomething": "Something went wrong.",
     "copyright": "© {year} Jack Deng",
     "typeToConfirm": "Type {phrase} to confirm",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyCode": "Copy code"
   },
   "nav": {
     "switchLanguage": "Switch language: 中文",
@@ -45,7 +48,8 @@
     "searchShortcut": "⌘K",
     "switchToZh": "中文",
     "switchToEn": "EN",
-    "tools": "Playground"
+    "tools": "Playground",
+    "themeGroup": "Theme"
   },
   "home": {
     "title": "Full-Stack Engineer · Backend & Data",

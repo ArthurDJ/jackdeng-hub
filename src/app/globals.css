@@ -224,7 +224,91 @@
   }
   .ds-accent-btn:hover {
     background-color: var(--accent-solid-hover);
-    transform: scale(1.03);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ds-accent-btn:hover { transform: scale(1.03); }
+  }
+
+  /* ── Hero grid: faint lines that fade out from the top centre ──
+     Texture behind the home hero, drawn in the border token so it follows
+     the theme. No motion, no image, nothing to load. */
+  .ds-hero-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--border-subtle) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border-subtle) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: center top;
+    -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 0%, #000 35%, transparent 80%);
+            mask-image: radial-gradient(ellipse 70% 65% at 50% 0%, #000 35%, transparent 80%);
+  }
+
+  /* ── Dot cover: the strip at the top of a project card ──
+     Replaces eight hard-coded rainbow gradients that ignored the theme. */
+  .ds-dot-cover {
+    background-color: var(--bg-elevated);
+    background-image:
+      radial-gradient(var(--border-strong) 1px, transparent 1px),
+      linear-gradient(135deg, var(--accent-subtle), transparent 70%);
+    background-size: 12px 12px, 100% 100%;
+  }
+
+  /* ── Spotlight: a soft highlight that follows the cursor over a card ──
+     SpotlightTracker writes --spot-x / --spot-y. The pseudo-element sits at
+     z-index -1 inside the card's own stacking context (isolation), which is
+     above the card's background and below its content. Hover devices only. */
+  .ds-spotlight {
+    position: relative;
+    isolation: isolate;
+  }
+  .ds-spotlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(260px circle at var(--spot-x, 50%) var(--spot-y, 50%), var(--accent-subtle), transparent 70%);
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-default);
+  }
+  @media (hover: hover) {
+    .ds-spotlight:hover::before { opacity: 1; }
+  }
+
+  /* ── Theme segmented control (ThemeToggle, md and up) ── */
+  .ds-theme-group {
+    align-items: center;
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--border-default);
+    border-radius: 9999px;
+  }
+  .ds-theme-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 24px;
+    border: none;
+    border-radius: 9999px;
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition:
+      background-color var(--duration-base) var(--ease-default),
+      color var(--duration-base) var(--ease-default);
+  }
+  .ds-theme-seg:hover { color: var(--text-secondary); }
+  .ds-theme-seg[aria-checked='true'] {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+  }
+  .ds-theme-seg:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 1px;
   }
   .ds-ghost-btn:hover {
     background-color: var(--bg-elevated);
@@ -538,6 +622,19 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .ds-skip-link { transition: none; }
+}
+
+/* ── Reduced motion, site-wide ─────────────────────────────────────────────
+   Each component used to opt in on its own, and most never did. This is the
+   floor: animations run once and at once, transitions are instant, and
+   smooth scrolling is off. Components can still do more (skeletons pause). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ── Print ────────────────────────────────────────────────────────────────

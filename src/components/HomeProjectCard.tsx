@@ -9,23 +9,6 @@ interface HomeProjectCardProps {
   project: Project
 }
 
-const GRADIENTS = [
-  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
-  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-  'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
-  'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-  'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
-]
-
-function getGradient(name: string): string {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + hash * 31
-  return GRADIENTS[Math.abs(hash) % GRADIENTS.length]
-}
-
 export function HomeProjectCard({ project }: HomeProjectCardProps) {
   const t = useTranslations('home')
   const statusLabel: Record<string, string> = {
@@ -45,14 +28,15 @@ export function HomeProjectCard({ project }: HomeProjectCardProps) {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
+    width: '100%',
     textDecoration: 'none',
     color: 'inherit',
   }
 
   const inner = (
-    <div className="ds-card-hover print:break-inside-avoid" style={cardStyle}>
-      {/* Gradient cover — decoration, and a block of ink on paper */}
-      <div className="print:hidden!" style={{ height: 72, flexShrink: 0, background: getGradient(project.name ?? '') }} />
+    <div className="ds-card-hover ds-spotlight print:break-inside-avoid" style={cardStyle}>
+      {/* Dot cover: decoration in the theme's tokens, and left off paper */}
+      <div aria-hidden="true" className="ds-dot-cover print:hidden!" style={{ height: 72, flexShrink: 0 }} />
       <div style={{ padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
         <h3 style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)', lineHeight: 1.4 }}>
@@ -124,11 +108,11 @@ export function HomeProjectCard({ project }: HomeProjectCardProps) {
     // Locale-less: this Link is next-intl's and adds the prefix itself. Writing
     // /${locale}/ here produced /en/en/projects/…, and every card on the home
     // page led to a 404.
-    <Link href={`/projects/${project.slug}`} style={{ textDecoration: 'none', display: 'flex' }}>
+    <Link href={`/projects/${project.slug}`} style={{ textDecoration: 'none', display: 'flex', flex: 1 }}>
       {inner}
     </Link>
   ) : (
-    <div style={{ display: 'flex' }}>
+    <div style={{ display: 'flex', flex: 1 }}>
       {inner}
     </div>
   )

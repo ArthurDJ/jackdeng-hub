@@ -88,7 +88,7 @@ The smoke check picks its tool from `/api/tools`, which only returns online, pub
 
 Set `embedType` to `iframe` or `script`, and set `embedUrl`.
 
-- **Allow the origin in the CSP.** The policy in `next.config.mjs` allows frames and scripts only from `'self'` and Cloudflare Turnstile. Add the tool's origin to `frame-src` (iframe) or `script-src` (script), or the embed will be blocked once the policy is enforced. The policy is in report-only mode for now (#58).
+- **Allow the origin in the CSP.** The policy in `next.config.mjs` allows frames and scripts only from `'self'` and Cloudflare Turnstile. Add the tool's origin to `frame-src` (iframe) or `script-src` (script), or the browser blocks the embed: the policy is enforced on every page but `/admin` (#103). Blocked loads show up as `[csp]` lines in the Vercel function logs.
 - **A script embed runs third-party code on this site's origin.** Prefer an iframe. A script embed mounts into the element marked `data-container="tool-embed-root"`.
 
 ### Automation tools (removed)

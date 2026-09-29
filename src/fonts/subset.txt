@@ -1,0 +1,37 @@
+# Code points kept in the subset Geist fonts (scripts/subset-fonts.sh).
+# Google Fonts' "latin" subset, plus the symbols this site's text uses.
+# Anything else falls back to the next font in the stack: Chinese text
+# already does, since Geist has no CJK glyphs. fontSubset.test.ts fails when
+# the messages use a character Geist has that this list leaves out.
+U+0000-00FF
+U+0131
+U+0152-0153
+U+02BB-02BC
+U+02C6
+U+02DA
+U+02DC
+U+0304
+U+0308
+U+0329
+# π
+U+03C0
+# General punctuation: dashes, quotes, ellipsis, ›
+U+2000-206F
+U+20AC
+U+2122
+# Arrows ← ↑ → ↓ ↗ and ↵
+U+2190-2199
+U+21B5
+# − ∕ ≈ ≠ ≤ ≥
+U+2212
+U+2215
+U+2248
+U+2260
+U+2264-2265
+# ⌘
+U+2318
+# Box drawing the dbt terminal prints: ─ ━ │ ┃ ═ ║
+U+2500-2503
+U+2550-2551
+U+FEFF
+U+FFFD

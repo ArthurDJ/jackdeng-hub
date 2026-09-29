@@ -16,19 +16,23 @@ export function IntroSwitch({ short, long, labels }: {
   labels: { group: string; short: string; long: string }
 }) {
   const [mode, setMode] = useState<'short' | 'long'>('short')
+  // The fade marks a switch, so it waits for the first one. Played on load it
+  // held back the page's largest text, and with it LCP, by its 240 ms.
+  const [switched, setSwitched] = useState(false)
+  const fade = switched ? 'ds-fade' : undefined
   const text: React.CSSProperties = { fontSize: 16, fontWeight: 400, color: 'var(--text-secondary)', lineHeight: 1.65, maxWidth: 560 }
 
   return (
     <div className="mb-8">
       <div role="group" aria-label={labels.group} className="ds-seg-group inline-flex mb-4 print:hidden!">
         {(['short', 'long'] as const).map((m) => (
-          <button key={m} type="button" className="ds-seg" aria-pressed={mode === m} onClick={() => setMode(m)}>
+          <button key={m} type="button" className="ds-seg" aria-pressed={mode === m} onClick={() => { setMode(m); setSwitched(true) }}>
             {labels[m]}
           </button>
         ))}
       </div>
-      <p className="ds-fade" hidden={mode !== 'short'} style={text}>{short}</p>
-      <div className="ds-fade" hidden={mode !== 'long'} style={{ display: mode === 'long' ? 'flex' : undefined, flexDirection: 'column', gap: 12 }}>
+      <p className={fade} hidden={mode !== 'short'} style={text}>{short}</p>
+      <div className={fade} hidden={mode !== 'long'} style={{ display: mode === 'long' ? 'flex' : undefined, flexDirection: 'column', gap: 12 }}>
         {long.map((p) => <p key={p} style={text}>{p}</p>)}
       </div>
     </div>

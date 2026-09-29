@@ -5,9 +5,9 @@
  *   npx tsx scripts/patch-projects.ts            # read-only: print the plan
  *   npx tsx scripts/patch-projects.ts --apply    # write it
  *
- * Each patch finds its record by `slug`. When the patch renames the slug and
- * the old one is gone but the new one exists, it counts as already applied,
- * so running twice is harmless. A long-description edit replaces one exact
+ * Each patch finds its record by `slug`, or by the new slug when it renames
+ * one that was already renamed. Fields already at their target value are
+ * skipped, so running twice is harmless. A long-description edit replaces one exact
  * sentence and fails if that sentence is not found exactly once.
  *
  * Script writes do not expire the page cache (that hook needs Next.js):
@@ -27,10 +27,10 @@ type Localized = Partial<{ name: string; shortDescription: string; madeAt: strin
 
 interface Patch {
   slug: string
-  set?: Partial<{ slug: string; year: string }>
+  set?: Partial<{ slug: string; year: string; isPinned: boolean }>
   locales?: Partial<Record<Locale, Localized>>
-  /** One exact sentence in the long description, and what replaces it. */
-  replaceInLong?: Partial<Record<Locale, [string, string]>>
+  /** Exact sentences in the long description, and what replaces each. */
+  replaceInLong?: Partial<Record<Locale, [string, string][]>>
 }
 
 const PATCHES: Patch[] = [
@@ -39,8 +39,15 @@ const PATCHES: Patch[] = [
     set: { year: '2024–' },
     locales: { en: { madeAt: 'VWD' }, zh: { madeAt: 'VWD' } },
     replaceInLong: {
-      en: ['Took part in the architecture design and deployment of the platform.', "Took part in the platform's architecture design and built part of it."],
-      zh: ['参与平台的架构设计与部署。', '参与平台的架构设计，并搭建了其中一部分。'],
+      en: [
+        ['Took part in the architecture design and deployment of the platform.', "Took part in the platform's architecture design and built part of it."],
+        // The dbt project has no snapshots; the tests are real.
+        ['Data-quality tests and snapshots for slowly changing dimensions.', 'Data-quality tests.'],
+      ],
+      zh: [
+        ['参与平台的架构设计与部署。', '参与平台的架构设计，并搭建了其中一部分。'],
+        ['数据质量测试，并使用 snapshot 处理缓慢变化维度。', '数据质量测试。'],
+      ],
     },
   },
   {
@@ -52,12 +59,12 @@ const PATCHES: Patch[] = [
   // "made at" still says where.
   {
     slug: 'vwd-datahub',
-    set: { slug: 'data-hub' },
+    set: { slug: 'data-hub', isPinned: true },
     locales: { en: { name: 'DataHub', madeAt: 'VWD' }, zh: { name: 'DataHub 数据中台', madeAt: 'VWD' } },
   },
   {
     slug: 'viterra-customer-portal',
-    set: { slug: 'b2b-customer-portal' },
+    set: { slug: 'b2b-customer-portal', isPinned: true },
     locales: {
       en: {
         name: 'B2B Customer Portal',
@@ -99,15 +106,16 @@ async function run() {
 
   let changes = 0
   for (const p of PATCHES) {
-    const en = await find(p.slug, 'en')
-    if (!en) {
-      if (p.set?.slug && (await find(p.set.slug, 'en'))) {
-        console.log(`${p.slug}: already renamed to ${p.set.slug}, skipped\n`)
-        continue
-      }
-      throw new Error(`${p.slug}: not found`)
+    // A patch that renames the slug may already have run: carry on with the
+    // rest of it under the new slug.
+    let slug = p.slug
+    let en = await find(slug, 'en')
+    if (!en && p.set?.slug) {
+      slug = p.set.slug
+      en = await find(slug, 'en')
     }
-    console.log(`${p.slug} (id ${en.id})`)
+    if (!en) throw new Error(`${p.slug}: not found`)
+    console.log(`${slug} (id ${en.id})${slug === p.slug ? '' : ` (was ${p.slug})`}`)
     const shared: Record<string, unknown> = {}
     for (const [k, v] of Object.entries(p.set ?? {})) {
       if ((en as any)[k] === v) continue
@@ -116,17 +124,20 @@ async function run() {
     }
     const perLocale: Partial<Record<Locale, Record<string, unknown>>> = {}
     for (const locale of ['en', 'zh'] as const) {
-      const doc = locale === 'en' ? en : await find(p.slug, locale)
+      const doc = locale === 'en' ? en : await find(slug, locale)
       const data: Record<string, unknown> = {}
       for (const [k, v] of Object.entries(p.locales?.[locale] ?? {})) {
         if ((doc as any)[k] === v) continue
         console.log(`  ${locale}.${k}: ${show((doc as any)[k])} → ${show(v)}`)
         data[k] = v
       }
-      const rep = p.replaceInLong?.[locale]
-      if (rep && !JSON.stringify(doc.longDescription ?? {}).includes(JSON.stringify(rep[1]).slice(1, -1))) {
-        data.longDescription = replaceSentence(doc.longDescription, rep[0], rep[1])
-        console.log(`  ${locale}.longDescription: ${show(rep[0])} → ${show(rep[1])}`)
+      let long = doc.longDescription
+      for (const [from, to] of p.replaceInLong?.[locale] ?? []) {
+        // Already applied when the old sentence is gone.
+        if (!JSON.stringify(long ?? {}).includes(JSON.stringify(from).slice(1, -1))) continue
+        long = replaceSentence(long, from, to)
+        data.longDescription = long
+        console.log(`  ${locale}.longDescription: ${show(from)} → ${show(to)}`)
       }
       if (Object.keys(data).length) perLocale[locale] = data
     }

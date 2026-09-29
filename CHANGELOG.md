@@ -10,6 +10,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.26.3] — 2026-09-29
+
+### Changed — 两个工作项目放进首页精选；数据平台详情去掉 snapshot 的说法（#101）
+
+`scripts/patch-projects.ts` 加了两处能力：`isPinned` 可以改；一条记录可以替换多句话。另外，改过 slug 的补丁再跑时，会按新 slug 接着处理剩下的字段，不再整条跳过。
+这次写入了 4 处：DataHub 和 B2B 客户门户设为精选，首页现在是 4 个精选项目；数据平台详情里的「数据质量测试，并使用 snapshot 处理缓慢变化维度」
+改成「数据质量测试」（英文同步）。dbt 项目里没有 snapshot，测试是真的。
+
 ## [1.26.2] — 2026-09-28
 
 ### Fixed — 数据平台的角色统一为「参与架构设计并搭建了其中一部分」（#100）

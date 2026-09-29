@@ -30,6 +30,7 @@ Set these in the Vercel project settings. `.env.example` lists the same set.
 | `NEXT_PUBLIC_SERVER_URL` | The site origin, used for absolute URLs: canonical links, the sitemap, `robots.txt`, the feed. |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob. Without it the storage plugin is off, and uploads land in `public/media` on whichever machine ran them. |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Comment spam protection. Without the secret, `POST /api/comments/submit` answers 503 in production and writes nothing. As of #49 only Production had them, so previews and local dev do not load the widget. |
+| `REVALIDATE_SECRET` | Lets the write scripts expire the live site's caches after writing (`POST /api/revalidate`, #107). Production, and the same value in `.env.local`; at least 32 characters, for example `openssl rand -hex 32`. Unset, the route answers 503 and script writes show up within the hour. |
 
 ### Migrations
 

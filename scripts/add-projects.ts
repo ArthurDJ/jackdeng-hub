@@ -10,11 +10,12 @@
  *   DRAFTS_DIR=… npx tsx scripts/add-projects.ts            # read-only: print the plan
  *   DRAFTS_DIR=… npx tsx scripts/add-projects.ts --apply    # write it
  *
- * Records written from a script do not expire the page cache (that hook
- * needs Next.js); they show up within the hourly revalidation, or at once
- * after saving any project in /admin.
+ * After writing it asks the live site to expire its caches
+ * (scripts/lib/refreshSite.ts, which needs REVALIDATE_SECRET); script writes
+ * cannot do that themselves.
  */
 import { loadEnv, requireApply, describeTarget } from './lib/env'
+import { refreshLiveSite } from './lib/refreshSite'
 import { toLexical } from './lib/markdown'
 import { readDraft } from './lib/drafts'
 import { getPayload } from 'payload'
@@ -106,6 +107,7 @@ async function run() {
   }
   if (!missing) console.log('\nNothing to create.')
   else console.log(apply ? '\nDone.' : `\n${missing} to create. Nothing written. Re-run with --apply to write.`)
+  if (apply && missing) await refreshLiveSite({ isProduction: describeTarget().isProduction })
   process.exit(0)
 }
 

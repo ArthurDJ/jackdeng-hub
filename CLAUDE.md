@@ -70,3 +70,5 @@
 - `scripts/publish-drafts.ts` 把 markdown 转成 Lexical 写进数据库（中英双语，建为 draft）。默认只读、打印计划，
   `--apply` 才写；用 `--only <slug>` 只处理一篇，不带它会重写所有已有文章的正文。
   上传题图需要 `BLOB_READ_WRITE_TOKEN`，没有时脚本会拒绝上传。
+- 写库脚本带 `--apply` 写完生产库后，会调 `POST /api/revalidate` 让线上缓存立刻失效（`scripts/lib/refreshSite.ts`，#107），
+  需要 `.env.local` 和 Vercel 里有同一个 `REVALIDATE_SECRET`。没配时页面最长一小时后更新；部署不一定刷新侧栏和搜索这两个数据缓存。

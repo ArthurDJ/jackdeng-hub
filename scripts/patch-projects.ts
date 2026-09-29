@@ -13,11 +13,12 @@
  * $DRAFTS_DIR/projects/<slug>.<locale>.md (scripts/lib/drafts.ts); DRAFTS_DIR
  * is only needed for those.
  *
- * Script writes do not expire the page cache (that hook needs Next.js):
- * changes show within the hourly revalidation, or at once after saving any
- * project in /admin.
+ * After writing it asks the live site to expire its caches
+ * (scripts/lib/refreshSite.ts, which needs REVALIDATE_SECRET); script writes
+ * cannot do that themselves.
  */
 import { loadEnv, requireApply, describeTarget } from './lib/env'
+import { refreshLiveSite } from './lib/refreshSite'
 import { readDraft } from './lib/drafts'
 import { toLexical } from './lib/markdown'
 import { getPayload } from 'payload'
@@ -189,6 +190,7 @@ async function run() {
     console.log('')
   }
   console.log(apply ? 'Done.' : changes ? `${changes} field changes. Nothing written. Re-run with --apply to write.` : 'Nothing to change.')
+  if (apply && changes) await refreshLiveSite({ isProduction: describeTarget().isProduction })
   process.exit(0)
 }
 

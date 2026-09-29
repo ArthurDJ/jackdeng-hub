@@ -19,9 +19,10 @@ export const CACHE_TAGS = {
 /**
  * Expire every cached page and data cache now. Both calls expire immediately
  * (no stale-while-revalidate): `revalidatePath` without a profile does, and so
- * does `revalidateTag` with `expire: 0`.
+ * does `revalidateTag` with `expire: 0`. False when there was no cache to
+ * reach.
  */
-export function revalidateSite(reason: string) {
+export function revalidateSite(reason: string): boolean {
   try {
     // '/' with 'layout' matches the implicit tag every page carries.
     revalidatePath('/', 'layout')
@@ -35,11 +36,14 @@ export function revalidateSite(reason: string) {
     // depending on which page happened to fill it first.
     revalidateTag(CACHE_TAGS.sidebar, { expire: 0 })
     revalidateTag(CACHE_TAGS.search, { expire: 0 })
+    return true
   } catch (err) {
     // Outside a Next.js request there is no cache to expire: scripts run with
-    // tsx (publish-drafts, CI's seed) land here. What they write shows up
-    // when the hourly revalidation comes round, as before.
+    // tsx (publish-drafts, CI's seed) land here. The write scripts then ask
+    // the live site to do it through POST /api/revalidate
+    // (scripts/lib/refreshSite.ts).
     console.warn(`[revalidate] skipped after ${reason}: ${err instanceof Error ? err.message : String(err)}`)
+    return false
   }
 }
 

@@ -18,6 +18,7 @@
  * overwritten, so name the post unless that is the point.
  */
 import { loadEnv, requireApply, describeTarget } from './lib/env'
+import { refreshLiveSite } from './lib/refreshSite'
 import { toLexical } from './lib/markdown'
 import { getPayload } from 'payload'
 import fs from 'fs'
@@ -349,6 +350,8 @@ async function run() {
 
   console.log('\ndone. Posts are drafts — publish from /admin when you are happy with them.')
   console.log('Both locales are written. Any cover the log did not name is already attached.')
+  // New posts are drafts, but an update rewrites a published post's body.
+  await refreshLiveSite({ isProduction: describeTarget().isProduction })
 }
 
 run().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1) })

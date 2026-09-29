@@ -4,15 +4,15 @@
 // four categories at 0 and sixteen tags that led to "no posts found", and the
 // sitemap sent search engines to all of those empty pages.
 
-type Id = number | string
-type Ref = Id | { id: Id } | null | undefined
+export type Id = number | string
+export type Ref = Id | { id: Id } | null | undefined
 
 export interface PostTaxonomy {
   category?: Ref
   tags?: Ref[] | null
 }
 
-function refId(ref: Ref): Id | undefined {
+export function refId(ref: Ref): Id | undefined {
   if (ref == null) return undefined
   return typeof ref === 'object' ? ref.id : ref
 }

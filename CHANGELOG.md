@@ -10,6 +10,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.31.1] — 2026-09-29
+
+### Fixed — sitemap 的 lastmod 如实填写；Roadmap 开头改成现在的样子（#108）
+
+- **lastmod**：sitemap 30 条里有 17 条（首页、列表页、分类和标签页）的 lastmod 是生成那一刻，每次重新生成都说自己刚改过。搜索引擎只在 lastmod 一直准确时才会采信它。
+  - 列表页现在取所列内容里最新的修改时间：首页取文章和项目，博客和归档取文章，项目列表和项目归档取项目，Playground 取工具。
+  - 分类和标签页取其中最新的一篇文章。
+  - 文章原来用发布时间，改过之后 lastmod 也不变；现在取修改和发布时间里较晚的一个。
+  - 「关于」的内容写在代码里，没有可靠的日期，就不填 lastmod，不再编一个。
+  - 新增 `src/lib/sitemapDates.ts`（带测试）；`taxonomyCounts.ts` 导出 `refId`，两处共用。
+- **Roadmap**：开头的愿景和需求还写着「Drizzle ORM」「内部工具的统一调度引擎」「工具启停」，改成现在的架构。
+  Phase 6、7 的条目早就全部完成，标题却还是「进行中」；Phase 8 还写着「动态工具引擎，等待内容」，现在注明它已经变成 Playground，自动化部分在 #83、#86 删掉了。
+
+验证：本地 `next build && next start`。sitemap 里除「关于」外每条都有真实日期，连续请求两次内容完全一样；冒烟检查通过；typecheck、测试（301 个）、i18n 检查通过。
+
 ## [1.31.0] — 2026-09-29
 
 ### Added — 脚本写完生产库，线上立刻刷新（#107）

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getPayload } from '@/lib/payload'
 import { countPostsByTaxonomy, withPosts } from '@/lib/taxonomyCounts'
+import { latest, latestByTaxonomy, postModified } from '@/lib/sitemapDates'
 
 // Hourly, like the pages. Saves in /admin expire it at once (src/lib/revalidate.ts);
 // this bounds how stale it gets when something is written outside Next.js.
@@ -9,14 +10,18 @@ export const revalidate = 3600
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
 const LOCALES = ['en', 'zh'] as const
 
-/** Build a sitemap entry with en/zh hreflang alternates */
+/**
+ * Build a sitemap entry with en/zh hreflang alternates. Without a date there
+ * is no lastmod: a guess would be the generation time, which is not when the
+ * page changed (src/lib/sitemapDates.ts).
+ */
 function entry(
   path: string,
-  lastModified?: Date | string,
+  lastModified?: string,
 ): MetadataRoute.Sitemap[number] {
   return {
     url: `${BASE}/en${path}`,
-    lastModified: lastModified ? new Date(lastModified) : new Date(),
+    ...(lastModified ? { lastModified: new Date(lastModified) } : {}),
     changeFrequency: 'weekly',
     priority: path === '' ? 1.0 : 0.8,
     alternates: {
@@ -77,43 +82,51 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ])
 
   // ── Static pages ──
+  // Each list page is as new as the newest thing it lists. The home page
+  // shows posts and projects. About is written in the code and has no date
+  // to go on, so it goes without.
+  const newestPost = latest(blogsResult.docs.map(postModified))
+  const newestProject = latest(projectsResult.docs.map((p) => p.updatedAt))
+  const newestTool = latest(toolsResult.docs.map((t) => t.updatedAt))
   const staticEntries: MetadataRoute.Sitemap = [
-    entry('', undefined),             // homepage  /en  /zh
-    entry('/blog', undefined),        // blog list
-    entry('/about', undefined),
-    entry('/blog/archive', undefined),
-    entry('/projects', undefined),    // projects list
-    entry('/projects/archive', undefined),
-    entry('/tools', undefined),       // tools list
+    entry('', latest([newestPost, newestProject])),   // homepage  /en  /zh
+    entry('/blog', newestPost),
+    entry('/about'),
+    entry('/blog/archive', newestPost),
+    entry('/projects', newestProject),
+    entry('/projects/archive', newestProject),
+    entry('/tools', newestTool),
   ]
 
   // ── Blog posts ──
   const blogEntries: MetadataRoute.Sitemap = blogsResult.docs.map(
-    (blog) => entry(`/blog/${blog.slug}`, blog.publishedAt ?? blog.updatedAt),
+    (blog) => entry(`/blog/${blog.slug}`, postModified(blog)),
   )
 
   // ── Category and tag pages ──
   // Only the ones some published post uses: the rest render "no posts found"
   // and carry noindex, so listing them here would contradict the page.
+  // Each is dated by its newest post.
   const counts = countPostsByTaxonomy(blogsResult.docs)
+  const dated = latestByTaxonomy(blogsResult.docs)
 
   const categoryEntries: MetadataRoute.Sitemap = withPosts(categoriesResult.docs, counts.categories).map(
-    (cat) => entry(`/blog/category/${cat.slug}`, undefined),
+    (cat) => entry(`/blog/category/${cat.slug}`, dated.categories.get(cat.id)),
   )
 
   const tagEntries: MetadataRoute.Sitemap = withPosts(tagsResult.docs, counts.tags).map(
-    (tag) => entry(`/blog/tag/${tag.slug}`, undefined),
+    (tag) => entry(`/blog/tag/${tag.slug}`, dated.tags.get(tag.id)),
   )
 
   // ── Project pages ──
   const projectEntries: MetadataRoute.Sitemap = projectsResult.docs
     .filter((p) => p.slug)
-    .map((p) => entry(`/projects/${p.slug}`, p.updatedAt))
+    .map((p) => entry(`/projects/${p.slug}`, p.updatedAt ?? undefined))
 
   // ── Tool pages ──
   const toolEntries: MetadataRoute.Sitemap = toolsResult.docs
     .filter((tool) => tool.slug)
-    .map((tool) => entry(`/tools/${tool.slug}`, tool.updatedAt))
+    .map((tool) => entry(`/tools/${tool.slug}`, tool.updatedAt ?? undefined))
 
   return [
     ...staticEntries,

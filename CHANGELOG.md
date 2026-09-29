@@ -10,6 +10,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.26.1] — 2026-09-28
+
+### Added — 新建项目记录的脚本 `scripts/add-projects.ts`（#99）
+
+给 VWD DataHub 和 Viterra 客户门户建项目记录用。文字放在 `$DRAFTS_DIR/projects/<slug>.<locale>.md`：第一段是一句话简介，其余转成详情（Lexical）。
+和其他写库脚本一样，默认只读、打印计划，带 `--apply` 才写；已经存在的 slug 不动，所以不会覆盖在 /admin 里改过的内容。
+脚本写入不会触发页面缓存失效，新项目最晚一小时后出现，或者在 /admin 里随便保存一个项目后立刻出现。
+
 ## [1.26.0] — 2026-09-28
 
 ### Added — 项目归档表 `/projects/archive`（#98）

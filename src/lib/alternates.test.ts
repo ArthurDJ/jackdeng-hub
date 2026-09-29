@@ -8,11 +8,14 @@ describe('localeAlternates', () => {
       languages: {
         en: 'https://x.test/en/blog/tag/go/page/2',
         zh: 'https://x.test/zh/blog/tag/go/page/2',
+        'x-default': 'https://x.test/blog/tag/go/page/2',
       },
     })
   })
 
   it('handles the locale root', () => {
-    expect(localeAlternates('en', '', 'https://x.test').canonical).toBe('https://x.test/en')
+    const home = localeAlternates('en', '', 'https://x.test')
+    expect(home.canonical).toBe('https://x.test/en')
+    expect(home.languages['x-default']).toBe('https://x.test/')
   })
 })

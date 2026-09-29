@@ -9,6 +9,7 @@ import { getBuiltinTool } from '@/components/tools/registry'
 import { asLocale, routing } from '@/i18n/routing'
 import { toolStatusColors } from '@/lib/statusColors'
 import { ogCardUrl } from '@/lib/ogCard'
+import { localeAlternates } from '@/lib/alternates'
 
 export const revalidate = 3600
 
@@ -65,19 +66,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: {
-      canonical: `${BASE}/${locale}/tools/${slug}`,
-      languages: {
-        en: `${BASE}/en/tools/${slug}`,
-        zh: `${BASE}/zh/tools/${slug}`,
-      },
-    },
+    alternates: localeAlternates(locale, `/tools/${slug}`),
     // A page-level openGraph replaces the layout's whole, image included, so
     // the tool has to bring its own card or links to it share without one.
     openGraph: {
+      url: `${BASE}/${locale}/tools/${slug}`,
       title: `${title} — Jack Deng`,
       description,
       images: [{ url: ogCardUrl(BASE, { title, subtitle: description }), width: 1200, height: 630 }],
+    },
+    // The same card for X, which otherwise kept the layout's profile card.
+    twitter: {
+      card: 'summary_large_image',
+      images: [ogCardUrl(BASE, { title, subtitle: description })],
     },
   }
 }

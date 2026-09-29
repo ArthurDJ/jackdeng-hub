@@ -7,7 +7,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Footer } from '@/components/Footer'
 import { asLocale, routing } from '@/i18n/routing'
-import { profileOgImage } from '@/lib/profile'
+import { siteOpenGraph } from '@/lib/siteOpenGraph'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { CommandPaletteHost } from '@/components/CommandPaletteHost'
 import { SpotlightTracker } from '@/components/SpotlightTracker'
@@ -27,10 +27,9 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
   // asLocale: dotted probes (/wp-login.php) reach this layout as locale
   // "wp-login.php" before it answers 404 (see below).
   const locale = asLocale((await params).locale)
-  const t = await getTranslations({ locale, namespace: 'home' })
   // The fallback card for pages without their own, with the headline in the
   // page's language: it used to be the English headline on every /zh page.
-  const card = profileOgImage(BASE, t('title'))
+  const openGraph = await siteOpenGraph(locale)
   return {
     title: {
       default: 'Jack Deng',
@@ -38,13 +37,10 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
     },
     description: 'Jack Deng — full-stack engineer focused on backend and data. Data platforms, integrations and internal tools.',
     metadataBase: new URL(BASE),
-    openGraph: {
-      siteName: 'Jack Deng',
-      images: [{ url: card, width: 1200, height: 630 }],
-    },
+    openGraph,
     twitter: {
       card: 'summary_large_image',
-      images: [card],
+      images: [openGraph.images[0].url],
     },
   }
 }

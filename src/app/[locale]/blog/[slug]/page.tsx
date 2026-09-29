@@ -26,6 +26,7 @@ import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
 import { toJsonLd } from '@/lib/jsonLd'
 import { ogCardUrl } from '@/lib/ogCard'
+import { localeAlternates } from '@/lib/alternates'
 
 export const revalidate = 3600
 
@@ -72,38 +73,36 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = blog.seo?.metaTitle ?? blog.title
   const description = blog.seo?.metaDescription ?? blog.excerpt
+  // The share image is the generated card (1200x630 PNG) unless the post
+  // names one in its SEO fields. It used to fall back to the cover: a 16:9
+  // WebP, which LinkedIn's scraper does not reliably take, declared as
+  // 1200x630 when it was 1600x900.
   const og = populated(blog.seo?.ogImage)
-  const cover = populated(blog.coverImage)
-  const ogImageUrl =
-    og?.sizes?.hero?.url ??
-    og?.url ??
-    cover?.sizes?.hero?.url ??
-    cover?.url
+  const chosen = og?.sizes?.hero?.url
+    ? { url: og.sizes.hero.url, width: og.sizes.hero.width, height: og.sizes.hero.height }
+    : og?.url
+      ? { url: og.url, width: og.width, height: og.height }
+      : null
 
   const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
-  const ogImage = ogImageUrl
-    ? ogImageUrl
-    : ogCardUrl(BASE, { title, type: 'blog' })
+  const ogImage = chosen
+    ? { url: chosen.url, ...(chosen.width && chosen.height ? { width: chosen.width, height: chosen.height } : {}) }
+    : { url: ogCardUrl(BASE, { title, type: 'blog' }), width: 1200, height: 630 }
 
   return {
     title,
     description,
     openGraph: {
+      url: `${BASE}/${locale}/blog/${slug}`,
       title: `${title} — Jack Deng`,
       description,
-      images: [{ url: ogImage, width: 1200, height: 630 }],
+      images: [ogImage],
     },
     twitter: {
       card: 'summary_large_image',
-      images: [ogImage],
+      images: [ogImage.url],
     },
-    alternates: {
-      canonical: `${BASE}/${locale}/blog/${slug}`,
-      languages: {
-        en: `${BASE}/en/blog/${slug}`,
-        zh: `${BASE}/zh/blog/${slug}`,
-      },
-    },
+    alternates: localeAlternates(locale, `/blog/${slug}`),
   }
 }
 

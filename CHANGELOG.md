@@ -10,6 +10,26 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.32.0] — 2026-09-29
+
+### Changed — 分享与搜索的细节：文章分享图改成卡片，全站补 og:url 和 x-default（#110）
+
+先对线上 60 个页面做了一次只读体检：标题、描述、canonical、hreflang、分享图、结构化数据、h1、图片 alt、全部外链和 RSS。
+canonical、中英 hreflang、h1、alt、结构化数据全部通过；外链只有 LinkedIn（999）和 LeetCode（403）失败，两个站都拦爬虫，链接本身没坏。改的是剩下这几处：
+
+- **文章分享图**：原来用封面图，1600×900 的 WebP，元数据却写着 1200×630。LinkedIn 的抓取器对 WebP 不可靠，说法有分歧：有的说 2024 年 12 月起已支持，也有建议只用 JPG / PNG 的。LinkedIn 推荐的比例是 1.91:1。
+  现在文章和项目页都用站上已有的 `/og` 生成卡片，1200×630 PNG，卡片上直接印着标题。文章的 SEO 字段里另外指定了分享图时仍然优先用它，尺寸取图片的真实宽高。
+  这样招聘方在 LinkedIn 上转发时，预览图是清楚的标题卡片，不会是空白。代价是封面照片不再出现在分享预览里。
+- **`og:url`**：60 个页面都没有，现在每页都等于它的 canonical。原来没有自己分享图的页面（列表、归档、分类、标签）要在页面上写 `openGraph` 才能加 `url`，而写了就会整块覆盖 layout 的默认卡片。所以默认卡片抽成 `siteOpenGraph()`，layout 和这些页面共用。
+- **`x-default` hreflang**：60 个页面和 sitemap 都没有。现在指向不带语言前缀的地址，代理会按浏览器语言跳到 `/en` 或 `/zh`，这正是 x-default 的用途。
+  `localeAlternates()` 统一生成 canonical 和 hreflang，原来手写这两项的 8 个页面都改用它，sitemap 也用它，两边不会再对不上。
+- **Playground 工具页**：给 X（Twitter）补上同一张卡片，原来 X 上显示的是 layout 的个人卡片。
+- **RSS 的 `lastBuildDate`**：原来是每次生成的时间，现在是最近一篇文章的修改时间，和 sitemap（#108）一样。
+
+体检里还剩三类没改：3 个标题偏长（Google 会自己截断）、5 个项目描述超过 160 字、标签和分类页的描述偏短。都不影响收录，也需要新写文案，这次不动。
+
+验证：本地 `next build && next start` 后重跑体检，`x-default` 和 `og:url` 两类问题消失；文章分享图是 1200×630 PNG，声明的尺寸和实际一致；中文标题的卡片渲染正常。冒烟检查通过；typecheck、测试、i18n 检查通过。
+
 ## [1.31.2] — 2026-09-29
 
 ### Removed — `comments.turnstile_token` 列（#109）

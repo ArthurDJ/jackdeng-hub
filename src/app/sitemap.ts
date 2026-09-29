@@ -2,13 +2,13 @@ import type { MetadataRoute } from 'next'
 import { getPayload } from '@/lib/payload'
 import { countPostsByTaxonomy, withPosts } from '@/lib/taxonomyCounts'
 import { latest, latestByTaxonomy, postModified } from '@/lib/sitemapDates'
+import { localeAlternates } from '@/lib/alternates'
 
 // Hourly, like the pages. Saves in /admin expire it at once (src/lib/revalidate.ts);
 // this bounds how stale it gets when something is written outside Next.js.
 export const revalidate = 3600
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
-const LOCALES = ['en', 'zh'] as const
 
 /**
  * Build a sitemap entry with en/zh hreflang alternates. Without a date there
@@ -24,11 +24,9 @@ function entry(
     ...(lastModified ? { lastModified: new Date(lastModified) } : {}),
     changeFrequency: 'weekly',
     priority: path === '' ? 1.0 : 0.8,
-    alternates: {
-      languages: Object.fromEntries(
-        LOCALES.map((locale) => [locale, `${BASE}/${locale}${path}`]),
-      ),
-    },
+    // The same set the page itself lists (src/lib/alternates.ts), x-default
+    // included.
+    alternates: { languages: localeAlternates('en', path, BASE).languages },
   }
 }
 

@@ -10,6 +10,36 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.28.0] — 2026-09-29
+
+### Security — 全站强制执行 CSP，只有 `/admin` 还是只报告（#103）
+
+完整策略从 #58 起以 report-only 试运行。违规记录只进 Vercel 函数日志，这边看不到，所以改成直接在浏览器里查：用内置浏览器打开线上每一类页面，读控制台里的 CSP 报告。
+覆盖了中英文首页、文章列表、文章页、归档、分类、标签、关于、项目列表、项目归档、项目详情、Playground 列表、6 个工具（拖拽、点击、输入命令、开一局 Dev Day）、404、主题切换、⌘K 搜索，以及文章页评论区的 Turnstile（小部件正常渲染）。
+结果一条违规都没有。为了确认这个办法本身查得出问题，在页面里故意加载了一张外站图片，控制台照常报了出来。
+
+- 除 `/admin` 以外的路径，完整策略改进 `Content-Security-Policy`，不再发 report-only。路径规则是 `/:path((?!admin(?:/|$)).*)`。
+- `/admin` 和 `/admin/…` 不变：只强制 `frame-ancestors 'self'`，完整策略继续 report-only。Payload 后台有自己的编辑器代码，这次没有逐项测过。
+- `next dev` 下 `script-src` 多一个 `'unsafe-eval'`：React 在开发模式用 eval() 重建服务端组件的调用栈，不加的话本地开发会被自己的策略拦住。生产构建不带。
+- 违规照旧发到 `/api/csp-report`，日志里的 `disposition` 区分两种：`enforce` 是站点上真被拦下的，`report` 是后台里将会被拦的。
+- `scripts/smoke.py` 加了第 4 项检查：`/en`、一个 404 页和 `/api/search` 要带强制执行的策略，且没有 `'unsafe-eval'`、没有 report-only；`/admin` 和 `/admin/login` 要只强制 `frame-ancestors`，完整策略在 report-only 里。
+  两条路径规则写错任何一条，页面都照常打开，只有这项检查会发现。CI 和部署后的冒烟检查都跑它。
+- `AI_DEPLOY.md` 里嵌入外部工具那一步同步改了：没加进 `frame-src` / `script-src` 的来源，现在会被浏览器直接拦下。
+
+验证：
+- 用 Next 自带的 path-to-regexp 核对两条规则：`/`、页面、`/api`、`/_next`、`/feed.xml` 只走站点规则，`/admin`、`/admin/login`、`/admin/collections/…` 只走后台规则。
+  `/admin/`（带斜杠）两条都不匹配，它只是一个 308 跳转。
+- 本地 `next build && next start`：冒烟检查全部通过。同一个脚本对准还没改的线上跑，站点的 3 项 CSP 检查按预期失败，后台 2 项通过。
+- 本地浏览器在强制模式下再扫一遍首页、文章页、项目归档、6 个工具和后台登录页，没有任何东西被拦；外站图片探针被拦下，`/api/csp-report` 收到 `disposition: enforce` 的记录。
+- 本地没有配 Turnstile，强制模式下的评论框没法在本地测。线上 report-only 时它的脚本和 iframe 都没有违规。**合并后请打开任意一篇文章，勾一下「Verify you are human」，看能否通过。**
+
+## [1.27.1] — 2026-09-29
+
+### Changed — vitest 5.0.2（#88）
+
+Dependabot 的 other 分组，补丁版本，只动 `package.json` 和 lockfile（带着 rolldown、oxc 的传递依赖一起升）。PR 上 CI 全部通过。
+#102 之后合并，本地在合并后的 main 上重跑 `npm test`，29 个文件、273 个测试通过。
+
 ## [1.27.0] — 2026-09-29
 
 ### Changed — 博客归档按年份分组，每年开头一个大号空心年份（#102）

@@ -3,9 +3,9 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
-// The full policy, sent report-only: browsers enforce none of it, and post
-// every violation to /api/csp-report, which logs it (src/app/api/csp-report).
-// Once the logs show only noise, it moves into Content-Security-Policy.
+// The policy. Enforced on the site; /admin gets it report-only (below).
+// Violations are posted to /api/csp-report, which logs them
+// (src/app/api/csp-report), with `disposition` saying which of the two.
 //
 // What each source is for:
 //   challenges.cloudflare.com         Turnstile on the comment form: its
@@ -19,11 +19,15 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 // scripts from any other host, no plugins, no <base> hijack, forms that only
 // post back here, and frames only from here and Turnstile.
 //
-// A tool embedded by URL (embedType iframe or script) will show up here
-// as a violation; add its origin when one exists.
-const CSP_REPORT_ONLY = [
+// 'unsafe-eval' is added under `next dev` only: React uses eval() in
+// development to rebuild server component stacks. Production never gets it.
+//
+// A tool embedded by URL (embedType iframe or script) is blocked until its
+// origin is added to frame-src or script-src.
+const DEV = process.env.NODE_ENV === 'development'
+const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+  `script-src 'self' 'unsafe-inline'${DEV ? " 'unsafe-eval'" : ''} https://challenges.cloudflare.com`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
   "font-src 'self' data:",
@@ -37,15 +41,10 @@ const CSP_REPORT_ONLY = [
   'report-uri /api/csp-report',
 ].join('; ')
 
-// Sent on every response, /admin included. Until these, the only security
-// header was the HSTS Vercel adds, so any site could frame /admin and
-// clickjack a signed-in editor.
-//
-// The enforced CSP carries frame-ancestors only; the rest of the policy is
-// on trial as Content-Security-Policy-Report-Only, above.
-const SECURITY_HEADERS = [
-  { key: 'Content-Security-Policy', value: "frame-ancestors 'self'" },
-  { key: 'Content-Security-Policy-Report-Only', value: CSP_REPORT_ONLY },
+// Sent on every response. Until these, the only security header was the HSTS
+// Vercel adds, so any site could frame /admin and clickjack a signed-in
+// editor.
+const COMMON_HEADERS = [
   // For browsers that predate frame-ancestors.
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -53,10 +52,26 @@ const SECURITY_HEADERS = [
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()' },
 ]
 
+// The site ran the policy report-only from #58; a scan of every page type,
+// the six Playground tools, search, the theme switch and the comment form
+// found no violations, so it is enforced there. Payload's admin loads its
+// own editor code and was never checked against it, so /admin keeps
+// enforcing frame-ancestors alone and trials the rest.
+const SITE_HEADERS = [{ key: 'Content-Security-Policy', value: CSP }, ...COMMON_HEADERS]
+const ADMIN_HEADERS = [
+  { key: 'Content-Security-Policy', value: "frame-ancestors 'self'" },
+  { key: 'Content-Security-Policy-Report-Only', value: CSP },
+  ...COMMON_HEADERS,
+]
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async headers() {
-    return [{ source: '/:path*', headers: SECURITY_HEADERS }]
+    return [
+      // Every path but /admin and /admin/…; the two rules never overlap.
+      { source: '/:path((?!admin(?:/|$)).*)', headers: SITE_HEADERS },
+      { source: '/admin/:path*', headers: ADMIN_HEADERS },
+    ]
   },
   // Pagination moved from ?page=N to /page/N so the list pages can be cached
   // (reading searchParams forces a per-request render). Old links keep

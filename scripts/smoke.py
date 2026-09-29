@@ -6,11 +6,12 @@
 
 Why it exists: PR #26 turned every blog post into a 500 while `typecheck`,
 `npm test` and the build all passed. The error was thrown at request time and
-nothing fetched a page. Three checks, all read-only:
+nothing fetched a page. Four checks, all read-only:
 
 1. The routes a build cannot check answer 200 without a server error inside.
 2. Made-up URLs answer 404.
 3. Every internal link on every sitemap page resolves without a redirect.
+4. The site enforces the content security policy; /admin only reports.
 
 Standard library only, so it runs on a bare runner with no install step.
 """
@@ -156,5 +157,31 @@ for href, page in sorted(links.items()):
         fail(f'{href}  (linked from {page}) — {why}')
 
 print(f'{len(pages)} sitemap pages, {len(links)} distinct internal links')
+
+# ── 4. The content security policy ────────────────────────────────────────
+# Enforced on the site, report-only on /admin (next.config.mjs), each chosen
+# by one path pattern. A slip in either pattern drops a policy without
+# breaking a single page, so nothing else would notice.
+def headers(path):
+    try:
+        with no_follow.open(BASE + path, timeout=30) as r:
+            return r.headers
+    except urllib.error.HTTPError as e:
+        return e.headers
+
+
+for path, admin in (('/en', False), (f'/zh/{nope}/deeper', False), ('/api/search', False),
+                    ('/admin', True), ('/admin/login', True)):
+    h = headers(path)
+    enforced, trial = h.get('Content-Security-Policy', ''), h.get('Content-Security-Policy-Report-Only', '')
+    if admin:
+        ok = enforced == "frame-ancestors 'self'" and "default-src 'self'" in trial
+    else:
+        ok = "default-src 'self'" in enforced and "'unsafe-eval'" not in enforced and not trial
+    if ok:
+        print(f'ok   CSP  {path}  ({"report-only" if admin else "enforced"})')
+    else:
+        fail(f'CSP  {path}  (enforced: {enforced or "none"}; report-only: {trial or "none"})')
+
 print('FAIL' if failed else 'all ok')
 sys.exit(1 if failed else 0)

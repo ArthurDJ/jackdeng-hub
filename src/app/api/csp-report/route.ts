@@ -2,9 +2,10 @@ import type { NextRequest } from 'next/server'
 import { MAX_REPORT_BYTES, parseCspReports, readCapped } from '@/lib/cspReport'
 
 // Where browsers send Content-Security-Policy violations (report-uri in
-// next.config.mjs). While the policy is report-only, this is how we learn
-// what a strict policy would break before it breaks anything: each violation
-// becomes one `[csp]` line in the Vercel function logs.
+// next.config.mjs). Each one becomes a `[csp]` line in the Vercel function
+// logs: on the site, where the policy is enforced, something it blocked
+// (`disposition: enforce`); on /admin, where it is report-only, something it
+// would block (`report`).
 //
 // Unauthenticated by necessity — browsers post here on their own. So it
 // trusts nothing: bodies over 16 KB are refused (unread when Content-Length

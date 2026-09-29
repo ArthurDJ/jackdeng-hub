@@ -7,6 +7,7 @@ import { buildSidebarData } from '@/lib/sidebarData'
 import { asLocale } from '@/i18n/routing'
 import { localeAlternates } from '@/lib/alternates'
 import { formatDate, formatMonthName } from '@/lib/formatDate'
+import { readingTime } from '@/lib/readingTime'
 import type { Blog } from '@/payload-types'
 
 export const revalidate = 3600
@@ -92,16 +93,16 @@ export default async function ArchivePage({ params }: Props) {
 
               if (monthsInYear.length === 0) return null
 
+              // After antfu.me/posts: each year opens with its number, huge and
+              // outlined, and the list sits over its lower half. The outline is
+              // decoration; screen readers get the plain year.
               return (
-                <section key={year}>
-                  <h2 style={{
-                    fontSize: 20, fontWeight: 590, letterSpacing: '-0.3px',
-                    color: 'var(--text-primary)', marginBottom: 20, paddingBottom: 12,
-                    borderBottom: '1px solid var(--border-subtle)',
-                  }}>
-                    {year}
+                <section key={year} className="ds-reveal">
+                  <h2 className="ds-year">
+                    <span className="sr-only">{year}</span>
+                    <span aria-hidden="true" className="ds-year-mark">{year}</span>
                   </h2>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  <div className="ds-year-body" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                     {monthsInYear.map((month) => {
                       const posts = grouped[year][month]
                       return (
@@ -121,9 +122,9 @@ export default async function ArchivePage({ params }: Props) {
                               ({posts.length})
                             </span>
                           </Link>
-                          <ul style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 4, listStyle: 'none', margin: 0 }}>
+                          <ul className="ds-dim-group" style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 4, listStyle: 'none', margin: 0 }}>
                             {posts.map((blog) => (
-                              <li key={blog.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                              <li key={blog.id} className="ds-dim-item" style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                                 <time style={{ fontSize: 12, color: 'var(--text-tertiary)', fontVariantNumeric: 'tabular-nums', paddingTop: 2, width: 90, flexShrink: 0 }}>
                                   {formatDate(blog.publishedAt, locale)}
                                 </time>
@@ -134,6 +135,9 @@ export default async function ArchivePage({ params }: Props) {
                                 >
                                   {blog.title}
                                 </Link>
+                                <span style={{ marginLeft: 'auto', paddingTop: 2, flexShrink: 0, fontSize: 12, color: 'var(--text-tertiary)', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+                                  {t('minRead', { count: readingTime(blog.content) })}
+                                </span>
                               </li>
                             ))}
                           </ul>

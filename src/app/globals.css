@@ -377,6 +377,20 @@
     .ds-dim-group:has(> .ds-dim-item:hover) > .ds-dim-item:not(:hover) { opacity: 0.5; }
   }
 
+  /* ── Blog archive: a huge outlined year opens each year (after antfu.me) ── */
+  .ds-year { position: relative; margin: 0 0 -34px; line-height: 1; }
+  .ds-year-mark {
+    display: block;
+    font-size: clamp(64px, 11vw, 128px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--border-strong);
+    user-select: none;
+    pointer-events: none;
+  }
+  .ds-year-body { position: relative; }
+
   /* ── Project archive table (/projects/archive) ── */
   .ds-archive {
     width: 100%;

@@ -13,9 +13,11 @@
  *   npx tsx scripts/retag-posts.ts --apply   # write it
  *
  * Writing from here skips the cache revalidation hooks (no Next.js request),
- * so the pages catch up on the next deploy or within the hour.
+ * so it asks the live site to expire its caches afterwards
+ * (scripts/lib/refreshSite.ts, which needs REVALIDATE_SECRET).
  */
 import { loadEnv, requireApply, describeTarget } from './lib/env'
+import { refreshLiveSite } from './lib/refreshSite'
 import { getPayload } from 'payload'
 
 loadEnv()
@@ -87,6 +89,7 @@ async function run() {
     console.log('  written')
   }
   console.log(apply ? '\nDone.' : '\nNothing written. Re-run with --apply to write.')
+  if (apply) await refreshLiveSite({ isProduction: describeTarget().isProduction })
   process.exit(0)
 }
 

@@ -10,6 +10,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.31.0] — 2026-09-29
+
+### Added — 脚本写完生产库，线上立刻刷新（#107）
+
+写库脚本走 Payload 的 Local API，不在 Next.js 里运行，保存时让缓存失效的那几个 hook 碰不到缓存，所以脚本写的内容要等每小时一次的兜底刷新才出现。今天改项目页那一句就等了 25 分钟。
+部署也不一定能刷新：Vercel 会跨部署保留侧栏和搜索这两个数据缓存（有效期一小时）。
+
+- 新增 `POST /api/revalidate`：和在 /admin 保存一样，让所有页面和两个数据缓存立刻失效。
+  用 `REVALIDATE_SECRET` 作为 bearer token 保护，先哈希再做定长比较；没配或者不到 32 个字符时，接口返回 503、什么也不做。拿到密钥的人最多只能让下一个访客多等一次渲染。
+- `patch-projects`、`add-projects`、`add-playground-tools`、`publish-drafts`、`retag-posts` 带 `--apply` 写完生产库后都会调这个接口（`scripts/lib/refreshSite.ts`），写的是本地库时不调。
+  调用失败只打印原因（没配密钥、两边密钥不一致、网站连不上），不影响已经完成的写入。
+- `revalidateSite()` 改成返回是否真的刷新了，接口据此返回 200 或 500，不再一律报成功。
+- `AI_DEPLOY.md` 的环境变量表、`.env.example` 和 `CLAUDE.md` 都补上了 `REVALIDATE_SECRET`。
+
+**需要你手动做**：用 `openssl rand -hex 32` 生成一个值，填进 Vercel 的 Production 环境变量 `REVALIDATE_SECRET`，重新部署一次；再把同一个值写进 `.env.local`。
+
+验证：本地构建后用一个随机测试密钥启动。不带 token 和 token 错误都返回 401，GET 返回 405，服务端没配密钥时返回 503。token 正确时返回 200，下一次请求 `/zh/tools` 缓存从 HIT 变成 MISS（重新生成），再下一次又是 HIT。
+用真正的 `refreshLiveSite()` 调本地服务，正确密钥显示「已刷新」，错误密钥显示两边不一致。冒烟检查通过；新增 8 个测试（`revalidateAuth`、`refreshSite`）。
+
 ## [1.30.0] — 2026-09-29
 
 ### Changed — 手机上更快：字体减半，Turnstile 延后加载，首屏不再等动画（#106）

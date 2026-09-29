@@ -7,12 +7,12 @@
  *   npx tsx scripts/add-playground-tools.ts --apply    # write it
  *
  * Run it only after the deploy that registers the components is live;
- * otherwise /tools links to the "coming soon" placeholder. A record written
- * from a script does not expire the page cache (that hook needs Next.js), so
- * the tools appear on /tools within the hourly revalidation, or at once after
- * saving any tool in /admin.
+ * otherwise /tools links to the "coming soon" placeholder. After writing it
+ * asks the live site to expire its caches (scripts/lib/refreshSite.ts, which
+ * needs REVALIDATE_SECRET); script writes cannot do that themselves.
  */
 import { loadEnv, requireApply, describeTarget } from './lib/env'
+import { refreshLiveSite } from './lib/refreshSite'
 import { PLAYGROUND_TOOLS } from './lib/playgroundTools'
 import { getPayload } from 'payload'
 
@@ -50,6 +50,7 @@ async function run() {
   }
   if (!missing) console.log('\nNothing to create.')
   else console.log(apply ? '\nDone.' : `\n${missing} to create. Nothing written. Re-run with --apply to write.`)
+  if (apply && missing) await refreshLiveSite({ isProduction: describeTarget().isProduction })
   process.exit(0)
 }
 

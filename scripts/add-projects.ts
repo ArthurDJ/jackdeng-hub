@@ -16,14 +16,12 @@
  */
 import { loadEnv, requireApply, describeTarget } from './lib/env'
 import { toLexical } from './lib/markdown'
+import { readDraft } from './lib/drafts'
 import { getPayload } from 'payload'
-import fs from 'fs'
-import path from 'path'
 
 loadEnv()
 
-const DRAFTS = process.env.DRAFTS_DIR
-if (!DRAFTS) {
+if (!process.env.DRAFTS_DIR) {
   console.error('set DRAFTS_DIR to the folder holding projects/<slug>.<locale>.md')
   process.exit(1)
 }
@@ -59,15 +57,6 @@ const PROJECTS: {
   },
 ]
 
-/** The draft file for a slug: its first paragraph and the rest. */
-function draft(slug: string, locale: Locale) {
-  const file = path.join(DRAFTS!, 'projects', `${slug}.${locale}.md`)
-  const md = fs.readFileSync(file, 'utf8').trim()
-  const cut = md.indexOf('\n\n')
-  if (cut < 0) throw new Error(`${file}: needs a first paragraph and a body`)
-  return { short: md.slice(0, cut).trim(), body: md.slice(cut).trim() }
-}
-
 async function run() {
   const configPromise = (await import('../src/payload.config')).default
   const payload = await getPayload({ config: configPromise })
@@ -81,8 +70,8 @@ async function run() {
       continue
     }
     missing++
-    const en = draft(p.slug, 'en')
-    const zh = draft(p.slug, 'zh')
+    const en = readDraft(p.slug, 'en')
+    const zh = readDraft(p.slug, 'zh')
     console.log(`${p.slug}: create (${p.status}, ${p.year}, not pinned)`)
     console.log(`  stack: ${p.techStack.join(', ')}`)
     for (const [locale, d] of [['en', en], ['zh', zh]] as const) {

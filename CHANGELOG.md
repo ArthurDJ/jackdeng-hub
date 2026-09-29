@@ -10,6 +10,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.28.1] — 2026-09-29
+
+### Fixed — jackdeng.cc 项目页去掉已经不成立的说法，整段按实际情况重写（#104）
+
+旧文案有四处对不上：「静态页面无需任何客户端 JS」（首页的目录、搜索、主题切换、Playground 都要 JS）、「全球 TTFB 低于 200 毫秒」（从没测过）、「自托管、不依赖黑盒托管」（跑在 Vercel 和 Supabase 上）、「REST/GraphQL 接口」（GraphQL 在 #74 关掉了）。
+新文案只写能在仓库里核对的事：Payload 和网站是同一个 Next.js 应用、同一次部署；后台保存后页面立刻失效；Supabase 只当 Postgres 用、两个公开角色没有权限且全表 RLS；CI 的 schema 比对和冒烟检查；手写迁移、分两步删列；写库脚本不带 `--apply` 不写。
+「踩过的坑」换成三件有 PR 记录的事：查询漏传语言（#27、#39、#40）、评论两步请求可以绕过（#36）、草稿标题随 404 泄露（#89）。
+
+- `scripts/patch-projects.ts` 新增 `fromDraft`：简介和详情整段从 `$DRAFTS_DIR/projects/<slug>.<locale>.md` 读，规则和 `add-projects.ts` 一样（第一段是简介）。
+  详情按值比较：Postgres 的 jsonb 不保留键的顺序，逐字比 JSON 会让每次运行都以为有改动。已经用线上 DataHub 的记录核对过，按值比较相等。
+- 拆草稿的逻辑抽到 `scripts/lib/drafts.ts`，两个脚本共用，带 3 个测试。
+- 生产库只读 dry-run：jackdeng-hub 一条记录，中英文的简介和详情共 4 个字段要改，其余三个项目没有改动。**写入要等确认。**
+
 ## [1.28.0] — 2026-09-29
 
 ### Security — 全站强制执行 CSP，只有 `/admin` 还是只报告（#103）

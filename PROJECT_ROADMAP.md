@@ -1,15 +1,16 @@
 # Jack Deng's Personal Hub - 需求与进度规划 (Roadmap)
 
 ## 🎯 项目愿景 (Vision)
-打造一个极致优化、面向公众的个人数字名片，同时后端集成无头 CMS (Payload CMS) 作为私有管理看板与内部工具（Serverless / 脚本）的统一调度引擎。
+一个能代替简历的个人网站：首页一屏说清楚我做什么，另有中英双语的技术文章、项目案例，以及 Playground 里的交互小实验。内容在 Payload CMS 的后台里管理。
+（最初还打算让后台兼做内部工具的调度引擎，这部分在 #83、#86 删掉了，现在 Playground 里全是在浏览器里跑的作品。）
 
 ## 💡 详细需求 (Requirements)
 
 ### 1. 核心系统架构
-- **前端页面 (Public Site)**: 基于 Next.js (App Router) + Tailwind CSS 构建。必须实现全站秒开、SEO 友好，支持 Dark/Light 模式切换。
-- **后台管理 (Admin Backend)**: 采用 Payload CMS 3.0，安全隐蔽（如 `/admin`），供博主进行内容管理、评论审核和工具启停。
-- **数据库 (Database)**: Supabase PostgreSQL + Drizzle ORM，确保 100% 数据主权。
-- **部署方案 (Deployment)**: Vercel 用于全站边缘网络托管，并配置自动化 CI/CD。
+- **前端页面 (Public Site)**: Next.js 16（App Router）+ Tailwind CSS，中英双语走 next-intl（`/en`、`/zh`），深浅两种主题。页面静态生成，每小时兜底刷新，后台保存时立即失效。
+- **后台管理 (Admin Backend)**: Payload CMS 3，和网站在同一个 Next.js 应用里、同一次部署，入口 `/admin`，管理文章、项目、Playground 条目和评论审核。
+- **数据库 (Database)**: Supabase 上的 PostgreSQL，经 Payload 的 Postgres 适配器访问；不走 Supabase 的 Data API，公开角色没有权限，全表 RLS（#82）。迁移手写。
+- **部署方案 (Deployment)**: Vercel，只构建 production（#80）。合并前 CI 跑类型检查、测试、i18n 核对、schema 比对、seed + 构建 + 冒烟检查；部署后和每天各跑一次线上冒烟检查。
 
 ---
 
@@ -18,7 +19,7 @@
 ### ✅ Phase 1 - 5 (Infrastructure, Backend, i18n)
 *已完成基础搭建、Payload CMS 集成、防 Spam 机制、双语支持 (v0.8.0) 及全站 Geist 字体落地。详情请参考 `CHANGELOG.md`。*
 
-### 🔄 Phase 6: 内容填充与生产验收 (In Progress)
+### ✅ Phase 6: 内容填充与生产验收
 - [x] **Vercel Speed Insights 接入** ✅
 - [x] **生产环境 500 错误深度排查与修复** (t.rich XML 格式 & users.name 迁移) ✅
 - [x] **测试数据填充 (Seed)** — 验证前端双语渲染连通性 ✅
@@ -26,7 +27,7 @@
 - [x] **项目集**: 创建首批项目条目，验证首页 Projects 区块。 ✅
 - [x] **评论验收**: 端对端评论提交测试（含 Turnstile 流程）。 ✅
 
-### 🔄 Phase 7: v1.0 细节打磨冲刺 (Week 1-3)
+### ✅ Phase 7: v1.0 细节打磨冲刺 (Week 1-3)
 
 > 基于 Claude 审计计划 `zany-floating-engelbart.md` 整合，作为当前最高优先级的执行文档。
 
@@ -44,7 +45,7 @@
 - [x] **博客分页**: `Pagination.tsx` 组件封装 + Payload 翻页逻辑对接 ✅
 - [x] **日期标准化**: 全站 `formatDate` locale 感知重构 ✅
 
-**P2 — 品质提升与收尾（Week 3 - 进行中）**
+**P2 — 品质提升与收尾（Week 3 - 完成）**
 - [x] **Footer 统一**: 封装全局 `Footer.tsx` 组件，替换首页/About/blog layout/blog detail 四处冗余代码 ✅
 - [x] **布局抽象**: 封装 `.ds-container` / `.ds-section-padding` / `.ds-pagination-item` Utility 类 ✅
 - [x] **Pagination 覆盖**: category/tag 页面同步接入分页，统一 12 条/页 ✅
@@ -54,7 +55,8 @@
 - [x] **环境清理**: 确认 `.gitignore` 生效，移除残留的未追踪日志与临时文件。 ✅
 - [x] **Admin UI 优化**: 合并 Header 设置面板 (AdminHeaderSettings)，修复 /admin/account 路由未找到问题。 ✅
 
-### 🔄 Phase 8: 动态工具引擎 (骨架完成，等待内容)
+### ✅ Phase 8: 动态工具引擎 → Playground
+*工具集合和 `/tools` 页面保留下来，改名 Playground（#83）；自动化部分（回调接口、`ToolRuns`、`toolType`）在 #83、#86 删除，现在全是交互式作品，见 `/tools` 上的日志（#105）。*
 - [x] 设计 Tools Collection（toolType / accessControl / status / embedUrl / embedType 等字段）✅
 - [x] 前端渲染公开可用的"在线工具"列表（`/tools` 目录 + `/tools/[slug]` 详情）✅
 - [x] Tools 页面接入 next-intl（v1.6.3）✅
@@ -191,6 +193,7 @@
 | 借鉴知名个人网站：Playground 日志、页脚状态行、登录后才有的后台入口 | 🟢 低 | ✅ 已完成 (#105) | `/tools` 作品下面加日志，学 bitdrift.io/changelog：日期、上线 / 更新 / 改名徽章、内容，每条链到 PR，数据在 `src/lib/playgroundLog.ts`，测试保证每个内置工具都有上线记录。页脚加一行部署日期和提交号（构建时写入）。后台入口只在登录过 /admin 的浏览器里出现：`Users` 在登录、续期时种可读标记 `jd-editor`，退出时清掉，页面缓存不受影响。 |
 | 手机上 LCP 偏慢 | 🟡 中 | ✅ 已修复 (#106) | Lighthouse 量线上：无障碍、最佳实践、SEO 都是 100，CLS 为 0，只有手机 LCP 慢（首页 4.9s、文章 6.8s）。Geist 两套字体做子集（每页少 71KB，`fontSubset.test.ts` 防漏字），Turnstile 等评论框接近视口或输入框获得焦点时才加载（线上文章页 1277KiB 里它占 802KiB），首页简介加载时不再淡入（渲染延迟 292→56ms），文章顶图加 `fetchpriority=high`。本地复测首页 LCP 4.05→3.29s。CSS 内联测过，反而更慢，没采用。 |
 | 脚本写库后线上最长一小时才更新 | 🟢 低 | ✅ 已修复 (#107) | 写库脚本不在 Next.js 里运行，碰不到让缓存失效的 hook；Vercel 还会跨部署保留侧栏和搜索的数据缓存，所以部署也不一定刷新。新增 `POST /api/revalidate`（`REVALIDATE_SECRET` 保护，没配时 503），5 个写库脚本写完生产库后自动调用。需要在 Vercel 和 `.env.local` 配同一个密钥。 |
+| sitemap 的 lastmod 是生成时间 | 🟢 低 | ✅ 已修复 (#108) | 30 条里 17 条（首页、列表、分类、标签）每次生成都标成「刚改过」，文章也只用发布时间。列表页改取所列内容的最新修改时间，分类和标签取最新文章，文章取修改和发布里较晚的一个；「关于」没有可靠日期，就不填。 |
 | 仓库根目录遗留一次性脚本 | 🟢 低 | ✅ 已修复 (#72) | `.tmp-online.ts` 是 #31 上线落沙后把记录改成 `online` 的一次性脚本，随 #32 误提交进仓库根目录，早已执行完。删除。 |
 | Tools 字段不支持多语言 | 🟡 中 | ✅ 已修复 (#31) | 与 Categories 同一个缺陷，**在隔壁集合里又犯了一次**，同样被空集合藏住 —— `Tools.name` / `.description` 是单列，用 `locale: 'zh'` 写第二个语言只是一次 UPDATE，直接把英文名覆盖掉。发现方式是把落沙工具建出来后，英文页标题显示成「落沙」。**还有另一半**：`/tools` 列表页、详情页、`generateMetadata` 三处查询压根没传 `locale`，所以即使字段本地化了也会回落到 defaultLocale（zh）—— Categories 当时没这问题，是因为那些页面本来就传了。两半都修掉。迁移沿用 categories 的加法两阶段，事务彩排后执行（batch 16）。 |
 | builtin 工具无法渲染 | 🟡 中 | ✅ 已修复 (#31) | `embedType` 的选项里有「内置页面」，但详情页只处理 `iframe` / `script`，选 builtin 落到 🚧 占位。同时 `isAutomation ? <VisaMonitorDashboard/>` 让**任意**自动化工具都渲染签证面板 —— 组件名就是那个工具的名字。两者都是声明与实现不一致，都因为 `tools` 长期为空而没被发现。改为按 slug 的组件注册表，未注册的 slug 仍落到占位（那是诚实的结果：记录在但页面没写）。 |
@@ -203,4 +206,4 @@
 
 ---
 *注：本文件为单一事实来源 (SSOT)。每次重大更新需同步更新本 Roadmap。*
-*最后更新：2026-09-29 (#107 脚本写库后自动刷新线上缓存（`POST /api/revalidate`）；#106 手机 LCP：字体子集、Turnstile 延后加载、首屏不等淡入、文章顶图高优先级；#105 Playground 日志、页脚部署状态行、登录后才显示的后台入口；#104 jackdeng.cc 项目页按实际情况重写，项目补丁脚本可从草稿写入；#103 除 `/admin` 外全站强制执行 CSP，冒烟检查核对 CSP 响应头；#88 vitest 5.0.2；#102 博客归档按年份分组、大号空心年份；#101 两个工作项目进精选、删去 snapshot 说法；#100 数据平台的角色统一，项目记录修改脚本；#98 项目归档表与项目年份、「在哪做的」两个字段；#97 首页两栏：左栏固定、页面目录、悬停变暗；#96 首页简介简短 / 详细切换、主题切换圆形展开；#95 首页极光背景、卡片倾斜与悬浮、滚动入场；#94 Playground 新增程序员模拟器「程序员的一天」；#93 Playground 新增 dbt 终端、文字漩涡、蓝图字标、技能掉落；#92 界面第二批：语言与搜索按钮、经历展开、时间线滚动填充、博客骨架屏、404 翻牌；#91 界面第一批：hero 网格、Bento、卡片柔光、三段式主题切换、全站减少动效；#90 后台保存后单独刷新 sitemap，兜底周期缩短到一小时；#89 草稿 metadata 不再随 404 泄露，CI 加草稿回归检查；#87 文章支持代码块、表格和编号列表，发文脚本加 dry-run 与 `--only`；#86 删除自动化引擎的 schema（`tool_runs`、自动化列、`toolType`）；#85 中文页面残留英文（语言切换、About 链接）；#84 首批文章按内容重打标签，两篇 AI 汇编改回草稿；#83 `/tools` 改名 Playground，停用自动化工具引擎（第一步）；#82 收回 Supabase anon/authenticated 对 public 的全部权限并开启 RLS；#80 关掉 Preview 部署，只构建 production；#79 CI 在合并前 seed、构建并冒烟检查，冒烟检查抽成 `scripts/smoke.py` 并每日定时运行；#78 后台保存后立即让页面、sitemap、侧栏与搜索缓存失效；#77 删除闲置依赖、Docker 文件和一次性脚本，RSS 文案进 messages，日期格式统一，去掉页脚 Admin 链接；#76 接入 Vercel Web Analytics；#75 侧栏、sitemap 与 noindex 排除没有文章的分类和标签；#74 收紧 REST 访问规则：评论的邮箱与 IP、匿名写 tool-runs，缺 `PAYLOAD_SECRET` 拒绝启动，关闭 GraphQL，集合访问规则单测；#73 重写 `AI_DEPLOY.md` 的部署与工具引擎两节；#72 CHANGELOG 回填 1.10.0–1.13.1、新增 `CLAUDE.md`、删除遗留的 `.tmp-online.ts`；#69 `/og` 改走 Node.js 运行时；#71 审查 #53–#68 的其余六处问题；#70 本地推送守卫绕过、csp-report 读取上限、schema-drift 检查补外键规则并修掉 `tool_runs` 的删除规则偏差；#68 移除用不到的 `@libsql/client` 依赖；#65 Dependabot 每周依赖更新，Payload 包锁步成组；#64 Next.js 16.3.6 与 Payload 3.90.2 安全升级、两个新列的迁移、schema-drift 检查补上存储插件；#63 打印样式：首页与 About 可直接打印 / 存 PDF 当简历；#62 中文页读屏标签本地化、搜索框焦点不外泄且关闭后归还、跳转链接验证通过；#61 ⌘K 后立即输入不再丢字；#60 toast 库与搜索面板按需加载、等宽字体不再预加载；#59 归档/分类/标签页补 canonical 与 hreflang、中文页不再用英文描述、工具页分享卡片；#58 完整 CSP 以 report-only 试运行、违规上报接口；#57 扫描器路径不再 500、locale 下未知路径走带导航的 404；#56 浅色模式顶栏与全站文字对比度达到 WCAG AA；#55 Person 结构化数据与带定位语的分享卡片；#54 CI 检查迁移与代码 schema 是否一致；#53 迁移链对齐生产库结构；#52 博客链接补语言前缀、首页项目卡片 404、冒烟检查站内链接；#51 博客列表类页面走缓存；#50 工具详情页不再对外显示私有工具；#49 安全响应头；#48 首页与列表页走缓存；#47 首页改成能代替简历；#46 关掉开发模式自动改生产库表结构；#36 评论提交改走服务端 Turnstile 校验，关掉匿名直写 `/api/comments`；#45 projects 详情页最后两处 `any`；#39 搜索收成一个服务端路由；#44 projects 详情页的类型；#43 projects 详情页「其他项目」改用 `orEmpty()`，失败时记日志；#42 查询失败不再渲染成空列表、冒烟检查识别 200 下的报错；#40 页面查询去掉 `as any`、英文归档页标题、文章页两处硬编码文案；#38 projects 详情页从 force-dynamic 改回 ISR；#37 冒烟检查补反向 404 断言、i18n 校验进 CI；#35 生命游戏模式；#34 软 404 修复；#33 删除 visa-checker；#32 清理 tools 旧列；#31 落沙工具、builtin 注册表与 Tools 本地化；#30 冒烟触发条件改认前缀；#29 清理分类旧列；#28 修复冒烟检查从未触发；#27 分类名本地化与部署后冒烟检查；#26 静态渲染读请求头导致文章页全 500；首批 4 篇双语文章发布上线；#24 纯函数单元测试；#23 阅读时长两个 bug；#22 发文脚本与首批双语内容；#20 移除 next-auth；#19 Media 读权限收口；#18 CI 闸门与分支保护；#17 写库脚本生产守卫；#16 运维脚本 env 加载修复)*
+*最后更新：2026-09-29 (#108 sitemap 的 lastmod 如实填写，Roadmap 开头改成现在的架构；#107 脚本写库后自动刷新线上缓存（`POST /api/revalidate`）；#106 手机 LCP：字体子集、Turnstile 延后加载、首屏不等淡入、文章顶图高优先级；#105 Playground 日志、页脚部署状态行、登录后才显示的后台入口；#104 jackdeng.cc 项目页按实际情况重写，项目补丁脚本可从草稿写入；#103 除 `/admin` 外全站强制执行 CSP，冒烟检查核对 CSP 响应头；#88 vitest 5.0.2；#102 博客归档按年份分组、大号空心年份；#101 两个工作项目进精选、删去 snapshot 说法；#100 数据平台的角色统一，项目记录修改脚本；#98 项目归档表与项目年份、「在哪做的」两个字段；#97 首页两栏：左栏固定、页面目录、悬停变暗；#96 首页简介简短 / 详细切换、主题切换圆形展开；#95 首页极光背景、卡片倾斜与悬浮、滚动入场；#94 Playground 新增程序员模拟器「程序员的一天」；#93 Playground 新增 dbt 终端、文字漩涡、蓝图字标、技能掉落；#92 界面第二批：语言与搜索按钮、经历展开、时间线滚动填充、博客骨架屏、404 翻牌；#91 界面第一批：hero 网格、Bento、卡片柔光、三段式主题切换、全站减少动效；#90 后台保存后单独刷新 sitemap，兜底周期缩短到一小时；#89 草稿 metadata 不再随 404 泄露，CI 加草稿回归检查；#87 文章支持代码块、表格和编号列表，发文脚本加 dry-run 与 `--only`；#86 删除自动化引擎的 schema（`tool_runs`、自动化列、`toolType`）；#85 中文页面残留英文（语言切换、About 链接）；#84 首批文章按内容重打标签，两篇 AI 汇编改回草稿；#83 `/tools` 改名 Playground，停用自动化工具引擎（第一步）；#82 收回 Supabase anon/authenticated 对 public 的全部权限并开启 RLS；#80 关掉 Preview 部署，只构建 production；#79 CI 在合并前 seed、构建并冒烟检查，冒烟检查抽成 `scripts/smoke.py` 并每日定时运行；#78 后台保存后立即让页面、sitemap、侧栏与搜索缓存失效；#77 删除闲置依赖、Docker 文件和一次性脚本，RSS 文案进 messages，日期格式统一，去掉页脚 Admin 链接；#76 接入 Vercel Web Analytics；#75 侧栏、sitemap 与 noindex 排除没有文章的分类和标签；#74 收紧 REST 访问规则：评论的邮箱与 IP、匿名写 tool-runs，缺 `PAYLOAD_SECRET` 拒绝启动，关闭 GraphQL，集合访问规则单测；#73 重写 `AI_DEPLOY.md` 的部署与工具引擎两节；#72 CHANGELOG 回填 1.10.0–1.13.1、新增 `CLAUDE.md`、删除遗留的 `.tmp-online.ts`；#69 `/og` 改走 Node.js 运行时；#71 审查 #53–#68 的其余六处问题；#70 本地推送守卫绕过、csp-report 读取上限、schema-drift 检查补外键规则并修掉 `tool_runs` 的删除规则偏差；#68 移除用不到的 `@libsql/client` 依赖；#65 Dependabot 每周依赖更新，Payload 包锁步成组；#64 Next.js 16.3.6 与 Payload 3.90.2 安全升级、两个新列的迁移、schema-drift 检查补上存储插件；#63 打印样式：首页与 About 可直接打印 / 存 PDF 当简历；#62 中文页读屏标签本地化、搜索框焦点不外泄且关闭后归还、跳转链接验证通过；#61 ⌘K 后立即输入不再丢字；#60 toast 库与搜索面板按需加载、等宽字体不再预加载；#59 归档/分类/标签页补 canonical 与 hreflang、中文页不再用英文描述、工具页分享卡片；#58 完整 CSP 以 report-only 试运行、违规上报接口；#57 扫描器路径不再 500、locale 下未知路径走带导航的 404；#56 浅色模式顶栏与全站文字对比度达到 WCAG AA；#55 Person 结构化数据与带定位语的分享卡片；#54 CI 检查迁移与代码 schema 是否一致；#53 迁移链对齐生产库结构；#52 博客链接补语言前缀、首页项目卡片 404、冒烟检查站内链接；#51 博客列表类页面走缓存；#50 工具详情页不再对外显示私有工具；#49 安全响应头；#48 首页与列表页走缓存；#47 首页改成能代替简历；#46 关掉开发模式自动改生产库表结构；#36 评论提交改走服务端 Turnstile 校验，关掉匿名直写 `/api/comments`；#45 projects 详情页最后两处 `any`；#39 搜索收成一个服务端路由；#44 projects 详情页的类型；#43 projects 详情页「其他项目」改用 `orEmpty()`，失败时记日志；#42 查询失败不再渲染成空列表、冒烟检查识别 200 下的报错；#40 页面查询去掉 `as any`、英文归档页标题、文章页两处硬编码文案；#38 projects 详情页从 force-dynamic 改回 ISR；#37 冒烟检查补反向 404 断言、i18n 校验进 CI；#35 生命游戏模式；#34 软 404 修复；#33 删除 visa-checker；#32 清理 tools 旧列；#31 落沙工具、builtin 注册表与 Tools 本地化；#30 冒烟触发条件改认前缀；#29 清理分类旧列；#28 修复冒烟检查从未触发；#27 分类名本地化与部署后冒烟检查；#26 静态渲染读请求头导致文章页全 500；首批 4 篇双语文章发布上线；#24 纯函数单元测试；#23 阅读时长两个 bug；#22 发文脚本与首批双语内容；#20 移除 next-auth；#19 Media 读权限收口；#18 CI 闸门与分支保护；#17 写库脚本生产守卫；#16 运维脚本 env 加载修复)*

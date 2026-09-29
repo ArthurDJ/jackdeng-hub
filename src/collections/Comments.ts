@@ -165,24 +165,6 @@ export const Comments: CollectionConfig = {
         description: { en: 'Auto-captured for rate limiting.', zh: '自动获取用于频率限制。' },
       },
     },
-    {
-      // Deprecated, and no longer written to. The token is verified against
-      // Cloudflare during the submission and is single-use, so a stored copy
-      // is a spent one — it proves nothing after the fact. The column stays
-      // until a follow-up migration drops it, the same two-step used for the
-      // legacy category and tool columns (#29, #32).
-      name: 'turnstileToken',
-      type: 'text',
-      label: { en: 'Turnstile Token', zh: 'Turnstile 令牌' },
-      admin: {
-        position: 'sidebar',
-        readOnly: true,
-        description: {
-          en: 'Deprecated. Verification now happens server-side during submission.',
-          zh: '已弃用。验证现在于提交时在服务端完成。',
-        },
-      },
-    },
 
     // ── Honeypot (hidden from UI, only relevant on create) ────────────────
     {

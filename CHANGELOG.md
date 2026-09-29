@@ -10,6 +10,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.31.2] — 2026-09-29
+
+### Removed — `comments.turnstile_token` 列（#109）
+
+两步删列的第二步。#36 把 Turnstile 验证挪进提交请求本身，从此不再写这一列：token 只能用一次，存下来的都是用过的，事后证明不了什么。当时字段定义和列都先留着，这样两种部署顺序都不会出问题。
+这次从 `Comments` 集合里删掉字段定义，并加一条迁移 `20260929_000001_drop_comments_turnstile_token` 把列 DROP 掉；`payload-types.ts` 重新生成。评论提交接口和表单里的 `turnstileToken` 是请求体字段，不受影响。
+
+生产库只读核对（2026-09-29）：只有 `comments` 有这一列，而且表里没有任何评论，删掉不丢数据。
+
+**顺序**：先合并、等部署完成（新代码不再读这一列），再对生产执行 `npm run migrate`。迁移要你点头。
+
+验证：一次性 Postgres 上迁移 up 后这一列消失，down 能加回来，再 up 又删掉；`scripts/schema-drift.ts` 比对「迁移建出的库」和「代码定义的结构」完全一致。
+
 ## [1.31.1] — 2026-09-29
 
 ### Fixed — sitemap 的 lastmod 如实填写；Roadmap 开头改成现在的样子（#108）

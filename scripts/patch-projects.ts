@@ -2,20 +2,26 @@
  * Field-level edits to existing project records, in both locales, with a
  * read-only plan that prints every change as old → new.
  *
- *   npx tsx scripts/patch-projects.ts            # read-only: print the plan
- *   npx tsx scripts/patch-projects.ts --apply    # write it
+ *   DRAFTS_DIR=… npx tsx scripts/patch-projects.ts            # read-only: print the plan
+ *   DRAFTS_DIR=… npx tsx scripts/patch-projects.ts --apply    # write it
  *
  * Each patch finds its record by `slug`, or by the new slug when it renames
  * one that was already renamed. Fields already at their target value are
  * skipped, so running twice is harmless. A long-description edit replaces one exact
- * sentence and fails if that sentence is not found exactly once.
+ * sentence and fails if that sentence is not found exactly once. A patch
+ * with `fromDraft` rewrites both descriptions from
+ * $DRAFTS_DIR/projects/<slug>.<locale>.md (scripts/lib/drafts.ts); DRAFTS_DIR
+ * is only needed for those.
  *
  * Script writes do not expire the page cache (that hook needs Next.js):
  * changes show within the hourly revalidation, or at once after saving any
  * project in /admin.
  */
 import { loadEnv, requireApply, describeTarget } from './lib/env'
+import { readDraft } from './lib/drafts'
+import { toLexical } from './lib/markdown'
 import { getPayload } from 'payload'
+import { isDeepStrictEqual } from 'util'
 
 loadEnv()
 
@@ -29,6 +35,8 @@ interface Patch {
   slug: string
   set?: Partial<{ slug: string; year: string; isPinned: boolean }>
   locales?: Partial<Record<Locale, Localized>>
+  /** Both descriptions, in both locales, from the markdown draft. */
+  fromDraft?: boolean
   /** Exact sentences in the long description, and what replaces each. */
   replaceInLong?: Partial<Record<Locale, [string, string][]>>
 }
@@ -50,10 +58,14 @@ const PATCHES: Patch[] = [
       ],
     },
   },
+  // The old text claimed things that stopped being true: no client-side JS,
+  // sub-200 ms TTFB (never measured), self-hosted, REST/GraphQL (GraphQL has
+  // been off since #74).
   {
     slug: 'jackdeng-hub',
     set: { year: '2026–' },
     locales: { en: { madeAt: 'Personal' }, zh: { madeAt: '个人项目' } },
+    fromDraft: true,
   },
   // The two work systems carry no company name in their name, URL or text;
   // "made at" still says where.
@@ -96,6 +108,17 @@ function replaceSentence(doc: any, from: string, to: string): any {
 
 const show = (v: unknown) => (v == null || v === '' ? '(empty)' : JSON.stringify(v))
 
+/** The text of a Lexical document, for sizing it in the plan. */
+function plainText(doc: any): string {
+  const out: string[] = []
+  const walk = (n: any) => {
+    if (typeof n?.text === 'string') out.push(n.text)
+    for (const c of n?.children ?? []) walk(c)
+  }
+  walk(doc?.root)
+  return out.join('')
+}
+
 async function run() {
   const configPromise = (await import('../src/payload.config')).default
   const payload = await getPayload({ config: configPromise })
@@ -132,6 +155,20 @@ async function run() {
         data[k] = v
       }
       let long = doc.longDescription
+      if (p.fromDraft) {
+        const d = readDraft(slug, locale)
+        if (doc.shortDescription !== d.short) {
+          console.log(`  ${locale}.shortDescription: ${show(doc.shortDescription)} → ${show(d.short)}`)
+          data.shortDescription = d.short
+        }
+        // Compared as values: Postgres jsonb does not keep key order.
+        const lexical = toLexical(d.body) as any
+        if (!isDeepStrictEqual(long, lexical)) {
+          console.log(`  ${locale}.longDescription: ${plainText(long).length} chars of text → ${plainText(lexical).length}, from ${slug}.${locale}.md`)
+          long = lexical
+          data.longDescription = long
+        }
+      }
       for (const [from, to] of p.replaceInLong?.[locale] ?? []) {
         // Already applied when the old sentence is gone.
         if (!JSON.stringify(long ?? {}).includes(JSON.stringify(from).slice(1, -1))) continue

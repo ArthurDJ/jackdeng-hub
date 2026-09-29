@@ -13,6 +13,7 @@ import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
 import { POSTS_PER_PAGE, pageHref } from '@/lib/pagination'
 import { localeAlternates } from '@/lib/alternates'
+import { siteOpenGraph } from '@/lib/siteOpenGraph'
 
 export async function tagMetadata(locale: string, slug: string, page: number): Promise<Metadata> {
   const payload = await getPayload()
@@ -40,6 +41,7 @@ export async function tagMetadata(locale: string, slug: string, page: number): P
       : t('tagMetaDescription', { name: tag.name }),
     // Each page is its own canonical URL, as on /blog.
     alternates: localeAlternates(locale, pageHref(`/blog/tag/${slug}`, page)),
+    openGraph: { ...(await siteOpenGraph(locale)), url: localeAlternates(locale, pageHref(`/blog/tag/${slug}`, page)).canonical },
     // A tag no published post uses yet renders "no posts found". Keep it out
     // of the index; the sitemap leaves it out too.
     ...(totalDocs === 0 && { robots: { index: false, follow: true } }),

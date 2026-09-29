@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import { NextResponse } from 'next/server'
 import { asLocale } from '@/i18n/routing'
 import { getPayload } from '@/lib/payload'
+import { latest, postModified } from '@/lib/sitemapDates'
 
 export const revalidate = 86400 // regenerate once per day
 
@@ -33,6 +34,9 @@ export async function GET(request: Request) {
 
   const title = t('title')
   const description = t('description')
+  // When the channel's content last changed: its newest post edit, not the
+  // moment this response was built (src/lib/sitemapDates.ts has the why).
+  const changed = latest(docs.map(postModified))
 
   const items = docs
     .map((post) => {
@@ -62,7 +66,7 @@ export async function GET(request: Request) {
     <description>${escape(description)}</description>
     <language>${t('language')}</language>
     <atom:link href="${BASE}/feed.xml?locale=${locale}" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    ${changed ? `<lastBuildDate>${new Date(changed).toUTCString()}</lastBuildDate>` : ''}
     ${items}
   </channel>
 </rss>`

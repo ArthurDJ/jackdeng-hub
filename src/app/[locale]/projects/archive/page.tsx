@@ -5,6 +5,8 @@ import { Navbar } from '@/components/Navbar'
 import { getPayload } from '@/lib/payload'
 import { asLocale } from '@/i18n/routing'
 import { linkLabel, sortArchive } from '@/lib/projectArchive'
+import { localeAlternates } from '@/lib/alternates'
+import { siteOpenGraph } from '@/lib/siteOpenGraph'
 
 /**
  * Every project in one table (after brittanychiang.com/archive): year,
@@ -28,10 +30,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t('archiveTitle'),
     description: t('archiveSubtitle'),
-    alternates: {
-      canonical: `${BASE}/${locale}/projects/archive`,
-      languages: { en: `${BASE}/en/projects/archive`, zh: `${BASE}/zh/projects/archive` },
-    },
+    alternates: localeAlternates(locale, '/projects/archive'),
+    openGraph: { ...(await siteOpenGraph(locale)), url: `${BASE}/${locale}/projects/archive` },
   }
 }
 

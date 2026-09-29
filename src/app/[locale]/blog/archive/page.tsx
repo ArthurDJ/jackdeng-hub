@@ -9,6 +9,7 @@ import { localeAlternates } from '@/lib/alternates'
 import { formatDate, formatMonthName } from '@/lib/formatDate'
 import { readingTime } from '@/lib/readingTime'
 import type { Blog } from '@/payload-types'
+import { siteOpenGraph } from '@/lib/siteOpenGraph'
 
 export const revalidate = 3600
 
@@ -26,6 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: t('archive'),
     description: t('archiveDescription'),
     alternates: localeAlternates(locale, '/blog/archive'),
+    openGraph: { ...(await siteOpenGraph(locale)), url: localeAlternates(locale, '/blog/archive').canonical },
   }
 }
 

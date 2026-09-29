@@ -7,6 +7,7 @@ import { PrintContact } from '@/components/PrintContact'
 import { CONTACT_EMAIL, PROFILE_LINKS as LINKS, SKILLS, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
 import { toJsonLd } from '@/lib/jsonLd'
 import { asLocale } from '@/i18n/routing'
+import { localeAlternates } from '@/lib/alternates'
 
 // Static per locale — generated at build time
 export async function generateStaticParams() {
@@ -27,6 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       siteName: 'Jack Deng',
       type: 'profile',
+      url: `${BASE}/${locale}/about`,
       title: `${tNav('about')} — Jack Deng`,
       description: `${t('subtitle')} — ${t('title')}`,
       images: [{ url: profileOgImage(BASE, t('subtitle')), width: 1200, height: 630 }],
@@ -35,10 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       images: [profileOgImage(BASE, t('subtitle'))],
     },
-    alternates: {
-      canonical: `${BASE}/${locale}/about`,
-      languages: { en: `${BASE}/en/about`, zh: `${BASE}/zh/about` },
-    },
+    alternates: localeAlternates(locale, '/about'),
   }
 }
 

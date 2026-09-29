@@ -13,6 +13,7 @@ import { Navbar } from '@/components/Navbar'
 import { projectStatusColors } from '@/lib/statusColors'
 import { toJsonLd } from '@/lib/jsonLd'
 import { ogCardUrl } from '@/lib/ogCard'
+import { localeAlternates } from '@/lib/alternates'
 
 // ISR, same as blog/[slug]. This page was force-dynamic from v1.3.1 until
 // now; the DYNAMIC_SERVER_USAGE 500 that prompted it was the layout reading
@@ -63,13 +64,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = project.name
   const description = project.shortDescription
-  const coverUrl = populated(project.coverImage)?.url
-  const ogImage = coverUrl ?? ogCardUrl(BASE, { title, type: 'project' })
+  // Always the generated card: a cover is a 16:9 WebP, which LinkedIn's
+  // scraper does not reliably take, and was declared as 1200x630 anyway.
+  const ogImage = ogCardUrl(BASE, { title, type: 'project' })
 
   return {
     title,
     description,
     openGraph: {
+      url: `${BASE}/${locale}/projects/${slug}`,
       title: `${title} — Jack Deng`,
       description,
       images: [{ url: ogImage, width: 1200, height: 630 }],
@@ -78,13 +81,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       images: [ogImage],
     },
-    alternates: {
-      canonical: `${BASE}/${locale}/projects/${slug}`,
-      languages: {
-        en: `${BASE}/en/projects/${slug}`,
-        zh: `${BASE}/zh/projects/${slug}`,
-      },
-    },
+    alternates: localeAlternates(locale, `/projects/${slug}`),
   }
 }
 

@@ -6,6 +6,8 @@ import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
 import { asLocale } from '@/i18n/routing'
 import { projectStatusColors } from '@/lib/statusColors'
+import { localeAlternates } from '@/lib/alternates'
+import { siteOpenGraph } from '@/lib/siteOpenGraph'
 
 export const revalidate = 3600
 
@@ -19,10 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t('title'),
     description: t('subtitle'),
-    alternates: {
-      canonical: `${BASE}/${locale}/projects`,
-      languages: { en: `${BASE}/en/projects`, zh: `${BASE}/zh/projects` },
-    },
+    alternates: localeAlternates(locale, '/projects'),
+    openGraph: { ...(await siteOpenGraph(locale)), url: `${BASE}/${locale}/projects` },
   }
 }
 

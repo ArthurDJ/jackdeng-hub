@@ -14,6 +14,7 @@ import { populated, populatedList } from '@/lib/relations'
 import { CONTACT_EMAIL, PROFILE_LINKS, RESUME_URL, SKILLS, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
 import { toJsonLd } from '@/lib/jsonLd'
 import { PrintContact } from '@/components/PrintContact'
+import { localeAlternates } from '@/lib/alternates'
 
 export const revalidate = 3600
 
@@ -32,6 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       siteName: 'Jack Deng',
       type: 'profile',
+      url: `${BASE}/${locale}`,
       title: `Jack Deng — ${t('title')}`,
       description: t('metaDescription'),
       images: [{ url: profileOgImage(BASE, t('title')), width: 1200, height: 630 }],
@@ -42,10 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: t('metaDescription'),
       images: [profileOgImage(BASE, t('title'))],
     },
-    alternates: {
-      canonical: `${BASE}/${locale}`,
-      languages: { en: `${BASE}/en`, zh: `${BASE}/zh` },
-    },
+    alternates: localeAlternates(locale, ''),
   }
 }
 

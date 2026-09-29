@@ -8,6 +8,8 @@ import { asLocale } from '@/i18n/routing'
 import { logKindColors, toolStatusColors } from '@/lib/statusColors'
 import { PLAYGROUND_LOG, prUrl, visibleLog } from '@/lib/playgroundLog'
 import { formatDay, intlLocale } from '@/lib/formatDate'
+import { localeAlternates } from '@/lib/alternates'
+import { siteOpenGraph } from '@/lib/siteOpenGraph'
 
 export const revalidate = 3600
 
@@ -21,10 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t('title'),
     description: t('subtitle'),
-    alternates: {
-      canonical: `${BASE}/${locale}/tools`,
-      languages: { en: `${BASE}/en/tools`, zh: `${BASE}/zh/tools` },
-    },
+    alternates: localeAlternates(locale, '/tools'),
+    openGraph: { ...(await siteOpenGraph(locale)), url: `${BASE}/${locale}/tools` },
   }
 }
 

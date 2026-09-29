@@ -11,6 +11,8 @@ import { buildSidebarData } from '@/lib/sidebarData'
 import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
 import { POSTS_PER_PAGE, pageHref } from '@/lib/pagination'
+import { localeAlternates } from '@/lib/alternates'
+import { siteOpenGraph } from '@/lib/siteOpenGraph'
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
 
@@ -22,10 +24,8 @@ export async function blogListMetadata(locale: string, page: number): Promise<Me
   return {
     title: page > 1 ? `${t('title')} · ${t('pagination.page', { page })}` : t('title'),
     description: t('subtitle'),
-    alternates: {
-      canonical: `${BASE}/${locale}${path}`,
-      languages: { en: `${BASE}/en${path}`, zh: `${BASE}/zh${path}` },
-    },
+    alternates: localeAlternates(locale, path),
+    openGraph: { ...(await siteOpenGraph(locale)), url: `${BASE}/${locale}${path}` },
   }
 }
 

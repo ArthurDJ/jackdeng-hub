@@ -26,6 +26,9 @@
     "submitting": "Submitting…",
     "errorSomething": "Something went wrong.",
     "copyright": "© {year} Jack Deng",
+    "deployed": "Deployed {date}",
+    "commitTitle": "View this commit on GitHub",
+    "admin": "Admin",
     "typeToConfirm": "Type {phrase} to confirm",
     "skipToContent": "Skip to content",
     "copy": "Copy",
@@ -220,6 +223,23 @@
     "backToTools": "← Back to Playground",
     "comingSoon": "Tool page coming soon.",
     "enableJs": "Please enable JavaScript to use this tool.",
+    "log": {
+      "heading": "Log",
+      "intro": "When each piece went up and what changed after. Every line links its PR.",
+      "kind": {
+        "launch": "New",
+        "update": "Updated",
+        "rename": "Renamed"
+      },
+      "prTitle": "View PR #{pr} on GitHub",
+      "entries": {
+        "devDay": "A turn-based programmer simulator: from 9 to 6, choose what each hour goes to, then see how the day ends.",
+        "batchThree": "Four at once: dbt build replayed on a CRT, rings of text the pointer scatters, a blueprint wordmark you can drag, and skills you can pick up and throw.",
+        "renamed": "Tools became the Playground, subtitled \"Small experiments that run in your browser.\" The automation engine was switched off at the same time and removed later.",
+        "gameOfLife": "Falling Sand gained a second mode, Conway's Game of Life. It shares the sandbox's canvas and steps one generation at a time while paused.",
+        "fallingSand": "The first piece: a grain-by-grain sandbox for pouring sand, water and stone."
+      }
+    },
     "status": {
       "online": "Online",
       "maintenance": "Maintenance",

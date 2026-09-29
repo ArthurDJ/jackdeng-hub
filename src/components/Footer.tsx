@@ -1,5 +1,8 @@
 import { Link } from '@/i18n/navigation'
 import { getLocale, getTranslations } from 'next-intl/server'
+import { AdminLink } from '@/components/AdminLink'
+import { buildInfo } from '@/lib/buildInfo'
+import { formatDate } from '@/lib/formatDate'
 
 interface FooterProps {
   className?: string
@@ -9,6 +12,7 @@ export async function Footer({ className }: FooterProps) {
   const locale = await getLocale()
   const t = await getTranslations({ locale, namespace: 'common' })
   const tNav = await getTranslations({ locale, namespace: 'nav' })
+  const build = buildInfo({ BUILD_TIME: process.env.BUILD_TIME, BUILD_COMMIT: process.env.BUILD_COMMIT })
 
   return (
     <footer 
@@ -25,6 +29,26 @@ export async function Footer({ className }: FooterProps) {
             <p className="text-body-sm text-ds-tertiary">
               {t('copyright', { year: new Date().getFullYear() })}
             </p>
+            {build.time && (
+              <p className="font-mono text-ds-tertiary" style={{ fontSize: 12 }}>
+                {t('deployed', { date: formatDate(build.time, locale) })}
+                {build.commit && build.commitUrl && (
+                  <>
+                    {' · '}
+                    <a
+                      href={build.commitUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={t('commitTitle')}
+                      className="ds-link-hover no-underline"
+                      style={{ color: 'inherit' }}
+                    >
+                      {build.commit}
+                    </a>
+                  </>
+                )}
+              </p>
+            )}
           </div>
 
           {/* Right: Quick Links */}
@@ -54,6 +78,7 @@ export async function Footer({ className }: FooterProps) {
             >
               RSS
             </a>
+            <AdminLink label={t('admin')} className="text-body-sm ds-link-hover no-underline" />
           </nav>
         </div>
       </div>

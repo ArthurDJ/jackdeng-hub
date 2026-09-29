@@ -26,6 +26,9 @@ export function printableUrl(href: string): string {
   return href.replace(/^https?:\/\//, '').replace(/\/+$/, '')
 }
 
+/** This site's source, which is public. */
+export const REPO_URL = 'https://github.com/ArthurDJ/jackdeng-hub'
+
 export const PROFILE_LINKS = [
   { label: 'GitHub',    href: 'https://github.com/ArthurDJ', icon: 'github' },
   { label: 'LinkedIn',  href: 'https://linkedin.com/in/jie-deng-linkdin', icon: 'linkedin' },

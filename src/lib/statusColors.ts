@@ -41,3 +41,14 @@ const TOOL_STATUS: Record<string, BadgeColors> = {
 export function toolStatusColors(status: string | null | undefined): BadgeColors {
   return TOOL_STATUS[status ?? ''] ?? TOOL_STATUS.online
 }
+
+// The Playground log's badges (src/lib/playgroundLog.ts).
+const LOG_KIND: Record<string, BadgeColors> = {
+  launch: badge('--status-success'),
+  update: badge('--status-completed'),
+  rename: badge('--status-neutral'),
+}
+
+export function logKindColors(kind: string): BadgeColors {
+  return LOG_KIND[kind] ?? LOG_KIND.rename
+}

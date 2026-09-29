@@ -66,6 +66,13 @@ const ADMIN_HEADERS = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // The footer's status line (src/lib/buildInfo.ts): when this build ran and
+  // from which commit. Written into the build, so a page regenerated later
+  // still shows the deploy. VERCEL_GIT_COMMIT_SHA is unset in a local build.
+  env: {
+    BUILD_TIME: new Date().toISOString(),
+    BUILD_COMMIT: process.env.VERCEL_GIT_COMMIT_SHA ?? '',
+  },
   async headers() {
     return [
       // Every path but /admin and /admin/…; the two rules never overlap.

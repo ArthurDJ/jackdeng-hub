@@ -225,7 +225,10 @@ export default async function BlogDetailPage({ params }: Props) {
             src={heroUrl}
             alt={cover?.alt ?? blog.title}
             fill
-            priority
+            // The cover is the post's largest paint. Next 16's preload no
+            // longer implies a high fetch priority the way priority did.
+            preload
+            fetchPriority="high"
             className="object-cover"
             sizes="100vw"
           />

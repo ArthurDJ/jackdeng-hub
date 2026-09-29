@@ -30,15 +30,23 @@ export function CommentForm({ postId }: Props) {
   const [email, setEmail]     = useState('')
   const [content, setContent] = useState('')
 
+  const formRef         = useRef<HTMLFormElement>(null)
   const turnstileRef    = useRef<HTMLDivElement>(null)
   const widgetIdRef     = useRef<string | null>(null)
   const turnstileToken  = useRef<string | null>(null)
 
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
-  // Mount Turnstile widget
+  // Mount the Turnstile widget once the form is about to be used. Turnstile
+  // was 802 KiB in 13 requests of a post page's 1277 KiB (Lighthouse,
+  // 2026-09-29), more than everything else on the page together, and the form
+  // sits at the very end of every post. Loading it with the page made it
+  // compete with the cover image for the phone's bandwidth. It starts when the
+  // form comes within about a screen of the viewport, or when a field gets
+  // focus, whichever is first; without IntersectionObserver, straight away.
   useEffect(() => {
     if (!siteKey || siteKey === 'dev') return
+    const form = formRef.current
 
     const mountWidget = () => {
       if (!turnstileRef.current || widgetIdRef.current) return
@@ -50,19 +58,42 @@ export function CommentForm({ postId }: Props) {
       })
     }
 
-    if (window.turnstile) {
-      mountWidget()
-    } else {
-      window.onTurnstileLoad = mountWidget
-      if (!document.querySelector('script[src*="turnstile"]')) {
-        const script = document.createElement('script')
-        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad'
-        script.async = true
-        document.head.appendChild(script)
+    const load = () => {
+      if (window.turnstile) {
+        mountWidget()
+      } else {
+        window.onTurnstileLoad = mountWidget
+        if (!document.querySelector('script[src*="turnstile"]')) {
+          const script = document.createElement('script')
+          script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad'
+          script.async = true
+          document.head.appendChild(script)
+        }
       }
     }
 
+    let observer: IntersectionObserver | null = null
+    let started = false
+    const start = () => {
+      if (started) return
+      started = true
+      observer?.disconnect()
+      form?.removeEventListener('focusin', start)
+      load()
+    }
+    if (!form || typeof IntersectionObserver === 'undefined') {
+      start()
+    } else {
+      observer = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) start()
+      }, { rootMargin: '100% 0px' })
+      observer.observe(form)
+      form.addEventListener('focusin', start)
+    }
+
     return () => {
+      observer?.disconnect()
+      form?.removeEventListener('focusin', start)
       if (widgetIdRef.current && window.turnstile) {
         window.turnstile.remove(widgetIdRef.current)
         widgetIdRef.current = null
@@ -174,7 +205,7 @@ export function CommentForm({ postId }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" noValidate>
       {/* Honeypot — hidden from real users */}
       <div style={{ display: 'none' }} aria-hidden="true">
         <input type="text" name="_trap" tabIndex={-1} autoComplete="off" />

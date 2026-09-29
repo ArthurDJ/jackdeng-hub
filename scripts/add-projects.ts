@@ -42,16 +42,16 @@ const PROJECTS: {
   techStack: string[]
 }[] = [
   {
-    slug: 'vwd-datahub',
-    name: { en: 'VWD DataHub', zh: 'VWD DataHub' },
-    madeAt: { en: 'Value Windows & Doors', zh: 'Value Windows & Doors' },
+    slug: 'data-hub',
+    name: { en: 'DataHub', zh: 'DataHub 数据中台' },
+    madeAt: { en: 'VWD', zh: 'VWD' },
     year: '2026–',
     status: 'active',
     techStack: ['.NET 10', 'ASP.NET Core', 'Dapper', 'EF Core', 'SQL Server', 'NetSuite SuiteQL', 'Hangfire', 'Vue 3'],
   },
   {
-    slug: 'viterra-customer-portal',
-    name: { en: 'Viterra Customer Portal', zh: 'Viterra 客户门户' },
+    slug: 'b2b-customer-portal',
+    name: { en: 'B2B Customer Portal', zh: 'B2B 客户门户' },
     madeAt: { en: 'Viterra', zh: 'Viterra' },
     year: '2026–',
     status: 'active',

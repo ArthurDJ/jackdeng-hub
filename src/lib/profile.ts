@@ -51,12 +51,12 @@ export const TIMELINE = [
     place: 'Value Windows & Doors',
     bullets: {
       en: [
-        'Built a 0-to-1 cloud data platform on Databricks + dbt with a medallion (Bronze→Silver→Gold→Mart) architecture, turning raw ERP data into analytics-ready models for manufacturing, inventory, sales, and workforce reporting.',
+        'Helped design and partly built a cloud data platform on Databricks + dbt with a medallion (Bronze→Silver→Gold→Mart) architecture, turning raw ERP data into analytics-ready models for manufacturing, inventory, sales, and workforce reporting.',
         'Engineered C# and Python data-migration and integration pipelines that improved ERP reliability and processed tens of thousands of records daily across departments.',
         'Delivered Power BI executive dashboards and React internal portals, giving teams self-serve access to real-time operational metrics.',
       ],
       zh: [
-        '在 Databricks + dbt 上从 0 到 1 搭建云数据平台，采用 Medallion（Bronze→Silver→Gold→Mart）分层架构，将原始 ERP 数据转化为可直接分析的模型，支撑制造、库存、销售与人力效率报表。',
+        '参与 Databricks + dbt 云数据平台的架构设计并搭建了其中一部分，采用 Medallion（Bronze→Silver→Gold→Mart）分层架构，将原始 ERP 数据转化为可直接分析的模型，支撑制造、库存、销售与人力效率报表。',
         '用 C# 与 Python 构建数据迁移与集成管道，提升 ERP 系统可靠性，每天跨部门处理数万条记录。',
         '交付 Power BI 高管看板与 React 内部门户，让各团队自助获取实时运营指标。',
       ],

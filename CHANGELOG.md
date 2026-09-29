@@ -10,6 +10,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.26.2] — 2026-09-28
+
+### Fixed — 数据平台的角色统一为「参与架构设计并搭建了其中一部分」（#100）
+
+首页简介写的是「从 0 到 1 搭建」，项目详情写的是「参与架构设计与部署」，两处说法对不上。Jack 定了准确的说法：参与架构设计，并搭建了其中一部分。
+首页简介、详细简介和经历时间线的第一条都改成这个说法（中英文）。项目详情那句在数据库里，用新脚本改。
+
+### Added — 改项目记录的脚本 `scripts/patch-projects.ts`
+
+按 slug 找记录，逐字段打印「旧值 → 新值」，带 `--apply` 才写。详情只替换一句确切的原文，找不到或出现不止一次就报错；改 slug 的补丁重复执行时会跳过。
+这次用来给数据平台和 jackdeng.cc 填年份和「在哪做的」，并把两个工作项目的名称和网址里的公司名去掉
+（`data-hub`、`b2b-customer-portal`；「在哪做的」仍写 VWD / Viterra）。`add-projects.ts` 里的 slug 和名称也同步改了，免得再跑一次时按旧 slug 重复建。
+
 ## [1.26.1] — 2026-09-28
 
 ### Added — 新建项目记录的脚本 `scripts/add-projects.ts`（#99）

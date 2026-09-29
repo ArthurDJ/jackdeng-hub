@@ -26,6 +26,9 @@
     "submitting": "提交中…",
     "errorSomething": "出错了，请稍后再试。",
     "copyright": "© {year} Jack Deng",
+    "deployed": "最近部署 {date}",
+    "commitTitle": "在 GitHub 上查看这次提交",
+    "admin": "后台",
     "typeToConfirm": "输入 {phrase} 以确认",
     "skipToContent": "跳到主内容",
     "copy": "复制",
@@ -220,6 +223,23 @@
     "backToTools": "← 返回实验室",
     "comingSoon": "工具页面建设中，敬请期待。",
     "enableJs": "请启用 JavaScript 以使用本工具。",
+    "log": {
+      "heading": "日志",
+      "intro": "每件作品什么时候上线，后来又改了什么。每一条都附上对应的 PR。",
+      "kind": {
+        "launch": "上线",
+        "update": "更新",
+        "rename": "改名"
+      },
+      "prTitle": "在 GitHub 上查看 PR #{pr}",
+      "entries": {
+        "devDay": "回合制的程序员模拟器：早上九点到下午六点，每小时决定做什么，下班时看结局。",
+        "batchThree": "一次上了四个：复古终端里重放 dbt build，会被指针打散的文字环，可以拖动的蓝图字标，还有能抓起来扔的技能标签。",
+        "renamed": "「工具」改名为 Playground，副标题改成「在浏览器里跑的小实验」。自动化工具引擎同时停用，后来整个删掉了。",
+        "gameOfLife": "落沙加了第二种模式：康威生命游戏。它和沙盘共用一块画布，暂停时可以一代一代往前推。",
+        "fallingSand": "第一件作品：一粒一粒模拟的沙盘，可以倒沙、水和石头。"
+      }
+    },
     "status": {
       "online": "在线",
       "maintenance": "维护中",

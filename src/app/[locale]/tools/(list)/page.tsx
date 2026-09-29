@@ -1,10 +1,13 @@
 import type { Metadata } from 'next'
+import { Fragment } from 'react'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
 import { asLocale } from '@/i18n/routing'
-import { toolStatusColors } from '@/lib/statusColors'
+import { logKindColors, toolStatusColors } from '@/lib/statusColors'
+import { PLAYGROUND_LOG, prUrl, visibleLog } from '@/lib/playgroundLog'
+import { formatDay, intlLocale } from '@/lib/formatDate'
 
 export const revalidate = 3600
 
@@ -49,6 +52,17 @@ export default async function ToolsPage({ params }: Props) {
     locale: asLocale(locale),
     limit: 50,
   })
+
+  const LOG_KIND: Record<string, string> = {
+    launch: t('log.kind.launch'),
+    update: t('log.kind.update'),
+    rename: t('log.kind.rename'),
+  }
+  // One object read, rather than t('log.entries.' + id), so the keys stay
+  // statically analysable; playgroundLog.test.ts checks every id has words.
+  const LOG_NOTES = t.raw('log.entries') as Record<string, string>
+  const log = visibleLog(PLAYGROUND_LOG, tools)
+  const listFormat = new Intl.ListFormat(intlLocale(locale), { type: 'conjunction' })
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-base)' }}>
@@ -144,6 +158,62 @@ export default async function ToolsPage({ params }: Props) {
               )
             })}
           </div>
+        )}
+
+        {log.length > 0 && (
+          <section aria-labelledby="playground-log" style={{ marginTop: '72px' }}>
+            <h2 id="playground-log" style={{
+              fontSize: '20px',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.01em',
+              marginBottom: '8px',
+            }}>
+              {t('log.heading')}
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '24px' }}>
+              {t('log.intro')}
+            </p>
+            <ol className="ds-log">
+              {log.map(({ entry, tools: named }) => {
+                const kc = logKindColors(entry.kind)
+                // Tool names joined the way each language lists things
+                // ("A, B, and C" / "A、B和C"), each one a link.
+                const parts = listFormat.formatToParts(named.map((tool) => tool.slug ?? ''))
+                return (
+                  <li key={entry.id} className="ds-log-row">
+                    <time dateTime={entry.date} className="ds-log-date">{formatDay(entry.date, locale)}</time>
+                    <span className="ds-log-kind" style={{ color: kc.text, background: kc.bg, borderColor: kc.border }}>
+                      {LOG_KIND[entry.kind]}
+                    </span>
+                    <div className="ds-log-body">
+                      {named.length > 0 && (
+                        <p className="ds-log-tools">
+                          {parts.map((part, i) => {
+                            if (part.type !== 'element') return <Fragment key={i}>{part.value}</Fragment>
+                            const tool = named.find((n) => n.slug === part.value)!
+                            return <Link key={i} href={`/tools/${tool.slug}`}>{tool.name}</Link>
+                          })}
+                        </p>
+                      )}
+                      <p className="ds-log-note">
+                        {LOG_NOTES[entry.id]}{' '}
+                        <a
+                          href={prUrl(entry.pr)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={t('log.prTitle', { pr: entry.pr })}
+                          className="ds-log-pr"
+                        >
+                          #{entry.pr}
+                        </a>
+                      </p>
+                    </div>
+                  </li>
+                )
+              })}
+            </ol>
+          </section>
         )}
       </main>
     </div>

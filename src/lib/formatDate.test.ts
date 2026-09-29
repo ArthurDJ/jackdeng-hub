@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatDate, formatMonth, formatMonthName } from './formatDate'
+import { formatDate, formatDay, formatMonth, formatMonthName } from './formatDate'
 
 describe('formatDate', () => {
   // A fixed instant. The timezone is pinned to UTC in vitest.config.ts —
@@ -48,5 +48,25 @@ describe('formatMonthName', () => {
   it('names the month alone', () => {
     expect(formatMonthName(9, 'en')).toBe('September')
     expect(formatMonthName(9, 'zh')).toBe('九月')
+  })
+})
+
+describe('formatDay', () => {
+  it('formats a calendar day in both languages', () => {
+    expect(formatDay('2026-09-22', 'en')).toBe('Sep 22, 2026')
+    expect(formatDay('2026-09-22', 'zh')).toBe('2026年9月22日')
+  })
+
+  // A bare date parses as UTC midnight, which is still the day before west of
+  // Greenwich; formatDate would print 21 September in California.
+  it('keeps the day west of Greenwich', () => {
+    const tz = process.env.TZ
+    process.env.TZ = 'America/Los_Angeles'
+    try {
+      expect(formatDate('2026-09-22', 'en')).toBe('Sep 21, 2026')
+      expect(formatDay('2026-09-22', 'en')).toBe('Sep 22, 2026')
+    } finally {
+      process.env.TZ = tz
+    }
   })
 })

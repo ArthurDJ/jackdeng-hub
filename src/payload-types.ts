@@ -188,10 +188,6 @@ export interface Comment {
    * Auto-captured for rate limiting.
    */
   ip?: string | null;
-  /**
-   * Deprecated. Verification now happens server-side during submission.
-   */
-  turnstileToken?: string | null;
   honeypot?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -569,7 +565,6 @@ export interface CommentsSelect<T extends boolean = true> {
   post?: T;
   status?: T;
   ip?: T;
-  turnstileToken?: T;
   honeypot?: T;
   updatedAt?: T;
   createdAt?: T;

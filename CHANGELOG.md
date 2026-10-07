@@ -10,6 +10,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.32.1] — 2026-10-07
+
+### Security — Next.js 16.3.8，next-intl 4.14.9（#111）
+
+Dependabot 的 next 分组，只动 `package.json` 和 lockfile。16.3.7 和 16.3.8 两个补丁版本一共修了 7 条公告：
+
+- **高危**：Image Optimization 里的 SSRF（GHSA-cjq9-62q9-8jv4）。本站用 `next/image`，这条直接相关。
+- **中危**：metadata 图片路由绕过 `dynamicParams` 泄露信息、SSG / ISR 缓存投毒（两条）、`use cache` 泄露 Draft Mode 内容、嵌套 `use cache` 跨 root param 泄露。
+- **低危**：开发服务器 MCP 端点信息泄露，只影响 `next dev`。
+
+next-intl 是 `useExtracted` 的两处小修，本站没有用到。PR 上 CI 全部通过（typecheck、测试、i18n、schema drift、seed、构建、冒烟）。
+
 ## [1.32.0] — 2026-09-29
 
 ### Changed — 分享与搜索的细节：文章分享图改成卡片，全站补 og:url 和 x-default（#110）

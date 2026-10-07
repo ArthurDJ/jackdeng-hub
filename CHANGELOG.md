@@ -10,6 +10,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.32.2] — 2026-10-07
+
+### Changed — sharp 0.35.5，vitest 5.0.3（#112）
+
+Dependabot 的 other 分组，两个都是补丁版本，只动 `package.json` 和 lockfile。sharp 带上 libvips 1.3.4，给 `linear` 和 GIF `delay` 数组加了长度上限检查，失败时 WebAssembly 回退的报错也更清楚。PR 上 CI 全部通过。
+
 ## [1.32.1] — 2026-10-07
 
 ### Security — Next.js 16.3.8，next-intl 4.14.9（#111）

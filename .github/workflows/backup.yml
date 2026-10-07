@@ -24,6 +24,13 @@ jobs:
   backup:
     name: backup
     runs-on: ubuntu-latest
+    # A healthy run takes about a minute. Without a limit, a stuck download
+    # would hold the runner for six hours before anyone noticed.
+    timeout-minutes: 15
+    env:
+      AGE_VERSION: 1.3.2
+      # GitHub's digest for age-v1.3.2-linux-amd64.tar.gz
+      AGE_SHA256: cbe24006683f8eb669266162894b9a522a1af52f2665fbc63a4bb032ed26ac10
     steps:
       # A backup that silently did not happen is the failure this job exists to
       # prevent, so missing configuration fails the run rather than skipping it.
@@ -40,18 +47,24 @@ jobs:
 
       # pg_dump refuses a server newer than itself, and Supabase moves major
       # versions on its own schedule, so the client is picked from the server.
-      - name: Install pg_dump for the server's version, and age
+      # Neither comes from apt: on 2026-10-07 the first run hung in apt-get
+      # update on the runner's Ubuntu mirror until it was cancelled. pg_dump
+      # runs from the official postgres image of the same major version, and
+      # age is the upstream release binary, checked against a pinned digest.
+      - name: Get pg_dump for the server's version, and age
         env:
           BACKUP_DATABASE_URI: ${{ secrets.BACKUP_DATABASE_URI }}
         run: |
           set -euo pipefail
-          command -v psql >/dev/null || sudo apt-get install -y -q postgresql-client
           major=$(psql "$BACKUP_DATABASE_URI" -tAc 'show server_version_num' | cut -c1-2)
           echo "server major version: $major"
-          sudo apt-get install -y -q postgresql-common
-          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
-          sudo apt-get install -y -q "postgresql-client-$major" age
-          echo "/usr/lib/postgresql/$major/bin" >> "$GITHUB_PATH"
+          docker pull -q "postgres:$major"
+          echo "PG_IMAGE=postgres:$major" >> "$GITHUB_ENV"
+          curl -fsSL --retry 3 -o age.tar.gz \
+            "https://github.com/FiloSottile/age/releases/download/v$AGE_VERSION/age-v$AGE_VERSION-linux-amd64.tar.gz"
+          echo "$AGE_SHA256  age.tar.gz" | sha256sum -c -
+          tar xzf age.tar.gz
+          echo "$PWD/age" >> "$GITHUB_PATH"
 
       # A role that cannot see the rows (row-level security without BYPASSRLS)
       # dumps empty tables and exits 0. Every database this site has ever run
@@ -77,7 +90,9 @@ jobs:
         run: |
           set -euo pipefail
           file="jackdeng-$(date -u +%Y-%m-%dT%H%MZ).dump.age"
-          pg_dump --format=custom --schema=public --no-owner --no-privileges "$BACKUP_DATABASE_URI" \
+          # -e passes the variable by name, so the URI never appears in a command line.
+          docker run --rm -e BACKUP_DATABASE_URI "$PG_IMAGE" \
+            sh -c 'exec pg_dump --format=custom --schema=public --no-owner --no-privileges "$BACKUP_DATABASE_URI"' \
             | age --encrypt --recipient "$AGE_RECIPIENT" --output "$file"
           size=$(stat -c %s "$file")
           echo "$file: $size bytes"

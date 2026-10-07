@@ -59,6 +59,42 @@ npm run dev
 - **A local database:** start Postgres 16 in Docker, point `DATABASE_URI` at it, and run `npm run migrate`.
 - **Request-time errors only appear on a production build:** use `next build && next start`. `next dev` never renders statically, which is how #26 reached production.
 
+### Backups
+
+`.github/workflows/backup.yml` dumps the `public` schema (all of Payload's data) every night at 03:23 California time, encrypts it with [age](https://age-encryption.org) to a public key, and keeps it as a workflow artifact for 30 days. The repository is public and so are its artifacts, which is why the dump is encrypted before upload: it contains commenters' email and IP addresses and the admin's password hash. The private key stays offline. A run fails if the role sees no rows, or if the encrypted file is implausibly small.
+
+**One-time setup** (the maintainer, not an agent: it creates a production role and holds the key):
+
+1. In the Supabase SQL editor, create a read-only role. Pick a long random password. `bypassrls` keeps the dump complete if row-level security is ever turned on:
+   ```sql
+   create role backup_reader with login bypassrls password '<long random password>';
+   grant connect on database postgres to backup_reader;
+   grant usage on schema public to backup_reader;
+   grant select on all tables in schema public to backup_reader;
+   grant select on all sequences in schema public to backup_reader;
+   -- Tables that later migrations create:
+   alter default privileges for role postgres in schema public grant select on tables to backup_reader;
+   alter default privileges for role postgres in schema public grant select on sequences to backup_reader;
+   ```
+2. On your own machine: `age-keygen -o jackdeng-backup.key`. It prints the public key (`age1…`). Keep the key file offline, for example in a password manager. Without it no backup can be read.
+3. In GitHub → Settings → Secrets and variables → Actions:
+   - Secret `BACKUP_DATABASE_URI`: `postgresql://backup_reader.<project-ref>:<password>@<pooler-host>:5432/postgres`. That is the **session** pooler (port 5432, same host as `DATABASE_URI`); pg_dump does not work through the transaction pooler on 6543. The user name carries the project ref, as in `DATABASE_URI`.
+   - Variable `AGE_RECIPIENT`: the `age1…` public key.
+4. Actions → backup → Run workflow, and check it goes green.
+
+**Restore** (into a scratch database first; restoring over production needs its own go-ahead):
+
+```bash
+gh run download <run-id> --repo ArthurDJ/jackdeng-hub     # or download the artifact from the run page
+age --decrypt --identity jackdeng-backup.key jackdeng-<timestamp>.dump.age > backup.dump
+docker run -d --rm --name restore -e POSTGRES_PASSWORD=restore -p 55432:5432 postgres:17
+# The dump creates the public schema itself, and a new database already has one:
+psql postgresql://postgres:restore@localhost:55432/postgres -c 'drop schema public cascade'
+pg_restore --no-owner --no-privileges --dbname postgresql://postgres:restore@localhost:55432/postgres backup.dump
+```
+
+Match the Postgres major version to the server's (17 as of 2026-09). This sequence was rehearsed end to end (dump, encrypt, decrypt, restore, count rows) on `postgres:17`; without the `drop schema`, `pg_restore` stops on `schema "public" already exists`.
+
 ## 🛠 Extending the Tools Engine (Instructions for Agents)
 
 A tool is a record in the `Tools` collection. A built-in tool also has a component in the repo. The section is headed `/tools` in the code and Playground (实验室) on the site: small client-side experiments, not utilities.

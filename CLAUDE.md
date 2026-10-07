@@ -41,6 +41,8 @@
   启动并跑 `scripts/smoke.py`。新的检查加进这个 job，另开 job 会跑但拦不住合并。
 - `.github/workflows/smoke.yml` 在生产部署成功后和每天一次，用同一个 `scripts/smoke.py`
   请求线上页面，包括应该返回 404 的路径和所有站内链接。
+- 每晚 `.github/workflows/backup.yml` 把 `public` schema 用 age 加密后存成 artifact（保留 30 天），
+  设置和恢复见 `AI_DEPLOY.md` 的「Backups」。仓库是公开的，备份必须先加密再上传。
 - 没有 Preview 部署：`vercel.json` 的 `ignoreCommand`（`scripts/vercel-ignore-build.sh`）
   跳过所有非 production 构建，Preview 环境里也没有密钥。PR 的构建验证靠 CI。
 - `next dev` 不做静态渲染，请求期的错误在 dev 里看不到（#26）。改了渲染路径，用

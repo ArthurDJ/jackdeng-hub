@@ -41,14 +41,14 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "server-only": "^0.0.1",
-    "sharp": "^0.35.4",
+    "sharp": "^0.35.5",
     "sonner": "^2.0.8",
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@types/matter-js": "0.20.2",
     "typescript": "6.0.3",
-    "vitest": "^5.0.2"
+    "vitest": "^5.0.3"
   },
   "overrides": {
     "dompurify": "^3.4.15"

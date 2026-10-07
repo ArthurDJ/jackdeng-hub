@@ -10,6 +10,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.33.1] — 2026-10-07
+
+### Fixed — 备份不再依赖 runner 上的 apt（#113）
+
+#81 合并后第一次手动运行卡在 `apt-get update`：runner 的 Ubuntu 镜像（azure.archive.ubuntu.com）一直不响应，
+12 分钟后手动取消。卡住之前，只读角色已经连上生产库、读到了服务器版本 17，所以设置本身没问题。
+
+- `pg_dump` 改用同一大版本的官方 `postgres` 镜像（`docker run`），连接串用 `-e` 按变量名传入，不出现在命令行里。
+- `age` 改用上游的发布包，版本固定为 1.3.2，下载后按 GitHub 公布的 sha256 校验。
+- job 加了 15 分钟的上限。正常一次一分钟左右，原来卡住要等满六小时才会失败。
+
+验证：本地用两个一次性 `postgres:17` 容器把新流程走了一遍：导出、加密、解密、恢复，2000 行全部还原。
+
 ## [1.33.0] — 2026-10-07
 
 ### Added — 每晚加密备份生产库（#81）

@@ -10,6 +10,8 @@
  * file.
  */
 
+import { CodeBlock } from '@payloadcms/richtext-lexical'
+
 // ── Markdown -> Lexical ─────────────────────────────────────────────────────
 const textNode = (text: string, format = 0) => ({
   detail: 0, format, mode: 'normal', style: '', text, type: 'text', version: 1,
@@ -62,11 +64,37 @@ const paragraph = (text: string) => ({
  * button. The id only has to be unique within the document, as Payload's own
  * ObjectID-shaped ones are.
  */
+/**
+ * The languages the editor's Code block accepts, read from its own select
+ * field so the list cannot drift. A fence tagged with anything else (```ts)
+ * used to pass the dry run and then fail the write with "invalid choice".
+ */
+const CODE_LANGUAGES = new Set<string>(
+  ((CodeBlock().fields as any[]).find((f) => f.name === 'language')?.options ?? []).map(
+    (o: { value: string }) => o.value,
+  ),
+)
+
+/** Short fence tags people write, mapped to the editor's names. */
+const LANGUAGE_ALIASES: Record<string, string> = {
+  ts: 'typescript', tsx: 'typescript', js: 'javascript', jsx: 'javascript',
+  sh: 'shell', bash: 'shell', zsh: 'shell', yml: 'yaml', py: 'python',
+  cs: 'csharp', 'c#': 'csharp', md: 'markdown', text: 'plaintext', txt: 'plaintext',
+}
+
+export function codeLanguage(tag: string): string {
+  const lang = LANGUAGE_ALIASES[tag.toLowerCase()] ?? (tag.toLowerCase() || 'plaintext')
+  if (!CODE_LANGUAGES.has(lang)) {
+    throw new Error(`code fence language "${tag}" is not one the editor accepts`)
+  }
+  return lang
+}
+
 const codeBlock = (code: string, language: string) => ({
   type: 'block', version: 2, format: '',
   fields: {
     id: Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join(''),
-    blockName: '', blockType: 'Code', language: language || 'plaintext', code,
+    blockName: '', blockType: 'Code', language, code,
   },
 })
 
@@ -141,7 +169,7 @@ export function toLexical(md: string) {
 
     if (line.startsWith('```')) {
       flushPara(); flushList(); flushTable()
-      code = { language: line.slice(3).trim(), lines: [] }
+      code = { language: codeLanguage(line.slice(3).trim()), lines: [] }
       continue
     }
     if (line.startsWith('|') || (rows.length && isSeparator(line))) {

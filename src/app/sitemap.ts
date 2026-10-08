@@ -1,12 +1,18 @@
 import type { MetadataRoute } from 'next'
+import { unstable_cache } from 'next/cache'
 import { getPayload } from '@/lib/payload'
+import { CACHE_TAGS } from '@/lib/revalidate'
 import { countPostsByTaxonomy, withPosts } from '@/lib/taxonomyCounts'
 import { latest, latestByTaxonomy, postModified } from '@/lib/sitemapDates'
 import { localeAlternates } from '@/lib/alternates'
 
-// Hourly, like the pages. Saves in /admin expire it at once (src/lib/revalidate.ts);
-// this bounds how stale it gets when something is written outside Next.js.
-export const revalidate = 3600
+// Rendered on every request, from data cached under a tag. As a cached
+// response (`revalidate = 3600`) it could not be expired on Vercel: no
+// revalidatePath or revalidateTag reaches a route handler's cached response
+// there, so a new post stayed out of the sitemap for up to an hour after
+// /api/revalidate (src/lib/revalidate.ts). The response itself goes out with
+// `max-age=0`, so the CDN keeps no copy either.
+export const dynamic = 'force-dynamic'
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
 
@@ -30,54 +36,64 @@ function entry(
   }
 }
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const payload = await getPayload()
+// Hourly, like the pages. Saves in /admin and POST /api/revalidate expire it
+// at once; the hour bounds how stale it gets when neither runs.
+const getSitemapData = unstable_cache(
+  async () => {
+    const payload = await getPayload()
 
-  // ── Fetch all published blogs, categories, tags, projects, tools in parallel ──
-  // No fallbacks. An empty result would drop every URL of that type from the
-  // sitemap until the next regeneration; a throw keeps the previous version.
-  const [blogsResult, categoriesResult, tagsResult, projectsResult, toolsResult] = await Promise.all([
-    payload.find({
-      collection: 'blogs',
-      where: { status: { equals: 'published' } },
-      sort: '-publishedAt',
-      depth: 0,
-      limit: 200,
-      select: { slug: true, publishedAt: true, updatedAt: true, category: true, tags: true },
-    }),
-    payload.find({
-      collection: 'categories',
-      depth: 0,
-      limit: 200,
-      select: { slug: true },
-    }),
-    payload.find({
-      collection: 'tags',
-      depth: 0,
-      limit: 500,
-      select: { slug: true },
-    }),
-    payload.find({
-      collection: 'projects',
-      depth: 0,
-      limit: 200,
-      select: { slug: true, updatedAt: true },
-    }),
-    // Only tools the public list page actually renders — same filter as
-    // [locale]/tools/page.tsx, so the sitemap never advertises a 404.
-    payload.find({
-      collection: 'tools',
-      where: {
-        and: [
-          { status: { equals: 'online' } },
-          { accessControl: { equals: 'public' } },
-        ],
-      },
-      depth: 0,
-      limit: 100,
-      select: { slug: true, updatedAt: true },
-    }),
-  ])
+    // ── Fetch all published blogs, categories, tags, projects, tools in parallel ──
+    // No fallbacks. An empty result would drop every URL of that type from
+    // the sitemap; a throw is not cached, so the next request tries again.
+    return Promise.all([
+      payload.find({
+        collection: 'blogs',
+        where: { status: { equals: 'published' } },
+        sort: '-publishedAt',
+        depth: 0,
+        limit: 200,
+        select: { slug: true, publishedAt: true, updatedAt: true, category: true, tags: true },
+      }),
+      payload.find({
+        collection: 'categories',
+        depth: 0,
+        limit: 200,
+        select: { slug: true },
+      }),
+      payload.find({
+        collection: 'tags',
+        depth: 0,
+        limit: 500,
+        select: { slug: true },
+      }),
+      payload.find({
+        collection: 'projects',
+        depth: 0,
+        limit: 200,
+        select: { slug: true, updatedAt: true },
+      }),
+      // Only tools the public list page actually renders — same filter as
+      // [locale]/tools/page.tsx, so the sitemap never advertises a 404.
+      payload.find({
+        collection: 'tools',
+        where: {
+          and: [
+            { status: { equals: 'online' } },
+            { accessControl: { equals: 'public' } },
+          ],
+        },
+        depth: 0,
+        limit: 100,
+        select: { slug: true, updatedAt: true },
+      }),
+    ])
+  },
+  ['sitemap-data'],
+  { revalidate: 3600, tags: [CACHE_TAGS.sitemap] },
+)
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [blogsResult, categoriesResult, tagsResult, projectsResult, toolsResult] = await getSitemapData()
 
   // ── Static pages ──
   // Each list page is as new as the newest thing it lists. The home page

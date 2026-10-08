@@ -30,4 +30,12 @@ describe('personJsonLd', () => {
     expect(person.worksFor.name).toBe('Value Windows & Doors')
     expect(person.knowsAbout.length).toBeGreaterThan(10)
   })
+
+  it('lists the schools finished, not the one in progress', () => {
+    expect(person.alumniOf.map((s) => s.name)).toEqual([
+      'Northeastern University',
+      'University of Sussex',
+      'Ningbo Tech University',
+    ])
+  })
 })

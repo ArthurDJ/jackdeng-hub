@@ -7,6 +7,7 @@ import { BlogCard } from '@/components/BlogCard'
 import { HomeProjectCard } from '@/components/HomeProjectCard'
 import { IntroSwitch } from '@/components/IntroSwitch'
 import { SectionNav } from '@/components/SectionNav'
+import { EducationList } from '@/components/EducationList'
 import { PAIR_GRID, pairSpan } from '@/lib/bento'
 import { getPayload } from '@/lib/payload'
 import { asLocale } from '@/i18n/routing'
@@ -218,6 +219,7 @@ export default async function HomePage({ params }: Props) {
               items={[
                 { id: 'about', label: t('aboutHeading') },
                 { id: 'experience', label: t('experienceHeading') },
+                { id: 'education', label: t('educationHeading') },
                 { id: 'skills', label: t('skillsHeading') },
                 { id: 'projects', label: t('selectedProjects') },
                 ...(blogs.length > 0 ? [{ id: 'posts', label: t('latestPosts') }] : []),
@@ -305,6 +307,23 @@ export default async function HomePage({ params }: Props) {
               </li>
             ))}
           </ol>
+        </section>
+
+        {/* ── Education ────────────────────────────────────────────── */}
+        <section
+          id="education"
+          className="ds-section py-12 print:py-5!"
+          style={{ borderTop: '1px solid var(--border-subtle)' }}
+        >
+          <h2
+            className="mb-8"
+            style={{ fontSize: 20, fontWeight: 510, letterSpacing: '-0.3px', color: 'var(--text-primary)' }}
+          >
+            {t('educationHeading')}
+          </h2>
+          <div className="ds-reveal">
+            <EducationList lang={lang} />
+          </div>
         </section>
 
         {/* ── Skills ───────────────────────────────────────────────── */}

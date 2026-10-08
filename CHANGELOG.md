@@ -10,6 +10,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.35.1] — 2026-10-08
+
+### Fixed — 发文脚本：代码块语言写成 `ts` 时，演练通过、写入失败（#116）
+
+《一个应用、一次部署》第一次带 `--apply` 写入时，文章在最后一步被拒，报错只有 `errors: [ [Object], … ]`。
+原因是代码块的语言标成了 `ts`，编辑器的 Code block 只认 `typescript`。分类、标签和题图在那之前已经写进去了，
+文章本身没写成；修好后重跑，这三样都复用了，没有重复。
+
+- `scripts/lib/markdown.ts`：代码块的语言从编辑器 Code block 自己的选项里读，不再另抄一份；常见简写
+  （`ts`、`js`、`sh`、`bash`、`yml`、`py`、`cs` 等）映射成编辑器的名字；其余不认识的语言在解析时就报错，
+  这样演练就能发现，不会等到写库时才失败。补了 2 个测试。
+- `scripts/publish-drafts.ts`：Payload 校验失败时，逐个打印出错的字段和原因。
+
 ## [1.35.0] — 2026-10-08
 
 ### Added — 新文章《一个应用、一次部署》，新增「全栈」分类（#115）

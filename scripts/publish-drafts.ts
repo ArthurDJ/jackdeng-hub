@@ -371,4 +371,13 @@ async function run() {
   await refreshLiveSite({ isProduction: describeTarget().isProduction })
 }
 
-run().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1) })
+// Payload's ValidationError prints as `errors: [ [Object], … ]`, which hides
+// which field failed and why; spell them out.
+run().then(() => process.exit(0)).catch((e) => {
+  console.error(e)
+  const fieldErrors = e?.data?.errors
+  if (Array.isArray(fieldErrors)) {
+    for (const f of fieldErrors) console.error(`  field ${f.path ?? f.field}: ${f.message}`)
+  }
+  process.exit(1)
+})

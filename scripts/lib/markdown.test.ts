@@ -105,6 +105,15 @@ describe('toLexical: code, tables and numbered lists', () => {
     expect(nodes[0].fields.language).toBe('plaintext')
   })
 
+  it('maps short fence tags to the editor\'s language names', () => {
+    expect(children('```ts\nconst a = 1\n```')[0].fields.language).toBe('typescript')
+    expect(children('```bash\nls\n```')[0].fields.language).toBe('shell')
+  })
+
+  it('refuses a language the editor would reject, before anything is written', () => {
+    expect(() => toLexical('```klingon\nqapla\n```')).toThrow(/not one the editor accepts/)
+  })
+
   it('refuses an unclosed fence rather than swallowing the rest of the post', () => {
     expect(() => toLexical('```sql\nselect 1')).toThrow(/unclosed/)
   })

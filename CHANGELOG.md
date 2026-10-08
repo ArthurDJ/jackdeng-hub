@@ -10,6 +10,30 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.35.2] — 2026-10-08
+
+### Fixed — 调用 `/api/revalidate` 后，sitemap 和 RSS 也立刻更新（#117）
+
+10 月 8 日用脚本发布《一个应用、一次部署》之后调了 `POST /api/revalidate`，返回 `{"revalidated":true}`，
+文章页和首页都更新了，`/sitemap.xml` 却一直是 `x-vercel-cache: HIT`，`last-modified` 不变，没有这篇文章，
+再调一次也一样。等每小时一次的兜底刷新跑过，它才出现。
+
+在生产上对照测了一次：同一次 revalidate 之后，`/en` 和 `/zh/about` 返回 `REVALIDATED`，`/sitemap.xml`、
+`/robots.txt`、`/feed.xml` 都还是 `HIT`。sitemap 身上本来就带着 `_N_T_/layout` 这个标签，`/en` 正是靠它刷新的，
+所以换个路径写法（`revalidatePath('/sitemap.xml', 'page')` 之类）不会有用。Vercel 能按标签刷掉缓存的页面，
+刷不到缓存下来的 route handler 响应。#90 加的 `revalidatePath('/sitemap.xml')` 当时只在本地验证过，
+上线后其实没有起作用。
+
+RSS 是同一个问题，表现不一样：它本来就是动态路由，但响应头写着 `max-age=86400`，CDN 照这个缓存一天，
+revalidate 清不掉。10 月 8 日那次 RSS 能更新，是因为当时 CDN 上碰巧没有缓存。
+
+- `src/app/sitemap.ts`、`src/app/feed.xml/route.ts` 改成每次请求时生成（`force-dynamic`），响应头为
+  `max-age=0`，CDN 不再保留副本。查询结果放进 `unstable_cache`，标签分别是 `sitemap`、`feed`，一小时过期，
+  和侧栏、搜索的做法相同。RSS 只取用得到的字段，不缓存正文。
+- `revalidateSite()` 去掉 `revalidatePath('/sitemap.xml')`，改为 `revalidateTag('sitemap')`、`revalidateTag('feed')`。
+- 本地用一次性 Postgres 跑生产构建验证过：只改库、不调 revalidate 时，sitemap 和 RSS 保持原样；调了以后两边都立即更新，
+  发布和撤回两个方向都试过。生产上的验证在合并部署后进行。
+
 ## [1.35.1] — 2026-10-08
 
 ### Fixed — 发文脚本：代码块语言写成 `ts` 时，演练通过、写入失败（#116）

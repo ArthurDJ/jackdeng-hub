@@ -28,12 +28,14 @@ beforeEach(() => {
 })
 
 describe('revalidateSite', () => {
-  it('expires every page and both data caches immediately', () => {
+  it('expires every page and every data cache immediately', () => {
     revalidateSite('test')
     expect(revalidatePath).toHaveBeenCalledWith('/', 'layout')
-    expect(revalidatePath).toHaveBeenCalledWith('/sitemap.xml')
     expect(revalidateTag).toHaveBeenCalledWith('sidebar', { expire: 0 })
     expect(revalidateTag).toHaveBeenCalledWith('search', { expire: 0 })
+    // The sitemap and the feed are reached through their data, not their path.
+    expect(revalidateTag).toHaveBeenCalledWith('sitemap', { expire: 0 })
+    expect(revalidateTag).toHaveBeenCalledWith('feed', { expire: 0 })
   })
 
   it('does not throw outside a Next.js request', () => {

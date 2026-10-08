@@ -1,10 +1,38 @@
 import { getTranslations } from 'next-intl/server'
+import { unstable_cache } from 'next/cache'
 import { NextResponse } from 'next/server'
-import { asLocale } from '@/i18n/routing'
+import { asLocale, type Locale } from '@/i18n/routing'
 import { getPayload } from '@/lib/payload'
+import { CACHE_TAGS } from '@/lib/revalidate'
 import { latest, postModified } from '@/lib/sitemapDates'
 
-export const revalidate = 86400 // regenerate once per day
+// Rendered on every request, from data cached under a tag, for the reason
+// sitemap.ts gives: on Vercel nothing expires a route handler's cached
+// response. It used to go out with `max-age=86400`, which the CDN kept for a
+// day, so a new post could be missing from the feed until the next day.
+export const dynamic = 'force-dynamic'
+
+// Hourly, like the pages; saves and POST /api/revalidate expire it at once
+// (src/lib/revalidate.ts). The locale argument is part of the cache key.
+const getFeedPosts = unstable_cache(
+  async (locale: Locale) => {
+    const payload = await getPayload()
+    const { docs } = await payload.find({
+      collection: 'blogs',
+      where: { status: { equals: 'published' } },
+      sort: '-publishedAt',
+      limit: 20,
+      depth: 0,
+      locale,
+      // Only what the feed prints: the data cache caps an entry at 2 MB, and
+      // twenty post bodies would be most of it.
+      select: { slug: true, title: true, excerpt: true, publishedAt: true, updatedAt: true },
+    })
+    return docs
+  },
+  ['feed-posts'],
+  { revalidate: 3600, tags: [CACHE_TAGS.feed] },
+)
 
 const BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://jackdeng.cc'
 
@@ -22,15 +50,7 @@ export async function GET(request: Request) {
   const locale = asLocale(searchParams.get('locale') ?? 'en')
   const t = await getTranslations({ locale, namespace: 'feed' })
 
-  const payload = await getPayload()
-  const { docs } = await payload.find({
-    collection: 'blogs',
-    where: { status: { equals: 'published' } },
-    sort: '-publishedAt',
-    limit: 20,
-    depth: 0,
-    locale,
-  })
+  const docs = await getFeedPosts(locale)
 
   const title = t('title')
   const description = t('description')
@@ -74,7 +94,8 @@ export async function GET(request: Request) {
   return new NextResponse(xml, {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=86400, stale-while-revalidate=3600',
+      // No shared copy: one on the CDN could not be expired (see above).
+      'Cache-Control': 'public, max-age=0, must-revalidate',
     },
   })
 }

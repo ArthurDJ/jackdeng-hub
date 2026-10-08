@@ -10,6 +10,28 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.34.0] — 2026-10-08
+
+### Added — 学历单列、新简历从站点数据生成、改正系统工程那篇文章的学位说法（#114）
+
+核对简历时发现三处对不上：站上只写了 Northeastern，没有 Sussex 和本科；《系统工程给我的三个想法》说在读「系统工程硕士」，
+实际是 Trine University 的工程管理硕士（M.S. Engineering Management，07/2026 入学），系统工程是它的第一门课
+（SYS 5113 Systems Validation & Testing）；`public/resume.pdf` 还是 4 月的版本。
+
+- **学历单列**：`src/lib/profile.ts` 新增 `EDUCATION`，四个学位按时间倒序，在读的标明「in progress / 在读」。
+  首页和 About 各加一个「学历」区块（`src/components/EducationList.tsx`），首页的页面目录也加了这一项。
+  Northeastern 从经历里移出来，助教单独算一条经历（03/2023 – 07/2023）。Person 结构化数据的 `alumniOf`
+  列出三所已毕业的学校，不含在读的那所。
+- **简历**：4 月那份 PDF 是从一个没提交的页面打印的，到 10 月还写着 0-to-1、Drizzle ORM、edge routing、
+  self-hosted，这些站上早就改掉了；PDF 里还有电话号码，任何人都能下载。现在 `npm run resume`
+  （`scripts/build-resume.ts`）用 headless Chrome 把 `scripts/lib/resume.ts` 渲染的页面打印成 PDF，
+  内容取自 `profile.ts`，项目的几行取自项目页的说法。超过一页就报错。没有电话号码；`/en`、`/zh` 下的两份副本一起更新。
+  测试会检查简历包含站上所有的工作和学校、没有电话号码、没有那几句改掉的说法。
+- **文章**：`scripts/fix-post-wording.ts` 改正中英文的摘要和正文：学位改成工程管理硕士、写明第一门课；
+  「最初的八周」改成「最初的几周」，「才上完一门课」改成「第一门课还没上完」：
+  课程 8 月 24 日开始，文章 9 月 22 日发出，当时才上了四周左右。每处替换必须恰好匹配一次，否则什么都不写。
+  这一步写生产库，合并后带 `--apply` 执行。
+
 ## [1.33.1] — 2026-10-07
 
 ### Fixed — 备份不再依赖 runner 上的 apt（#113）

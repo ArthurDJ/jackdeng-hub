@@ -47,11 +47,13 @@ export const SKILLS = [
   { group: { en: 'Tooling', zh: '工具链' }, items: ['Docker', 'Git', 'GitHub Actions', 'Vercel', 'AWS S3'] },
 ]
 
+// `location` is printed on the résumé only.
 export const TIMELINE = [
   {
     year: { en: '01/2024 – present', zh: '01/2024 – 至今' },
     role: { en: 'Software Engineer (Backend & Data)', zh: '软件工程师 (后端与数据)' },
     place: 'Value Windows & Doors',
+    location: 'Duarte, CA',
     bullets: {
       en: [
         'Helped design and partly built a cloud data platform on Databricks + dbt with a medallion (Bronze→Silver→Gold→Mart) architecture, turning raw ERP data into analytics-ready models for manufacturing, inventory, sales, and workforce reporting.',
@@ -70,6 +72,7 @@ export const TIMELINE = [
     year: { en: '07/2022 – 01/2024', zh: '07/2022 – 01/2024' },
     role: { en: 'Software Engineer Intern', zh: '软件开发实习生' },
     place: 'APEXUS-TECH',
+    location: 'New Brunswick, NJ',
     bullets: {
       en: [
         'Built a data-visualization tool that streamlined quantitative strategy analysis for the operations desk, improving decision-making speed.',
@@ -85,20 +88,48 @@ export const TIMELINE = [
     tech: ['Python', 'MySQL', 'ETL', 'JavaScript', 'HTML/CSS'],
   },
   {
-    year: { en: '03/2022 – 07/2023', zh: '03/2022 – 07/2023' },
-    role: { en: 'M.S. Analytics', zh: '分析学硕士' },
+    year: { en: '03/2023 – 07/2023', zh: '03/2023 – 07/2023' },
+    role: { en: 'Data Warehousing & SQL Tutor', zh: '数据仓库与 SQL 助教' },
     place: 'Northeastern University',
+    location: 'Boston, MA',
     bullets: {
       en: [
-        'M.S. in Analytics, GPA 3.93/4.0 — coursework spanning data warehousing, predictive analytics, and enterprise data systems.',
-        'Served as Data Warehousing & SQL Tutor (ALY6030), coaching graduate students on SQL performance tuning, indexing strategies, and execution-plan analysis.',
+        'Tutored the graduate data warehousing and SQL course (ALY6030), coaching students on SQL performance tuning, indexing strategies, and execution-plan analysis.',
       ],
       zh: [
-        '分析学硕士，GPA 3.93/4.0——课程涵盖数据仓库、预测分析与企业数据系统。',
-        '担任数据仓库与 SQL 助教（ALY6030），指导研究生进行 SQL 性能调优、索引策略与执行计划分析。',
+        '担任研究生数据仓库与 SQL 课程（ALY6030）的助教，指导学生做 SQL 性能调优、索引策略与执行计划分析。',
       ],
     },
-    tech: ['SQL', 'Data Warehousing', 'Statistics', 'Python'],
+    tech: ['SQL', 'Data Warehousing'],
+  },
+]
+
+// Newest first, the way the résumé lists them. School names stay in English
+// on both pages, as they read on the résumé.
+export const EDUCATION = [
+  {
+    year: { en: '07/2026 – present', zh: '07/2026 – 至今' },
+    degree: { en: 'M.S. Engineering Management (in progress)', zh: '工程管理硕士（在读）' },
+    school: 'Trine University',
+    completed: false,
+  },
+  {
+    year: { en: '03/2022 – 07/2023', zh: '03/2022 – 07/2023' },
+    degree: { en: 'M.S. Analytics · GPA 3.93/4.0', zh: '分析学硕士 · GPA 3.93/4.0' },
+    school: 'Northeastern University',
+    completed: true,
+  },
+  {
+    year: { en: '10/2020 – 02/2022', zh: '10/2020 – 02/2022' },
+    degree: { en: 'M.S. AI & Adaptive Systems', zh: '人工智能与自适应系统硕士' },
+    school: 'University of Sussex (UK)',
+    completed: true,
+  },
+  {
+    year: { en: '09/2016 – 06/2020', zh: '09/2016 – 06/2020' },
+    degree: { en: 'B.E. Computer Science', zh: '计算机科学工学学士' },
+    school: 'Ningbo Tech University (China)',
+    completed: true,
   },
 ]
 
@@ -122,7 +153,11 @@ export function personJsonLd(base: string, locale: 'en' | 'zh', headline: string
     description: headline,
     address: { '@type': 'PostalAddress', addressRegion: 'CA', addressCountry: 'US' },
     worksFor: { '@type': 'Organization', name: TIMELINE[0].place },
-    alumniOf: { '@type': 'CollegeOrUniversity', name: 'Northeastern University' },
+    // Schools finished, without the "(UK)" / "(China)" the résumé adds for readers.
+    alumniOf: EDUCATION.filter((e) => e.completed).map((e) => ({
+      '@type': 'CollegeOrUniversity',
+      name: e.school.replace(/ \(.*\)$/, ''),
+    })),
     knowsAbout: SKILLS.flatMap((s) => s.items),
     sameAs: PROFILE_LINKS.filter((l) => l.href.startsWith('https://')).map((l) => l.href),
   }

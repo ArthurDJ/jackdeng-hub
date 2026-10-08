@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { PrintContact } from '@/components/PrintContact'
+import { EducationList } from '@/components/EducationList'
 import { CONTACT_EMAIL, PROFILE_LINKS as LINKS, SKILLS, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
 import { toJsonLd } from '@/lib/jsonLd'
 import { asLocale } from '@/i18n/routing'
@@ -255,6 +256,12 @@ export default async function AboutPage({ params }: Props) {
               </li>
             ))}
           </ol>
+        </section>
+
+        {/* ── Education ───────────────────────────────────────────────── */}
+        <section>
+          <SectionLabel>{t('educationHeading')}</SectionLabel>
+          <EducationList lang={lang} />
         </section>
 
         {/* ── Links ───────────────────────────────────────────────────── */}

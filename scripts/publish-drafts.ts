@@ -47,11 +47,13 @@ if (apply) requireApply({ script: 'scripts/publish-drafts.ts', writes: ['media',
  */
 const NEW_CATEGORIES = [
   { slug: 'data', name: { en: 'Data', zh: '数据' } },
+  { slug: 'full-stack', name: { en: 'Full-Stack', zh: '全栈' } },
 ]
 const NEW_TAGS = [
   { slug: 'dbt', name: 'dbt' },
   { slug: 'databricks', name: 'Databricks' },
   { slug: 'sql-server', name: 'SQL Server' },
+  { slug: 'payload-cms', name: 'Payload CMS' },
 ]
 
 /**
@@ -96,14 +98,14 @@ const POSTS = [
     md: '02-sys5113-en.md',
     mdZh: '02-sys5113-zh.md',
     titleZh: '系统工程给我的三个想法',
-    excerptZh: '念系统工程硕士之前，我以为拿到的会是一套词汇。结果有三个想法跟着我回到了工位，每一个都纠正了一项我带了多年却没有察觉的习惯。',
+    excerptZh: '上系统工程课之前，我以为拿到的会是一套词汇。结果有三个想法跟着我回到了工位，每一个都纠正了一项我带了多年却没有察觉的习惯。',
     hero: 'hero-sys5113.jpg',
     heroAlt: 'First and second floor plans from an early twentieth century technical drawing manual',
     heroCredit: 'Plate from "Blueprint reading" (1916), Internet Archive, no known restrictions',
     slug: 'three-ideas-from-systems-engineering',
     title: 'Three ideas from systems engineering that changed how I size a pipeline',
     excerpt:
-      'I expected vocabulary from a systems engineering degree. Three ideas followed me back to my desk instead, and each corrected an old habit.',
+      'I expected vocabulary from a systems engineering course. Three ideas followed me back to my desk instead, and each corrected an old habit.',
     category: 'career-thoughts',
     tags: ['systems-engineering', 'data-engineering'],
   },
@@ -151,6 +153,21 @@ const POSTS = [
       'Moving reporting SQL from SQL Server to Databricks, a note said weeks were off by at most one. In business days, that is two.',
     category: 'data',
     tags: ['data-engineering', 'dbt', 'databricks', 'sql-server'],
+  },
+  {
+    md: '05-one-app-en.md',
+    mdZh: '05-one-app-zh.md',
+    titleZh: '一个应用、一次部署：把 CMS 放进 Next.js 里',
+    excerptZh: '这个站把 Payload 3 放进了 Next.js 应用里，一份代码，一次部署。这样做的好处，以及它坑过我的四次。',
+    hero: 'hero-one-app.jpg',
+    heroAlt: 'A technical-drawing style floor plan: one building with three rooms labelled site, admin and api, standing on a single Postgres foundation',
+    heroCredit: 'Illustration drawn for this post',
+    slug: 'one-app-one-deploy',
+    title: 'One app, one deploy: running a CMS inside Next.js',
+    excerpt:
+      "Payload 3 runs inside this site's Next.js app: one codebase, one deploy. What that buys, and the four times it bit me.",
+    category: 'full-stack',
+    tags: ['nextjs', 'payload-cms', 'postgresql', 'typescript'],
   },
 ]
 

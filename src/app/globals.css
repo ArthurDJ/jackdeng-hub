@@ -1269,6 +1269,42 @@
   .ds-skip-link { transition: none; }
 }
 
+/* ── Code blocks, highlighted by Shiki on the server ───────────────────────
+   src/lib/highlight.ts renders both themes at once: every token carries
+   --shiki-light and --shiki-dark (plus font-style/weight/decoration
+   variants), and these rules pick a set by the `.dark` class next-themes puts
+   on <html>. Shiki's own theme background is ignored in favour of
+   --bg-elevated, so a block looks like the rest of the page in either theme.
+
+   Unlayered for the same reason as the skip link: the typography plugin's
+   `pre` styles sit in Tailwind's utilities layer, which outranks anything in
+   @layer components however specific. The box values are the ones the old
+   <pre> carried as utility classes (rounded-lg px-4 pt-8 pb-4 text-sm
+   leading-relaxed) — pt-8 leaves room for the language label and the copy
+   button. */
+.ds-code pre.shiki {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  background-color: var(--bg-elevated);
+  padding: 2rem 1rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.625;
+}
+.ds-code .shiki,
+.ds-code .shiki span {
+  color: var(--shiki-light);
+  font-style: var(--shiki-light-font-style);
+  font-weight: var(--shiki-light-font-weight);
+  text-decoration: var(--shiki-light-text-decoration);
+}
+:root.dark .ds-code .shiki,
+:root.dark .ds-code .shiki span {
+  color: var(--shiki-dark);
+  font-style: var(--shiki-dark-font-style);
+  font-weight: var(--shiki-dark-font-weight);
+  text-decoration: var(--shiki-dark-text-decoration);
+}
+
 /* ── Reduced motion, site-wide ─────────────────────────────────────────────
    Each component used to opt in on its own, and most never did. This is the
    floor: animations run once and at once, transitions are instant, and

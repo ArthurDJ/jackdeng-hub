@@ -10,6 +10,44 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.38.0] — 2026-10-18
+
+### Added — 代码块语法高亮，在服务端完成（#126）
+
+对照 GitHub 上几个主流博客模板（tailwind-nextjs-starter-blog、astro-paper、Payload 官方 website
+模板）时最明显的缺口：它们都有语法高亮，这里没有。#87 加了代码块，但一直按纯文本渲染，只有语言标签和
+复制按钮。站上有代码的两篇都是技术文章（SQL 6 段、TypeScript 2 段）。
+
+- 用 Shiki 4.5 在服务端高亮（`src/lib/highlight.ts`）。浏览器拿到的是已经上色的 HTML，没有高亮器；
+  `CodeBlock.tsx` 带 `server-only`，客户端组件引用它会直接构建失败。用 JavaScript 正则引擎，不打包 WASM；
+  `forgiving` 让个别翻译不了的正则匹配不到东西，而不是抛错 —— 最坏是少几种颜色，不会 500。
+- 两套主题一次渲染成 CSS 变量（`defaultColor: false`），由 next-themes 加在 `<html>` 上的 `.dark`
+  类切换，切主题只是 CSS 变化，不重新渲染，缓存的页面对所有人都一样。块的背景沿用站内的
+  `--bg-elevated`，不用主题自带的背景。
+- 编辑器的 Code block 存的是 Monaco 的语言 id（80 多种），有些 Shiki 叫法不同，有些根本没有语法。
+  `src/lib/shikiLanguage.ts` 做映射：三种 SQL 方言并到 `sql`，`azcli` 当 shell，`restructuredtext`
+  → `rst`；Shiki 不认识的一律退回纯文本，不报错。测试把编辑器的整份语言列表跑一遍，Payload 或 Shiki
+  升级改了名字会在这里红，不会在已发布的文章上出事。
+
+**主题按对比度挑，标准和全站一样是 WCAG AA（#56）。** 先用的 `github-light` / `github-dark` 在这个背景上
+（#f5f5f5 / #171717）不达标：浅色有四种颜色在 3.2–4.4:1，深色的注释 3.7:1。这两套主题是按 GitHub 自己的
+背景设计的。换成 GitHub 新版的 Primer 配色（`github-*-default`）后只剩一处：浅色注释 #6e7781，4.17:1，
+用 Shiki 的 `colorReplacements` 换成 Primer 自己的次要文字灰 #59636e（5.61:1）。测法是把两篇文章的真实
+代码加上六种常见语言的样例全部高亮，逐个量每一种实际出现的颜色；最差处浅色 4.63:1、深色 5.83:1。
+`highlight.test.ts` 里有同样的检查，换主题或改背景色时会提示还达不达标。
+
+**`LexicalRenderer` 改成服务端组件。** 它从第一个提交起就是 `'use client'`，没写原因，于是 Payload 整套
+Lexical 转 JSX 的代码都发到浏览器，每篇文章在浏览器里再从 JSON 渲染一遍。Payload 的 `RichText` 没有 hook，
+在服务端能直接跑；服务端渲染也是在服务端高亮的前提。复制按钮拆成单独的客户端组件 `CopyCodeButton`，
+它是一个代码块唯一需要的 JS。
+
+**验证。** `next build && next start`（改了渲染路径，`next dev` 看不出问题，见 #26），中英两种语言、
+两篇有代码的文章：8 段代码全部高亮，每个 token 的实际颜色与对应主题的变量一致（0 处不符），
+最差对比度如上；目录的 7 个锚点都在；复制按钮已水合，复制的内容与显示的代码逐字相同；剪贴板被拒时
+按钮文字不变，也没有未处理的 rejection（原来会抛一个）。和线上同一篇文章比，每个文章页的 JS 从
+736.0 KB 降到 724.2 KB（未压缩，16 个脚本不变）；HTML 在没有代码的文章上少约 5 KB（不再内嵌
+Lexical JSON），在 TypeScript 那篇多约 5 KB（上色的 span）。
+
 ## [1.37.0] — 2026-10-18
 
 ### Added — ESLint，闸门是零警告（#120）

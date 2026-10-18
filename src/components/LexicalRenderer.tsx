@@ -1,16 +1,20 @@
-'use client'
-
 /**
  * Renders Payload Lexical rich-text JSON as React JSX.
  *
  * Pass `withHeadingIds` to inject slugified `id` attributes on every heading
  * so that the TableOfContents component can anchor-link and observe them.
+ *
+ * A server component. It was `'use client'` from the first commit for no
+ * stated reason, which shipped Payload's whole Lexical-to-JSX converter set
+ * to the browser and re-rendered each post there from its JSON. Payload's
+ * RichText has no hooks and runs on the server as is, and rendering here is
+ * what lets code blocks be highlighted on the server (CodeBlock.tsx).
  */
 
 import React from 'react'
 import { RichText, type JSXConvertersFunction } from '@payloadcms/richtext-lexical/react'
 import { slugifyHeading } from '@/lib/extractHeadings'
-import { CodeBlockRenderer } from '@/components/CodeBlockRenderer'
+import { CodeBlock } from '@/components/CodeBlock'
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -55,7 +59,7 @@ const tableConverters = {
   },
 }
 
-/** Converter for CodeBlock blocks (adds copy button) and tables */
+/** Converter for Code blocks (highlighted on the server, with a copy button) and tables */
 const codeBlockConverter: JSXConvertersFunction = ({ defaultConverters }) => ({
   ...defaultConverters,
   ...tableConverters,
@@ -63,7 +67,7 @@ const codeBlockConverter: JSXConvertersFunction = ({ defaultConverters }) => ({
     ...((defaultConverters as any).blocks ?? {}),
     Code: ({ node }: any) => {
       const { code = '', language = '' } = node.fields ?? {}
-      return <CodeBlockRenderer key={node.id} code={code} language={language || undefined} />
+      return <CodeBlock key={node.id} code={code} language={language || undefined} />
     },
   },
 })

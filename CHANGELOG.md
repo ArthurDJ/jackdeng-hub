@@ -10,6 +10,39 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.36.0] — 2026-10-17
+
+### Security — Payload 全家桶锁步 3.91.0，清掉 undici 的 10 条公告（#122）
+
+开工时拿到的说法是生产侧 27 条、2 条 critical（`next/og` 的 ImageResponse RCE、Payload 的 PBKDF2 迭代次数不足），还有 sharp 的 librsvg CVE。**这三条实际上 main 上早已修好**，那份数字量的是一棵落后 91 个提交的旧依赖树（next 16.3.5 / payload 3.89.0）。在 main（e21d0da）上干净 `npm ci` 后实测 `npm audit --omit=dev` 是 **23 条，0 critical / 11 high / 13 moderate**，三条都查不到。逐条对 npm advisory 的版本区间核过：
+
+- **CVE-2026-94545 / GHSA-vcvr-r3jv-pc5j**（`next/og` ImageResponse RCE）影响 `>=16.2.0 <16.3.6`，本站 16.3.8 —— #64 升的。
+- **CVE-2026-105804 / GHSA-q6mq-ch85-c8mm**（Payload PBKDF2）修于 3.90.0，本站 3.90.2 —— 同样 #64。GitHub 评级是 **moderate**，不是 critical。
+- **CVE-2026-96889 / GHSA-wq5f-xc86-pv6w**（sharp → librsvg）影响 `<0.35.5`，本站 0.35.5。
+
+`/og` 的暴露面当时是真的：`src/app/og/route.tsx` 把 `title` / `subtitle` 两个 query 参数直接喂给 `ImageResponse`，无鉴权，而 #69 把这个路由改成了 Node.js 运行时，正是该 CVE 适用的运行时（Edge 实现不受影响）。只是 #64 已经先一步把它关掉了。
+
+本轮实际升级的是 Payload：`payload` 与六个 `@payloadcms/*` 从 3.90.2 锁步到 3.91.0，外加 `postcss-selector-parser` 的 override 到 `^7.1.6`。生产侧 **23 → 15 条（10 high / 5 moderate，仍 0 critical）**。
+
+- **undici 10 条**（走 `payload → undici@7.29.0`，3.91.0 拉到 7.29.1+）：BalancedPool 丢连接参数导致的 **TLS 证书校验绕过**（GHSA-w293-vg96-wgc3）、共享缓存里 **Set-Cookie 跨用户泄露**（GHSA-2jfj-6hjv-fm6j）、WebSocket 与解压路径上的多条 DoS、retry interceptor 的 response splitting 等。
+- **source-map-js**（GHSA-68fv-2mgg-jv7q）：source-map 分段偏移导致的事件循环 DoS。
+- **postcss-selector-parser**（GHSA-rj75-hqrm-r3gf）：扁平选择器解析的二次复杂度 CPU 耗尽。`@tailwindcss/typography@0.5.20` 精确依赖 6.0.10 且上游无新版，只能用 override；npm 自己的建议是把 typography 降到 0.5.4，那是 semver major 的倒退，没采纳。
+
+**剩下 15 条，归根到底只有两个公告**，其余是同一条沿不同链路被重复计数：
+
+- **braces GHSA-vfj7-8cjw-p6xm**（high，占 10 条 high 里的 8 条），两条链 —— `@payloadcms/next → sass → chokidar → braces` 和 `storage-vercel-blob → plugin-cloud-storage → find-node-modules → findup-sync → micromatch → braces`。**没升是因为没得升**：影响区间 `<=3.0.3`，而 3.0.3 就是最新发布版，上游还没有修复版本。两条链上的 glob 都来自构建期文件匹配，访客输入进不去。
+- **esbuild GHSA-67mh-4wv8-2f99**（moderate，占 5 条 moderate），链路 `db-postgres → drizzle-kit@0.31.7 → @esbuild-kit/*（已废弃，官方说并入 tsx）→ esbuild@0.18.20`。公告讲的是 esbuild **自带 dev server** 会应答任意网站的请求，本仓库没有任何地方跑 `esbuild serve`，drizzle-kit 也只在 `payload migrate` 时执行。drizzle-kit 自己用的是 esbuild 0.25.12。不做全局 override —— 会跨 `@esbuild-kit/core-utils` 声明的 `~0.18` 区间。
+
+next 16.4.0 与 postcss 8.5.29 都已有 Dependabot PR（#118 / #119）排队，两者都不是安全升级，本轮没动，免得抢同一份 lockfile。
+
+### Added — Payload 3.91 给四张 locale 表的 `_parent_id` 建索引（#122）
+
+`src/migrations/20261017_000001_payload_3_91_locale_parent_indexes.ts`：3.91 开始给每张本地化表的 `_parent_id` 外键建索引，`blogs_locales`、`categories_locales`、`projects_locales`、`tools_locales` 四张各一条。此前这个列只有外键约束没有索引，从主行连到它的译文是对 locale 表的顺序扫描。
+
+CI 的 schema-drift 检查发现的（4 条全是 "code only"，没有删除项），这正是 `.github/dependabot.yml` 里写明「Payload 升级可能加列、schema-drift 会让 PR 变红」的那种情况 —— 只不过这次加的是索引不是列。纯增量、只动索引，不读写数据；两种部署顺序都安全（索引对应用不可见，还跑在 3.90 上的构建既不需要也不会注意到它），这点和 3.90 那次加列不同。用普通 `CREATE INDEX` 而非 `CONCURRENTLY`：Payload 的迁移跑在事务里，`CONCURRENTLY` 不能，而这四张表都只有几十行，写锁是瞬时的。
+
+**合并前要对生产执行 `npm run migrate`**，本轮尚未执行。
+
 ## [1.35.2] — 2026-10-08
 
 ### Fixed — 调用 `/api/revalidate` 后，sitemap 和 RSS 也立刻更新（#117）

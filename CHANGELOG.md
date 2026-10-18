@@ -41,7 +41,31 @@ next 16.4.0 与 postcss 8.5.29 都已有 Dependabot PR（#118 / #119）排队，
 
 CI 的 schema-drift 检查发现的（4 条全是 "code only"，没有删除项），这正是 `.github/dependabot.yml` 里写明「Payload 升级可能加列、schema-drift 会让 PR 变红」的那种情况 —— 只不过这次加的是索引不是列。纯增量、只动索引，不读写数据；两种部署顺序都安全（索引对应用不可见，还跑在 3.90 上的构建既不需要也不会注意到它），这点和 3.90 那次加列不同。用普通 `CREATE INDEX` 而非 `CONCURRENTLY`：Payload 的迁移跑在事务里，`CONCURRENTLY` 不能，而这四张表都只有几十行，写锁是瞬时的。
 
-**合并前要对生产执行 `npm run migrate`**，本轮尚未执行。
+**生产迁移已于 2026-10-18 合并前执行**（经确认）：`migrate:status` 显示仅此一条待执行，`migrate` 用时 222ms，事后查 `pg_indexes` 四个索引都在。
+
+## [1.35.3] — 2026-10-17
+
+### Changed — 搜索面板关闭时直接卸载，不再用 effect 清状态（#121）
+
+`CommandPalette` 的 `query`、`results`、`activeIdx` 放在一个始终挂载在 ⌘K 快捷键后面的组件里，
+所以关闭时只能靠一个 effect 把三个 state 逐一设回去：先渲染一次把面板关掉，再渲染一次把上次的
+搜索抹掉。更麻烦的是它需要人记住——以后谁往这个组件里加一个 state，忘了写进这个 effect，
+那个值就会留到下一次打开。
+
+- 对话框拆成 `CommandPaletteDialog`，只在面板打开时挂载。关闭即卸载，React 连着 state 一起丢掉，
+  那个 effect 删除。一个文件，+18/−16。
+- 原先记下的做法是给面板加 `key`。`key` 是用来给**仍然挂载着**的组件换一个实例的；这里对话框
+  关着的时候本来就不必挂载，直接用卸载边界拿到同样干净的 state，不用再维护一个人造的 key。
+- #61 和 #62 两处刻意不动：`CommandPaletteHost` 仍在浏览器空闲时预挂载这个 chunk，输入框仍靠
+  `autoFocus` 在挂载时拿到焦点（外层组件才是被预挂载的那个，`isOpen` 翻转时对话框同步挂载，
+  不存在输入框还没出现的空窗）；焦点的记住与归还在 store 里，没碰。解释 50 ms `focus()` 为什么
+  被删掉的那段注释移到了 `autoFocus` 那一行，省得以后连着代码一起被删。
+
+**验证**：`typecheck`、`npm test`（315 个）、`i18n:check` 全绿。交互按 `CLAUDE.md` 的要求用
+`next build && next start` 实测，中英两个 locale 都走了一遍：⌘K 打开是空的且输入框已聚焦；
+⌘K 之后立刻打字，四个字母一个不丢（#61 那个回归）；搜 `postgres` 出 4 条、中文页标签也是中文；
+↑↓ 与 Enter 跳转正常，`aria-activedescendant` 跟着走；关闭再打开是空的、没有残留；Esc 之后焦点
+回到搜索按钮（#62）；关闭后 `[role=dialog]` 从 DOM 里消失，确认确实卸载了。
 
 ## [1.35.2] — 2026-10-08
 

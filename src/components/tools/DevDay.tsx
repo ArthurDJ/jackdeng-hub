@@ -53,6 +53,9 @@ export function DevDay() {
   const [best, setBest] = useState<number | null>(null)
   const [announce, setAnnounce] = useState('')
 
+  // localStorage is a client-only value, so the best score can only be read
+  // after hydration — the server has no idea what it is.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setBest(readBest()) }, [])
 
   const line = (e: LogEntry) => t(`log.${e.key}`, {

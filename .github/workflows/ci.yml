@@ -43,6 +43,17 @@ jobs:
       # but this fails in seconds rather than minutes.
       - run: npm run typecheck
 
+      # ESLint. The project ran without it for 222 files; the first pass found
+      # 40 problems, which is why it could go straight to `--max-warnings=0`
+      # instead of a tolerated count that would only rot.
+      #
+      # A step in this job for the same reason as the i18n check below:
+      # branch protection requires the check named `typecheck`, so a separate
+      # job would run without being able to block a merge. It needs no
+      # database and no secrets, and finishes in seconds, so it sits ahead of
+      # everything that does.
+      - run: npm run lint
+
       # Unit tests over the pure helpers only — no database, no browser, so
       # this needs no secrets. Added after two bugs in readingTime survived
       # into production: it counted from the wrong node and could not count

@@ -90,7 +90,6 @@ const headingIdsConverters: JSXConvertersFunction = ({ defaultConverters }) => {
 // ── component ──────────────────────────────────────────────────────────────
 
 interface LexicalRendererProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content: any
   className?: string
   /** When true, adds slug `id` attributes to all heading nodes (for TOC). */

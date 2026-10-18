@@ -74,6 +74,11 @@ export function FallingSkills() {
       lag.current -= STEP
     }
     place()
+    // A frame loop scheduling itself. The rule is right that `loop` is read
+    // before its own binding is initialised, but the read happens when the
+    // frame fires, long after. Breaking the self-reference means a ref
+    // indirection that buys nothing here.
+    // eslint-disable-next-line react-hooks/immutability
     raf.current = visible.current ? requestAnimationFrame(loop) : undefined
   }, [place])
 
@@ -207,7 +212,11 @@ export function FallingSkills() {
     w.M.Composite.add(w.engine.world, w.drag)
   }
   const onPointerMove = (e: React.PointerEvent<HTMLLIElement>) => {
+    // Matter.js owns this object and mutates it in place every frame; the ref
+    // is a handle to an engine, not React state. Copying it per pointer move
+    // would fight the physics engine, not help it.
     const d = world.current?.drag
+    // eslint-disable-next-line react-hooks/immutability
     if (d) d.pointA = toBox(e)
   }
   const onPointerUp = () => {

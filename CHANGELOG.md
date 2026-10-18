@@ -10,6 +10,59 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.37.0] — 2026-10-18
+
+### Added — ESLint，闸门是零警告（#120）
+
+#18 建 CI 时留下一句「eslint，97 个既有文件从零加 lint 应是独立 PR」。那之后仓库长到
+222 个文件，这件事一直没做。首轮扫出 40 条，21 个位置 —— 少到可以直接上
+`--max-warnings=0`，不必先设一个容忍数，那种数字放一个月就没人看了。
+
+- `eslint.config.mjs`（flat config）+ `eslint-config-next@16.3.8` 的三组规则
+  （index / core-web-vitals / typescript）。`npm run lint` 是
+  `eslint . --max-warnings=0`。
+- 挂进 CI 的 `typecheck` job 当一个 step，不另起 job —— 分支保护认的 check 名字是
+  `typecheck`，新 job 会跑但拦不住合并。和 i18n:check、schema-drift 同样的处理。
+- 闸门按惯例端到端实测：绿 → 塞一个未使用变量变红 → 塞一条失效的 disable 指令
+  （纯 warning，不是 error）也变红 → 删掉回绿。
+
+**关掉两条规则，理由写在配置里：**
+
+- `@typescript-eslint/no-explicit-any`：151 处，而 tsconfig 是 `strict: false`。编译器本来
+  就放行隐式 any，lint 单骂显式的那批是没有闸门支撑的噪音。要开它，前提是先上 strict。
+  真正要紧的 `as any` 已由 #40、#44、#45 清掉。
+- `@next/next/no-html-link-for-pages`：这条是给 pages/ 目录设计的，本仓库没有该目录，
+  而且它的建议和 `CLAUDE.md` 直接冲突 —— 站内链接用 `@/i18n/navigation` 的 `Link`，
+  不用 `next/link`。它命中的两处 `<a>` 本来就是故意写成 `<a>` 的，各自上方都已有注释：
+  `AdminLink.tsx` 指向 `/admin`，在 locale 路由之外、Payload 的 root layout 下；
+  `not-found.tsx` 自带 `<html>`。照规则改是引入 bug。
+
+**11 条 react-hooks v7 发现，逐行 suppress 并写明理由，没有一条是静默关规则。**
+`eslint-config-next@16.3.8` 带进了 `eslint-plugin-react-hooks@7`（React Compiler 规则集），
+首轮在 10 个文件报了 12 条；其中搜索面板「关闭时用 effect 清状态」那条已由 #121 从根上去掉
+（关闭即卸载），剩 11 条。5 条是同一类：hydration 之后才能读到的客户端值 ——
+`prefers-reduced-motion`（FallingSand、TextVortex）、localStorage 最佳分（DevDay）、
+cookie（AdminLink）、next-themes 的 resolved theme（ThemeToggle）。服务端无从知道，
+只能挂在 mount 后。另有搜索面板的防抖与延迟挂载（#60、#61 的注释已说明来龙去脉）、
+FallingSkills 里自我调度的帧循环与 Matter.js 的就地改写、BlueprintType 一处依赖数组
+（作者的注释已说明 `letters` 由 `word` 派生），以及工具详情页 `BuiltinTool` 的误报
+（它来自 registry.tsx 的模块级常量，规则看不穿这层查表）。
+
+`eslint-config-next` 加进 Dependabot 的 `next` 分组，跟 Next 同步升级 —— 版本不一致时
+lint 用的规则和构建用的对不上。lockfile 只新增 eslint 相关的包；另有两个浏览器兼容数据包
+（`caniuse-lite`、`baseline-browser-mapping`）因 `eslint-plugin-react-hooks` →
+`@babel/core` → `browserslist@4.29.3` 要求更高的下限而被抬了小版本，属构建期数据。
+
+### Fixed — 顺带清掉的死代码（#120）
+
+都是 lint 抓出来的，不改行为：
+
+- `[locale]/page.tsx` 与 `[locale]/about/page.tsx` 残留的 `Footer` import —— 页脚早已
+  移进 `[locale]/layout.tsx`，这两处引用没清。
+- `[locale]/layout.tsx` 没用到的 `getTranslations` import。
+- 两条失效的 eslint disable 指令，以及 `i18n/types.ts` 里挂错行的那条
+  （原来挂在 `type Messages` 上，真正报错的是下面的空接口）。
+
 ## [1.36.0] — 2026-10-17
 
 ### Security — Payload 全家桶锁步 3.91.0，清掉 undici 的 10 条公告（#122）

@@ -13,6 +13,10 @@ import { hasEditorHint } from '@/lib/editorHint'
  */
 export function AdminLink({ label, className }: { label: string; className?: string }) {
   const [signedIn, setSignedIn] = useState(false)
+  // Reading a client-only value after hydration, which is the whole design:
+  // the cached HTML has to be identical for everyone, so the cookie can only
+  // be consulted once the browser has it. One extra render on mount.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setSignedIn(hasEditorHint(document.cookie)), [])
   if (!signedIn) return null
   return (

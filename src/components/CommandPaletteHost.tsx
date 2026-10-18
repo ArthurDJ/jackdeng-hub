@@ -23,6 +23,9 @@ export function CommandPaletteHost() {
   // the page is interactive, and opening before then mounts it immediately.
   useEffect(() => {
     if (isOpen) {
+      // Deferring a mount, not deriving state. The comment above says why the
+      // alternatives were tried and dropped (#60).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMounted(true)
       return
     }

@@ -75,7 +75,10 @@ export function FallingSand() {
   // Someone who asked for less motion should not land on a screen that is
   // already moving. The toy still works — they press play.
   useEffect(() => {
+    // matchMedia is a client-only value; the server cannot know the
+    // preference, so it can only be applied after hydration.
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (mq.matches) setRunning(false)
   }, [])
 

@@ -41,6 +41,9 @@ updates:
           - next
           - next-intl
           - '@next/*'
+          # Lint rules for the Next version in use; a mismatch lints against
+          # rules the build does not run.
+          - eslint-config-next
       react:
         patterns:
           - react

@@ -238,10 +238,16 @@ export default async function BlogDetailPage({ params }: Props) {
       {/* Landmark the skip link targets (#main) — starts below the cover art,
           so keyboard users land on the article itself. */}
       <main id="main" className="ds-container py-10 flex-1">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 48 }} className="article-layout">
+        {/* minmax(0, 1fr), not 1fr: a bare `1fr` is minmax(auto, 1fr), so the
+            column could never be narrower than its widest unbreakable content.
+            One long code line made the article 579px wide in a 327px track on
+            a phone, the layout viewport grew to 602px and the whole page
+            rendered zoomed out. With a 0 minimum the column keeps its width and
+            the code block's own overflow-x scroll takes the long line. */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 48 }} className="article-layout">
           <style>{`
             @media (min-width: 1024px) {
-              .article-layout { grid-template-columns: 1fr 260px !important; }
+              .article-layout { grid-template-columns: minmax(0, 1fr) 260px !important; }
             }
           `}</style>
 

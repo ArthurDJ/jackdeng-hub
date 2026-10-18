@@ -7,6 +7,11 @@ import { useTranslations } from 'next-intl'
  * The one interactive part of a code block. The block itself is a server
  * component (CodeBlock.tsx), so this button is all the JavaScript a code
  * block costs the browser.
+ *
+ * Hidden until hover or keyboard focus where a pointer can hover, always
+ * shown where it cannot. Tailwind v4 wraps `hover:` in `@media (hover: hover)`,
+ * so on a touchscreen `group-hover:opacity-100` never applied and the button
+ * sat at opacity 0 — tappable, but nobody knew it was there.
  */
 export function CopyCodeButton({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
@@ -34,6 +39,7 @@ export function CopyCodeButton({ code }: { code: string }) {
         px-2 py-1 rounded text-xs font-mono
         bg-[var(--bg-elevated)] text-[var(--text-secondary)]
         opacity-0 group-hover:opacity-100 focus-visible:opacity-100
+        [@media(hover:none)]:opacity-100
         hover:text-[var(--text-primary)]
         transition-opacity duration-150
       "

@@ -121,6 +121,15 @@ async function fetchResults(query: string, locale: string, signal: AbortSignal):
 // to show the palette shut, then a second one to undo the last search. React
 // discards state for free at an unmount boundary, and nothing has to remember
 // to clear each new piece of state somebody adds later.
+//
+// This does not move the input's mount: the old code returned null from here
+// when closed, so the input already unmounted on close and mounted fresh on
+// open. Only the useState moved. That matters because #61 fixed dropped
+// keystrokes by focusing through autoFocus on that mount instead of a 50 ms
+// timer, so anything that changes when the input mounts re-opens that bug.
+// Re-checked on a production build anyway, both locales: eight opens, typing
+// with no delay after ⌘K, including three straight after a cold page load
+// (before the host's idle premount) — every character kept.
 export function CommandPalette() {
   const { isOpen } = useCommandPaletteStore()
   if (!isOpen) return null

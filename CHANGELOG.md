@@ -35,6 +35,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 next 16.4.0 与 postcss 8.5.29 都已有 Dependabot PR（#118 / #119）排队，两者都不是安全升级，本轮没动，免得抢同一份 lockfile。
 
+**lockfile 的做法改过一次。** 第一版删掉整份 lockfile 重新解析（Payload 子包互相 peer-depend 精确版本，
+增量 `npm install` 会报 ERESOLVE），副作用是把范围内所有包都拉到了最新：next 16.3.8 → 16.4.2、
+react / react-dom 19.3.0 → 19.3.1、geist 1.7.2 → 1.8.1、postcss → 8.5.30、vitest → 5.0.5 ——
+和上一句「本轮没动」正好相反，而 package.json 的范围一个字没变，所以从 diff 上看不出来。合并前对比
+直接依赖的解析版本时才发现。现在的 lockfile 从 main 的那份出发，只删掉 `payload` 与 `@payloadcms/*`
+的条目让 npm 重新解析这一棵子树，再单独 `npm update source-map-js`（原先那条 high 是整份重解析顺带修掉的）。
+结果：直接依赖里只有 7 个 Payload 包变了，`npm audit --omit=dev` 与第一版**逐条相同**（15 条，5 moderate / 10 high）。
+
 ### Added — Payload 3.91 给四张 locale 表的 `_parent_id` 建索引（#122）
 
 `src/migrations/20261017_000001_payload_3_91_locale_parent_indexes.ts`：3.91 开始给每张本地化表的 `_parent_id` 外键建索引，`blogs_locales`、`categories_locales`、`projects_locales`、`tools_locales` 四张各一条。此前这个列只有外键约束没有索引，从主行连到它的译文是对 locale 表的顺序扫描。

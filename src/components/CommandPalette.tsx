@@ -114,8 +114,30 @@ async function fetchResults(query: string, locale: string, signal: AbortSignal):
 
 // Loaded on demand by CommandPaletteHost, which owns the keyboard shortcut.
 // Registering it here as well would toggle twice per keypress.
+//
+// The dialog is mounted only while the palette is open, so closing it throws
+// the instance away and the next open starts from fresh useState defaults.
+// Clearing the state used to be an effect in here that ran on close: a render
+// to show the palette shut, then a second one to undo the last search. React
+// discards state for free at an unmount boundary, and nothing has to remember
+// to clear each new piece of state somebody adds later.
+//
+// This does not move the input's mount: the old code returned null from here
+// when closed, so the input already unmounted on close and mounted fresh on
+// open. Only the useState moved. That matters because #61 fixed dropped
+// keystrokes by focusing through autoFocus on that mount instead of a 50 ms
+// timer, so anything that changes when the input mounts re-opens that bug.
+// Re-checked on a production build anyway, both locales: eight opens, typing
+// with no delay after ⌘K, including three straight after a cold page load
+// (before the host's idle premount) — every character kept.
 export function CommandPalette() {
-  const { isOpen, close, closeForNavigation } = useCommandPaletteStore()
+  const { isOpen } = useCommandPaletteStore()
+  if (!isOpen) return null
+  return <CommandPaletteDialog />
+}
+
+function CommandPaletteDialog() {
+  const { close, closeForNavigation } = useCommandPaletteStore()
   const router = useRouter()
   const locale = useLocale()
   const t = useTranslations('search')
@@ -148,19 +170,6 @@ export function CommandPalette() {
   const listRef     = useRef<HTMLUListElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const abortRef    = useRef<AbortController | null>(null)
-
-  // Start the next open from a clean slate. This used to run on open, with
-  // the input focused 50 ms later: whatever a visitor typed straight after
-  // ⌘K either went nowhere (no focus yet) or was wiped when the reset ran
-  // after the first render. Resetting on close, and focusing through
-  // autoFocus as the input mounts, keeps every keystroke.
-  useEffect(() => {
-    if (!isOpen) {
-      setQuery('')
-      setResults([])
-      setActiveIdx(0)
-    }
-  }, [isOpen])
 
   // Debounced search. Each new query aborts the one in flight, so a slow
   // response for "po" cannot land after, and overwrite, the one for "postgres".
@@ -235,8 +244,6 @@ export function CommandPalette() {
     }
   }
 
-  if (!isOpen) return null
-
   return (
     /* Backdrop */
     <div
@@ -268,6 +275,10 @@ export function CommandPalette() {
           </svg>
           <input
             ref={inputRef}
+            // Focus on mount, which is the same moment the palette opens.
+            // Focusing 50 ms later instead dropped whatever was typed straight
+            // after ⌘K (#61); the host premounts this chunk while idle so
+            // mounting here costs nothing but a render.
             autoFocus
             type="text"
             role="combobox"

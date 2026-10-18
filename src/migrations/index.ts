@@ -22,6 +22,7 @@ import * as migration_20260926_000001_lock_down_supabase_api_roles from './20260
 import * as migration_20260926_000002_drop_automation from './20260926_000002_drop_automation';
 import * as migration_20260928_000001_projects_year_made_at from './20260928_000001_projects_year_made_at';
 import * as migration_20260929_000001_drop_comments_turnstile_token from './20260929_000001_drop_comments_turnstile_token';
+import * as migration_20261017_000001_payload_3_91_locale_parent_indexes from './20261017_000001_payload_3_91_locale_parent_indexes';
 
 export const migrations = [
   {
@@ -142,5 +143,10 @@ export const migrations = [
     up: migration_20260929_000001_drop_comments_turnstile_token.up,
     down: migration_20260929_000001_drop_comments_turnstile_token.down,
     name: '20260929_000001_drop_comments_turnstile_token',
+  },
+  {
+    up: migration_20261017_000001_payload_3_91_locale_parent_indexes.up,
+    down: migration_20261017_000001_payload_3_91_locale_parent_indexes.down,
+    name: '20261017_000001_payload_3_91_locale_parent_indexes',
   },
 ];

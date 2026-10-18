@@ -51,6 +51,10 @@ export function ThemeToggle() {
   const [mounted, setMounted] = useState(false)
   const refs = useRef<(HTMLButtonElement | null)[]>([])
 
+  // The mounted gate next-themes requires: the resolved theme is a client-only
+  // value, so rendering the real control on the server guarantees a hydration
+  // mismatch. One extra render on mount is the cost of avoiding it.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true) }, [])
   if (!mounted) return <div className="w-8 h-8 md:w-[86px]" aria-hidden />
 

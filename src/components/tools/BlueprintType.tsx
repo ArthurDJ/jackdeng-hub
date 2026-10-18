@@ -56,6 +56,7 @@ export function BlueprintType() {
     const y = snap((h - (sizes[0]?.h ?? 0)) / 2)
     setBoxes(sizes.map((b, i) => ({ x: xs[i], y, w: b.w, h: b.h })))
     // `letters` comes from `word`, so the word and the font size are the inputs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [word, font])
 
   useLayoutEffect(() => {

@@ -178,6 +178,10 @@ function CommandPaletteDialog() {
     abortRef.current?.abort()
 
     if (!query.trim()) {
+      // Clearing as the query empties, and below, raising the spinner as the
+      // debounce starts. Synchronous on purpose — the spinner has to appear
+      // before the wait, not after it.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setResults([])
       setLoading(false)
       return

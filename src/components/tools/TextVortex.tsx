@@ -51,6 +51,9 @@ export function TextVortex() {
   }, [phrase])
 
   useEffect(() => {
+    // Client-only value: the server cannot know the motion preference, so it
+    // can only be applied after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) setSpinning(false)
   }, [])
 

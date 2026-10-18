@@ -166,6 +166,10 @@ export default async function ToolDetailPage({ params }: Props) {
         {/* ── Content ──────────────────────────────────────────────────── */}
         {BuiltinTool ? (
           // In-repo page: a client-side component registered by slug.
+          // False positive below: BuiltinTool comes out of BUILTIN_TOOLS, a
+          // module-level const in components/tools/registry.tsx. Nothing is
+          // defined during render — the rule cannot see through the lookup.
+          // eslint-disable-next-line react-hooks/static-components
           <BuiltinTool slug={slug} />
         ) : hasIframe ? (
           <div style={{
@@ -225,7 +229,6 @@ function ScriptEmbed({ url, noScriptText }: { url: string; noScriptText: string 
       minHeight: '400px',
     }}>
       <div id="tool-embed-root" style={{ width: '100%', minHeight: '360px' }} />
-      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
       <script src={url} async defer data-container="tool-embed-root" />
       <noscript>
         <p style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>

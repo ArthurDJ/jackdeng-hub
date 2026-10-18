@@ -61,6 +61,12 @@
 - **`loading.tsx` 会罩住整个子树**，让子路由里的 `notFound()` 先提交 200。列表页的 loading
   放在 `(list)` 路由组里（#34）。
 - **Payload 的包必须锁步**：`payload` 和所有 `@payloadcms/*` 用同一个精确版本，一起升级。
+  升级时只删 `package-lock.json` 不够，`node_modules` 也要删：npm 会拿残留的旧版本去对新的
+  peer，照样 ERESOLVE（#122）。
+- **重新生成 lockfile 之后，比对直接依赖的解析版本，不是只看 `package.json`**。整份删掉重解析
+  会把每个浮动范围都拉到当时的最新：#122 那次顺带升了 next、react、postcss、vitest 等五个包，
+  `package.json` 一个字没变，所以 diff 里看不出来，PR 描述里「不碰 next」的说法也因此成了假话。
+  要只动一棵子树，就从 main 的 lockfile 出发、只删那几个包的条目再 `npm install`。
 
 ## 工具与发文
 

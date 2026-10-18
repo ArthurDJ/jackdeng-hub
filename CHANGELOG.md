@@ -42,6 +42,9 @@ react / react-dom 19.3.0 → 19.3.1、geist 1.7.2 → 1.8.1、postcss → 8.5.30
 直接依赖的解析版本时才发现。现在的 lockfile 从 main 的那份出发，只删掉 `payload` 与 `@payloadcms/*`
 的条目让 npm 重新解析这一棵子树，再单独 `npm update source-map-js`（原先那条 high 是整份重解析顺带修掉的）。
 结果：直接依赖里只有 7 个 Payload 包变了，`npm audit --omit=dev` 与第一版**逐条相同**（15 条，5 moderate / 10 high）。
+复核过一遍：两份 lockfile 全深度只有 15 个条目的版本不同，直接依赖里 next / react / react-dom / geist /
+postcss / vitest 全部回到 main 的版本。这条教训连同「删 lockfile 也要删 `node_modules`」一起写进了
+`CLAUDE.md` 的「反复踩过的坑」。
 
 ### Added — Payload 3.91 给四张 locale 表的 `_parent_id` 建索引（#122）
 

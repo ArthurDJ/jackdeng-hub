@@ -24,6 +24,8 @@ export function CopyCodeButton({ code }: { code: string }) {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  // Tailwind wraps hover variants in @media (hover: hover), so on a
+  // touchscreen the hover reveal never fires: there the button is always shown.
   return (
     <button
       type="button"
@@ -34,6 +36,7 @@ export function CopyCodeButton({ code }: { code: string }) {
         px-2 py-1 rounded text-xs font-mono
         bg-[var(--bg-elevated)] text-[var(--text-secondary)]
         opacity-0 group-hover:opacity-100 focus-visible:opacity-100
+        [@media(hover:none)]:opacity-100
         hover:text-[var(--text-primary)]
         transition-opacity duration-150
       "

@@ -245,8 +245,10 @@ export default async function BlogDetailPage({ params }: Props) {
             }
           `}</style>
 
-          {/* Article */}
-          <article>
+          {/* Article. A grid item defaults to min-width: auto, so the longest
+              unwrapped code line would size it and widen the whole page on a
+              phone; min-width: 0 keeps it in its track and lets the <pre> scroll. */}
+          <article style={{ minWidth: 0 }}>
             {/* Breadcrumb */}
             <nav style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-tertiary)', marginBottom: 24 }}>
               <Link href="/blog" className="ds-breadcrumb"

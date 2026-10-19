@@ -10,6 +10,30 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.38.1] — 2026-10-18
+
+### Fixed — 手机上的代码块：整页被撑宽、复制按钮看不见（#PR）
+
+两处都是验 #126 时在手机视口上发现的，线上早已如此，不是 #126 引入的。
+
+- **长代码行把整页撑宽。** 文章页的 `.article-layout` 是 grid，`<article>` 是 grid item，`min-width`
+  默认是 `auto`，于是被最长的一行代码撑开（375px 视口下 579px，而轨道只有 327px），手机的布局视口跟着
+  变成 602px，整页缩小显示。`<pre>` 本身有 `overflow-x: auto`，但轮不到它滚动。给 `<article>` 加
+  `min-width: 0`，代码块在自己的宽度里横向滚动。项目详情页的正文不在 grid 里，没有这个问题。
+  桌面上其实也中招，只是不显眼：SQL 那篇最长的一行 687px，比正文轨道（668px）宽，线上的正文栏被撑到
+  687px，目录栏整体右移 19px、出了容器；1024px 宽时还多出 9px 横向滚动。现在正文栏回到 668px。
+- **复制按钮在触屏上一直透明。** 按钮靠 `group-hover:opacity-100` 显示，而 Tailwind v4 把 hover 变体包在
+  `@media (hover: hover)` 里，触屏设备永远不满足。加一条 `@media (hover: none)` 下常显；桌面仍是悬停或
+  键盘聚焦时出现。
+
+**验证。** `next build && next start`，浏览器预览的手机预设（375×812，触屏）下两篇有代码的文章、中英两种
+语言：`document.documentElement.scrollWidth` 都是 375，等于视口宽度（修之前线上是 602）；正文 327px，
+8 段代码里 7 段比它宽，每段都能在自己的框里横向滚动。复制按钮 `opacity: 1`，和左边的语言标签隔开 246px，
+底边在第一行代码上方 2–3px，不挡内容；文字对比度浅色约 7.2:1、深色 7.0:1；点击后复制的内容与显示的代码
+逐字相同，标签变为「✓ Copied」（预览窗口禁止写剪贴板，这一步把 `writeText` 换成了记录函数）。桌面上
+（`hover: hover`）按钮平时 `opacity: 0`，悬停代码块或用 Tab 聚焦时变为 1。1440px 下和线上对比：
+`one-app-one-deploy` 的两栏（668px / 260px）和目录位置完全一样；SQL 那篇如上，正文栏从 687px 回到 668px。
+
 ## [1.38.0] — 2026-10-18
 
 ### Added — 代码块语法高亮，在服务端完成（#126）

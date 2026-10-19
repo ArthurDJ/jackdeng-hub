@@ -12,7 +12,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.38.1] — 2026-10-18
 
-### Fixed — 手机上的代码块：整页被撑宽、复制按钮看不见（#PR）
+### Fixed — 手机上的代码块：整页被撑宽、复制按钮看不见（#128）
 
 两处都是验 #126 时在手机视口上发现的，线上早已如此，不是 #126 引入的。
 

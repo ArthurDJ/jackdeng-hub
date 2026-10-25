@@ -169,6 +169,23 @@ const POSTS = [
     category: 'full-stack',
     tags: ['nextjs', 'payload-cms', 'postgresql', 'typescript'],
   },
+  {
+    md: '06-flight-skill-en.md',
+    mdZh: '06-flight-skill-zh.md',
+    titleZh: '最便宜的那张机票，不一定是该订的那张',
+    excerptZh: '机票搜索擅长回答“哪张最便宜”。我写了一个 Claude skill，回答另一个问题：到底该订哪一张？',
+    // Cover not chosen yet. --apply refuses this post until heroAlt and
+    // heroCredit are filled in (see the check below); a dry run still works.
+    hero: 'hero-flight-skill.jpg',
+    heroAlt: 'TODO',
+    heroCredit: 'TODO',
+    slug: 'when-the-cheapest-flight-is-wrong',
+    title: 'When the cheapest flight is the wrong answer',
+    excerpt:
+      'Flight search answers which flight is cheapest. I wrote a Claude skill for a different question: which one should we actually book?',
+    category: 'backend',
+    tags: ['ai'],
+  },
 ]
 
 // Blogs.excerpt is capped at 150 characters. Payload reports the overflow as a
@@ -185,6 +202,18 @@ for (const post of SELECTED) {
     if (value.length > LIMIT) {
       console.error(`  ⛔ ${post.slug}: ${field} is ${value.length} characters, limit is ${LIMIT}`)
       process.exit(1)
+    }
+  }
+  // A post can be drafted before its cover is chosen. Writing it then would
+  // upload the image with "TODO" as its alt text and caption, so a placeholder
+  // stops --apply here, before anything is written. The dry run still prints
+  // the plan, which is how a draft gets checked in the meantime.
+  if (apply) {
+    for (const [field, value] of [['heroAlt', post.heroAlt], ['heroCredit', post.heroCredit]] as const) {
+      if (!value.trim() || /^TODO\b/i.test(value.trim())) {
+        console.error(`  ⛔ ${post.slug}: ${field} is a placeholder ("${value}"). Choose the cover and fill it in before --apply.`)
+        process.exit(1)
+      }
     }
   }
 }

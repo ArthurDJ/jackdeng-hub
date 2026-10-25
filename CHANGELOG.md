@@ -10,6 +10,27 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.39.0] — 2026-10-24
+
+### Added — 新文章《最便宜的那张机票，不一定是该订的那张》（#130）
+
+介绍 [flight-trip-planning](https://github.com/ArthurDJ/flight-trip-planning)：一个 Claude skill，不搜票、不预测价格、
+不代订，而是架在搜索工具之上，回答「到底该订哪一张」。文章写它针对的四种情况（计划可能变、退款必须退现金、跨境、
+替别人订票），可退票与可改票的盈亏平衡算法，用「汇率」代替固定优先级，第三方价格只当线索、到航司网站核实，从最稀缺
+的航段倒推，以及它明确不做的事。文中的数字（156 / 501 美元与 31%、359 美元、均衡档的 100 / 50 / 40 美元、
+「多 27 美元，13:17 而不是 19:38」）都出自 skill 仓库自己的示例，不是某一次真实行程，正文也是这么写的。
+
+- `scripts/publish-drafts.ts` 加入这篇（slug `when-the-cheapest-flight-is-wrong`），分类 `backend`、标签 `ai`，和此前
+  两篇 AI 文章一致，不新增分类和标签。正文在 `$DRAFTS_DIR/06-flight-skill-{en,zh}.md`，和其他文章一样不进仓库。
+- 题图还没选。为此给脚本加了一道检查：`heroAlt` 或 `heroCredit` 是空的或以 `TODO` 开头时，`--apply` 在写入任何东西之前
+  退出；只读的预演照常运行。之前没有这一道，一篇没配图的文章带 `--apply` 跑，会把「TODO」当成 alt 和说明文字写进 media 表。
+  验证过两个方向：这篇带 `--apply` 被拦下（`DATABASE_URI` 指向一个连不上的本地端口，拦不住也写不进去）；已有的
+  `one-app-one-deploy` 照常通过这道检查。
+
+只读预演（`--only when-the-cheapest-flight-is-wrong`，不带 `--apply`）对生产库跑过：中英两份都解析成 16 段、8 个标题、
+1 个列表、2 个代码块、1 张表；`backend`、`ai` 都已存在；slug 未被占用，会以草稿新建；题图显示 MISSING。
+**本 PR 没有写库。** 选好题图、填上 `heroAlt` / `heroCredit` 之后再带 `--apply` 写入（草稿），发布由维护者在后台操作。
+
 ## [1.38.1] — 2026-10-18
 
 ### Fixed — 手机上的代码块：整页被撑宽、复制按钮看不见（#128）

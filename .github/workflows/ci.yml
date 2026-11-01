@@ -31,9 +31,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # The Node version comes from `engines.node` in package.json, the same
+      # field Vercel reads for production, so CI and production cannot drift
+      # onto different majors. Change the version there, not here.
       - uses: actions/setup-node@v7
         with:
-          node-version: '24'
+          node-version-file: package.json
           cache: npm
 
       - run: npm ci

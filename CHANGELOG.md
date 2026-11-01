@@ -27,9 +27,10 @@ AstrBot 接个人微信要走微信官方的 ClawBot 插件，作者实际用下
 - **配图。** 题图 `hero-astrbot-fish.jpg`（1600×900）裁自 Small-tailqwq/dsh-deep-whale 里 maid-atelier 皮肤的预览图，
   去掉了左侧带别人项目名的侧栏；`heroAlt` 写英文、`heroCredit` 带 CC BY-NC-SA 4.0 署名链（Media 的 alt / caption 不分语言）。
   正文开头放一张标准女仆鲸鱼娘立绘，再加一句链到蓝色大肥鱼档案馆（EDMOK/blue-fish-archive、fisharchive.cc）和三张
-  随机挑的同人表情，都转成 webp 放在 `DRAFTS_DIR`，不进仓库。文末一段署名：鲸鱼娘原作上善无形，加 DeepSeek 元素的
+  随机挑的同人表情，都铺白底转成 webp（暗色主题下透明图的深色线条会看不见），文件名带 `astrbot-` 前缀以免撞上
+  媒体库里的同名文件（脚本按文件名复用媒体行），放在 `DRAFTS_DIR`，不进仓库。文末一段署名：鲸鱼娘原作上善无形，加 DeepSeek 元素的
   女仆二次设计 ZipZipPipe，CC BY-NC-SA 4.0；题图来源；立绘和表情来自档案馆，版权归各自作者。
-- **正文图片用的是 `![alt](file.webp "caption")` 独占一行的写法，要等 feat/post-inline-images 合并后才能解析。**
+- **正文图片用的是 `![alt](file.webp "caption")` 独占一行的写法，要等 #140（feat/post-inline-images）合并后才能解析。**
   在那之前 main 上的 `markdown.ts` 会把这几行当普通段落，`!` 留成文字、后半截变成指向文件名的链接，而且预演不会报错。
   所以这篇必须在那个 PR 合并之后再带 `--apply` 写入。
 
@@ -37,6 +38,27 @@ AstrBot 接个人微信要走微信官方的 ClawBot 插件，作者实际用下
 还算段落，见上一条）；题图文件在（201 KB），这次没有传 `BLOB_READ_WRITE_TOKEN` 进去，所以提示不会上传；`backend`、`ai`
 已存在，三个新标签会创建；slug 未被占用，会以草稿新建。
 **本 PR 没有写库。** 写入（草稿）和发布都等维护者确认后再做。
+
+## [1.40.3] — 2026-11-01
+
+### Changed — Node 锁到 26 LTS，CI 和 Vercel 读同一个字段（#142）
+
+`package.json` 原来是 `"engines": { "node": ">=24" }`，CI 写死 `node-version: '24'`。两边其实早就不一样：Vercel
+构建日志说 `engines` 覆盖了项目设置里的 24.x，**生产跑的是 26.x**，并提示 `>=24` 每出一个新 major 都会自动跟上。
+Node 27 预计 2027 年 4 月以 Current（非 LTS）发布，不改的话生产会悄悄换到非 LTS 版本，而 CI 一直在测 24。
+
+- **`engines.node` 改为 `26.x`**。按 Vercel 文档（[Supported Node.js versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)），
+  26.x 是可选版本之一（也是默认值），`engines#node` 会覆盖项目设置，`26.x` 对应「latest 26.x」。生产的 major
+  不变，只是不再自动跳。v26.13.0 起 26 是 LTS「Lithium」；Payload 3.92 要求 `^22.23.4 || >=24.22.1`，满足。
+- **CI 改用 `node-version-file: package.json`**。setup-node 的
+  [advanced usage](https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md) 文档列明支持
+  `package.json`，依次读 `volta.node`、`devEngines.runtime`、`engines.node`；本仓库只有 `engines.node`，所以不需要
+  `.nvmrc`。`smoke.yml` 只跑 python，`backup.yml` 的 pg_dump 走 postgres 镜像，都不用 Node。
+- `package-lock.json` 只有根包的 `engines` 同步改了一行，没有重新解析依赖。
+- README 的「Node.js 18.x or newer」改为 26.x；`CLAUDE.md` 记下 Node 版本只在 `engines.node` 里定，
+  以及 #139 的教训：删 lockfile 条目重装后，提交前对删掉的包跑 `npm ls`。
+- `@types/node` 不是直接依赖（传递来的 22.20.2），没动。
+- Vercel 项目设置里的 Node 版本仍是 24.x（被 `engines` 覆盖、不生效），合并后由维护者改成 26.x。
 
 ## [1.40.2] — 2026-11-01
 

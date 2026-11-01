@@ -75,6 +75,11 @@
   会把每个浮动范围都拉到当时的最新：#122 那次顺带升了 next、react、postcss、vitest 等五个包，
   `package.json` 一个字没变，所以 diff 里看不出来，PR 描述里「不碰 next」的说法也因此成了假话。
   要只动一棵子树，就从 main 的 lockfile 出发、只删那几个包的条目再 `npm install`。
+  删完重装后，提交前对删掉的每个包跑一遍 `npm ls <包名>`：被保留的父包的子依赖，第一遍 `npm install`
+  不一定补回来（#139 漏了 dompurify 和 fast-uri，第二遍才补上）。
+- **Node 大版本只在 `package.json` 的 `engines.node` 里定**（现在是 `26.x`）。CI 的 `setup-node` 用
+  `node-version-file: package.json` 读它，Vercel 生产也按它选运行时，项目设置里的 Node 版本会被覆盖。
+  不要写成 `>=24` 这种开口范围：Vercel 会跟着新 major 自动升级，包括非 LTS 的版本（#142）。
 
 ## 工具与发文
 

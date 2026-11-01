@@ -7,8 +7,9 @@
  *
  * An image is a line of its own, `![alt](file.png "optional caption")`, with
  * the file in DRAFTS_DIR. It is uploaded to media like the hero (or the
- * existing media row with that file name is reused), and the en and zh bodies
- * each keep their own alt text and caption on the node.
+ * existing media row with that file name is reused, if it holds a file of the
+ * same size; otherwise the image is left out and the run says to rename it),
+ * and the en and zh bodies each keep their own alt text and caption on the node.
  *
  * Posts are created with status 'draft' on purpose. Blogs.access.read hides
  * anything that is not 'published' from anonymous visitors, so nothing goes
@@ -25,6 +26,7 @@
 import { loadEnv, requireApply, describeTarget } from './lib/env'
 import { refreshLiveSite } from './lib/refreshSite'
 import { toLexical, collectImages, resolveImages } from './lib/markdown'
+import { decideMedia, describeConflict } from './lib/mediaReuse'
 import { getPayload } from 'payload'
 import fs from 'fs'
 import path from 'path'
@@ -269,22 +271,61 @@ async function findMedia(payload: any, filename: string) {
   return found.docs[0] ?? null
 }
 
+/** Size of the file in DRAFTS_DIR, or null when it is not there. */
+function localSize(filename: string) {
+  const file = path.join(DRAFTS!, filename)
+  return fs.existsSync(file) ? fs.statSync(file).size : null
+}
+
+/** Reuse, upload, or neither, for a file in DRAFTS_DIR (scripts/lib/mediaReuse.ts). Read-only. */
+async function mediaDecision(payload: any, filename: string) {
+  return decideMedia(await findMedia(payload, filename), localSize(filename))
+}
+
 /**
  * The media id for a file in DRAFTS_DIR: the existing row with that file name,
- * else a new upload. Null when the file is missing; `missing` says what that
- * means for the post. Callers check blobConfigured() first, since this may
- * upload.
+ * else a new upload. Null, with a warning, when there is nothing to attach: the
+ * file is missing, a row with that name holds a different file, or a new
+ * upload has no token. `leftOut` says what that means for the post.
  */
-async function mediaFor(payload: any, filename: string, data: { alt?: string; caption?: string }, missing: string) {
-  const found = await findMedia(payload, filename)
-  const filePath = path.join(DRAFTS!, filename)
-  if (!found && !fs.existsSync(filePath)) {
-    console.warn(`  ! ${filename} is not in DRAFTS_DIR — ${missing}`)
-    return null
+async function mediaFor(payload: any, filename: string, data: { alt?: string; caption?: string }, leftOut: string) {
+  const decision = await mediaDecision(payload, filename)
+  switch (decision.kind) {
+    case 'reuse':
+      console.log(`media  ${decision.id}  ${filename} (reused)`)
+      return decision.id
+    case 'conflict':
+      console.warn(`  ! ${describeConflict(filename, decision)} — ${leftOut}`)
+      return null
+    case 'missing':
+      console.warn(`  ! ${filename} is not in DRAFTS_DIR — ${leftOut}`)
+      return null
+    case 'upload': {
+      if (!blobConfigured()) {
+        console.warn(`  ! ${filename}: not uploaded (no BLOB_READ_WRITE_TOKEN) — ${leftOut}`)
+        return null
+      }
+      const media = await payload.create({ collection: 'media', data: data as any, filePath: path.join(DRAFTS!, filename) })
+      console.log(`media  ${media.id}  ${filename}`)
+      return media.id as number | string
+    }
   }
-  const media = found ?? await payload.create({ collection: 'media', data: data as any, filePath })
-  console.log(`media  ${media.id}  ${filename}${found ? ' (reused)' : ''}`)
-  return media.id as number | string
+}
+
+/** The dry run's line for one file: its size and what --apply would do with it. */
+async function planMedia(payload: any, filename: string, leftOut: string) {
+  const size = localSize(filename)
+  const decision = await mediaDecision(payload, filename)
+  const action = decision.kind === 'reuse'
+    ? `would reuse media ${decision.id}`
+    : decision.kind === 'conflict'
+      ? `${describeConflict(filename, decision)} — ${leftOut}`
+      : decision.kind === 'missing'
+        ? `MISSING — ${leftOut}`
+        : blobConfigured()
+          ? 'would upload'
+          : `would NOT upload, no BLOB_READ_WRITE_TOKEN — ${leftOut}`
+  return `${filename} ${size == null ? '(not in DRAFTS_DIR)' : `(${Math.round(size / 1024)} KB)`} — ${action}`
 }
 
 /** Both bodies of a post, image placeholders still in them (see resolveBodies). */
@@ -316,16 +357,7 @@ function imagesOf(bodies: ReturnType<typeof readBodies>) {
 async function resolveBodies(payload: any, bodies: ReturnType<typeof readBodies>) {
   const ids = new Map<string, number | string | null>()
   for (const [src, { alt }] of imagesOf(bodies)) {
-    const found = await findMedia(payload, src)
-    if (found) {
-      console.log(`media  ${found.id}  ${src} (reused)`)
-      ids.set(src, found.id)
-    } else if (!blobConfigured()) {
-      console.warn(`  ! ${src}: not uploaded (no BLOB_READ_WRITE_TOKEN) — left out of the body`)
-      ids.set(src, null)
-    } else {
-      ids.set(src, await mediaFor(payload, src, { alt }, 'image left out of the body'))
-    }
+    ids.set(src, await mediaFor(payload, src, { alt }, 'image left out of the body'))
   }
   return { en: resolveImages(bodies.en, ids), zh: resolveImages(bodies.zh, ids) }
 }
@@ -347,21 +379,13 @@ async function plan(payload: any) {
       console.log(`  ${file}: ${Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(', ')}`)
     }
     for (const [src] of imagesOf(bodies)) {
-      const file = path.join(DRAFTS!, src)
-      const size = fs.existsSync(file) ? `${Math.round(fs.statSync(file).size / 1024)} KB` : null
-      const found = await findMedia(payload, src)
-      const action = found
-        ? `would reuse media ${found.id}`
-        : !size
-          ? 'MISSING — would be left out of the body'
-          : blobConfigured()
-            ? 'would upload'
-            : 'would NOT upload, no BLOB_READ_WRITE_TOKEN — would be left out of the body'
-      console.log(`  image: ${src} ${size ? `(${size})` : '(not in DRAFTS_DIR)'} — ${action}`)
+      console.log(`  image: ${await planMedia(payload, src, 'would be left out of the body')}`)
     }
     if (post.hero) {
-      const hero = path.join(DRAFTS!, post.hero)
-      console.log(`  cover: ${post.hero} ${fs.existsSync(hero) ? `(${Math.round(fs.statSync(hero).size / 1024)} KB)` : 'MISSING — skipped unless uploaded on an earlier run'}${blobConfigured() ? '' : ' — would not upload, no BLOB_READ_WRITE_TOKEN'}`)
+      // As uploadHero: without the token the cover is not attached at all, not even a reused row.
+      console.log(blobConfigured()
+        ? `  cover: ${await planMedia(payload, post.hero, 'post would go in without a cover')}`
+        : `  cover: ${post.hero} — would not attach, no BLOB_READ_WRITE_TOKEN; attach from /admin`)
     } else {
       console.log('  cover: none chosen yet — attach from /admin')
     }

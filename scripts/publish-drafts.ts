@@ -194,6 +194,19 @@ const POSTS = [
     category: 'backend',
     tags: ['ai'],
   },
+  {
+    md: '08-flight-skill-v3-en.md',
+    mdZh: '08-flight-skill-v3-zh.md',
+    titleZh: '第二版自己的算例算错了：机票 skill 3.0',
+    excerptZh: 'flight-trip-planning 3.0 改正了 v2 算错的退票盈亏平衡（31% 应为 23.7%），让 Quick 模式真的变短，规则对照官方来源重查，也写了评测里还分不出高下的地方。',
+    // No cover, like the post it follows (when-the-cheapest-flight-is-wrong).
+    slug: 'flight-skill-v3',
+    title: 'Version 2 got its own worked example wrong: flight skill 3.0',
+    excerpt:
+      "flight-trip-planning 3.0 fixes version 2's refund break-even (31% should be 23.7%), shortens Quick mode and rechecks rules against official sources.",
+    category: 'backend',
+    tags: ['ai'],
+  },
 ]
 
 // Blogs.excerpt is capped at 150 characters. Payload reports the overflow as a

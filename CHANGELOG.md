@@ -10,6 +10,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.41.0] — 2026-11-01
+
+### Added — 新文章《我也养了一条“大肥鱼”，可它只回我一个人》（#PR）
+
+B 站评论区的 DeepSeek「大肥鱼」刷屏之后，作者用 AstrBot + DeepSeek 接了一次微信。短文，不写步骤：链路能通，但
+AstrBot 接个人微信要走微信官方的 ClawBot 插件，作者实际用下来，机器人只是插件里的一个 1 对 1 窗口，只有自己能
+发消息，拉不进群，朋友没法一起聊，这是文章的落点。「只能私聊」写成作者的观察，没有给出找不到出处的技术原因。
+安装配置一律链出去：凤凰网科技对大肥鱼的报道、DeepSeek 官方的 AstrBot 接入指南（`api-docs.deepseek.com` 那页已经
+跳转到 GitHub 上的 `deepseek-ai/awesome-deepseek-agent`，文中直接链 GitHub）、AstrBot 文档和它的「接入个人微信」页、
+联合新闻网对 ClawBot 上线的报道、菜鸟教程的 OpenClaw 接微信教程。
+
+- `scripts/publish-drafts.ts` 加入这篇（slug `astrbot-deepseek-wechat`），分类 `backend`，标签 `ai` 加三个新标签
+  `astrbot`、`deepseek`、`wechat`（写进 `NEW_TAGS`，带 `--apply` 时才创建）。没有题图。正文在
+  `$DRAFTS_DIR/07-astrbot-deepseek-{en,zh}.md`，和其他文章一样不进仓库。
+
+只读预演（`--only astrbot-deepseek-wechat`，不带 `--apply`）对生产库跑过：中英两份都解析成 7 段；`backend`、`ai`
+已存在，三个新标签会创建；slug 未被占用，会以草稿新建；题图一项显示「none chosen yet」。
+**本 PR 没有写库。** 写入（草稿）和发布都等维护者确认后再做。
+
 ## [1.40.0] — 2026-10-31
 
 ### Added — 新文章《最便宜的那张机票，不一定是该订的那张》（#130）

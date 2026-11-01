@@ -54,6 +54,9 @@ const NEW_TAGS = [
   { slug: 'databricks', name: 'Databricks' },
   { slug: 'sql-server', name: 'SQL Server' },
   { slug: 'payload-cms', name: 'Payload CMS' },
+  { slug: 'astrbot', name: 'AstrBot' },
+  { slug: 'deepseek', name: 'DeepSeek' },
+  { slug: 'wechat', name: 'WeChat' },
 ]
 
 /**
@@ -183,6 +186,19 @@ const POSTS = [
       'Flight search answers which flight is cheapest. I wrote a Claude skill for a different question: which one should we actually book?',
     category: 'backend',
     tags: ['ai'],
+  },
+  {
+    md: '07-astrbot-deepseek-en.md',
+    mdZh: '07-astrbot-deepseek-zh.md',
+    titleZh: '我也养了一条“大肥鱼”，可它只回我一个人',
+    excerptZh: '大肥鱼刷屏之后，我用 AstrBot 加 DeepSeek 接上了微信。整条链路能通，可微信那头走的是官方 ClawBot 插件，它只能跟我一个人私聊，拉不进群。',
+    // No cover, as with the post above.
+    slug: 'astrbot-deepseek-wechat',
+    title: 'I set up my own DeepSeek "fat fish." Only I can talk to it.',
+    excerpt:
+      'After the "fat fish" bots took over Bilibili, I hooked AstrBot and DeepSeek up to WeChat. It works, but via the ClawBot plugin it only talks to me.',
+    category: 'backend',
+    tags: ['ai', 'astrbot', 'deepseek', 'wechat'],
   },
 ]
 

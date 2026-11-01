@@ -1,6 +1,7 @@
 /**
  * Sample content for an empty database: three bilingual posts, one category
- * and one tag on the first of them, a project and the Playground tools.
+ * and one tag on the first of them, a project and the Playground tools. The
+ * first post has an image in its body.
  *
  * CI runs this against its throwaway Postgres before `next build`, so the
  * build and the smoke check see one of every page type: a post, a category
@@ -12,7 +13,7 @@ import { getPayload } from 'payload'
 import { PLAYGROUND_TOOLS } from './lib/playgroundTools'
 
 loadEnv()
-requireApply({ script: 'scripts/seed.ts', writes: ['blogs', 'categories', 'tags', 'projects', 'tools'] })
+requireApply({ script: 'scripts/seed.ts', writes: ['media', 'blogs', 'categories', 'tags', 'projects', 'tools'] })
 
 const createParagraph = (text: string): any => ({
   root: {
@@ -48,6 +49,31 @@ async function run() {
   const configPromise = (await import('../src/payload.config')).default
   const payload = await getPayload({ config: configPromise })
 
+  // An image for post 1's body, so the build renders an upload node the way
+  // scripts/publish-drafts.ts writes them (LexicalRenderer UploadFigure). The
+  // row is written below Payload's upload handling: CI has no Blob store to
+  // put a file in, and the page only needs the row, whose URL the storage
+  // plugin builds from the file name. Nothing fetches the file.
+  console.log('Creating a media row for the body image...')
+  const image = await payload.db.create({
+    collection: 'media',
+    data: {
+      alt: 'Seed diagram',
+      filename: 'seed-diagram.png',
+      mimeType: 'image/png',
+      filesize: 1024,
+      width: 1200,
+      height: 675,
+    },
+  })
+  const withImage = (doc: any, alt: string, caption: string) => {
+    doc.root.children.push({
+      type: 'upload', version: 3, format: '', id: '5eedd1a9a000000000000001',
+      relationTo: 'media', value: image.id, fields: { alt, caption },
+    })
+    return doc
+  }
+
   console.log('Creating post 1...')
   const post1 = await payload.create({
     collection: 'blogs',
@@ -56,7 +82,11 @@ async function run() {
       title: 'Architecting Resilient Integrations with Boomi',
       slug: 'architecting-resilient-integrations-boomi',
       excerpt: 'How to build robust, fault-tolerant integration pipelines that scale without waking you up at 3 AM.',
-      content: createParagraph('Integrations are the nervous system of modern enterprise architecture. In this post, we explore the patterns and practices for building high-availability data pipelines using Boomi. We will cover error handling frameworks, retry mechanisms, and state management.'),
+      content: withImage(
+        createParagraph('Integrations are the nervous system of modern enterprise architecture. In this post, we explore the patterns and practices for building high-availability data pipelines using Boomi. We will cover error handling frameworks, retry mechanisms, and state management.'),
+        'An integration pipeline with retry and error-handling stages',
+        'A sample figure',
+      ),
       status: 'published',
       featured: true,
       publishedAt: new Date().toISOString(),
@@ -70,7 +100,11 @@ async function run() {
     data: {
       title: '使用 Boomi 构建高可用企业集成架构',
       excerpt: '如何构建稳健、容错且可扩展的集成数据管道，告别凌晨3点的报警电话。',
-      content: createParagraph('系统集成是现代企业架构的神经系统。在这篇文章中，我们将探讨使用 Boomi 构建高可用数据管道的模式和最佳实践。主要涵盖异常处理框架、重试机制和状态管理。'),
+      content: withImage(
+        createParagraph('系统集成是现代企业架构的神经系统。在这篇文章中，我们将探讨使用 Boomi 构建高可用数据管道的模式和最佳实践。主要涵盖异常处理框架、重试机制和状态管理。'),
+        '一条带重试和异常处理阶段的集成管道',
+        '示例插图',
+      ),
     },
   })
 

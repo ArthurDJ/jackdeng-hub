@@ -3,7 +3,12 @@
  *
  * Content is authored as markdown in the drafts folder and converted to the
  * Lexical node shape Payload stores (scripts/lib/markdown.ts: headings,
- * paragraphs, lists, fenced code, tables, inline bold/code/links).
+ * paragraphs, lists, fenced code, tables, images, inline bold/code/links).
+ *
+ * An image is a line of its own, `![alt](file.png "optional caption")`, with
+ * the file in DRAFTS_DIR. It is uploaded to media like the hero (or the
+ * existing media row with that file name is reused), and the en and zh bodies
+ * each keep their own alt text and caption on the node.
  *
  * Posts are created with status 'draft' on purpose. Blogs.access.read hides
  * anything that is not 'published' from anonymous visitors, so nothing goes
@@ -19,7 +24,7 @@
  */
 import { loadEnv, requireApply, describeTarget } from './lib/env'
 import { refreshLiveSite } from './lib/refreshSite'
-import { toLexical } from './lib/markdown'
+import { toLexical, collectImages, resolveImages } from './lib/markdown'
 import { getPayload } from 'payload'
 import fs from 'fs'
 import path from 'path'
@@ -67,13 +72,16 @@ const NEW_TAGS = [
  * the cover is left for /admin, which is the useful outcome when the token
  * lives in Vercel rather than on the machine running this.
  */
+let tokenWarned = false
 function blobConfigured() {
   if (process.env.BLOB_READ_WRITE_TOKEN) return true
-  console.warn(`  ! BLOB_READ_WRITE_TOKEN is not set — skipping the image upload.
+  if (tokenWarned) return false
+  tokenWarned = true
+  console.warn(`  ! BLOB_READ_WRITE_TOKEN is not set — skipping image uploads.
     Uploading now would write the file to ./public/media on this machine while
     recording a /api/media/file/... URL in the shared database, so the row would
     point at something production cannot serve. The post still goes in; attach
-    the cover from /admin.`)
+    the cover from /admin, and re-run with the token for images in the body.`)
   return false
 }
 
@@ -212,9 +220,7 @@ for (const post of SELECTED) {
  * title and content are required, so a per-locale write has to carry them or
  * Payload rejects it.
  */
-async function writeZh(payload: any, id: number | string, post: any) {
-  const md = fs.readFileSync(path.join(DRAFTS, post.mdZh), 'utf-8')
-
+async function writeZh(payload: any, id: number | string, post: any, content: any) {
   // Send title and excerpt only when the slot is still empty. Payload needs
   // them on the first write because both title and content are required, but
   // sending them every time would revert a Chinese title edited in /admin —
@@ -227,7 +233,7 @@ async function writeZh(payload: any, id: number | string, post: any) {
   await payload.update({
     collection: 'blogs', id, locale: 'zh',
     data: {
-      content: toLexical(md) as any,
+      content,
       ...(firstWrite ? { title: post.titleZh, excerpt: post.excerptZh } : {}),
     } as any,
   })
@@ -251,23 +257,77 @@ async function uploadHero(payload: any, post: any) {
     console.log(`       cover to attach by hand: ${post.hero}`)
     return null
   }
+  return mediaFor(payload, post.hero, { alt: post.heroAlt, caption: post.heroCredit },
+    'post written without a cover; attach it from /admin')
+}
+
+/** The media row already holding this file name, if any. Read-only. */
+async function findMedia(payload: any, filename: string) {
   const found = await payload.find({
-    collection: 'media', where: { filename: { equals: post.hero } }, limit: 1, depth: 0,
+    collection: 'media', where: { filename: { equals: filename } }, limit: 1, depth: 0,
   })
-  const filePath = path.join(DRAFTS, post.hero)
-  if (!found.docs.length && !fs.existsSync(filePath)) {
-    console.warn(`  ! ${post.hero} is not in DRAFTS_DIR — post written without a cover; attach it from /admin`)
+  return found.docs[0] ?? null
+}
+
+/**
+ * The media id for a file in DRAFTS_DIR: the existing row with that file name,
+ * else a new upload. Null when the file is missing; `missing` says what that
+ * means for the post. Callers check blobConfigured() first, since this may
+ * upload.
+ */
+async function mediaFor(payload: any, filename: string, data: { alt?: string; caption?: string }, missing: string) {
+  const found = await findMedia(payload, filename)
+  const filePath = path.join(DRAFTS!, filename)
+  if (!found && !fs.existsSync(filePath)) {
+    console.warn(`  ! ${filename} is not in DRAFTS_DIR — ${missing}`)
     return null
   }
-  const media = found.docs.length
-    ? found.docs[0]
-    : await payload.create({
-        collection: 'media',
-        data: { alt: post.heroAlt, caption: post.heroCredit } as any,
-        filePath,
-      })
-  console.log(`media  ${media.id}  ${post.hero}${found.docs.length ? ' (reused)' : ''}`)
-  return media.id
+  const media = found ?? await payload.create({ collection: 'media', data: data as any, filePath })
+  console.log(`media  ${media.id}  ${filename}${found ? ' (reused)' : ''}`)
+  return media.id as number | string
+}
+
+/** Both bodies of a post, image placeholders still in them (see resolveBodies). */
+function readBodies(post: any) {
+  const read = (file: string) => toLexical(fs.readFileSync(path.join(DRAFTS!, file), 'utf-8'), { images: true })
+  return { en: read(post.md), zh: read(post.mdZh) }
+}
+
+/**
+ * The images both bodies use, once per file name, each with the first alt text
+ * found (en before zh). That alt goes on a new media row only as its fallback;
+ * each body keeps its own on the node.
+ */
+function imagesOf(bodies: ReturnType<typeof readBodies>) {
+  const bySrc = new Map<string, { alt: string }>()
+  for (const img of [...collectImages(bodies.en), ...collectImages(bodies.zh)]) {
+    if (!bySrc.has(img.src)) bySrc.set(img.src, { alt: img.alt })
+  }
+  return bySrc
+}
+
+/**
+ * Upload or reuse every image the post uses, then swap the placeholders for
+ * upload nodes; the same file in both bodies is one media row. An image that
+ * cannot be resolved (file missing, or no token to upload it with) is left out
+ * of the body with a warning, as a missing hero is: re-running once it is
+ * fixed puts it in.
+ */
+async function resolveBodies(payload: any, bodies: ReturnType<typeof readBodies>) {
+  const ids = new Map<string, number | string | null>()
+  for (const [src, { alt }] of imagesOf(bodies)) {
+    const found = await findMedia(payload, src)
+    if (found) {
+      console.log(`media  ${found.id}  ${src} (reused)`)
+      ids.set(src, found.id)
+    } else if (!blobConfigured()) {
+      console.warn(`  ! ${src}: not uploaded (no BLOB_READ_WRITE_TOKEN) — left out of the body`)
+      ids.set(src, null)
+    } else {
+      ids.set(src, await mediaFor(payload, src, { alt }, 'image left out of the body'))
+    }
+  }
+  return { en: resolveImages(bodies.en, ids), zh: resolveImages(bodies.zh, ids) }
 }
 
 /** What --apply would do, read-only: files, conversion, taxonomy, create or update. */
@@ -277,11 +337,27 @@ async function plan(payload: any) {
     (await payload.find({ collection, where: { slug: { equals: slug } }, limit: 1, depth: 0 })).docs[0]
   for (const post of SELECTED) {
     console.log(post.slug)
-    for (const file of [post.md, post.mdZh]) {
-      const doc: any = toLexical(fs.readFileSync(path.join(DRAFTS!, file), 'utf-8'))
+    const bodies = readBodies(post)
+    for (const [file, doc] of [[post.md, bodies.en], [post.mdZh, bodies.zh]] as const) {
       const counts: Record<string, number> = {}
-      for (const n of doc.root.children) counts[n.type] = (counts[n.type] ?? 0) + 1
+      for (const n of doc.root.children) {
+        const type = n.type === 'draft-image' ? 'image' : n.type
+        counts[type] = (counts[type] ?? 0) + 1
+      }
       console.log(`  ${file}: ${Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(', ')}`)
+    }
+    for (const [src] of imagesOf(bodies)) {
+      const file = path.join(DRAFTS!, src)
+      const size = fs.existsSync(file) ? `${Math.round(fs.statSync(file).size / 1024)} KB` : null
+      const found = await findMedia(payload, src)
+      const action = found
+        ? `would reuse media ${found.id}`
+        : !size
+          ? 'MISSING — would be left out of the body'
+          : blobConfigured()
+            ? 'would upload'
+            : 'would NOT upload, no BLOB_READ_WRITE_TOKEN — would be left out of the body'
+      console.log(`  image: ${src} ${size ? `(${size})` : '(not in DRAFTS_DIR)'} — ${action}`)
     }
     if (post.hero) {
       const hero = path.join(DRAFTS!, post.hero)
@@ -345,8 +421,8 @@ async function run() {
   }
 
   for (const post of SELECTED) {
-    const md = fs.readFileSync(path.join(DRAFTS, post.md), 'utf-8')
-    const content = toLexical(md) as any
+    const bodies = await resolveBodies(payload, readBodies(post))
+    const content = bodies.en as any
 
     const existing = await payload.find({
       collection: 'blogs', where: { slug: { equals: post.slug } }, limit: 1, depth: 0,
@@ -371,7 +447,7 @@ async function run() {
         data: { content, ...(cover ? { coverImage: cover } : {}) } as any,
       })
       console.log(`update blog ${id}  ${post.slug}  (content${cover ? ' + cover' : ' only'})`)
-      await writeZh(payload, id, post)
+      await writeZh(payload, id, post, bodies.zh)
       continue
     }
 
@@ -393,7 +469,7 @@ async function run() {
       } as any,
     })
     console.log(`create blog ${doc.id}  ${post.slug}  (draft, en)`)
-    await writeZh(payload, doc.id, post)
+    await writeZh(payload, doc.id, post, bodies.zh)
   }
 
   console.log('\ndone. Posts are drafts — publish from /admin when you are happy with them.')

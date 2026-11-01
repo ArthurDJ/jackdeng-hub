@@ -1,7 +1,8 @@
 /**
  * Markdown to Lexical, for the subset of markdown the posts in this repo use:
  * headings, paragraphs, bullet and numbered lists, fenced code blocks, tables,
- * and inline **bold**, `code` (``with a ` inside``) and [text](url).
+ * images on a line of their own (opt-in, see toLexical), and inline **bold**,
+ * `code` (``with a ` inside``) and [text](url).
  *
  * Extracted from scripts/publish-drafts.ts so it can be tested. Two defects
  * reached the production database before it was: links were left to the
@@ -23,16 +24,22 @@ const textNode = (text: string, format = 0) => ({
  * verbatim, which is what happened to the first post written by this script.
  * A code span that contains a backtick is written with two, as in markdown:
  * `` `Column Name` ``.
+ *
+ * Image syntax inside a sentence, ![alt](file.png), stays literal text. Only an
+ * image on a line of its own becomes an image (toLexical); matched here first so
+ * that its [alt](file.png) half is not turned into a link to the file name.
  */
 export function inline(md: string) {
   const out: any[] = []
-  const re = /(\*\*[^*]+\*\*|``\s?.+?\s?``|`[^`]+`|\[[^\]]+\]\([^)]+\))/g
+  const re = /(\*\*[^*]+\*\*|``\s?.+?\s?``|`[^`]+`|!\[[^\]]*\]\([^)]+\)|\[[^\]]+\]\([^)]+\))/g
   let last = 0
   for (const m of md.matchAll(re)) {
     const i = m.index!
     if (i > last) out.push(textNode(md.slice(last, i)))
     const tok = m[0]
-    if (tok.startsWith('**')) {
+    if (tok.startsWith('![')) {
+      out.push(textNode(tok))
+    } else if (tok.startsWith('**')) {
       out.push(textNode(tok.slice(2, -2), 1))
     } else if (tok.startsWith('``')) {
       out.push(textNode(tok.slice(2, -2).trim(), 16))
@@ -90,13 +97,75 @@ export function codeLanguage(tag: string): string {
   return lang
 }
 
+/** A node id unique within the document, shaped like Payload's ObjectIDs. */
+const nodeId = () => Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join('')
+
 const codeBlock = (code: string, language: string) => ({
   type: 'block', version: 2, format: '',
-  fields: {
-    id: Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join(''),
-    blockName: '', blockType: 'Code', language, code,
-  },
+  fields: { id: nodeId(), blockName: '', blockType: 'Code', language, code },
 })
+
+// ── Images ──────────────────────────────────────────────────────────────────
+/**
+ * An image the markdown asks for, before it has a media row. toLexical cannot
+ * know the row (it is pure; the upload happens in publish-drafts.ts), so it
+ * leaves this placeholder and resolveImages() swaps it for the upload node.
+ */
+export type DraftImage = { type: 'draft-image'; src: string; alt: string; caption?: string }
+
+/** `![alt](file.png)` or `![alt](file.png "caption")`, alone on its line. */
+const IMAGE_LINE = /^!\[([^\]]*)\]\(\s*(\S+?)(?:\s+"([^"]*)")?\s*\)$/
+
+/**
+ * The file name is looked up in the media collection as written, so it has to
+ * be one Payload stores unchanged, and it has to name a file in DRAFTS_DIR
+ * rather than a path or a URL.
+ */
+const IMAGE_FILE = /^[A-Za-z0-9][A-Za-z0-9._-]*\.[A-Za-z0-9]+$/
+
+function draftImage(line: string): DraftImage | null {
+  const m = line.match(IMAGE_LINE)
+  if (!m) return null
+  const [, alt, src, caption] = m
+  if (!IMAGE_FILE.test(src)) {
+    throw new Error(`image "${src}": use a file name in DRAFTS_DIR (letters, digits, . _ -), not a path or URL`)
+  }
+  return { type: 'draft-image', src, alt: alt.trim(), ...(caption?.trim() ? { caption: caption.trim() } : {}) }
+}
+
+/** Every image placeholder in the document, in order, duplicates included. */
+export function collectImages(doc: { root: { children: any[] } }): DraftImage[] {
+  return doc.root.children.filter((n) => n.type === 'draft-image')
+}
+
+/**
+ * Replace each placeholder with the upload node Payload's UploadFeature stores
+ * (type 'upload', version 3; see UploadServerNode in @payloadcms/richtext-lexical).
+ * `value` is the media id; `fields` holds the alt text and caption, which the
+ * editor config in payload.config.ts declares for media uploads. They live on
+ * the node rather than on the media row because content is localized and
+ * Media.alt is not: the en and zh bodies each carry their own words for the
+ * same image.
+ *
+ * An image whose id is missing or null is dropped (the caller has already said
+ * why), so the post still goes in without it.
+ */
+export function resolveImages<T extends { root: { children: any[] } }>(
+  doc: T,
+  ids: ReadonlyMap<string, number | string | null>,
+): T {
+  const children = doc.root.children.flatMap((n) => {
+    if (n.type !== 'draft-image') return [n]
+    const id = ids.get(n.src)
+    if (id == null) return []
+    return [{
+      type: 'upload', version: 3, format: '', id: nodeId(),
+      relationTo: 'media', value: id,
+      fields: { alt: n.alt, ...(n.caption ? { caption: n.caption } : {}) },
+    }]
+  })
+  return { ...doc, root: { ...doc.root, children } }
+}
 
 /**
  * A GitHub-style table: a header row, a |---| separator, then body rows. It
@@ -121,8 +190,13 @@ const isSeparator = (line: string) => /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|
  * Line-based rather than block-based. Splitting only on blank lines folded a
  * bullet list into one run-on paragraph, because every newline inside a block
  * was replaced with a space and the hyphens stayed in the text.
+ *
+ * With `images: true`, a line that is nothing but an image becomes a
+ * DraftImage placeholder, blank lines around it or not, and the caller must
+ * pass the result through resolveImages() before writing it. Without it (the
+ * project scripts, which have no upload step) the line stays text.
  */
-export function toLexical(md: string) {
+export function toLexical(md: string, opts: { images?: boolean } = {}) {
   const children: any[] = []
   const lines = md.split('\n')
   let para: string[] = []
@@ -197,6 +271,13 @@ export function toLexical(md: string) {
       continue
     }
     flushList()
+
+    const image = opts.images ? draftImage(line) : null
+    if (image) {
+      flushPara()
+      children.push(image)
+      continue
+    }
 
     const h = line.match(/^(#{2,3})\s+(.*)$/)
     if (h) {

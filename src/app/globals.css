@@ -1097,6 +1097,19 @@
   .prose-ds .ds-table-scroll { overflow-x: auto; }
   .prose-ds .ds-table-scroll table { margin: 0; }
   .prose-ds th > p, .prose-ds td > p { margin: 0; }
+
+  /* Images in the body (LexicalRenderer UploadFigure): never wider than the
+     column, centred when narrower, the aspect ratio kept from the file's own
+     width and height. The caption takes the typography plugin's figcaption
+     style, whose colour is the --tw-prose-captions token above. */
+  .prose-ds .ds-figure img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+    border-radius: 8px;
+  }
+  .prose-ds .ds-figure figcaption { text-align: center; }
 }
 
 /* ════════════════════════════════════════════════════

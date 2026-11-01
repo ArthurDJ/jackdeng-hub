@@ -10,6 +10,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.41.0] — 2026-11-01
+
+### Added — 文章正文支持插图（#140）
+
+- 草稿 markdown 里单独一行的 `![alt](file.png "可选图注")` 变成正文插图。`scripts/lib/markdown.ts` 是纯函数，先产出占位节点；
+  `scripts/publish-drafts.ts` 按文件名复用已有的 media 行，没有就从 `DRAFTS_DIR` 上传（和题图同一条路径、同一个
+  `BLOB_READ_WRITE_TOKEN` 守卫），再换成 Payload 的 upload 节点。中英两份正文引用同一个文件只对应一行 media。
+  文件缺失或没有 token 时这张图跳过并警告，不中断；dry run 逐张打印大小和「会上传 / 会复用 media N / 缺失」。
+  句子中间的 `![…](…)` 保持原文，不再被当成指向文件名的链接；路径或 URL 直接报错。
+- alt 和图注按语言存在节点上：正文是本地化字段，`Media.alt` 不是。编辑器的 UploadFeature 给 media 加了 `alt`、`caption`
+  两个字段，后台也能改。富文本整列是 jsonb，这两个字段不改 schema。
+- `LexicalRenderer` 把 upload 节点渲染成 `<figure>`：next/image 用原图（命名尺寸都裁成 16:9）、按文件宽高定比例、懒加载，
+  `sizes` 按文章栏宽；有图注才有 `<figcaption>`。alt 先取节点、再退回 `Media.alt`。图片域名已在 `remotePatterns` 和 CSP 里。
+- CI：seed 给第一篇文章加一张插图（只写 media 行，不传文件），冒烟检查断言中英文页都渲染出 figure、alt 是各自语言的。
+
 ## [1.40.2] — 2026-11-01
 
 ### Security — next 16.4.3、Payload 全家桶锁步 3.92.0、react 19.3.1，清掉 3 条 critical（#139）

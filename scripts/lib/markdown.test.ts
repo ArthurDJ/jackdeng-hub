@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { toLexical, inline } from './markdown'
+import { toLexical, inline, collectImages, resolveImages } from './markdown'
 
 const children = (md: string) => (toLexical(md) as any).root.children
 const texts = (node: any): string =>
@@ -150,5 +150,77 @@ describe('inline: double-backtick code', () => {
     const [code] = inline('`` `Column Name` ``')
     expect(code.format).toBe(16)
     expect(code.text).toBe('`Column Name`')
+  })
+})
+
+describe('toLexical: images', () => {
+  const withImages = (md: string) => (toLexical(md, { images: true }) as any).root.children
+
+  it('turns an image on its own line into a placeholder with file name and alt', () => {
+    const nodes = withImages('Before.\n\n![A three-stage pipeline](pipeline.png)\n\nAfter.')
+    expect(nodes.map((n: any) => n.type)).toEqual(['paragraph', 'draft-image', 'paragraph'])
+    expect(nodes[1]).toEqual({ type: 'draft-image', src: 'pipeline.png', alt: 'A three-stage pipeline' })
+  })
+
+  it('reads an optional "caption" after the file name', () => {
+    const [img] = withImages('![管道示意图](pipeline.png "图 1：三段式管道 (2026)")')
+    expect(img).toEqual({ type: 'draft-image', src: 'pipeline.png', alt: '管道示意图', caption: '图 1：三段式管道 (2026)' })
+  })
+
+  it('splits a paragraph around an image line even without blank lines', () => {
+    const nodes = withImages('first line\n![x](a.jpg)\nsecond line')
+    expect(nodes.map((n: any) => n.type)).toEqual(['paragraph', 'draft-image', 'paragraph'])
+    expect(texts(nodes[0])).toBe('first line')
+  })
+
+  it('keeps image syntax inside a sentence as literal text, not a link to the file', () => {
+    const [p] = withImages('See ![x](a.png) here')
+    expect(p.type).toBe('paragraph')
+    expect(texts(p)).toBe('See ![x](a.png) here')
+    expect(p.children.some((c: any) => c.type === 'link')).toBe(false)
+    // A real link next to it is still a link.
+    const [q] = withImages('![x](a.png) and [docs](https://example.com)')
+    expect(q.children.filter((c: any) => c.type === 'link')).toHaveLength(1)
+  })
+
+  it('refuses a path or URL, which could not be looked up by file name', () => {
+    expect(() => toLexical('![x](img/a.png)', { images: true })).toThrow(/file name in DRAFTS_DIR/)
+    expect(() => toLexical('![x](https://example.com/a.png)', { images: true })).toThrow(/file name in DRAFTS_DIR/)
+  })
+
+  it('leaves image lines as text unless asked, for the scripts with no upload step', () => {
+    const [p] = children('![x](a.png)')
+    expect(p.type).toBe('paragraph')
+    expect(texts(p)).toBe('![x](a.png)')
+  })
+
+  it('does not treat image syntax inside a code fence as an image', () => {
+    const nodes = withImages('```md\n![x](a.png)\n```')
+    expect(nodes.map((n: any) => n.type)).toEqual(['block'])
+  })
+})
+
+describe('resolveImages', () => {
+  it('swaps each placeholder for a Payload upload node carrying the alt and caption', () => {
+    const doc = toLexical('![Alt](a.png "Cap")\n\n![Other](b.png)', { images: true })
+    expect(collectImages(doc).map((i) => i.src)).toEqual(['a.png', 'b.png'])
+
+    const out: any = resolveImages(doc, new Map([['a.png', 12], ['b.png', 13]]))
+    const [a, b] = out.root.children
+    expect(a).toEqual({
+      type: 'upload', version: 3, format: '', id: expect.stringMatching(/^[0-9a-f]{24}$/),
+      relationTo: 'media', value: 12, fields: { alt: 'Alt', caption: 'Cap' },
+    })
+    expect(b.fields).toEqual({ alt: 'Other' })
+    expect(b.value).toBe(13)
+    expect(collectImages(out)).toEqual([])
+  })
+
+  it('drops an image with no media id and leaves the rest of the body', () => {
+    const doc = toLexical('before\n\n![x](missing.png)\n\nafter', { images: true })
+    const out: any = resolveImages(doc, new Map([['missing.png', null]]))
+    expect(out.root.children.map((n: any) => n.type)).toEqual(['paragraph', 'paragraph'])
+    // Nothing unresolved can reach the database.
+    expect(JSON.stringify(out)).not.toContain('draft-image')
   })
 })

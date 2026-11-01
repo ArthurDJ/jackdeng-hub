@@ -42,6 +42,8 @@ export const config = buildConfig({
     },
     components: {
       actions: ['@/components/AdminHeaderSettings#AdminHeaderSettings'],
+      // Counts, quick actions and recent posts above the collection cards.
+      beforeDashboard: ['@/components/AdminOverview#AdminOverview'],
       // Login is via Payload's native email/password. next-auth used to sit
       // alongside this and was never bridged into Payload's session, so it
       // could not grant admin access; the Google button was removed from this
@@ -63,15 +65,19 @@ export const config = buildConfig({
       en: { general: { locale: 'Language' } },
     },
   },
+  // The admin sidebar and dashboard list groups in the order their first
+  // collection appears here: 内容, 作品, 工具, then 系统. Only the admin reads
+  // this order; table, column, index and enum names come from the slugs, so
+  // reordering changes no schema (scripts/schema-drift.ts compares names).
   collections: [
-    Users,
-    Categories,
-    Comments,
-    Tags,
     Blogs,
+    Comments,
+    Categories,
+    Tags,
+    Media,
     Projects,
     Tools,
-    Media,
+    Users,
   ],
   localization: {
     locales: [

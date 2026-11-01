@@ -654,32 +654,6 @@
   @keyframes ds-spine-fill { to { transform: scaleY(1); } }
   @media print { .ds-spine::after { display: none; } }
 
-  /* ── "Show N more" under an experience entry (home) ── */
-  .ds-more > summary {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    list-style: none;
-    font-size: 12px;
-    font-weight: 510;
-    color: var(--accent-primary);
-    cursor: pointer;
-  }
-  .ds-more > summary::-webkit-details-marker { display: none; }
-  .ds-more > summary::after {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-right: 1.5px solid currentColor;
-    border-bottom: 1.5px solid currentColor;
-    transform: translateY(-2px) rotate(45deg);
-    transition: transform var(--duration-base) var(--ease-default);
-  }
-  .ds-more[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
-  .ds-more[open] .ds-more-closed,
-  .ds-more:not([open]) .ds-more-open { display: none; }
-  .ds-more > summary:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; border-radius: 4px; }
-
   /* ── Split-flap tiles (404) ── */
   .ds-flap-row { display: inline-flex; gap: 8px; }
   .ds-flap {

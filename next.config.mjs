@@ -92,7 +92,6 @@ const nextConfig = {
       { source: '/:locale(en|zh)/blog/tag/:slug', has: page, destination: '/:locale/blog/tag/:slug/page/:page', permanent: true },
     ]
   },
-  allowedDevOrigins: ['playing-sydney-fingers-wireless.trycloudflare.com'],
   images: {
     remotePatterns: [
       {

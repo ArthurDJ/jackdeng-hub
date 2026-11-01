@@ -10,7 +10,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [1.42.0] — 2026-11-01
+## [1.43.0] — 2026-11-01
 
 ### Added — 新文章《第二版自己的算例算错了：机票 skill 3.0》（#143）
 
@@ -31,6 +31,34 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - 评测合计按仓库 `evals/README.md` 的逐项表格算是 v2 33/38；skill 仓库一条提交说明写的 34/38 和表格对不上，正文用 33。
 
 **本 PR 没有写库。** 只读预演见 PR 描述；写入（草稿）和发布等维护者确认。
+
+## [1.42.0] — 2026-11-01
+
+### Added — 新文章《我也养了一条“大肥鱼”，可它只回我一个人》（#137）
+
+B 站评论区的 DeepSeek「大肥鱼」刷屏之后，作者用 AstrBot + DeepSeek 接了一次微信。短文，不写步骤：链路能通，但
+AstrBot 接个人微信要走微信官方的 ClawBot 插件，作者实际用下来，机器人只是插件里的一个 1 对 1 窗口，只有自己能
+发消息，拉不进群，朋友没法一起聊，这是文章的落点。「只能私聊」写成作者的观察，没有给出找不到出处的技术原因。
+安装配置一律链出去：凤凰网科技对大肥鱼的报道、DeepSeek 官方的 AstrBot 接入指南（`api-docs.deepseek.com` 那页已经
+跳转到 GitHub 上的 `deepseek-ai/awesome-deepseek-agent`，文中直接链 GitHub）、AstrBot 文档和它的「接入个人微信」页、
+联合新闻网对 ClawBot 上线的报道、菜鸟教程的 OpenClaw 接微信教程。
+
+- `scripts/publish-drafts.ts` 加入这篇（slug `astrbot-deepseek-wechat`），分类 `backend`，标签 `ai` 加三个新标签
+  `astrbot`、`deepseek`、`wechat`（写进 `NEW_TAGS`，带 `--apply` 时才创建）。正文在
+  `$DRAFTS_DIR/07-astrbot-deepseek-{en,zh}.md`，和其他文章一样不进仓库。
+- **配图。** 题图 `hero-astrbot-fish.jpg`（1600×900）裁自 Small-tailqwq/dsh-deep-whale 里 maid-atelier 皮肤的预览图，
+  去掉了左侧带别人项目名的侧栏；`heroAlt` 写英文、`heroCredit` 带 CC BY-NC-SA 4.0 署名链（Media 的 alt / caption 不分语言）。
+  正文开头放一张标准女仆鲸鱼娘立绘，再加一句链到蓝色大肥鱼档案馆（EDMOK/blue-fish-archive、fisharchive.cc）和三张
+  随机挑的同人表情，都铺白底转成 webp（暗色主题下透明图的深色线条会看不见），文件名带 `astrbot-` 前缀以免撞上
+  媒体库里的同名文件（脚本按文件名复用媒体行），放在 `DRAFTS_DIR`，不进仓库。文末一段署名：鲸鱼娘原作上善无形，加 DeepSeek 元素的
+  女仆二次设计 ZipZipPipe，CC BY-NC-SA 4.0；题图来源；立绘和表情来自档案馆，版权归各自作者。
+- 正文图片用 #140 的写法（`![alt](file.webp "caption")` 独占一行），#140 已合并，本 PR 已合入 main，写入时会按
+  #140 的流程上传或复用媒体行；alt 和图注按语言写在节点上。
+
+只读预演（`--only astrbot-deepseek-wechat`，不带 `--apply`，合入 #140 之后）对生产库跑过：中英两份都解析成 9 段 + 4 张图；
+4 张正文图（100 / 25 / 35 / 20 KB）和题图（201 KB）都显示「would upload」，没有同名媒体行；`backend`、`ai` 已存在，
+三个新标签会创建；slug 未被占用，会以草稿新建。
+**本 PR 没有写库。** 写入（草稿）和发布都等维护者确认后再做。
 
 ## [1.41.0] — 2026-11-01
 

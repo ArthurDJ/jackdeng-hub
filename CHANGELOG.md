@@ -10,6 +10,27 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.40.3] — 2026-11-01
+
+### Changed — Node 锁到 26 LTS，CI 和 Vercel 读同一个字段（#142）
+
+`package.json` 原来是 `"engines": { "node": ">=24" }`，CI 写死 `node-version: '24'`。两边其实早就不一样：Vercel
+构建日志说 `engines` 覆盖了项目设置里的 24.x，**生产跑的是 26.x**，并提示 `>=24` 每出一个新 major 都会自动跟上。
+Node 27 预计 2027 年 4 月以 Current（非 LTS）发布，不改的话生产会悄悄换到非 LTS 版本，而 CI 一直在测 24。
+
+- **`engines.node` 改为 `26.x`**。按 Vercel 文档（[Supported Node.js versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)），
+  26.x 是可选版本之一（也是默认值），`engines#node` 会覆盖项目设置，`26.x` 对应「latest 26.x」。生产的 major
+  不变，只是不再自动跳。v26.13.0 起 26 是 LTS「Lithium」；Payload 3.92 要求 `^22.23.4 || >=24.22.1`，满足。
+- **CI 改用 `node-version-file: package.json`**。setup-node 的
+  [advanced usage](https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md) 文档列明支持
+  `package.json`，依次读 `volta.node`、`devEngines.runtime`、`engines.node`；本仓库只有 `engines.node`，所以不需要
+  `.nvmrc`。`smoke.yml` 只跑 python，`backup.yml` 的 pg_dump 走 postgres 镜像，都不用 Node。
+- `package-lock.json` 只有根包的 `engines` 同步改了一行，没有重新解析依赖。
+- README 的「Node.js 18.x or newer」改为 26.x；`CLAUDE.md` 记下 Node 版本只在 `engines.node` 里定，
+  以及 #139 的教训：删 lockfile 条目重装后，提交前对删掉的包跑 `npm ls`。
+- `@types/node` 不是直接依赖（传递来的 22.20.2），没动。
+- Vercel 项目设置里的 Node 版本仍是 24.x（被 `engines` 覆盖、不生效），合并后由维护者改成 26.x。
+
 ## [1.40.2] — 2026-11-01
 
 ### Security — next 16.4.3、Payload 全家桶锁步 3.92.0、react 19.3.1，清掉 3 条 critical（#139）

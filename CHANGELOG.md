@@ -10,6 +10,28 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.43.0] — 2026-11-01
+
+### Added — 新文章《第二版自己的算例算错了：机票 skill 3.0》（#143）
+
+《最便宜的那张机票，不一定是该订的那张》（#130）的续篇，写 [flight-trip-planning](https://github.com/ArthurDJ/flight-trip-planning)
+的 [v3.0.0](https://github.com/ArthurDJ/flight-trip-planning/tree/v3.0.0)（只有 tag，没有 GitHub Release 页，所以链 tag 的目录）。
+主线是 v2 skill 自己的算例错了：可退票取消时多付的 156 美元也一起退回，门槛应是 156 ÷ 657 ≈ 23.7%，v2 写的是
+156 ÷ 501 = 31%；取消概率 25% 时 v2 推荐错票（492.75 对 501 美元），评测用例里 v2 也确实选错。上一篇正文发文前已改成
+23.7%，续篇写明出错的是当时的 skill 文件，不是那篇文章。其余几节：Quick 模式的篇幅预算（第一次评测 509 词、3 个问题，
+没过，加预算后重跑 270 / 338 词）、没有工具时的退路、对照官方来源重查的规则（BC 固定 UTC-7、经美国转机去加拿大的
+行李、多伦多预检转机）、中英文对账脚本 `check_parity.py`、评测（8 个用例 6 个分不出高下；触发测试是模拟的，因为测试机
+没有 `claude` CLI）、从 v1 升级的注意事项。数字都出自 skill 仓库的 CHANGELOG、`evals/README.md`、PR #1 和提交记录。
+
+- `scripts/publish-drafts.ts` 加入这篇（slug `flight-skill-v3`），分类 `backend`、标签 `ai`，和上一篇一致，没有题图。
+  正文在 `$DRAFTS_DIR/08-flight-skill-v3-{en,zh}.md`，不进仓库。
+- 指向上一篇的链接写成按语言的绝对地址（`https://jackdeng.cc/zh/blog/…`、`/en/blog/…`）：正文链接是新标签页打开的
+  custom 链接，相对的 `/blog/…` 没有语言前缀，冒烟检查会把它当成站内链接报错。上一篇现在还是草稿（404），
+  **这篇要在上一篇发布之后再发布**。
+- 评测合计按仓库 `evals/README.md` 的逐项表格算是 v2 33/38；skill 仓库一条提交说明写的 34/38 和表格对不上，正文用 33。
+
+**本 PR 没有写库。** 只读预演见 PR 描述；写入（草稿）和发布等维护者确认。
+
 ## [1.42.0] — 2026-11-01
 
 ### Added — 新文章《我也养了一条“大肥鱼”，可它只回我一个人》（#137）

@@ -24,7 +24,7 @@ Welcome to the ultimate personal digital hub, combining a highly optimized publi
 ## 🚀 How to Deploy & Configure
 
 ### Prerequisites
-- Node.js 18.x or newer
+- Node.js 26.x (the major is pinned in `package.json` `engines.node`; CI and Vercel both read it)
 - A Supabase account (with an active PostgreSQL database)
 
 ### 1. Environment Setup

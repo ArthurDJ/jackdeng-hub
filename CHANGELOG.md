@@ -22,12 +22,90 @@ AstrBot 接个人微信要走微信官方的 ClawBot 插件，作者实际用下
 联合新闻网对 ClawBot 上线的报道、菜鸟教程的 OpenClaw 接微信教程。
 
 - `scripts/publish-drafts.ts` 加入这篇（slug `astrbot-deepseek-wechat`），分类 `backend`，标签 `ai` 加三个新标签
-  `astrbot`、`deepseek`、`wechat`（写进 `NEW_TAGS`，带 `--apply` 时才创建）。没有题图。正文在
+  `astrbot`、`deepseek`、`wechat`（写进 `NEW_TAGS`，带 `--apply` 时才创建）。正文在
   `$DRAFTS_DIR/07-astrbot-deepseek-{en,zh}.md`，和其他文章一样不进仓库。
+- **配图。** 题图 `hero-astrbot-fish.jpg`（1600×900）裁自 Small-tailqwq/dsh-deep-whale 里 maid-atelier 皮肤的预览图，
+  去掉了左侧带别人项目名的侧栏；`heroAlt` 写英文、`heroCredit` 带 CC BY-NC-SA 4.0 署名链（Media 的 alt / caption 不分语言）。
+  正文开头放一张标准女仆鲸鱼娘立绘，再加一句链到蓝色大肥鱼档案馆（EDMOK/blue-fish-archive、fisharchive.cc）和三张
+  随机挑的同人表情，都转成 webp 放在 `DRAFTS_DIR`，不进仓库。文末一段署名：鲸鱼娘原作上善无形，加 DeepSeek 元素的
+  女仆二次设计 ZipZipPipe，CC BY-NC-SA 4.0；题图来源；立绘和表情来自档案馆，版权归各自作者。
+- **正文图片用的是 `![alt](file.webp "caption")` 独占一行的写法，要等 feat/post-inline-images 合并后才能解析。**
+  在那之前 main 上的 `markdown.ts` 会把这几行当普通段落，`!` 留成文字、后半截变成指向文件名的链接，而且预演不会报错。
+  所以这篇必须在那个 PR 合并之后再带 `--apply` 写入。
 
-只读预演（`--only astrbot-deepseek-wechat`，不带 `--apply`）对生产库跑过：中英两份都解析成 7 段；`backend`、`ai`
-已存在，三个新标签会创建；slug 未被占用，会以草稿新建；题图一项显示「none chosen yet」。
+只读预演（`--only astrbot-deepseek-wechat`，不带 `--apply`）对生产库跑过：中英两份都解析成 13 段（main 上图片行
+还算段落，见上一条）；题图文件在（201 KB），这次没有传 `BLOB_READ_WRITE_TOKEN` 进去，所以提示不会上传；`backend`、`ai`
+已存在，三个新标签会创建；slug 未被占用，会以草稿新建。
 **本 PR 没有写库。** 写入（草稿）和发布都等维护者确认后再做。
+
+## [1.40.2] — 2026-11-01
+
+### Security — next 16.4.3、Payload 全家桶锁步 3.92.0、react 19.3.1，清掉 3 条 critical（#139）
+
+一个 PR 代替排队的四个 Dependabot PR（#124 react、#125 next、#131 payload、#132 other）。main（03c6dda）上
+`npm audit --omit=dev` 是 **20 条：3 critical / 2 high / 7 moderate / 8 low**，升级后 **15 条：0 critical / 1 high /
+5 moderate / 9 low**（low 多一条是因为 `payload` 去掉 undici 之后从 moderate 降成了 low，不是新公告）。
+
+- **next 16.3.8 → 16.4.3**（`eslint-config-next` 同步）：GHSA-2464-fhr4-w9xw（critical，**图片优化接口处理 SVG 时
+  未鉴权 RCE**，影响 `>=16.0.0 <=16.4.0`，本站用 `next/image`）、GHSA-673q-mjm6-r5xr（critical，`use cache` 函数返回
+  typed array 时未鉴权 RCE）、GHSA-p3m5-59mp-jv5r（high，Server Actions 的 DoS）。三条都修于 16.4.1；取 16.4.3 是
+  16.4 线最新的补丁版本。
+- **dompurify 3.4.16 → 3.4.17**（override 从 `^3.4.15` 提到 `^3.4.17`）：GHSA-cg2g-xh64-v4q7（critical，
+  SAFE_FOR_TEMPLATES 绕过）、GHSA-mrv2-3pqr-j5jr（high）、GHSA-c6gr-qvv4-5v3f（low）。链路是
+  `@payloadcms/ui → @monaco-editor/react → monaco-editor`，只进后台。
+- **Payload 3.91.0 → 3.92.0**，`payload` 与六个 `@payloadcms/*` 锁步：3.92 把 undici 升到 7.30.1，清掉 undici 的
+  8 个公告（GHSA-4qv8-2p9j-2685、GHSA-f72v-6w45-q472、GHSA-xjj6-f33q-929c、GHSA-4w7w-5xrc-9h26、
+  GHSA-2m5v-pch6-74hx、GHSA-qrxm-fqhp-jwvm、GHSA-9fm3-97px-rjf6、GHSA-55wc-3pg8-jfw6，含 TLS 证书校验绕过和
+  跨源重定向导致的缓存投毒）。`@vercel/blob` 那份 undici 同时从 6.28.1 到 6.29.1。
+- **fast-uri 3.1.8 → 3.1.9**（`payload → ajv`）：GHSA-w74x-v6f9-j3xg、GHSA-wjr9-j795-jxcr（moderate）、
+  GHSA-xhq7-xmqj-769h、GHSA-333x-w4r6-6crp（low）。
+
+### Changed — 其余依赖跟到 Dependabot PR 的版本（#139）
+
+react / react-dom 19.3.0 → 19.3.1，geist 1.7.2 → 1.8.2，postcss 8.5.28 → 8.5.31，typescript-eslint 8.71.2 → 8.72.0，
+vitest 5.0.3 → 5.0.5。都不是安全升级，和上面的改动抢同一份 lockfile，所以一起做。
+
+- **版本取法**：不低于 Dependabot PR 的版本，同一 minor 下取最新补丁，但只取发布满 7 天的（`npm install
+  --before=2026-10-25`）。因此 payload 停在 3.92.0（3.92.1 是 10-27 发布的，修的是 vercel-blob 客户端上传等，不是
+  安全修复），postcss 停在 8.5.31（8.5.32 是 10-26），typescript-eslint 停在 8.72.0（8.72.1 是 10-26）。
+- **lockfile 从 main 出发**，只删被升级的包的条目（payload / `@payloadcms/*`、next / `@next/*`、eslint-config-next、
+  react / react-dom、geist、根上的 postcss、typescript-eslint / `@typescript-eslint/*`、vitest / `@vitest/*`、dompurify、
+  fast-uri、undici），再 `npm install`。32 个直接依赖里变了 15 个（就是上面列的），其余 17 个的解析版本与 main 相同。
+  传递依赖里另有 chai、obug（2 → 3）、std-env、tinybench、tinyexec、magic-string 是 vitest 5.0.5 自己抬高了下限，
+  nanoid 是 postcss 8.5.31 抬的。
+- **一次 `npm install` 不够**：第一遍之后 lockfile 里 dompurify 和 fast-uri 两个条目**直接没了**，`npm ls` 显示为空，
+  npm 没有给保留下来的父包（monaco-editor、ajv）补回被删掉的子依赖。第二遍 `npm install` 才补上；最后删掉
+  `node_modules` 跑一次干净的 `npm ci` 核对过。以后照 CLAUDE.md 的做法删条目时，装完先 `npm ls <被删的包>`。
+- **不需要迁移**：Payload 3.92.0 的发布说明里没有 schema 变化（字段访问控制多传文档 id、`locale: 'all'` 写入逐个
+  语言校验等都是运行期修复，本站的字段访问函数不读 id，也没有 `locale: 'all'` 写入），CI 的 schema-drift 检查通过。
+- **Node 版本**：Payload 3.92.0 的 `engines` 要求 `^22.23.4 || >=24.22.1`（发布说明里列为 breaking change）。CI 的
+  `node-version: '24'` 取最新 24.x，满足；Vercel 的 Node 24 运行时版本需要确认不低于 24.22.1。没有运行期检查，
+  版本不够时 npm 只报 EBADENGINE 警告。`package.json` 的 `engines` 没改。
+- next 16.4 默认开启严格路由匹配、拦截路由要求有对应的普通路由：本站没有平行路由（`@slot`）也没有拦截路由，不受影响。
+  React 19.3 是 minor，发布说明里没有破坏性变更。
+
+**剩下的 15 条**都是上游没有修复、或不进生产请求路径：happy-dom GHSA-834v-8h66-3h79 等 3 个公告（high，修复在
+21.0.4，但 `@lexical/headless@0.50.0` 要求 `^20.9.0`，Payload 3.92 精确依赖这个版本，override 要跨 major，没做）；
+deepmerge GHSA-gcqx-w48m-w2h4（low，`<=4.3.1` 全部受影响，没有修复版本，Payload 精确依赖 4.3.1）；esbuild
+GHSA-67mh-4wv8-2f99（moderate，`drizzle-kit → @esbuild-kit/*` 那份旧 esbuild 的 dev server 问题，同 #122 的说明）。
+其余条目是这三个公告沿 Payload 子包被重复计数。
+
+## [1.40.1] — 2026-11-01
+
+### Fixed — 博客卡片：每张一个可访问的链接，没有题图时不再是空链接（#138）
+
+`BlogCard` 有两个指向同一篇文章的链接：封面和标题。没有题图时，封面链接里只有一个没有名字的占位 SVG，读屏软件读出
+「链接」，没有任何名字；有题图时则是同一篇文章的两个 Tab 停留点。#130 让题图变成可选，没有题图的文章马上要上线。
+
+- 封面链接改为 `tabIndex={-1}` + `aria-hidden="true"`：鼠标点封面照样进文章，键盘和读屏只剩标题链接，名字就是文章标题。
+  占位 SVG 加 `aria-hidden`，题图在卡片里是装饰，`alt=""`。外观不变。博客列表、分类、标签、文章页「相关文章」、首页
+  「最新文章」用的都是这一个组件。
+- 「Featured」角标原来写死英文、又在封面链接里（隐藏后读屏就听不到了）：移到链接外面、`pointer-events: none`
+  让点击落到下面的链接，文案改用已有的 `blog.featured`（中文「精选」）。
+- 标题链接加 `display: block`，焦点框框住整行标题。
+- 新增 `src/components/BlogCard.test.tsx`：在 Node 里直接调用这个异步服务端组件，用 `renderToStaticMarkup` 渲染，
+  有图、无图两种情况都断言只有一个对读屏可见的链接、名字是标题，SVG 都有 `aria-hidden`。没有引入 jsdom 或
+  Testing Library；`vitest.config.ts` 只加了 `@/` 别名。旧代码上 4 条全红。
 
 ## [1.40.0] — 2026-10-31
 

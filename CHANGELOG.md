@@ -12,7 +12,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.40.1] — 2026-11-01
 
-### Security — next 16.4.3、Payload 全家桶锁步 3.92.0、react 19.3.1，清掉 3 条 critical（#137）
+### Security — next 16.4.3、Payload 全家桶锁步 3.92.0、react 19.3.1，清掉 3 条 critical（#139）
 
 一个 PR 代替排队的四个 Dependabot PR（#124 react、#125 next、#131 payload、#132 other）。main（03c6dda）上
 `npm audit --omit=dev` 是 **20 条：3 critical / 2 high / 7 moderate / 8 low**，升级后 **15 条：0 critical / 1 high /
@@ -32,7 +32,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **fast-uri 3.1.8 → 3.1.9**（`payload → ajv`）：GHSA-w74x-v6f9-j3xg、GHSA-wjr9-j795-jxcr（moderate）、
   GHSA-xhq7-xmqj-769h、GHSA-333x-w4r6-6crp（low）。
 
-### Changed — 其余依赖跟到 Dependabot PR 的版本（#137）
+### Changed — 其余依赖跟到 Dependabot PR 的版本（#139）
 
 react / react-dom 19.3.0 → 19.3.1，geist 1.7.2 → 1.8.2，postcss 8.5.28 → 8.5.31，typescript-eslint 8.71.2 → 8.72.0，
 vitest 5.0.3 → 5.0.5。都不是安全升级，和上面的改动抢同一份 lockfile，所以一起做。

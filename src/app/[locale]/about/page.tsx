@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
 import { PrintContact } from '@/components/PrintContact'
 import { EducationList } from '@/components/EducationList'
+import { SectionLabel } from '@/components/SectionLabel'
 import { CONTACT_EMAIL, PROFILE_LINKS as LINKS, SKILLS, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
 import { toJsonLd } from '@/lib/jsonLd'
 import { asLocale } from '@/i18n/routing'
@@ -92,21 +93,6 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   resume: <ResumeIcon />,
 }
 
-/* ── section heading helper ── */
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="print:break-after-avoid" style={{
-      fontSize: 11,
-      fontWeight: 510,
-      letterSpacing: '0.1em',
-      textTransform: 'uppercase',
-      color: 'var(--text-tertiary)',
-      marginBottom: 20,
-    }}>
-      {children}
-    </p>
-  )
-}
 
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params
@@ -224,12 +210,16 @@ export default async function AboutPage({ params }: Props) {
                   )}
                 </div>
                 <div style={{ paddingBottom: i < TIMELINE.length - 1 ? 0 : 0 }}>
-                  <p style={{ fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 4, fontFamily: 'var(--font-geist-mono, monospace)' }}>
-                    {year[lang]}
-                  </p>
-                  <p style={{ fontSize: 14, fontWeight: 510, color: 'var(--text-primary)', marginBottom: 4 }}>
-                    {role[lang]}{' '}
-                    <span style={{ fontWeight: 400, color: 'var(--text-tertiary)' }}>@ {place}</span>
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                    <p style={{ fontSize: 14, fontWeight: 510, color: 'var(--text-primary)' }}>
+                      {role[lang]}
+                    </p>
+                    <p style={{ fontSize: 12, fontFamily: 'var(--font-geist-mono), monospace', color: 'var(--text-tertiary)' }}>
+                      {year[lang]}
+                    </p>
+                  </div>
+                  <p style={{ fontSize: 13, color: 'var(--text-tertiary)', marginTop: 2, marginBottom: 8 }}>
+                    {place}
                   </p>
                   <ul style={{ listStyle: 'none', margin: '0 0 12px', padding: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
                     {bullets[lang].map((b, j) => (

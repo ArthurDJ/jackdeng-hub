@@ -24,6 +24,7 @@ export interface LogEntry {
 }
 
 export const PLAYGROUND_LOG: LogEntry[] = [
+  { id: 'utilities', date: '2026-10-31', kind: 'launch', pr: 134, slugs: ['epoch-converter', 'cron-explainer', 'meta-scrub'] },
   { id: 'devDay', date: '2026-09-28', kind: 'launch', pr: 94, slugs: ['dev-day'] },
   { id: 'batchThree', date: '2026-09-28', kind: 'launch', pr: 93, slugs: ['dbt-terminal', 'text-vortex', 'blueprint-type', 'falling-skills'] },
   { id: 'renamed', date: '2026-09-26', kind: 'rename', pr: 83, slugs: [] },

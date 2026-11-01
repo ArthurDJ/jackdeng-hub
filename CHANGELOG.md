@@ -30,6 +30,58 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 **验证。** `next build && next start`，首页中英文、桌面和 375px 手机预设：职位与日期同行，公司 / 学校
 各占一行，`scrollWidth` 等于视口宽度。About 时间线、学历同样检查过。
 
+## [1.39.0] — 2026-10-31
+
+### Added — 「在用」页和 Playground 的第一批实用小工具（#134）
+
+参照 GitHub 上的两类做法：开发者个人站的 `/uses` 页（wesbos/awesome-uses 收录了上千个），
+和浏览器里跑的开发者小工具合集（CorentinTh/it-tools）。前者照搬形式；后者挑了三个跟我的技术栈
+（数据工程、Next.js）对得上、逻辑简单到可以自己写、不加依赖的。
+
+- **`/uses`（我在用的）**：按「写代码 / 数据 / 这个网站 / AI / 浏览器插件 / Windows 小工具」分组，
+  每项一句为什么用、一个外链。清单取自本机实际安装的程序和浏览器扩展，游戏、网盘、聊天、网络加速类
+  一律不列。条目在 `src/lib/uses.ts`，文案在 messages 的 `uses.items`，`uses.test.ts` 核对两种语言
+  都有、没有多余的键、链接都是 https。页面顶部「我自己做的」只列已上线的公开工具，和 `/tools` 同一个
+  过滤条件，不会链到 404。导航栏、⌘K 面板、sitemap、冒烟检查都加了这一页。
+- **时间戳转换（`epoch-converter`）**：秒、毫秒、微秒、纳秒按位数自动识别，也能手动指定；日期字符串
+  也能读。输出各单位（BigInt，纳秒不丢精度）、ISO 8601，以及 UTC、本地、洛杉矶、纽约、上海的当地时间。
+- **Cron 解读（`cron-explainer`）**：标准五字段 cron（GitHub Actions、Vercel、Kubernetes 用的那种），
+  支持范围、步长、列表、月份和星期的英文缩写、7 当周日、`@daily` 一类宏。逐字段展开，列出接下来 10 次，
+  UTC / 本地切换。「日」和「星期」同时限定时按「或」匹配，这是最容易误解的一条，测试里专门有。
+  Databricks 用的 Quartz 语法（秒字段、`?`、`L`、`W`）明确报「不支持」，不会给出错的时间。
+- **图片元数据清除（`meta-scrub`）**：读 JPEG 和 PNG 里画面以外的东西 —— EXIF 的相机、拍摄时间、软件、
+  GPS 位置，XMP、IPTC、注释，PNG 的文本块（ComfyUI / Stable Diffusion 会把整套提示词和工作流写在这里），
+  以及文件结尾之后的附加数据 —— 并给出去掉这些的副本。**不重新编码**：图像数据逐字节原样复制，
+  色彩配置文件、Adobe 色彩变换标记保留；EXIF 里的旋转方向单独写回一个 34 字节、只含这一项的 EXIF 块，
+  否则手机竖拍的照片会躺倒。文件只在浏览器里读，没有任何请求。
+- Playground 的副标题从「在浏览器里跑的小实验」改成「在浏览器里跑的小实验和小工具」，`AI_DEPLOY.md`
+  里「不是实用工具」的定位同步改掉。
+
+**验证。** 纯逻辑在 `src/lib/{epoch,cron,metaScrub}.ts`，30 条新测试；`uses.test.ts` 另有 3 条。元数据清除另外用 Pillow 造了一张
+带 iPhone 相机信息、GPS（洛杉矶）、旋转 6、Lightroom 和注释的 JPEG，以及带 ComfyUI `prompt` / `workflow`
+文本块的 PNG：页面上全部识别出来；清除后的文件用 Pillow 打开，JPEG 只剩 `Orientation: 6`、像素与原图逐一
+相同，PNG 没有任何文本块。三个工具在 375px 手机预设下 `scrollWidth` 等于视口宽度，深浅两种主题都看过。
+
+**合并前 review（`/code-review` high）找出 10 条，全部在本 PR 里修掉。** 自测全过之后仍有这么多，
+所以 `CLAUDE.md` 把「合并前跑 `/code-review`、上线后到线上实测」写成了每个 PR 的必做项。
+
+- 元数据清除：PNG 原来只删已知的几种块，别的照抄，C2PA 的 `caBX`、厂商私有块都会漏过去；改成白名单，
+  只留关键块和影响显示的块（色彩、透明、APNG 动画），其余一律删掉并列出来。JPEG 的 APP0 原来整段保留，
+  JFIF 头里可以带一张缩略图（可能是裁剪前的原图），JFXX 段也是缩略图；现在 JFIF 头留下、缩略图尺寸
+  置 0，JFXX 删掉。SOS 之前不带长度的标记（TEM、RST）原来会被当成坏文件。PNG 的 eXIf 删掉后同样把
+  旋转方向写回（带正确的 CRC）。连续选两个文件时，先选的大文件后读完会盖掉后选的结果；现在只认最后一次。
+- Cron：日字段写成 `*/2` 这类以 `*` 开头的形式时，Vixie cron 和 Kubernetes 用的 robfig/cron 都按
+  「日和星期同时满足」算，这里原来按「任一满足」，`0 0 */2 * 1` 列出的时间是错的。本地时区在夏令时
+  回拨那一小时里，可能列出早于当前的时间。
+- 时间戳转换：粘贴的微秒、纳秒原来经过 Date，只剩毫秒精度，纳秒那一行会变成后六位全 0；整数输入
+  现在按 BigInt 精确换算。
+- `/uses` 的工具查询失败时原来整页报错，改用 `orEmpty`，只空掉「我自己做的」一节。About 和 Uses 的
+  小节标题合成一个 `SectionLabel` 组件；四个 Playground 工具重复定义的卡片样式抽到 `toolStyles.ts`。
+- 每条修复都有测试，其中 cron 的两条在旧逻辑上确认会失败。测试 364 → 374 条。
+
+**上线步骤。** 工具记录要在部署之后建：`npx tsx scripts/add-playground-tools.ts` 看计划，再带 `--apply`。
+在那之前三个工具不出现在 `/tools`，`/uses` 顶部的「我自己做的」也是空的（整节不显示）。
+
 ## [1.38.1] — 2026-10-18
 
 ### Fixed — 手机上的代码块：整页被撑宽、复制按钮看不见（#128）

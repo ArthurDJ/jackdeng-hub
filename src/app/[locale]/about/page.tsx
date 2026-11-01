@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
 import { PrintContact } from '@/components/PrintContact'
 import { EducationList } from '@/components/EducationList'
+import { SectionLabel } from '@/components/SectionLabel'
 import { CONTACT_EMAIL, PROFILE_LINKS as LINKS, SKILLS, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
 import { toJsonLd } from '@/lib/jsonLd'
 import { asLocale } from '@/i18n/routing'
@@ -92,21 +93,6 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   resume: <ResumeIcon />,
 }
 
-/* ── section heading helper ── */
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="print:break-after-avoid" style={{
-      fontSize: 11,
-      fontWeight: 510,
-      letterSpacing: '0.1em',
-      textTransform: 'uppercase',
-      color: 'var(--text-tertiary)',
-      marginBottom: 20,
-    }}>
-      {children}
-    </p>
-  )
-}
 
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params

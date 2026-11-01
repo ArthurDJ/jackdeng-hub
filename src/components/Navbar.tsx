@@ -36,6 +36,7 @@ export function Navbar() {
     { href: '/projects' as const, label: t('projects') },
     { href: '/blog'     as const, label: t('blog')     },
     { href: '/tools'    as const, label: t('tools')    },
+    { href: '/uses'     as const, label: t('uses')     },
     { href: '/about'    as const, label: t('about')    },
   ]
 

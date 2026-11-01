@@ -6,6 +6,7 @@ import {
   END, START, score, step, newDay, workRate,
   type Action, type DayState, type Kind, type LogEntry, type StatKey, type Task,
 } from '@/lib/devDay'
+import { label, mono, panel } from './toolStyles'
 
 /**
  * Dev Day: a programmer simulator. One working day, one decision an hour;
@@ -89,11 +90,6 @@ export function DevDay() {
     backgroundColor: tone === 'primary' ? 'var(--accent-solid)' : 'transparent',
     border: `1px solid ${tone === 'primary' ? 'transparent' : tone === 'warn' ? 'rgb(245 158 11 / 0.55)' : 'var(--border-default)'}`,
   })
-  const panel: React.CSSProperties = {
-    background: 'var(--bg-panel)', border: '1px solid var(--border-default)', borderRadius: 12, padding: 20,
-  }
-  const mono: React.CSSProperties = { fontFamily: 'var(--font-geist-mono, ui-monospace, monospace)' }
-  const label: React.CSSProperties = { fontSize: 11, fontWeight: 510, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }
 
   if (!day) {
     return (

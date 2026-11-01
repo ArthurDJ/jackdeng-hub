@@ -31,6 +31,54 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 1 个列表、2 个代码块、1 张表；`backend`、`ai` 都已存在；slug 未被占用，会以草稿新建；题图显示 MISSING。
 **本 PR 没有写库。** 选好题图、填上 `heroAlt` / `heroCredit` 之后再带 `--apply` 写入（草稿），发布由维护者在后台操作。
 
+## [1.39.2] — 2026-10-31
+
+### Changed — 后台仪表板：概览、紧凑卡片、分组顺序、主色对齐网站（#136）
+
+`/admin` 原来是 Payload 默认的仪表板：每个分组一个大标题，下面一排只有集合名和「+」的大卡片，大半是空白，
+没有任何信息。
+
+- **顶部加概览**（`src/components/AdminOverview.tsx`，挂在 `admin.components.beforeDashboard`，是 Payload
+  的稳定插槽；没用实验性的 `admin.dashboard.widgets`，也没替换整个仪表板视图）。服务端组件，五个计数并行
+  查询：已发布文章、草稿、待审评论、项目总数、在线工具，每个都链到对应的已筛选列表
+  （如 `/admin/collections/blogs?where[status][equals]=draft`），待审评论不为 0 时用警示色。下面是快捷操作
+  （写文章、审核评论、上传媒体、新标签页打开网站）和最近编辑的 5 篇文章（标题、已发布/草稿标记、更新日期，
+  链到编辑页）。标题是本地化字段，查询按后台语言传 `locale`。文案按 `i18n.language` 选中英文，写法照集合
+  配置的 `{ en, zh }`，默认中文。
+  - 更新日期按浏览者所在时区显示：概览在服务端渲染，服务器是 UTC，加州晚上改的文章会显示成第二天。日期交给
+    客户端小组件 `AdminLocalDate`：服务端和水合时都按 UTC 格式化（两边一致，不会水合不匹配），水合后由
+    `useSyncExternalStore` 切到浏览器时区重渲染。没用 `suppressHydrationWarning`：它只压掉警告，不会把
+    服务端的文字换掉。为此 `formatDate` 多了一个可选的 `timeZone` 参数。
+  - 五个计数在两列布局（≤768px）里排成 2+2+1 时，最后一个落单只占半行；现在落单的最后一格占满整行。
+    五列时一行排下，三列时是 3+2。
+- **修好左上角被裁掉一半的「JD」图标。** Payload 把 `graphics.Icon` 放进面包屑的首页链接 `.step-nav__home`，
+  那是 18×18 的框（1024px 以下 16×16），Payload 自己的图标是宽高 100% 的 `<svg>`、正好填满它；我们的
+  `AdminIcon` 却画了固定 28×28 的方块，右半边溢出被裁。改成和 Payload 一样：宽高 100% 的 `<svg>`，「JD」是
+  28 单位 viewBox 里的 SVG 文字，随框缩放，渐变和圆角是 svg 自身的 CSS。没有放大 Payload 的框：那是全后台
+  共用的面包屑位置，图标跟着它的尺寸走最省事，也和面包屑文字对齐。登录页的 `Logo` 没动。
+- **查询失败不拖垮仪表板。** 概览是次要区块：每个查询都包在 `orNull()`（`src/lib/adminOverview.ts`）里，
+  失败时记日志、对应数字显示「—」，最近文章显示一行说明，下面的集合卡片照常渲染。思路同 `orEmpty`，
+  只是计数不是文档列表，套不进它的类型。
+- **集合卡片压成一行**（`custom.css`）：分组大标题改成小号说明文字（和概览的小标题同一个样式），卡片去掉
+  最小高度，名字在左、「+」在右；网格按宽度自动排列，手机上一行一张。
+- **分组顺序：内容 → 作品 → 工具 → 系统。** 侧栏和仪表板按 `collections` 数组里每组第一次出现的顺序排，
+  于是把数组改成 Blogs、Comments、Categories、Tags、Media、Projects、Tools、Users。改之前核对过：
+  表、列、索引、枚举的名字都由集合 slug 决定，与数组顺序无关；`scripts/schema-drift.ts` 比的是按名字排序的
+  列、约束定义、索引和枚举，不比列的物理顺序（现有迁移给 `payload_locked_documents_rels` 加列的顺序本来就和
+  配置不同，检查一直通过）。会变的只有重新生成的 `src/payload-types.ts` 里接口和键的先后，类型结构不变，
+  CI 也不比对这个文件；这次没有重新生成它。
+- **主色对齐网站。** 后台主按钮从靛蓝换成网站的强调蓝，按主题取值：浅色 `#005cc5` / 悬停 `#004fa8`，
+  深色 `#2563eb` / `#1d4ed8`（`html[data-theme]` 切换）。白字对比度：浅色 6.29:1 / 7.82:1，深色
+  5.17:1 / 6.70:1，都过 WCAG AA 的 4.5:1。
+- `importMap.js` 只多了 `AdminOverview` 一条：手工加入后，用 `payload generate:importmap`（只读配置，不连库）
+  生成一份比对，除行尾外逐字相同。
+- URL 拼接、语言选择、`orNull` 抽到 `src/lib/adminOverview.ts`，配了 vitest 测试。
+
+**验证。** `npm run typecheck`、`npm run lint`、`npm test`、`npm run i18n:check` 通过，`next build` 成功。
+第一版登录后台在浏览器里看过（浅色、深色，约 650px 和 375px）：计数、链接（草稿筛选正好列出 2 篇草稿）、
+分组顺序、深色主题配色和手机布局都对；图标被裁、落单的计数格、日期按 UTC 三个问题就是那次发现的。这三处
+修改之后还没有在浏览器里复看。
+
 ## [1.39.1] — 2026-10-31
 
 ### Changed — 首页经历精简，公司 / 学校单独一行（#135）

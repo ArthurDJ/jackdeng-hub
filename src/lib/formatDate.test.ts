@@ -19,6 +19,15 @@ describe('formatDate', () => {
     expect(formatDate(iso)).toBe(formatDate(iso, 'en'))
   })
 
+  it('formats in a given time zone instead of the local one', () => {
+    // 01:30 UTC on the 15th is still the 14th in California.
+    const late = '2026-09-15T01:30:00.000Z'
+    expect(formatDate(late, 'en')).toBe('Sep 15, 2026')
+    expect(formatDate(late, 'en', 'UTC')).toBe('Sep 15, 2026')
+    expect(formatDate(late, 'en', 'America/Los_Angeles')).toBe('Sep 14, 2026')
+    expect(formatDate(late, 'zh', 'America/Los_Angeles')).toBe('2026年9月14日')
+  })
+
   it('treats an unknown locale as English', () => {
     // The implementation only branches on 'zh', so anything else must not
     // silently produce a third format.

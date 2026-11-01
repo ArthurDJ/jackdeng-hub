@@ -8,12 +8,16 @@ export function intlLocale(locale: string) {
 }
 const lang = intlLocale
 
-/** An instant as a readable day: "Sep 14, 2026" / "2026年9月14日". */
-export function formatDate(iso: string, locale: string = 'en') {
+/**
+ * An instant as a readable day: "Sep 14, 2026" / "2026年9月14日". In the
+ * runtime's own time zone unless `timeZone` names one (an IANA name or "UTC").
+ */
+export function formatDate(iso: string, locale: string = 'en', timeZone?: string) {
   return new Date(iso).toLocaleDateString(lang(locale), {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    timeZone,
   })
 }
 

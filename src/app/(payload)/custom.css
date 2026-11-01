@@ -1,14 +1,29 @@
 /* ============================================================================
    Custom styles for Payload Admin — Jack Deng Hub
-   Scope: brand polish for the login screen + a brand accent on primary actions.
+   Scope: brand polish for the login screen, a brand accent on primary actions,
+   the dashboard overview (src/components/AdminOverview.tsx) and compact
+   collection cards under it.
    All colors use Payload theme variables (or brand vars below) so light & dark
    admin themes both stay legible.
    ========================================================================== */
 
-:root {
-  --brand-500: #6366f1;
-  --brand-600: #4f46e5;
-  --brand-700: #4338ca;
+/* Brand = the site's accent blue (src/app/globals.css), per theme. Payload
+   sets html[data-theme] to "light" or "dark"; :root covers a page without it.
+   600/700 are the site's --accent-solid / --accent-solid-hover, the fills it
+   puts white text on: white is 6.29:1 / 7.82:1 on the light pair and
+   5.17:1 / 6.70:1 on the dark pair (WCAG AA wants 4.5:1). 500 is the site's
+   --accent-primary, for focus rings.                                          */
+:root,
+html[data-theme='light'] {
+  --brand-500: #005cc5;
+  --brand-600: #005cc5;
+  --brand-700: #004fa8;
+}
+
+html[data-theme='dark'] {
+  --brand-500: #4d8ff8;
+  --brand-600: #2563eb;
+  --brand-700: #1d4ed8;
 }
 
 /* ── Login screen ─────────────────────────────────────────────────────────
@@ -44,8 +59,8 @@
 }
 
 /* ── Brand accent on primary buttons ──────────────────────────────────────
-   Gives the login submit + primary actions the brand indigo instead of the
-   default near-black, tying the admin to the site's identity.                  */
+   Gives the login submit + primary actions the site's accent blue instead of
+   the default near-black, tying the admin to the site's identity.              */
 
 .btn.btn--style-primary {
   background: var(--brand-600);
@@ -62,4 +77,301 @@
 .btn.btn--style-primary .btn__label,
 .btn.btn--style-primary .btn__content {
   color: #fff;
+}
+
+/* ── Dashboard overview ───────────────────────────────────────────────────
+   src/components/AdminOverview.tsx, rendered above the collection cards
+   (admin.components.beforeDashboard). Panels share the cards' surface
+   (elevation-50 + border), secondary text is elevation-650: 6.6:1 on that
+   surface in the light theme and 9:1 in the dark one.                         */
+
+.jd-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: calc(var(--base) * 1.2);
+  color: var(--theme-text);
+}
+
+.jd-overview ul,
+.jd-overview ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.jd-overview a:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+}
+
+.jd-overview__stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.jd-overview__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  height: 100%;
+  padding: 12px 14px;
+  background: var(--theme-elevation-50);
+  border: 1px solid var(--theme-border-color);
+  border-radius: var(--style-radius-m);
+  color: var(--theme-text);
+  text-decoration: none;
+  transition: border-color 100ms, box-shadow 100ms;
+}
+
+.jd-overview__stat:hover {
+  border-color: var(--theme-elevation-250);
+  box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.05);
+}
+
+.jd-overview__value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.jd-overview__label {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--theme-elevation-650);
+}
+
+/* Comments waiting for review: the one figure that asks for action. */
+.jd-overview__stat--attention {
+  background: var(--theme-warning-150);
+  border-color: var(--theme-warning-250);
+}
+
+.jd-overview__stat--attention .jd-overview__value,
+.jd-overview__stat--attention .jd-overview__label {
+  color: var(--theme-warning-800);
+}
+
+.jd-overview__stat--attention:hover {
+  border-color: var(--theme-warning-400);
+}
+
+.jd-overview__panels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 12px;
+}
+
+.jd-overview__panel {
+  min-width: 0;
+  padding: 12px 14px;
+  background: var(--theme-elevation-50);
+  border: 1px solid var(--theme-border-color);
+  border-radius: var(--style-radius-m);
+}
+
+/* Small section caption; the collection group labels below use the same look. */
+.jd-overview__caption,
+.collections__label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--theme-elevation-650);
+}
+
+.jd-overview__caption {
+  margin-bottom: 10px;
+}
+
+.jd-overview__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.jd-overview__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  background: var(--theme-elevation-0);
+  border: 1px solid var(--theme-border-color);
+  border-radius: var(--style-radius-m);
+  color: var(--theme-text);
+  text-decoration: none;
+  transition: border-color 100ms, background 100ms;
+}
+
+.jd-overview__action:hover {
+  border-color: var(--theme-elevation-400);
+  background: var(--theme-elevation-100);
+}
+
+/* "Write a post" in the brand blue, like Payload's primary buttons above. */
+.jd-overview__action--primary {
+  background: var(--brand-600);
+  border-color: var(--brand-600);
+  color: #fff;
+}
+
+.jd-overview__action--primary:hover {
+  background: var(--brand-700);
+  border-color: var(--brand-700);
+}
+
+.jd-overview__post {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 7px 0;
+  border-top: 1px solid var(--theme-border-color);
+}
+
+.jd-overview__post:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.jd-overview__post:last-child {
+  padding-bottom: 0;
+}
+
+.jd-overview__post-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--theme-text);
+  text-decoration: none;
+}
+
+.jd-overview__post-title:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.jd-overview__badge {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.jd-overview__badge--published {
+  background: var(--theme-success-150);
+  color: var(--theme-success-800);
+}
+
+.jd-overview__badge--draft {
+  background: var(--theme-elevation-100);
+  color: var(--theme-elevation-800);
+}
+
+.jd-overview__date {
+  font-size: 0.8125rem;
+  color: var(--theme-elevation-650);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.jd-overview__note {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--theme-elevation-650);
+}
+
+.jd-overview__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Payload's own breakpoints: 1024px (mid) and 768px (small). */
+@media (max-width: 1024px) {
+  .jd-overview__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .jd-overview__panels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .jd-overview__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  /* Five tiles in two columns would leave the last one alone in half a row;
+     an odd last tile takes the whole row instead. */
+  .jd-overview__stats > li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .jd-overview__value {
+    font-size: 1.5rem;
+  }
+
+  /* Title on its own line, badge and date under it. */
+  .jd-overview__post {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .jd-overview__post-title {
+    grid-column: 1 / -1;
+  }
+
+  .jd-overview__date {
+    justify-self: end;
+  }
+}
+
+/* ── Collection cards: one compact row each ───────────────────────────────
+   Payload's dashboard draws each collection as a tall, mostly empty card
+   under a page-sized group heading. Shrink the heading to a caption (shared
+   with the overview, above) and each card to a single row: name on the left,
+   the "+" create button on the right.                                         */
+
+.collections__wrap {
+  gap: calc(var(--base) * 0.8);
+}
+
+.collections__group {
+  gap: 8px;
+}
+
+.collections__card-list {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 8px;
+}
+
+.collections__card-list .card {
+  min-height: 0;
+  padding: 6px 6px 6px 14px;
+  align-items: center;
+  gap: 8px;
+}
+
+.collections__card-list .card__title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.4;
 }

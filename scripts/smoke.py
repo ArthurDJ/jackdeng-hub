@@ -124,6 +124,25 @@ if draft_slug and draft_title:
         else:
             print(f'ok   {status}  {route}  (draft, private)')
 
+# ── 2c. An image in a post body renders ────────────────────────────────────
+# CI seeds a post with an image in its body, with different alt text in each
+# locale, and names them here. The page must render it as a figure carrying
+# that locale's alt (LexicalRenderer UploadFigure). Production has no fixed
+# post with an image, so this runs in CI only.
+image_slug = os.environ.get('SMOKE_IMAGE_SLUG')
+if image_slug:
+    for locale in ('en', 'zh'):
+        route = f'/{locale}/blog/{image_slug}'
+        alt = os.environ.get(f'SMOKE_IMAGE_ALT_{locale.upper()}', '')
+        status, body = get(route)
+        figure = re.search(r'<figure class="ds-figure"><img [^>]*>', body)
+        if status != 200 or not figure:
+            fail(f'{status}  {route}  (the body image is not rendered as a figure)')
+        elif f'alt="{alt}"' not in figure.group(0):
+            fail(f'{status}  {route}  (the body image does not carry the {locale} alt text)')
+        else:
+            print(f'ok   {status}  {route}  (body image, {locale} alt)')
+
 # ── 3. Every internal link, without following redirects ───────────────────
 # The checks above fetch a fixed list, so they never looked at the links a
 # visitor clicks: the home page's project cards pointed at /en/en/projects/…

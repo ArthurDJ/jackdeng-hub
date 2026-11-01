@@ -10,7 +10,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [1.41.0] — 2026-11-01
+## [1.42.0] — 2026-11-01
 
 ### Added — 新文章《我也养了一条“大肥鱼”，可它只回我一个人》（#137）
 
@@ -30,14 +30,31 @@ AstrBot 接个人微信要走微信官方的 ClawBot 插件，作者实际用下
   随机挑的同人表情，都铺白底转成 webp（暗色主题下透明图的深色线条会看不见），文件名带 `astrbot-` 前缀以免撞上
   媒体库里的同名文件（脚本按文件名复用媒体行），放在 `DRAFTS_DIR`，不进仓库。文末一段署名：鲸鱼娘原作上善无形，加 DeepSeek 元素的
   女仆二次设计 ZipZipPipe，CC BY-NC-SA 4.0；题图来源；立绘和表情来自档案馆，版权归各自作者。
-- **正文图片用的是 `![alt](file.webp "caption")` 独占一行的写法，要等 #140（feat/post-inline-images）合并后才能解析。**
-  在那之前 main 上的 `markdown.ts` 会把这几行当普通段落，`!` 留成文字、后半截变成指向文件名的链接，而且预演不会报错。
-  所以这篇必须在那个 PR 合并之后再带 `--apply` 写入。
+- 正文图片用 #140 的写法（`![alt](file.webp "caption")` 独占一行），#140 已合并，本 PR 已合入 main，写入时会按
+  #140 的流程上传或复用媒体行；alt 和图注按语言写在节点上。
 
-只读预演（`--only astrbot-deepseek-wechat`，不带 `--apply`）对生产库跑过：中英两份都解析成 13 段（main 上图片行
-还算段落，见上一条）；题图文件在（201 KB），这次没有传 `BLOB_READ_WRITE_TOKEN` 进去，所以提示不会上传；`backend`、`ai`
-已存在，三个新标签会创建；slug 未被占用，会以草稿新建。
+只读预演（`--only astrbot-deepseek-wechat`，不带 `--apply`，合入 #140 之后）对生产库跑过：中英两份都解析成 9 段 + 4 张图；
+4 张正文图（100 / 25 / 35 / 20 KB）和题图（201 KB）都显示「would upload」，没有同名媒体行；`backend`、`ai` 已存在，
+三个新标签会创建；slug 未被占用，会以草稿新建。
 **本 PR 没有写库。** 写入（草稿）和发布都等维护者确认后再做。
+
+## [1.41.0] — 2026-11-01
+
+### Added — 文章正文支持插图（#140）
+
+- 草稿 markdown 里单独一行的 `![alt](file.png "可选图注")` 变成正文插图。`scripts/lib/markdown.ts` 是纯函数，先产出占位节点；
+  `scripts/publish-drafts.ts` 按文件名复用已有的 media 行，没有就从 `DRAFTS_DIR` 上传（和题图同一条路径、同一个
+  `BLOB_READ_WRITE_TOKEN` 守卫），再换成 Payload 的 upload 节点。中英两份正文引用同一个文件只对应一行 media。
+  文件缺失或没有 token 时这张图跳过并警告，不中断；dry run 逐张打印大小和「会上传 / 会复用 media N / 缺失」。
+  句子中间的 `![…](…)` 保持原文，不再被当成指向文件名的链接；路径或 URL 直接报错。
+  按文件名复用之前先比文件大小（`scripts/lib/mediaReuse.ts`）：同名的 media 行存的是另一个文件时不复用，dry run 和 `--apply`
+  都提示「media N 同名但文件不同，请改名」，这张图不放；题图走同一个检查。
+- alt 和图注按语言存在节点上：正文是本地化字段，`Media.alt` 不是。编辑器的 UploadFeature 给 media 加了 `alt`、`caption`
+  两个字段，后台也能改。富文本整列是 jsonb，这两个字段不改 schema。
+- `LexicalRenderer` 把 upload 节点渲染成 `<figure>`：next/image 用原图（命名尺寸都裁成 16:9）、按文件宽高定比例、懒加载，
+  `sizes` 按文章栏宽；有图注才有 `<figcaption>`。alt 先取节点、再退回 `Media.alt`。图片域名已在 `remotePatterns` 和 CSP 里。
+  图片底下垫一层浅灰（两种主题相同），透明背景、深色线条的示意图在深色主题下也看得清。
+- CI：seed 给第一篇文章加一张插图（只写 media 行，不传文件），冒烟检查断言中英文页都渲染出 figure、alt 是各自语言的。
 
 ## [1.40.3] — 2026-11-01
 

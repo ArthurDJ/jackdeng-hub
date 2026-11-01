@@ -10,7 +10,15 @@
   小节标题带 PR 号，写法照最近的条目。这一步在 #16–#71 断了 55 个 PR，是 #72 事后补上的。
 - **Roadmap**：`PROJECT_ROADMAP.md` 是单一事实来源。修掉的问题在「技术债清单」加一行，
   并更新文件末尾的「最后更新」。
-- 提交前本地跑 `npm run typecheck && npm test && npm run i18n:check`。
+- 提交前本地跑 `npm run typecheck && npm test && npm run i18n:check && npm run lint`。
+- **Code review 是必须的**：合并前对 PR 跑 `/code-review`（high），确认的问题在同一个 PR 里修掉，
+  不另开 PR 拖着。测试和 lint 全绿不等于 review 过了：#134 自测全过，review 仍找出 10 条。
+- **测试也是必须的，本地和线上各一遍**：
+  - 本地：浏览器能看到的改动，在浏览器里实际操作一遍，中英两种语言、375px 手机宽度都看。
+    改了渲染路径的，用 `next build && next start` 验，不只用 `next dev`（见下面 CI 一节，#26）。
+  - 线上：部署成功后，到 https://jackdeng.cc 打开改动的页面，把功能实际走一遍。CI 和每日冒烟检查只
+    确认页面能打开、链接不 404，不确认功能对不对。需要先写生产库才能出现的内容（比如新工具的记录），
+    写完再测。
 - 提交信息和 PR 标题用英文 conventional commits（`fix(scope): …`），squash 合并。
 
 ## `.env.local` 指向生产库

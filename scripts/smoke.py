@@ -63,7 +63,7 @@ def fail(message):
 
 
 # ── 1. Pages that must render ──────────────────────────────────────────────
-routes = ['/en', '/zh', '/en/blog', '/zh/blog', '/en/projects', '/en/tools',
+routes = ['/en', '/zh', '/en/blog', '/zh/blog', '/en/projects', '/en/tools', '/zh/uses',
           '/zh/about', '/robots.txt', '/sitemap.xml', '/feed.xml']
 
 # A post detail page is statically rendered, which is exactly why #26 broke

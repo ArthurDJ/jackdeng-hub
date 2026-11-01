@@ -97,7 +97,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ── Static pages ──
   // Each list page is as new as the newest thing it lists. The home page
-  // shows posts and projects. About is written in the code and has no date
+  // shows posts and projects. About and Uses are written in the code and have no date
   // to go on, so it goes without.
   const newestPost = latest(blogsResult.docs.map(postModified))
   const newestProject = latest(projectsResult.docs.map((p) => p.updatedAt))
@@ -110,6 +110,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry('/projects', newestProject),
     entry('/projects/archive', newestProject),
     entry('/tools', newestTool),
+    entry('/uses'),
   ]
 
   // ── Blog posts ──

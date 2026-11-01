@@ -69,4 +69,40 @@ export const PLAYGROUND_TOOLS: PlaygroundTool[] = [
       description: '早上九点到下午六点，每小时决定干什么：修事故、赶需求、开会、喝咖啡，还是还技术债。下班时看看你是哪种结局。',
     },
   },
+  {
+    slug: 'epoch-converter',
+    icon: '⏱️',
+    en: {
+      name: 'Epoch Converter',
+      description: 'Paste a Unix timestamp in seconds, milliseconds, microseconds or nanoseconds, or a date, and read it in every unit and in UTC, Los Angeles, New York and Shanghai.',
+    },
+    zh: {
+      name: '时间戳转换',
+      description: '粘贴 Unix 时间戳（秒、毫秒、微秒、纳秒都行）或者一个日期，换算成各种单位，以及 UTC、洛杉矶、纽约、上海的当地时间。',
+    },
+  },
+  {
+    slug: 'cron-explainer',
+    icon: '🗓️',
+    en: {
+      name: 'Cron Explainer',
+      description: 'Type a cron expression and see what each field means and the next ten times it runs, in UTC or your own time zone.',
+    },
+    zh: {
+      name: 'Cron 解读',
+      description: '输入一条 cron 表达式，看每个字段是什么意思，以及接下来十次在什么时候跑。UTC 和本地时区都能看。',
+    },
+  },
+  {
+    slug: 'meta-scrub',
+    icon: '🧽',
+    en: {
+      name: 'Metadata Scrubber',
+      description: 'See what a JPEG or PNG carries besides the picture (camera, GPS, the prompt an image generator wrote into it) and download a copy without it. The file never leaves your browser.',
+    },
+    zh: {
+      name: '图片元数据清除',
+      description: '看看一张 JPEG 或 PNG 除了画面还带着什么（相机型号、GPS 位置、AI 出图时写进去的提示词），再下载一份去掉这些的副本。文件不会离开你的浏览器。',
+    },
+  },
 ]

@@ -148,6 +148,7 @@ function CommandPaletteDialog() {
     { id: 'blog',     type: 'page', label: tNav('blog'),        description: t('pageBlogDesc'),     href: '/blog' },
     { id: 'projects', type: 'page', label: tNav('projects'),    description: t('pageProjectsDesc'), href: '/projects' },
     { id: 'tools',    type: 'page', label: tNav('tools'),       description: t('pageToolsDesc'),    href: '/tools' },
+    { id: 'uses',     type: 'page', label: tNav('uses'),        description: t('pageUsesDesc'),     href: '/uses' },
     { id: 'about',    type: 'page', label: tNav('about'),       description: t('pageAboutDesc'),    href: '/about' },
   ]
 

@@ -12,7 +12,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.41.0] — 2026-11-01
 
-### Added — 新文章《我也养了一条“大肥鱼”，可它只回我一个人》（#PR）
+### Added — 新文章《我也养了一条“大肥鱼”，可它只回我一个人》（#137）
 
 B 站评论区的 DeepSeek「大肥鱼」刷屏之后，作者用 AstrBot + DeepSeek 接了一次微信。短文，不写步骤：链路能通，但
 AstrBot 接个人微信要走微信官方的 ClawBot 插件，作者实际用下来，机器人只是插件里的一个 1 对 1 窗口，只有自己能

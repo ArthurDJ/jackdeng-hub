@@ -97,7 +97,7 @@ Match the Postgres major version to the server's (17 as of 2026-09). This sequen
 
 ## 🛠 Extending the Tools Engine (Instructions for Agents)
 
-A tool is a record in the `Tools` collection. A built-in tool also has a component in the repo. The section is headed `/tools` in the code and Playground (实验室) on the site: small client-side experiments, not utilities.
+A tool is a record in the `Tools` collection. A built-in tool also has a component in the repo. The section is headed `/tools` in the code and Playground (实验室) on the site: small client-side experiments, and since #134 a few utilities (timestamp, cron, image metadata) that also run entirely in the browser. The utilities are listed again on `/uses` (`BUILT_HERE` in `src/lib/uses.ts`).
 
 **Visibility.** A tool is listed on `/tools`, in the sitemap and in search only when it is `status: online` and `accessControl: public`. Its detail page, `/[locale]/tools/[slug]`, also renders `maintenance` tools, with a badge. A `private` or `offline` tool returns 404 to everyone, the signed-in owner included; manage those in `/admin`. Pages query through Payload's Local API, which skips collection access control, so every public query filters on these two fields itself (#50).
 

@@ -192,7 +192,10 @@ const POSTS = [
     mdZh: '07-astrbot-deepseek-zh.md',
     titleZh: '我也养了一条“大肥鱼”，可它只回我一个人',
     excerptZh: '大肥鱼刷屏之后，我用 AstrBot 加 DeepSeek 接上了微信。整条链路能通，可微信那头走的是官方 ClawBot 插件，它只能跟我一个人私聊，拉不进群。',
-    // No cover, as with the post above.
+    hero: 'hero-astrbot-fish.jpg',
+    heroAlt: 'Two maid whale-girls with blue hair and whale tails in a sunlit ballroom, either side of a chat box',
+    heroCredit:
+      'Maid whale-girl by ZipZipPipe after 上善无形\'s original; skin by Small-tailqwq (dsh-deep-whale), cropped. CC BY-NC-SA 4.0',
     slug: 'astrbot-deepseek-wechat',
     title: 'I set up my own DeepSeek "fat fish." Only I can talk to it.',
     excerpt:

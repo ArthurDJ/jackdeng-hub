@@ -1,6 +1,6 @@
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { lexicalEditor, BlocksFeature, CodeBlock, EXPERIMENTAL_TableFeature } from '@payloadcms/richtext-lexical'
+import { lexicalEditor, BlocksFeature, CodeBlock, EXPERIMENTAL_TableFeature, UploadFeature } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { en } from '@payloadcms/translations/languages/en'
 import { zh } from '@payloadcms/translations/languages/zh'
@@ -118,7 +118,23 @@ export const config = buildConfig({
   }),
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [
-      ...defaultFeatures,
+      // The default upload feature, swapped for one whose media uploads carry
+      // their own alt text and caption. Rich text is localized and Media.alt is
+      // not, so an image used in both the en and zh body describes itself in
+      // each language on the node (scripts/lib/markdown.ts resolveImages writes
+      // these; LexicalRenderer reads them, falling back to Media.alt). Rich
+      // text is one jsonb column, so these fields add nothing to the schema.
+      ...defaultFeatures.filter((f) => f.key !== 'upload'),
+      UploadFeature({
+        collections: {
+          media: {
+            fields: [
+              { name: 'alt', type: 'text', label: { en: 'Alt text', zh: '替代文本' } },
+              { name: 'caption', type: 'text', label: { en: 'Caption', zh: '图注' } },
+            ],
+          },
+        },
+      }),
       BlocksFeature({ blocks: [CodeBlock()] }),
       // Posts written by scripts/publish-drafts.ts can contain tables; without
       // the feature /admin cannot open them, and a save there would drop them.

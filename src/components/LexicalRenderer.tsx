@@ -12,6 +12,7 @@
  */
 
 import React from 'react'
+import Image from 'next/image'
 import { RichText, type JSXConvertersFunction } from '@payloadcms/richtext-lexical/react'
 import { slugifyHeading } from '@/lib/extractHeadings'
 import { CodeBlock } from '@/components/CodeBlock'
@@ -59,10 +60,51 @@ const tableConverters = {
   },
 }
 
-/** Converter for Code blocks (highlighted on the server, with a copy button) and tables */
+/**
+ * The article column: the container is 1024px less 24px padding a side, and
+ * from 1024px up it shares the row with the 260px sidebar across a 48px gap
+ * (src/app/[locale]/blog/[slug]/page.tsx). Below that it is the viewport less
+ * the padding.
+ */
+export const ARTICLE_IMAGE_SIZES = '(min-width: 1024px) 668px, calc(100vw - 48px)'
+
+/**
+ * Images in the body (upload nodes, which scripts/lib/markdown.ts writes and
+ * the admin editor inserts). The node carries the alt text and caption in the
+ * post's language (UploadFeature fields in payload.config.ts); Media.alt is
+ * the fallback for an upload inserted without one. The original file is used,
+ * not a named size: those are cropped to 16:9, which would cut a screenshot or
+ * a diagram. Its width and height give the box its aspect ratio before it
+ * loads, and next/image lazy-loads it and serves a width that fits the column.
+ *
+ * Nothing is rendered when the media row is not there: a query at depth 0
+ * leaves `value` as a bare id, and a deleted row comes back as null.
+ */
+export function UploadFigure({ node }: { node: any }) {
+  const media = node?.value && typeof node.value === 'object' ? node.value : null
+  if (!media?.url || (media.mimeType && !String(media.mimeType).startsWith('image/'))) return null
+  const alt: string = node.fields?.alt || media.alt || ''
+  const caption: string | undefined = node.fields?.caption || undefined
+  return (
+    <figure className="ds-figure">
+      {media.width && media.height ? (
+        <Image src={media.url} alt={alt} width={media.width} height={media.height} sizes={ARTICLE_IMAGE_SIZES} />
+      ) : (
+        // No dimensions to give next/image (a row it did not measure): a
+        // plain lazy image still fits the column.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={media.url} alt={alt} loading="lazy" decoding="async" />
+      )}
+      {caption && <figcaption>{caption}</figcaption>}
+    </figure>
+  )
+}
+
+/** Converter for Code blocks (highlighted on the server, with a copy button), tables and images */
 const codeBlockConverter: JSXConvertersFunction = ({ defaultConverters }) => ({
   ...defaultConverters,
   ...tableConverters,
+  upload: ({ node }: any) => <UploadFigure node={node} />,
   blocks: {
     ...((defaultConverters as any).blocks ?? {}),
     Code: ({ node }: any) => {

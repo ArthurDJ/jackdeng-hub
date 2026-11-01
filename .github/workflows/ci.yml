@@ -143,6 +143,10 @@ jobs:
           # The draft scripts/seed.ts creates; the check fails if it leaks.
           SMOKE_DRAFT_SLUG: ci-draft-post
           SMOKE_DRAFT_TITLE: CI draft title that must not leak
+          # The body image scripts/seed.ts puts in post 1, with its alt per locale.
+          SMOKE_IMAGE_SLUG: architecting-resilient-integrations-boomi
+          SMOKE_IMAGE_ALT_EN: An integration pipeline with retry and error-handling stages
+          SMOKE_IMAGE_ALT_ZH: 一条带重试和异常处理阶段的集成管道
         run: |
           npm start -- -p 3000 > next-start.log 2>&1 &
           for i in $(seq 1 60); do

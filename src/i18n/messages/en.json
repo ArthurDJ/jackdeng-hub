@@ -487,7 +487,8 @@
         "text": "Text chunk: {key}",
         "time": "Last-modified time",
         "other": "{name} block",
-        "trailer": "Data after the end of the image"
+        "trailer": "Data after the end of the image",
+        "thumbnail": "Embedded thumbnail (may show the uncropped original)"
       },
       "exif": {
         "camera": "Camera: {camera}",

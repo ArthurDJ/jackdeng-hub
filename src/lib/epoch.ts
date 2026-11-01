@@ -7,10 +7,16 @@
 export type EpochUnit = 's' | 'ms' | 'us' | 'ns'
 
 export type Parsed =
-  | { kind: 'epoch'; unit: EpochUnit; date: Date }
+  /**
+   * `ns` is the exact value for whole-number input. A Date only holds
+   * milliseconds, so without it a pasted nanosecond timestamp would come
+   * back with its last six digits zeroed.
+   */
+  | { kind: 'epoch'; unit: EpochUnit; date: Date; ns?: bigint }
   | { kind: 'date'; date: Date }
 
 const PER_MS: Record<EpochUnit, number> = { s: 1e-3, ms: 1, us: 1e3, ns: 1e6 }
+const NS_PER: Record<EpochUnit, bigint> = { s: 1000000000n, ms: 1000000n, us: 1000n, ns: 1n }
 
 /**
  * The unit a bare number is most likely in, judged by its digit count:
@@ -40,22 +46,32 @@ export function parseInput(raw: string, unit?: EpochUnit): Parsed | null {
     const u = unit ?? guessUnit(text.split('.')[0])
     const ms = Number(text) / PER_MS[u]
     const date = new Date(ms)
-    return Number.isNaN(date.getTime()) ? null : { kind: 'epoch', unit: u, date }
+    if (Number.isNaN(date.getTime())) return null
+    return /^-?\d+$/.test(text)
+      ? { kind: 'epoch', unit: u, date, ns: BigInt(text) * NS_PER[u] }
+      : { kind: 'epoch', unit: u, date }
   }
 
   const ms = Date.parse(raw.trim())
   return Number.isNaN(ms) ? null : { kind: 'date', date: new Date(ms) }
 }
 
+/** Integer division rounding toward minus infinity, so -1500 ms is -2 s. */
+const floorDiv = (a: bigint, b: bigint) => a / b - (a < 0n && a % b !== 0n ? 1n : 0n)
+
+/** An exact nanosecond count in each unit, coarser units floored. */
+export function fromNs(ns: bigint): Record<EpochUnit, string> {
+  return {
+    s: floorDiv(ns, NS_PER.s).toString(),
+    ms: floorDiv(ns, NS_PER.ms).toString(),
+    us: floorDiv(ns, NS_PER.us).toString(),
+    ns: ns.toString(),
+  }
+}
+
 /** The instant in each unit, as exact integer strings (BigInt, so ns don't round). */
 export function toEpochs(date: Date): Record<EpochUnit, string> {
-  const ms = BigInt(date.getTime())
-  return {
-    s: (ms / 1000n - (ms < 0n && ms % 1000n !== 0n ? 1n : 0n)).toString(),
-    ms: ms.toString(),
-    us: (ms * 1000n).toString(),
-    ns: (ms * 1000000n).toString(),
-  }
+  return fromNs(BigInt(date.getTime()) * NS_PER.ms)
 }
 
 /**

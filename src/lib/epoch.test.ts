@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { guessUnit, inZone, parseInput, relative, toEpochs } from './epoch'
+import { fromNs, guessUnit, inZone, parseInput, relative, toEpochs } from './epoch'
 
 describe('guessUnit', () => {
   it('reads the unit off the digit count', () => {
@@ -31,6 +31,12 @@ describe('parseInput', () => {
     expect(parseInput('1,761,902,400')?.date.toISOString()).toBe('2025-10-31T09:20:00.000Z')
   })
 
+  it('keeps the exact value of whole-number input', () => {
+    expect(parseInput('1761902400123456789')).toMatchObject({ unit: 'ns', ns: 1761902400123456789n })
+    expect(parseInput('1761902400', 'us')).toMatchObject({ ns: 1761902400000n })
+    expect(parseInput('1761902400.5')).not.toHaveProperty('ns')
+  })
+
   it('reads date strings', () => {
     const p = parseInput('2025-10-31T09:20:00Z')
     expect(p).toEqual({ kind: 'date', date: new Date('2025-10-31T09:20:00Z') })
@@ -51,6 +57,16 @@ describe('toEpochs', () => {
       us: '1761902400123000',
       ns: '1761902400123000000',
     })
+  })
+
+  it('gives back a pasted nanosecond value digit for digit', () => {
+    expect(fromNs(1761902400123456789n)).toEqual({
+      s: '1761902400',
+      ms: '1761902400123',
+      us: '1761902400123456',
+      ns: '1761902400123456789',
+    })
+    expect(fromNs(-1500n)).toEqual({ s: '-1', ms: '-1', us: '-2', ns: '-1500' })
   })
 
   it('floors seconds before 1970', () => {

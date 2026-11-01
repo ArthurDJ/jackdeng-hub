@@ -55,6 +55,28 @@ describe('nextRuns', () => {
     expect(iso(nextRuns(parseCron('0 0 1 * 1'), from, 3))).toEqual(['2026-11-01T00:00', '2026-11-02T00:00', '2026-11-09T00:00'])
   })
 
+  it('needs both day fields when one starts with *, as Vixie cron does', () => {
+    // */2 with Monday: odd-numbered days that are Mondays, not either.
+    expect(iso(nextRuns(parseCron('0 0 */2 * 1'), from, 3))).toEqual(['2026-11-09T00:00', '2026-11-23T00:00', '2026-12-07T00:00'])
+    // A bare * day of month leaves the weekday in charge.
+    expect(iso(nextRuns(parseCron('0 0 * * 1'), from, 1))).toEqual(['2026-11-02T00:00'])
+  })
+
+  it('never lists a run before the given time across a DST fall-back', () => {
+    const tz = process.env.TZ
+    process.env.TZ = 'America/New_York'
+    try {
+      // 01:30 EST on 2026-11-01: the second time 01:30 happens that night.
+      const second = new Date('2026-11-01T06:30:00Z')
+      const runs = nextRuns(parseCron('*/15 * * * *'), second, 4, false)
+      expect(runs).toHaveLength(4)
+      for (const r of runs) expect(r.getTime()).toBeGreaterThan(second.getTime())
+      expect(runs.map((r) => r.getTime())).toEqual([...runs.map((r) => r.getTime())].sort((a, b) => a - b))
+    } finally {
+      process.env.TZ = tz
+    }
+  })
+
   it('finds leap days and gives up on impossible dates', () => {
     expect(iso(nextRuns(parseCron('0 0 29 2 *'), from, 1))).toEqual(['2028-02-29T00:00'])
     expect(nextRuns(parseCron('0 0 31 2 *'), from, 1)).toEqual([])

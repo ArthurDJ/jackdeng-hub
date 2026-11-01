@@ -487,7 +487,8 @@
         "text": "文本块：{key}",
         "time": "修改时间",
         "other": "{name} 数据块",
-        "trailer": "图片结尾之后的附加数据"
+        "trailer": "图片结尾之后的附加数据",
+        "thumbnail": "内嵌缩略图（可能是裁剪前的原图）"
       },
       "exif": {
         "camera": "相机：{camera}",

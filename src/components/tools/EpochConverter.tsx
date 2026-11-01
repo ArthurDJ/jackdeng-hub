@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { inZone, parseInput, relative, toEpochs, type EpochUnit } from '@/lib/epoch'
+import { fromNs, inZone, parseInput, relative, toEpochs, type EpochUnit } from '@/lib/epoch'
+import { label, mono, panel } from './toolStyles'
 
 /**
  * Epoch Converter: paste a Unix timestamp or a date, read it in every unit
@@ -43,11 +44,6 @@ export function EpochConverter() {
     } catch { /* clipboard blocked: the value is on screen to select */ }
   }
 
-  const panel: React.CSSProperties = {
-    background: 'var(--bg-panel)', border: '1px solid var(--border-default)', borderRadius: 12, padding: 20,
-  }
-  const mono: React.CSSProperties = { fontFamily: 'var(--font-geist-mono, ui-monospace, monospace)' }
-  const label: React.CSSProperties = { fontSize: 11, fontWeight: 510, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }
   const copyBtn: React.CSSProperties = {
     fontSize: 12, padding: '3px 10px', borderRadius: 6, cursor: 'pointer', flexShrink: 0,
     color: 'var(--text-secondary)', background: 'transparent', border: '1px solid var(--border-default)',
@@ -55,7 +51,7 @@ export function EpochConverter() {
 
   const rows: { key: string; name: string; value: string; hint?: string }[] = []
   if (date) {
-    const e = toEpochs(date)
+    const e = parsed?.kind === 'epoch' && parsed.ns !== undefined ? fromNs(parsed.ns) : toEpochs(date)
     for (const u of UNITS) rows.push({ key: u, name: t(`units.${u}`), value: e[u] })
     rows.push({ key: 'iso', name: 'ISO 8601', value: date.toISOString() })
     const zones = localZone && !ZONES.includes(localZone as (typeof ZONES)[number]) ? [localZone, ...ZONES] : [...ZONES]

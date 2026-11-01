@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useEffect, useId, useState } from 'react'
+import React, { useEffect, useId, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { scrub, ScrubError, type Finding, type Report } from '@/lib/metaScrub'
+import { mono, panel } from './toolStyles'
 
 /**
  * Metadata Scrubber: pick a JPEG or PNG, see what it carries besides the
@@ -23,32 +24,37 @@ export function MetaScrub() {
   const [url, setUrl] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)
 
+  // Which pick is current. Reading a file is async, so a big file picked
+  // first can finish after a small one picked second; only the latest pick
+  // may write its result.
+  const pick = useRef(0)
+
   // A blob URL holds the file in memory until it is revoked.
   useEffect(() => () => { if (url) URL.revokeObjectURL(url) }, [url])
 
   const load = async (f: File | undefined) => {
     if (!f) return
+    const n = ++pick.current
     setFile(f)
     setReport(null)
     setError(null)
     setUrl(null)
     try {
-      const r = scrub(new Uint8Array(await f.arrayBuffer()))
+      const bytes = new Uint8Array(await f.arrayBuffer())
+      if (n !== pick.current) return
+      const r = scrub(bytes)
       setReport(r)
       if (r.findings.length) {
         setUrl(URL.createObjectURL(new Blob([r.cleaned as Uint8Array<ArrayBuffer>], { type: r.format === 'jpeg' ? 'image/jpeg' : 'image/png' })))
       }
     } catch (e) {
+      if (n !== pick.current) return
       setError(t(`errors.${e instanceof ScrubError ? e.code : 'corrupt'}`))
     }
   }
 
   const cleanName = (name: string) => name.replace(/(\.[^.]+)?$/, (ext) => `-clean${ext || ''}`)
 
-  const panel: React.CSSProperties = {
-    background: 'var(--bg-panel)', border: '1px solid var(--border-default)', borderRadius: 12, padding: 20,
-  }
-  const mono: React.CSSProperties = { fontFamily: 'var(--font-geist-mono, ui-monospace, monospace)' }
 
   const describe = (f: Finding): { title: string; lines: string[]; risky?: boolean } => {
     switch (f.kind) {
@@ -67,7 +73,9 @@ export function MetaScrub() {
       case 'comment':
         return { title: t('kinds.comment'), lines: f.text ? [f.text] : [] }
       case 'other':
-        return { title: t('kinds.other', { name: f.name }), lines: [] }
+        return { title: t('kinds.other', { name: f.name }), lines: [], risky: f.name === 'caBX' }
+      case 'thumbnail':
+        return { title: t('kinds.thumbnail'), lines: [], risky: true }
       default:
         return { title: t(`kinds.${f.kind}`), lines: [] }
     }

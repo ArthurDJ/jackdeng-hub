@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
-import { getPayload } from '@/lib/payload'
+import { SectionLabel } from '@/components/SectionLabel'
+import { getPayload, orEmpty } from '@/lib/payload'
 import { asLocale } from '@/i18n/routing'
 import { localeAlternates } from '@/lib/alternates'
 import { siteOpenGraph } from '@/lib/siteOpenGraph'
@@ -25,14 +26,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 style={{ fontSize: 11, fontWeight: 510, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 14 }}>
-      {children}
-    </h2>
-  )
-}
-
 export default async function UsesPage({ params }: Props) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'uses' })
@@ -41,9 +34,10 @@ export default async function UsesPage({ params }: Props) {
 
   // The utilities I built, from their records so the names follow /admin and
   // a tool that is not public yet is simply left out — the same filter as
-  // the /tools list, so this page never links to a 404.
+  // the /tools list, so this page never links to a 404. The rest of the page
+  // is written in code, so a failed query only empties this section.
   const payload = await getPayload()
-  const { docs } = await payload.find({
+  const { docs } = await orEmpty(payload.find({
     collection: 'tools',
     where: {
       and: [
@@ -55,7 +49,7 @@ export default async function UsesPage({ params }: Props) {
     depth: 0,
     locale: asLocale(locale),
     limit: BUILT_HERE.length,
-  })
+  }), 'uses: built-here tools')
   const built = BUILT_HERE.flatMap((slug) => docs.filter((d) => d.slug === slug))
 
   const card: React.CSSProperties = {
@@ -88,7 +82,7 @@ export default async function UsesPage({ params }: Props) {
 
         {built.length > 0 && (
           <section>
-            <SectionLabel>{t('builtHeading')}</SectionLabel>
+            <SectionLabel as="h2">{t('builtHeading')}</SectionLabel>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
               {built.map((tool) => (
                 <Link key={tool.id} href={`/tools/${tool.slug}`} style={{ textDecoration: 'none' }}>
@@ -109,7 +103,7 @@ export default async function UsesPage({ params }: Props) {
 
         {USES.map((group) => (
           <section key={group.id}>
-            <SectionLabel>{GROUPS[group.id]}</SectionLabel>
+            <SectionLabel as="h2">{GROUPS[group.id]}</SectionLabel>
             <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
               {group.items.map((item) => (
                 <li key={item.id}>

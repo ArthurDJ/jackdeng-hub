@@ -42,6 +42,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 文本块的 PNG：页面上全部识别出来；清除后的文件用 Pillow 打开，JPEG 只剩 `Orientation: 6`、像素与原图逐一
 相同，PNG 没有任何文本块。三个工具在 375px 手机预设下 `scrollWidth` 等于视口宽度，深浅两种主题都看过。
 
+**合并前 review（`/code-review` high）找出 10 条，全部在本 PR 里修掉。** 自测全过之后仍有这么多，
+所以 `CLAUDE.md` 把「合并前跑 `/code-review`、上线后到线上实测」写成了每个 PR 的必做项。
+
+- 元数据清除：PNG 原来只删已知的几种块，别的照抄，C2PA 的 `caBX`、厂商私有块都会漏过去；改成白名单，
+  只留关键块和影响显示的块（色彩、透明、APNG 动画），其余一律删掉并列出来。JPEG 的 APP0 原来整段保留，
+  JFIF 头里可以带一张缩略图（可能是裁剪前的原图），JFXX 段也是缩略图；现在 JFIF 头留下、缩略图尺寸
+  置 0，JFXX 删掉。SOS 之前不带长度的标记（TEM、RST）原来会被当成坏文件。PNG 的 eXIf 删掉后同样把
+  旋转方向写回（带正确的 CRC）。连续选两个文件时，先选的大文件后读完会盖掉后选的结果；现在只认最后一次。
+- Cron：日字段写成 `*/2` 这类以 `*` 开头的形式时，Vixie cron 和 Kubernetes 用的 robfig/cron 都按
+  「日和星期同时满足」算，这里原来按「任一满足」，`0 0 */2 * 1` 列出的时间是错的。本地时区在夏令时
+  回拨那一小时里，可能列出早于当前的时间。
+- 时间戳转换：粘贴的微秒、纳秒原来经过 Date，只剩毫秒精度，纳秒那一行会变成后六位全 0；整数输入
+  现在按 BigInt 精确换算。
+- `/uses` 的工具查询失败时原来整页报错，改用 `orEmpty`，只空掉「我自己做的」一节。About 和 Uses 的
+  小节标题合成一个 `SectionLabel` 组件；四个 Playground 工具重复定义的卡片样式抽到 `toolStyles.ts`。
+- 每条修复都有测试，其中 cron 的两条在旧逻辑上确认会失败。测试 364 → 374 条。
+
 **上线步骤。** 工具记录要在部署之后建：`npx tsx scripts/add-playground-tools.ts` 看计划，再带 `--apply`。
 在那之前三个工具不出现在 `/tools`，`/uses` 顶部的「我自己做的」也是空的（整节不显示）。
 

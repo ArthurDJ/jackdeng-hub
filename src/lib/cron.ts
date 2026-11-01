@@ -36,8 +36,14 @@ export const MACROS: Record<string, string> = {
 export interface Schedule {
   /** The values each field allows, sorted. */
   values: Record<FieldKey, number[]>
-  /** Which fields were `*` (or a step over the whole range). */
+  /** Which fields were `*` (or a step over the whole range): shown as "every". */
   any: Record<FieldKey, boolean>
+  /**
+   * Which fields start with `*` — `*\/2` included. This, not `any`, decides
+   * how the two day fields combine: Vixie cron (DOM_STAR/DOW_STAR) and
+   * robfig/cron (Kubernetes) both flag a field by its leading `*`.
+   */
+  star: Record<FieldKey, boolean>
 }
 
 /** Why an expression was rejected; the component turns `code` into words. */
@@ -100,25 +106,25 @@ export function parseCron(expr: string): Schedule {
 
   const values = {} as Schedule['values']
   const any = {} as Schedule['any']
+  const star = {} as Schedule['star']
   FIELDS.forEach((spec, i) => {
     const f = parseField(parts[i], spec)
     values[spec.key] = f.values
     any[spec.key] = f.any
+    star[spec.key] = parts[i].startsWith('*')
   })
-  return { values, any }
+  return { values, any, star }
 }
 
 /**
- * Whether a day matches. When both day fields are restricted, cron fires on
- * either one ("the 1st, and every Monday") — the rule people trip over most.
+ * Whether a day matches. When neither day field starts with `*`, cron fires
+ * on either one ("the 1st, and every Monday") — the rule people trip over
+ * most. Otherwise both must match, so `*\/2` with Monday is odd Mondays only.
  */
 function dayMatches(s: Schedule, dom: number, dow: number): boolean {
   const okDom = s.values.dom.includes(dom)
   const okDow = s.values.dow.includes(dow)
-  if (s.any.dom && s.any.dow) return true
-  if (s.any.dom) return okDow
-  if (s.any.dow) return okDom
-  return okDom || okDow
+  return s.star.dom || s.star.dow ? okDom && okDow : okDom || okDow
 }
 
 /** Calendar access in UTC or in the runtime's local zone. */
@@ -153,7 +159,9 @@ export function nextRuns(s: Schedule, from: Date, count: number, utc = true): Da
     if (!dayMatches(s, d, dow)) { t = make(y, mo, d + 1, 0, 0); continue }
     if (!s.values.hour.includes(h)) { t = make(y, mo, d, h + 1, 0); continue }
     if (!s.values.minute.includes(mi)) { t = make(y, mo, d, h, mi + 1); continue }
-    out.push(t)
+    // In local time, the hour repeated when clocks go back reads as its first
+    // occurrence, which can be before `from`; never list a run in the past.
+    if (t.getTime() > from.getTime()) out.push(t)
     t = make(y, mo, d, h, mi + 1)
   }
   return out

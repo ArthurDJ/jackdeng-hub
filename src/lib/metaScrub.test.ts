@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { orientationSegment, readTiff, scrub, ScrubError, type Finding } from './metaScrub'
+import { crc32, orientationSegment, readTiff, scrub, ScrubError, type Finding } from './metaScrub'
 
 const bytes = (s: string) => Array.from(s, (c) => c.charCodeAt(0))
 const be16 = (n: number) => [n >> 8, n & 0xff]
@@ -103,6 +103,36 @@ describe('scrub (JPEG)', () => {
   })
 })
 
+describe('scrub (JPEG headers)', () => {
+  const sos = [...segment(0xda, [1, 1, 0, 0, 63, 0]), 0x12, 0x34, 0xff, 0xd9]
+  const jfif = (thumb: number[]) => segment(0xe0, [...bytes('JFIF\0'), 1, 1, 0, 0, 1, 0, 1, thumb.length ? 1 : 0, thumb.length ? 1 : 0, ...thumb])
+
+  it('keeps the JFIF header and drops its thumbnail', () => {
+    const r = scrub(new Uint8Array([0xff, 0xd8, ...jfif([255, 0, 0]), ...sos]))
+    expect(r.findings).toEqual([{ kind: 'thumbnail', bytes: 3 }])
+    expect(Array.from(r.cleaned)).toEqual([0xff, 0xd8, ...jfif([]), ...sos])
+  })
+
+  it('drops a JFXX thumbnail segment and names it', () => {
+    const jfxx = segment(0xe0, [...bytes('JFXX\0'), 0x10, 1, 2, 3])
+    const r = scrub(new Uint8Array([0xff, 0xd8, ...jfif([]), ...jfxx, ...sos]))
+    expect(r.findings).toEqual([{ kind: 'other', bytes: jfxx.length, name: 'APP0 JFXX' }])
+    expect(Array.from(r.cleaned)).toEqual([0xff, 0xd8, ...jfif([]), ...sos])
+  })
+
+  it('steps over markers that have no length', () => {
+    const r = scrub(new Uint8Array([0xff, 0xd8, 0xff, 0x01, 0xff, 0xd0, ...jfif([]), ...sos]))
+    expect(r.findings).toEqual([])
+    expect(Array.from(r.cleaned)).toEqual([0xff, 0xd8, 0xff, 0x01, 0xff, 0xd0, ...jfif([]), ...sos])
+  })
+})
+
+describe('crc32', () => {
+  it('matches the PNG reference value', () => {
+    expect(crc32(bytes('IEND'))).toBe(0xae426082)
+  })
+})
+
 describe('scrub (PNG)', () => {
   const crc = [0, 0, 0, 0] // not checked by the scrubber; it copies chunks whole
   const chunk = (type: string, data: number[]) => [...be32(data.length), ...bytes(type), ...data, ...crc]
@@ -116,13 +146,44 @@ describe('scrub (PNG)', () => {
       ...sig, ...ihdr,
       ...chunk('tEXt', bytes('prompt\0{"1":{"class_type":"KSampler"}}')),
       ...chunk('tIME', [7, 234, 10, 31, 9, 0, 0]),
-      ...chunk('eXIf', tiff()),
+      ...chunk('eXIf', tiff(1)),
       ...idat, ...iend,
     ])
     const r = scrub(png)
     expect(kinds(r.findings)).toEqual(['text', 'time', 'exif'])
     expect(r.findings[0]).toMatchObject({ key: 'prompt', preview: '{"1":{"class_type":"KSampler"}}' })
     expect(Array.from(r.cleaned)).toEqual([...sig, ...ihdr, ...idat, ...iend])
+  })
+
+  it('writes the orientation back as a valid eXIf chunk', () => {
+    const r = scrub(new Uint8Array([...sig, ...ihdr, ...chunk('eXIf', tiff(6)), ...idat, ...iend]))
+    const out = r.cleaned
+    const at = 8 + ihdr.length
+    const len = (out[at] << 24) | (out[at + 1] << 16) | (out[at + 2] << 8) | out[at + 3]
+    expect(String.fromCharCode(...out.subarray(at + 4, at + 8))).toBe('eXIf')
+    expect(readTiff(out.subarray(at + 8, at + 8 + len))).toEqual({ orientation: 6 })
+    const stored = new DataView(out.buffer, out.byteOffset).getUint32(at + 8 + len)
+    expect(stored).toBe(crc32(out.subarray(at + 4, at + 8 + len)))
+  })
+
+  it('keeps only chunks it knows to be part of the picture', () => {
+    const png = new Uint8Array([
+      ...sig, ...ihdr,
+      ...chunk('acTL', [0, 0, 0, 1, 0, 0, 0, 0]), // APNG: kept
+      ...chunk('iCCP', [1, 2]), // colour profile: kept
+      ...chunk('caBX', [9, 9, 9]), // C2PA manifest: dropped
+      ...chunk('vpAg', [1]), // unknown ancillary: dropped
+      ...chunk('ABCD', [1]), // unknown critical: kept, a decoder needs it
+      ...idat, ...iend,
+    ])
+    const r = scrub(png)
+    expect(r.findings).toEqual([
+      { kind: 'other', bytes: 15, name: 'caBX' },
+      { kind: 'other', bytes: 13, name: 'vpAg' },
+    ])
+    expect(Array.from(r.cleaned)).toEqual([
+      ...sig, ...ihdr, ...chunk('acTL', [0, 0, 0, 1, 0, 0, 0, 0]), ...chunk('iCCP', [1, 2]), ...chunk('ABCD', [1]), ...idat, ...iend,
+    ])
   })
 })
 

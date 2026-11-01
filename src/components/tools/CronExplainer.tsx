@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { CronError, FIELDS, compact, nextRuns, parseCron, type Schedule } from '@/lib/cron'
 import { relative } from '@/lib/epoch'
 import { intlLocale } from '@/lib/formatDate'
+import { label, mono, panel } from './toolStyles'
 
 /**
  * Cron Explainer: type a five-field cron expression, see what each field
@@ -43,11 +44,6 @@ export function CronExplainer() {
     ...(utc ? { timeZone: 'UTC' } : {}),
   })
 
-  const panel: React.CSSProperties = {
-    background: 'var(--bg-panel)', border: '1px solid var(--border-default)', borderRadius: 12, padding: 20,
-  }
-  const mono: React.CSSProperties = { fontFamily: 'var(--font-geist-mono, ui-monospace, monospace)' }
-  const label: React.CSSProperties = { fontSize: 11, fontWeight: 510, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }
   const chip: React.CSSProperties = {
     ...mono, fontSize: 12, padding: '3px 10px', borderRadius: 9999, cursor: 'pointer',
     color: 'var(--text-secondary)', background: 'var(--bg-hover)', border: '1px solid var(--border-default)',

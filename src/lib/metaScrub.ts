@@ -6,10 +6,10 @@
  *
  * Nothing is re-encoded: the copy keeps every byte of the image data, so
  * there is no quality loss and the pixels are identical. What it keeps on
- * purpose is what changes how the picture looks: the JFIF header, the ICC
- * colour profile, Adobe's colour-transform marker, and the EXIF orientation
- * (rewritten as a 34-byte EXIF block that holds nothing else), without which
- * a phone photo would come out sideways.
+ * purpose is what changes how the picture looks: the JFIF header (minus its
+ * thumbnail), the ICC colour profile, Adobe's colour-transform marker, and
+ * the EXIF orientation (rewritten as an EXIF block that holds nothing else),
+ * without which a phone photo would come out sideways.
  */
 
 export interface Gps { lat: number; lon: number }
@@ -33,6 +33,7 @@ export type Finding =
   | { kind: 'time'; bytes: number }
   | { kind: 'other'; bytes: number; name: string }
   | { kind: 'trailer'; bytes: number }
+  | { kind: 'thumbnail'; bytes: number }
 
 export interface Report {
   format: 'jpeg' | 'png'
@@ -119,20 +120,27 @@ export function readTiff(t: Uint8Array): Exif {
   return exif
 }
 
-/** A JPEG APP1 segment holding a TIFF block with one tag: the orientation. */
-export function orientationSegment(orientation: number): Uint8Array {
-  const body = [
-    ...[0x45, 0x78, 0x69, 0x66, 0, 0], // "Exif\0\0"
+/** A TIFF block with one tag, the orientation: what is left of EXIF after a scrub. */
+function orientationTiff(orientation: number): number[] {
+  return [
     0x4d, 0x4d, 0x00, 0x2a, 0, 0, 0, 8, // "MM", 42, IFD0 at 8
     0, 1, // one entry
     0x01, 0x12, 0, 3, 0, 0, 0, 1, 0, orientation, 0, 0, // Orientation, SHORT, 1
     0, 0, 0, 0, // no next IFD
   ]
+}
+
+/** A JPEG APP1 segment holding only the orientation. */
+export function orientationSegment(orientation: number): Uint8Array {
+  const body = [0x45, 0x78, 0x69, 0x66, 0, 0, ...orientationTiff(orientation)] // "Exif\0\0" + TIFF
   const len = body.length + 2
   return new Uint8Array([0xff, 0xe1, len >> 8, len & 0xff, ...body])
 }
 
 // ── JPEG ──────────────────────────────────────────────────────────────────
+
+/** Markers with no length field: TEM and the restart markers. */
+const STANDALONE = new Set([0x01, 0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7])
 
 function scrubJpeg(b: Uint8Array): Report {
   const findings: Finding[] = []
@@ -145,6 +153,7 @@ function scrubJpeg(b: Uint8Array): Report {
     if (b[i] !== 0xff) throw new ScrubError('corrupt')
     const marker = b[i + 1]
     if (marker === 0xff) { i++; continue } // fill byte
+    if (STANDALONE.has(marker)) { keep.push(b.subarray(i, i + 2)); i += 2; continue }
     if (marker === 0xda) {
       // Start of scan: from here on it is image data. Copy through the end
       // of image, and drop whatever a camera appended after it.
@@ -161,7 +170,17 @@ function scrubJpeg(b: Uint8Array): Report {
     const data = b.subarray(i + 4, i + 2 + len)
     if (seg.length < 4 || i + 2 + len > b.length) throw new ScrubError('corrupt')
 
-    if (marker === 0xe1 && startsWith(data, 0, 'Exif\0')) {
+    if (marker === 0xe0 && startsWith(data, 0, 'JFIF\0') && data.length >= 14) {
+      // The JFIF header can carry an uncompressed thumbnail after its 14
+      // fixed bytes — of the picture as it was before any crop. Keep the
+      // header, with the thumbnail size set to 0x0.
+      const header = Array.from(data.subarray(0, 14))
+      header[12] = 0
+      header[13] = 0
+      keep.push(new Uint8Array([0xff, 0xe0, 0, 16, ...header]))
+      afterApp0 = keep.length
+      if (data.length > 14) findings.push({ kind: 'thumbnail', bytes: data.length - 14 })
+    } else if (marker === 0xe1 && startsWith(data, 0, 'Exif\0')) {
       const exif = readTiff(data.subarray(6))
       orientation = exif.orientation
       findings.push({ kind: 'exif', bytes: seg.length, exif })
@@ -172,16 +191,16 @@ function scrubJpeg(b: Uint8Array): Report {
     } else if (marker === 0xfe) {
       findings.push({ kind: 'comment', bytes: seg.length, text: ascii(data).slice(0, 120) })
     } else if (
-      marker === 0xe0 ||
       (marker === 0xe2 && startsWith(data, 0, 'ICC_PROFILE')) ||
       (marker === 0xee && startsWith(data, 0, 'Adobe')) ||
       marker < 0xe0 || marker > 0xef
     ) {
-      // Picture-defining: JFIF, colour profile, Adobe transform, tables, frame.
+      // Picture-defining: colour profile, Adobe transform, tables, frame.
       keep.push(seg)
-      if (marker === 0xe0) afterApp0 = keep.length
     } else {
-      findings.push({ kind: 'other', bytes: seg.length, name: `APP${marker - 0xe0}` })
+      // Any other APPn, JFXX thumbnails (APP0) included.
+      const tag = ascii(data, 0, Math.min(data.length, 8)).replace(/[^\x20-\x7e].*$/, '')
+      findings.push({ kind: 'other', bytes: seg.length, name: `APP${marker - 0xe0}${tag ? ` ${tag}` : ''}` })
     }
     i += 2 + len
   }
@@ -193,6 +212,37 @@ function scrubJpeg(b: Uint8Array): Report {
 // ── PNG ───────────────────────────────────────────────────────────────────
 
 const PNG_SIG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]
+
+/**
+ * Ancillary chunks that change how the picture looks, or animate it (APNG).
+ * Everything else ancillary goes, including chunks this file has never
+ * heard of — a keep-list, so a new kind of metadata (C2PA's `caBX`, a
+ * vendor's private chunk) is removed rather than waved through. Critical
+ * chunks (upper-case first letter) are always kept: a decoder must have them.
+ */
+const PNG_KEEP = new Set([
+  'tRNS', 'gAMA', 'cHRM', 'sRGB', 'iCCP', 'sBIT', 'cICP', 'mDCV', 'cLLI', 'pHYs', 'bKGD',
+  'acTL', 'fcTL', 'fdAT',
+])
+
+const CRC_TABLE = Array.from({ length: 256 }, (_, n) => {
+  let c = n
+  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
+  return c >>> 0
+})
+
+export function crc32(bytes: ArrayLike<number>): number {
+  let c = 0xffffffff
+  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8)
+  return (c ^ 0xffffffff) >>> 0
+}
+
+function pngChunk(type: string, data: number[]): Uint8Array {
+  const body = [...Array.from(type, (ch) => ch.charCodeAt(0)), ...data]
+  const crc = crc32(body)
+  const n = data.length
+  return new Uint8Array([n >>> 24, (n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff, ...body, crc >>> 24, (crc >> 16) & 0xff, (crc >> 8) & 0xff, crc & 0xff])
+}
 
 function scrubPng(b: Uint8Array): Report {
   const findings: Finding[] = []
@@ -207,19 +257,25 @@ function scrubPng(b: Uint8Array): Report {
     if (end > b.length) throw new ScrubError('corrupt')
     const chunk = b.subarray(i, end)
     const data = b.subarray(i + 8, i + 8 + len)
+    const critical = type.charCodeAt(0) < 0x61 // upper-case first letter
 
-    if (type === 'tEXt' || type === 'iTXt' || type === 'zTXt') {
+    if (critical || PNG_KEEP.has(type)) {
+      keep.push(chunk)
+    } else if (type === 'tEXt' || type === 'iTXt' || type === 'zTXt') {
       const nul = data.indexOf(0)
       const key = ascii(data, 0, nul < 0 ? Math.min(len, 79) : nul)
       // Only tEXt is plain text all the way; the others may be compressed.
       const preview = type === 'tEXt' && nul >= 0 ? new TextDecoder().decode(data.subarray(nul + 1)).slice(0, 160) : ''
       findings.push({ kind: 'text', bytes: chunk.length, key, preview })
     } else if (type === 'eXIf') {
-      findings.push({ kind: 'exif', bytes: chunk.length, exif: readTiff(data) })
+      const exif = readTiff(data)
+      findings.push({ kind: 'exif', bytes: chunk.length, exif })
+      // Same as JPEG: browsers rotate a PNG by its EXIF orientation too.
+      if (exif.orientation && exif.orientation !== 1) keep.push(pngChunk('eXIf', orientationTiff(exif.orientation)))
     } else if (type === 'tIME') {
       findings.push({ kind: 'time', bytes: chunk.length })
     } else {
-      keep.push(chunk)
+      findings.push({ kind: 'other', bytes: chunk.length, name: type })
     }
     i = end
     if (type === 'IEND') {

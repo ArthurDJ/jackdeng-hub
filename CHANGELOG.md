@@ -10,6 +10,58 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.40.1] — 2026-11-01
+
+### Security — next 16.4.3、Payload 全家桶锁步 3.92.0、react 19.3.1，清掉 3 条 critical（#137）
+
+一个 PR 代替排队的四个 Dependabot PR（#124 react、#125 next、#131 payload、#132 other）。main（03c6dda）上
+`npm audit --omit=dev` 是 **20 条：3 critical / 2 high / 7 moderate / 8 low**，升级后 **15 条：0 critical / 1 high /
+5 moderate / 9 low**（low 多一条是因为 `payload` 去掉 undici 之后从 moderate 降成了 low，不是新公告）。
+
+- **next 16.3.8 → 16.4.3**（`eslint-config-next` 同步）：GHSA-2464-fhr4-w9xw（critical，**图片优化接口处理 SVG 时
+  未鉴权 RCE**，影响 `>=16.0.0 <=16.4.0`，本站用 `next/image`）、GHSA-673q-mjm6-r5xr（critical，`use cache` 函数返回
+  typed array 时未鉴权 RCE）、GHSA-p3m5-59mp-jv5r（high，Server Actions 的 DoS）。三条都修于 16.4.1；取 16.4.3 是
+  16.4 线最新的补丁版本。
+- **dompurify 3.4.16 → 3.4.17**（override 从 `^3.4.15` 提到 `^3.4.17`）：GHSA-cg2g-xh64-v4q7（critical，
+  SAFE_FOR_TEMPLATES 绕过）、GHSA-mrv2-3pqr-j5jr（high）、GHSA-c6gr-qvv4-5v3f（low）。链路是
+  `@payloadcms/ui → @monaco-editor/react → monaco-editor`，只进后台。
+- **Payload 3.91.0 → 3.92.0**，`payload` 与六个 `@payloadcms/*` 锁步：3.92 把 undici 升到 7.30.1，清掉 undici 的
+  8 个公告（GHSA-4qv8-2p9j-2685、GHSA-f72v-6w45-q472、GHSA-xjj6-f33q-929c、GHSA-4w7w-5xrc-9h26、
+  GHSA-2m5v-pch6-74hx、GHSA-qrxm-fqhp-jwvm、GHSA-9fm3-97px-rjf6、GHSA-55wc-3pg8-jfw6，含 TLS 证书校验绕过和
+  跨源重定向导致的缓存投毒）。`@vercel/blob` 那份 undici 同时从 6.28.1 到 6.29.1。
+- **fast-uri 3.1.8 → 3.1.9**（`payload → ajv`）：GHSA-w74x-v6f9-j3xg、GHSA-wjr9-j795-jxcr（moderate）、
+  GHSA-xhq7-xmqj-769h、GHSA-333x-w4r6-6crp（low）。
+
+### Changed — 其余依赖跟到 Dependabot PR 的版本（#137）
+
+react / react-dom 19.3.0 → 19.3.1，geist 1.7.2 → 1.8.2，postcss 8.5.28 → 8.5.31，typescript-eslint 8.71.2 → 8.72.0，
+vitest 5.0.3 → 5.0.5。都不是安全升级，和上面的改动抢同一份 lockfile，所以一起做。
+
+- **版本取法**：不低于 Dependabot PR 的版本，同一 minor 下取最新补丁，但只取发布满 7 天的（`npm install
+  --before=2026-10-25`）。因此 payload 停在 3.92.0（3.92.1 是 10-27 发布的，修的是 vercel-blob 客户端上传等，不是
+  安全修复），postcss 停在 8.5.31（8.5.32 是 10-26），typescript-eslint 停在 8.72.0（8.72.1 是 10-26）。
+- **lockfile 从 main 出发**，只删被升级的包的条目（payload / `@payloadcms/*`、next / `@next/*`、eslint-config-next、
+  react / react-dom、geist、根上的 postcss、typescript-eslint / `@typescript-eslint/*`、vitest / `@vitest/*`、dompurify、
+  fast-uri、undici），再 `npm install`。32 个直接依赖里变了 15 个（就是上面列的），其余 17 个的解析版本与 main 相同。
+  传递依赖里另有 chai、obug（2 → 3）、std-env、tinybench、tinyexec、magic-string 是 vitest 5.0.5 自己抬高了下限，
+  nanoid 是 postcss 8.5.31 抬的。
+- **一次 `npm install` 不够**：第一遍之后 lockfile 里 dompurify 和 fast-uri 两个条目**直接没了**，`npm ls` 显示为空，
+  npm 没有给保留下来的父包（monaco-editor、ajv）补回被删掉的子依赖。第二遍 `npm install` 才补上；最后删掉
+  `node_modules` 跑一次干净的 `npm ci` 核对过。以后照 CLAUDE.md 的做法删条目时，装完先 `npm ls <被删的包>`。
+- **不需要迁移**：Payload 3.92.0 的发布说明里没有 schema 变化（字段访问控制多传文档 id、`locale: 'all'` 写入逐个
+  语言校验等都是运行期修复，本站的字段访问函数不读 id，也没有 `locale: 'all'` 写入），CI 的 schema-drift 检查通过。
+- **Node 版本**：Payload 3.92.0 的 `engines` 要求 `^22.23.4 || >=24.22.1`（发布说明里列为 breaking change）。CI 的
+  `node-version: '24'` 取最新 24.x，满足；Vercel 的 Node 24 运行时版本需要确认不低于 24.22.1。没有运行期检查，
+  版本不够时 npm 只报 EBADENGINE 警告。`package.json` 的 `engines` 没改。
+- next 16.4 默认开启严格路由匹配、拦截路由要求有对应的普通路由：本站没有平行路由（`@slot`）也没有拦截路由，不受影响。
+  React 19.3 是 minor，发布说明里没有破坏性变更。
+
+**剩下的 15 条**都是上游没有修复、或不进生产请求路径：happy-dom GHSA-834v-8h66-3h79 等 3 个公告（high，修复在
+21.0.4，但 `@lexical/headless@0.50.0` 要求 `^20.9.0`，Payload 3.92 精确依赖这个版本，override 要跨 major，没做）；
+deepmerge GHSA-gcqx-w48m-w2h4（low，`<=4.3.1` 全部受影响，没有修复版本，Payload 精确依赖 4.3.1）；esbuild
+GHSA-67mh-4wv8-2f99（moderate，`drizzle-kit → @esbuild-kit/*` 那份旧 esbuild 的 dev server 问题，同 #122 的说明）。
+其余条目是这三个公告沿 Payload 子包被重复计数。
+
 ## [1.40.0] — 2026-10-31
 
 ### Added — 新文章《最便宜的那张机票，不一定是该订的那张》（#130）

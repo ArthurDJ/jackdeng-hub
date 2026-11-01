@@ -75,8 +75,6 @@
     "experienceHeading": "经历",
     "educationHeading": "学历",
     "experienceMore": "完整经历 →",
-    "experienceShowMore": "展开其余 {count} 条",
-    "experienceShowLess": "收起",
     "skillsHeading": "技能",
     "selectedProjects": "精选项目",
     "metaDescription": "Jack Deng —— 全栈工程师，专注后端与数据。用 Python、C#、SQL、Databricks 和 TypeScript 构建数据平台、系统集成与内部工具。",

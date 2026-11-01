@@ -29,6 +29,7 @@ import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { AdminIcon as AdminIcon_aa0a2d19d38a4839dbd373417e210b89 } from '@/components/AdminLogo'
 import { AdminLogo as AdminLogo_aa0a2d19d38a4839dbd373417e210b89 } from '@/components/AdminLogo'
 import { AdminHeaderSettings as AdminHeaderSettings_12d6e30de89cd0566ca27430b0d89af9 } from '@/components/AdminHeaderSettings'
+import { AdminOverview as AdminOverview_c0b16747c7a6bd98d13c7ec50cca1818 } from '@/components/AdminOverview'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 
@@ -65,6 +66,7 @@ export const importMap = {
   "@/components/AdminLogo#AdminIcon": AdminIcon_aa0a2d19d38a4839dbd373417e210b89,
   "@/components/AdminLogo#AdminLogo": AdminLogo_aa0a2d19d38a4839dbd373417e210b89,
   "@/components/AdminHeaderSettings#AdminHeaderSettings": AdminHeaderSettings_12d6e30de89cd0566ca27430b0d89af9,
+  "@/components/AdminOverview#AdminOverview": AdminOverview_c0b16747c7a6bd98d13c7ec50cca1818,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e
 }

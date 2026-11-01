@@ -1,6 +1,9 @@
+import { fileURLToPath } from 'node:url'
 import { configDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  // The tsconfig `@/` path, so a test can import a component that uses it.
+  resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   test: {
     // formatDate renders in the runner's local timezone, so without pinning
     // this a fixed instant lands on a different calendar day depending on

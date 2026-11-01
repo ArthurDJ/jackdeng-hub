@@ -10,7 +10,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [1.40.1] — 2026-11-01
+## [1.40.2] — 2026-11-01
 
 ### Security — next 16.4.3、Payload 全家桶锁步 3.92.0、react 19.3.1，清掉 3 条 critical（#139）
 
@@ -61,6 +61,23 @@ vitest 5.0.3 → 5.0.5。都不是安全升级，和上面的改动抢同一份 
 deepmerge GHSA-gcqx-w48m-w2h4（low，`<=4.3.1` 全部受影响，没有修复版本，Payload 精确依赖 4.3.1）；esbuild
 GHSA-67mh-4wv8-2f99（moderate，`drizzle-kit → @esbuild-kit/*` 那份旧 esbuild 的 dev server 问题，同 #122 的说明）。
 其余条目是这三个公告沿 Payload 子包被重复计数。
+
+## [1.40.1] — 2026-11-01
+
+### Fixed — 博客卡片：每张一个可访问的链接，没有题图时不再是空链接（#138）
+
+`BlogCard` 有两个指向同一篇文章的链接：封面和标题。没有题图时，封面链接里只有一个没有名字的占位 SVG，读屏软件读出
+「链接」，没有任何名字；有题图时则是同一篇文章的两个 Tab 停留点。#130 让题图变成可选，没有题图的文章马上要上线。
+
+- 封面链接改为 `tabIndex={-1}` + `aria-hidden="true"`：鼠标点封面照样进文章，键盘和读屏只剩标题链接，名字就是文章标题。
+  占位 SVG 加 `aria-hidden`，题图在卡片里是装饰，`alt=""`。外观不变。博客列表、分类、标签、文章页「相关文章」、首页
+  「最新文章」用的都是这一个组件。
+- 「Featured」角标原来写死英文、又在封面链接里（隐藏后读屏就听不到了）：移到链接外面、`pointer-events: none`
+  让点击落到下面的链接，文案改用已有的 `blog.featured`（中文「精选」）。
+- 标题链接加 `display: block`，焦点框框住整行标题。
+- 新增 `src/components/BlogCard.test.tsx`：在 Node 里直接调用这个异步服务端组件，用 `renderToStaticMarkup` 渲染，
+  有图、无图两种情况都断言只有一个对读屏可见的链接、名字是标题，SVG 都有 `aria-hidden`。没有引入 jsdom 或
+  Testing Library；`vitest.config.ts` 只加了 `@/` 别名。旧代码上 4 条全红。
 
 ## [1.40.0] — 2026-10-31
 

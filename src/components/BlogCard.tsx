@@ -42,24 +42,32 @@ export async function BlogCard({ title, slug, excerpt, coverImage, category, tag
         overflow: 'hidden',
       }}
     >
-      {/* Cover */}
-      <Link href={`/blog/${slug}`} style={{ display: 'block', position: 'relative', aspectRatio: '16/9', overflow: 'hidden', background: 'var(--bg-elevated)' }}>
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={coverImage?.alt ?? title}
-            fill
-            className="object-cover"
-            style={{ transition: 'transform 300ms' }}
-            sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
-          />
-        ) : (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-disabled)' }}>
-            <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-        )}
+      {/* Cover. A mouse target only: the title link below is the card's one
+          link for keyboard and screen-reader users. As a second, focusable link
+          it was a redundant tab stop, and with no hero image it held nothing
+          but the placeholder SVG, so screen readers announced an empty link.
+          The image is decorative here (the title names the post), hence alt="". */}
+      <div style={{ position: 'relative', aspectRatio: '16/9', overflow: 'hidden', background: 'var(--bg-elevated)' }}>
+        <Link href={`/blog/${slug}`} tabIndex={-1} aria-hidden="true" style={{ position: 'absolute', inset: 0, display: 'block' }}>
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt=""
+              fill
+              className="object-cover"
+              style={{ transition: 'transform 300ms' }}
+              sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
+            />
+          ) : (
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-disabled)' }}>
+              <svg aria-hidden="true" width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+          )}
+        </Link>
+        {/* Outside the hidden link so screen readers still hear it; clicks pass
+            through to the link underneath. */}
         {featured && (
           <span style={{
             position: 'absolute', top: 10, left: 10,
@@ -67,11 +75,12 @@ export async function BlogCard({ title, slug, excerpt, coverImage, category, tag
             fontSize: 11, fontWeight: 510,
             background: 'rgba(0,0,0,0.65)', color: '#ffffff',
             backdropFilter: 'blur(4px)',
+            pointerEvents: 'none',
           }}>
-            Featured
+            {t('featured')}
           </span>
         )}
-      </Link>
+      </div>
 
       {/* Body */}
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '16px 18px', gap: 10 }}>
@@ -91,7 +100,7 @@ export async function BlogCard({ title, slug, excerpt, coverImage, category, tag
         </div>
 
         {/* Title */}
-        <Link href={`/blog/${slug}`} style={{ textDecoration: 'none' }}>
+        <Link href={`/blog/${slug}`} style={{ display: 'block', textDecoration: 'none' }}>
           <h2 style={{
             fontSize: 15,
             fontWeight: 510,

@@ -32,6 +32,12 @@ export const BUILTIN_TOOLS: Record<string, ComponentType<BuiltinToolProps>> = {
     import('./FallingSkills').then((m) => m.FallingSkills)),
   'dev-day': dynamic(() =>
     import('./DevDay').then((m) => m.DevDay)),
+  'epoch-converter': dynamic(() =>
+    import('./EpochConverter').then((m) => m.EpochConverter)),
+  'cron-explainer': dynamic(() =>
+    import('./CronExplainer').then((m) => m.CronExplainer)),
+  'meta-scrub': dynamic(() =>
+    import('./MetaScrub').then((m) => m.MetaScrub)),
 }
 
 export function getBuiltinTool(slug: string) {

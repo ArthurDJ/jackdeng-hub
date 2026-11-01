@@ -54,7 +54,8 @@
     "switchToEn": "EN",
     "language": "Language",
     "tools": "Playground",
-    "themeGroup": "Theme"
+    "themeGroup": "Theme",
+    "uses": "Uses"
   },
   "home": {
     "title": "Full-Stack Engineer · Backend & Data",
@@ -184,8 +185,9 @@
     "pageHomeDesc": "Back to homepage",
     "pageBlogDesc": "All posts",
     "pageProjectsDesc": "Things I have built",
-    "pageToolsDesc": "Small experiments that run in the browser",
-    "pageAboutDesc": "About me"
+    "pageToolsDesc": "Small experiments and utilities that run in the browser",
+    "pageAboutDesc": "About me",
+    "pageUsesDesc": "The software I use every day"
   },
   "notFound": {
     "title": "Page not found",
@@ -220,7 +222,7 @@
   },
   "tools": {
     "title": "Playground",
-    "subtitle": "Small experiments that run in your browser.",
+    "subtitle": "Small experiments and handy utilities that run in your browser.",
     "noTools": "Nothing here yet.",
     "backToTools": "← Back to Playground",
     "comingSoon": "Tool page coming soon.",
@@ -239,7 +241,8 @@
         "batchThree": "Four at once: dbt build replayed on a CRT, rings of text the pointer scatters, a blueprint wordmark you can drag, and skills you can pick up and throw.",
         "renamed": "Tools became the Playground, subtitled \"Small experiments that run in your browser.\" The automation engine was switched off at the same time and removed later.",
         "gameOfLife": "Falling Sand gained a second mode, Conway's Game of Life. It shares the sandbox's canvas and steps one generation at a time while paused.",
-        "fallingSand": "The first piece: a grain-by-grain sandbox for pouring sand, water and stone."
+        "fallingSand": "The first piece: a grain-by-grain sandbox for pouring sand, water and stone.",
+        "utilities": "The first utilities: a Unix timestamp converter, a cron expression explainer, and a scrubber that strips camera, GPS and AI-prompt metadata from images without re-encoding them."
       }
     },
     "status": {
@@ -424,6 +427,79 @@
       "summary": "{done} done · {missed} missed · {coffees, plural, one {# coffee} other {# coffees}}",
       "again": "Another day",
       "replay": "Replay day {n}"
+    },
+    "epoch": {
+      "nowLabel": "Current Unix time (seconds)",
+      "copy": "Copy",
+      "copied": "Copied",
+      "inputLabel": "Timestamp or date",
+      "placeholder": "1761902400, 1761902400000 or 2025-10-31T09:20:00Z",
+      "unitLabel": "Unit",
+      "auto": "Auto",
+      "units": {
+        "s": "Seconds",
+        "ms": "Milliseconds",
+        "us": "Microseconds",
+        "ns": "Nanoseconds"
+      },
+      "showingNow": "Showing the current time. Paste a timestamp or a date to convert it.",
+      "invalid": "That is not a timestamp or a date this can read.",
+      "readAs": "Read as {unit}",
+      "readAsDate": "Read as a date",
+      "local": "Local ({zone})"
+    },
+    "cron": {
+      "inputLabel": "Cron expression (minute hour day month weekday)",
+      "valid": "Valid five-field expression.",
+      "fields": {
+        "minute": "Minute",
+        "hour": "Hour",
+        "dom": "Day of month",
+        "month": "Month",
+        "dow": "Day of week"
+      },
+      "every": "every",
+      "nextRuns": "Next 10 runs",
+      "zoneLabel": "Time zone",
+      "localZone": "Local",
+      "never": "This expression never matches a real date (February 31, for example).",
+      "note": "GitHub Actions, Vercel and Kubernetes read cron in UTC. Databricks job schedules use Quartz syntax (a seconds field, ?), which this does not cover.",
+      "errors": {
+        "fieldCount": "Needs five fields: minute, hour, day of month, month, day of week.",
+        "quartz": "That looks like Quartz syntax (a seconds field, or ?, L, W, #), which Databricks and Spring use. This reads standard five-field cron.",
+        "badValue": "{field}: can’t read “{token}”.",
+        "outOfRange": "{field}: “{token}” is out of range.",
+        "badStep": "{field}: the step in “{token}” must be a whole number from 1 up."
+      }
+    },
+    "scrub": {
+      "pick": "Choose or drop a JPEG or PNG",
+      "privacy": "Processed in your browser. Nothing is uploaded.",
+      "clean": "Nothing to remove: this file carries no metadata besides the picture.",
+      "download": "Download clean copy",
+      "sizes": "{before} → {after}",
+      "kept": "The image data is copied byte for byte, so there is no quality loss. Kept on purpose: the colour profile and the rotation, so the picture looks the same.",
+      "kinds": {
+        "exif": "EXIF",
+        "xmp": "XMP (editing history and tags)",
+        "iptc": "IPTC (caption, copyright, keywords)",
+        "comment": "Comment",
+        "text": "Text chunk: {key}",
+        "time": "Last-modified time",
+        "other": "{name} block",
+        "trailer": "Data after the end of the image"
+      },
+      "exif": {
+        "camera": "Camera: {camera}",
+        "taken": "Taken: {time}",
+        "software": "Software: {software}",
+        "gps": "GPS position: {lat}, {lon}",
+        "orientation": "Rotation (kept)"
+      },
+      "errors": {
+        "unsupported": "Only JPEG and PNG are supported.",
+        "corrupt": "This file looks damaged; nothing was changed."
+      }
     }
   },
   "error": {
@@ -436,5 +512,47 @@
     "title": "Jack Deng's Blog",
     "description": "Tech & Thoughts",
     "language": "en"
+  },
+  "uses": {
+    "title": "What I use",
+    "subtitle": "The software I actually reach for: at work, on this site, and on the PC it all runs on. At the top, a few small tools I built myself.",
+    "builtHeading": "Built by me",
+    "footnote": "No affiliate links. I use everything on this list right now.",
+    "groups": {
+      "code": "Writing code",
+      "data": "Data",
+      "site": "This site",
+      "ai": "AI",
+      "browser": "Browser extensions",
+      "windows": "Windows utilities"
+    },
+    "items": {
+      "vscode": "Main editor. Python, TypeScript and SQL all get written here.",
+      "claudeCode": "An AI coding agent in the terminal and in VS Code. A lot of this site was built with it.",
+      "pycharm": "For bigger Python projects that need a real debugger and refactoring. Installed and updated through JetBrains Toolbox.",
+      "ghCli": "PRs, issues and CI runs without leaving the terminal.",
+      "anaconda": "Python environments for data work, so each project’s dependencies stay apart.",
+      "node": "Runs this site’s build, scripts and tests.",
+      "databricks": "The lakehouse at work: Spark, SQL warehouses and job scheduling in one place.",
+      "dbt": "Models the warehouse in layers (bronze, silver, gold) as SQL, with tests and docs.",
+      "powerBi": "Dashboards for the business side, built on the dbt marts.",
+      "nextjs": "The framework this site runs on (App Router).",
+      "payload": "The CMS for the posts, projects and tools here. It runs inside the same Next.js app.",
+      "supabase": "Hosted Postgres behind the CMS.",
+      "vercel": "Hosting and deploys. Every merge to main goes live on its own.",
+      "tailwind": "Utility CSS, alongside the site’s own design tokens.",
+      "claude": "Everyday help with writing, research and thinking things through.",
+      "comfyui": "Node-based image generation, running locally on my GPU. Its PNGs carry the whole workflow inside them; the Metadata Scrubber shows it.",
+      "grammarly": "Catches grammar slips in English emails and documents.",
+      "videoSpeed": "Keyboard shortcuts for the speed of any web video. Open source.",
+      "keepa": "Price history on every Amazon listing, so you can tell whether a deal is real.",
+      "remoteDesktop": "Reach my home PC from anywhere, for free.",
+      "ttime": "Screenshot, OCR and translate with one hotkey. Open source.",
+      "potplayer": "Plays any video format, and starts fast.",
+      "huorong": "A light antivirus without pop-up ads.",
+      "hwinfo": "Every temperature, clock speed and fan speed in the machine.",
+      "cpuz": "A quick look at CPU, memory and motherboard specs.",
+      "wallpaperEngine": "Animated wallpapers that pause themselves while a game is full-screen."
+    }
   }
 }

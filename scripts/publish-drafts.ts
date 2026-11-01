@@ -174,11 +174,9 @@ const POSTS = [
     mdZh: '06-flight-skill-zh.md',
     titleZh: '最便宜的那张机票，不一定是该订的那张',
     excerptZh: '机票搜索擅长回答“哪张最便宜”。我写了一个 Claude skill，回答另一个问题：到底该订哪一张？',
-    // Cover not chosen yet. --apply refuses this post until heroAlt and
-    // heroCredit are filled in (see the check below); a dry run still works.
-    hero: 'hero-flight-skill.jpg',
-    heroAlt: 'TODO',
-    heroCredit: 'TODO',
+    // No cover chosen yet, so no hero fields: the post goes in without one and
+    // the cover is attached from /admin, or added here and picked up on a later
+    // run (uploadHero offers it to a post that still has none).
     slug: 'when-the-cheapest-flight-is-wrong',
     title: 'When the cheapest flight is the wrong answer',
     excerpt:
@@ -202,18 +200,6 @@ for (const post of SELECTED) {
     if (value.length > LIMIT) {
       console.error(`  ⛔ ${post.slug}: ${field} is ${value.length} characters, limit is ${LIMIT}`)
       process.exit(1)
-    }
-  }
-  // A post can be drafted before its cover is chosen. Writing it then would
-  // upload the image with "TODO" as its alt text and caption, so a placeholder
-  // stops --apply here, before anything is written. The dry run still prints
-  // the plan, which is how a draft gets checked in the meantime.
-  if (apply) {
-    for (const [field, value] of [['heroAlt', post.heroAlt], ['heroCredit', post.heroCredit]] as const) {
-      if (!value.trim() || /^TODO\b/i.test(value.trim())) {
-        console.error(`  ⛔ ${post.slug}: ${field} is a placeholder ("${value}"). Choose the cover and fill it in before --apply.`)
-        process.exit(1)
-      }
     }
   }
 }
@@ -249,11 +235,18 @@ async function writeZh(payload: any, id: number | string, post: any) {
 }
 
 /**
- * Uploads the hero and returns its id, or null when there is no token to upload
- * with. Shared by both paths so a post that missed its cover on one run can
- * still get it on the next.
+ * Uploads the hero and returns its id, or null when there is nothing to attach:
+ * no cover chosen for the post yet, no token to upload with, or the file is not
+ * in DRAFTS_DIR. Each of those leaves the post without a cover, to attach from
+ * /admin, rather than stopping the run — a batch would otherwise stop halfway,
+ * after rewriting the posts before it. Shared by both paths so a post that
+ * missed its cover on one run can still get it on the next.
  */
 async function uploadHero(payload: any, post: any) {
+  if (!post.hero) {
+    console.log('       no cover chosen yet — attach one from /admin')
+    return null
+  }
   if (!blobConfigured()) {
     console.log(`       cover to attach by hand: ${post.hero}`)
     return null
@@ -261,12 +254,17 @@ async function uploadHero(payload: any, post: any) {
   const found = await payload.find({
     collection: 'media', where: { filename: { equals: post.hero } }, limit: 1, depth: 0,
   })
+  const filePath = path.join(DRAFTS, post.hero)
+  if (!found.docs.length && !fs.existsSync(filePath)) {
+    console.warn(`  ! ${post.hero} is not in DRAFTS_DIR — post written without a cover; attach it from /admin`)
+    return null
+  }
   const media = found.docs.length
     ? found.docs[0]
     : await payload.create({
         collection: 'media',
         data: { alt: post.heroAlt, caption: post.heroCredit } as any,
-        filePath: path.join(DRAFTS, post.hero),
+        filePath,
       })
   console.log(`media  ${media.id}  ${post.hero}${found.docs.length ? ' (reused)' : ''}`)
   return media.id
@@ -285,8 +283,12 @@ async function plan(payload: any) {
       for (const n of doc.root.children) counts[n.type] = (counts[n.type] ?? 0) + 1
       console.log(`  ${file}: ${Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(', ')}`)
     }
-    const hero = path.join(DRAFTS!, post.hero)
-    console.log(`  cover: ${post.hero} ${fs.existsSync(hero) ? `(${Math.round(fs.statSync(hero).size / 1024)} KB)` : 'MISSING'}${blobConfigured() ? '' : ' — would not upload, no BLOB_READ_WRITE_TOKEN'}`)
+    if (post.hero) {
+      const hero = path.join(DRAFTS!, post.hero)
+      console.log(`  cover: ${post.hero} ${fs.existsSync(hero) ? `(${Math.round(fs.statSync(hero).size / 1024)} KB)` : 'MISSING — skipped unless uploaded on an earlier run'}${blobConfigured() ? '' : ' — would not upload, no BLOB_READ_WRITE_TOKEN'}`)
+    } else {
+      console.log('  cover: none chosen yet — attach from /admin')
+    }
     const cat = await exists('categories', post.category)
     const catNew = NEW_CATEGORIES.find((c) => c.slug === post.category)
     console.log(`  category: ${post.category} ${cat ? '(exists)' : catNew ? `(would create: ${catNew.name.en} / ${catNew.name.zh})` : '(MISSING, would fail)'}`)

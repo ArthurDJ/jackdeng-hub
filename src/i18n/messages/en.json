@@ -69,13 +69,11 @@
     "introLong2": "Since January 2024 I've been at Value Windows & Doors. There I helped design a data platform on Databricks + dbt, layered Bronze→Silver→Gold→Mart, and built part of it. It turns raw ERP data into models that the manufacturing, inventory, sales and workforce reports read directly. I also write data-migration and integration pipelines in C# and Python, and build Power BI dashboards and React internal portals.",
     "introLong3": "Before that I interned at APEXUS-TECH, writing Python + MySQL services that ingested financial-market data, and ETL pipelines. During my M.S. in Analytics at Northeastern University I was a tutor for the data warehousing and SQL course (ALY6030).",
     "introLong4": "This site is my public workspace: engineering notes, integration patterns, and small experiments in the Playground.",
-    "ctaResume": "Résumé (PDF)",
+    "ctaResume": "Resume (PDF)",
     "ctaEmail": "Email me",
     "experienceHeading": "Experience",
     "educationHeading": "Education",
     "experienceMore": "Full background →",
-    "experienceShowMore": "Show {count} more",
-    "experienceShowLess": "Show less",
     "skillsHeading": "Skills",
     "selectedProjects": "Selected Projects",
     "metaDescription": "Jack Deng — full-stack engineer focused on backend and data. Data platforms, integrations and internal tools with Python, C#, SQL, Databricks and TypeScript.",
@@ -164,7 +162,7 @@
       "linkedin": "LinkedIn",
       "leetcode": "LeetCode",
       "email": "Email",
-      "resume": "Résumé"
+      "resume": "Resume"
     }
   },
   "search": {

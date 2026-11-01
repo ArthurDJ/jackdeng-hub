@@ -253,10 +253,10 @@ export default async function HomePage({ params }: Props) {
             </Link>
           </div>
           <ol className="ds-dim-group" style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {TIMELINE.map(({ year, role, place, bullets, tech }) => (
+            {TIMELINE.map(({ year, role, place, summary, bullets, tech }) => (
               <li
                 key={year.en}
-                className="ds-reveal ds-dim-item grid gap-2 sm:gap-5 sm:grid-cols-[132px_1fr] print:break-inside-avoid"
+                className="ds-reveal ds-dim-item print:break-inside-avoid"
                 style={{
                   background: 'var(--bg-panel)',
                   border: '1px solid var(--border-default)',
@@ -264,44 +264,40 @@ export default async function HomePage({ params }: Props) {
                   padding: '18px 20px',
                 }}
               >
-                <p style={{ fontSize: 12, fontFamily: 'var(--font-geist-mono), monospace', color: 'var(--text-tertiary)', paddingTop: 2 }}>
-                  {year[lang]}
+                {/* Role and dates on one line, the company on its own below.
+                    On screen, one line of what the job was (every bullet is on
+                    About); in print, the full bullets, as the résumé needs. */}
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                  <p style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)' }}>
+                    {role[lang]}
+                  </p>
+                  <p style={{ fontSize: 12, fontFamily: 'var(--font-geist-mono), monospace', color: 'var(--text-tertiary)' }}>
+                    {year[lang]}
+                  </p>
+                </div>
+                <p style={{ fontSize: 13, color: 'var(--text-tertiary)', marginTop: 2, marginBottom: 10 }}>
+                  {place}
                 </p>
-                <div className="min-w-0">
-                  <p style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)', marginBottom: 6 }}>
-                    {role[lang]} <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>@ {place}</span>
-                  </p>
-                  {/* The lead achievement, with the rest behind a disclosure.
-                      Print keeps the one-line version. */}
-                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 10 }}>
-                    {bullets[lang][0]}
-                  </p>
-                  {bullets[lang].length > 1 && (
-                    <details className="ds-more print:hidden!" style={{ marginBottom: 12 }}>
-                      <summary>
-                        <span className="ds-more-closed">{t('experienceShowMore', { count: bullets[lang].length - 1 })}</span>
-                        <span className="ds-more-open">{t('experienceShowLess')}</span>
-                      </summary>
-                      <ul style={{ margin: '8px 0 0', paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        {bullets[lang].slice(1).map((b) => (
-                          <li key={b} style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, listStyle: 'disc' }}>
-                            {b}
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
-                  )}
-                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                    {tech.slice(0, 6).map((tch) => (
-                      <span key={tch} style={{
-                        fontSize: 11, padding: '2px 8px', borderRadius: 9999,
-                        background: 'var(--bg-elevated)', color: 'var(--text-secondary)',
-                        border: '1px solid var(--border-default)',
-                      }}>
-                        {tch}
-                      </span>
-                    ))}
-                  </div>
+                <p className="print:hidden!" style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 12 }}>
+                  {summary[lang]}
+                </p>
+                <ul className="hidden print:block" style={{ listStyle: 'disc', margin: '0 0 12px', paddingLeft: 18 }}>
+                  {bullets[lang].map((b, j) => (
+                    <li key={j} style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  {tech.slice(0, 6).map((tch) => (
+                    <span key={tch} style={{
+                      fontSize: 11, padding: '2px 8px', borderRadius: 9999,
+                      background: 'var(--bg-elevated)', color: 'var(--text-secondary)',
+                      border: '1px solid var(--border-default)',
+                    }}>
+                      {tch}
+                    </span>
+                  ))}
                 </div>
               </li>
             ))}

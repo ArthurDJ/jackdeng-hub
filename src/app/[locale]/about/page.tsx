@@ -224,12 +224,16 @@ export default async function AboutPage({ params }: Props) {
                   )}
                 </div>
                 <div style={{ paddingBottom: i < TIMELINE.length - 1 ? 0 : 0 }}>
-                  <p style={{ fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 4, fontFamily: 'var(--font-geist-mono, monospace)' }}>
-                    {year[lang]}
-                  </p>
-                  <p style={{ fontSize: 14, fontWeight: 510, color: 'var(--text-primary)', marginBottom: 4 }}>
-                    {role[lang]}{' '}
-                    <span style={{ fontWeight: 400, color: 'var(--text-tertiary)' }}>@ {place}</span>
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                    <p style={{ fontSize: 14, fontWeight: 510, color: 'var(--text-primary)' }}>
+                      {role[lang]}
+                    </p>
+                    <p style={{ fontSize: 12, fontFamily: 'var(--font-geist-mono), monospace', color: 'var(--text-tertiary)' }}>
+                      {year[lang]}
+                    </p>
+                  </div>
+                  <p style={{ fontSize: 13, color: 'var(--text-tertiary)', marginTop: 2, marginBottom: 8 }}>
+                    {place}
                   </p>
                   <ul style={{ listStyle: 'none', margin: '0 0 12px', padding: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
                     {bullets[lang].map((b, j) => (

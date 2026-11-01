@@ -47,13 +47,20 @@ export const SKILLS = [
   { group: { en: 'Tooling', zh: '工具链' }, items: ['Docker', 'Git', 'GitHub Actions', 'Vercel', 'AWS S3'] },
 ]
 
-// `location` is printed on the résumé only.
+// `location` is printed on the résumé only. `summary` is the one line the home
+// page shows per role; About, the résumé and the printed home page show every
+// bullet. A summary only compresses its bullets — no new claims, and the same
+// numbers in the same words — so change it whenever a bullet changes.
 export const TIMELINE = [
   {
     year: { en: '01/2024 – present', zh: '01/2024 – 至今' },
     role: { en: 'Software Engineer (Backend & Data)', zh: '软件工程师 (后端与数据)' },
     place: 'Value Windows & Doors',
     location: 'Duarte, CA',
+    summary: {
+      en: 'Helped design and partly built a Databricks + dbt platform for ERP reporting, with the pipelines and dashboards around it.',
+      zh: '参与设计并搭建了部分 Databricks + dbt 数据平台，支撑 ERP 报表，以及配套的数据管道和看板。',
+    },
     bullets: {
       en: [
         'Helped design and partly built a cloud data platform on Databricks + dbt with a medallion (Bronze→Silver→Gold→Mart) architecture, turning raw ERP data into analytics-ready models for manufacturing, inventory, sales, and workforce reporting.',
@@ -73,6 +80,10 @@ export const TIMELINE = [
     role: { en: 'Software Engineer Intern', zh: '软件开发实习生' },
     place: 'APEXUS-TECH',
     location: 'New Brunswick, NJ',
+    summary: {
+      en: 'Built Python + MySQL market-data services, ETL pipelines (40% more efficient batch processing) and a strategy-analysis visualization tool.',
+      zh: '用 Python + MySQL 搭建行情数据服务和 ETL 管道（批处理效率提升 40%），并做了策略分析可视化工具。',
+    },
     bullets: {
       en: [
         'Built a data-visualization tool that streamlined quantitative strategy analysis for the operations desk, improving decision-making speed.',
@@ -92,6 +103,10 @@ export const TIMELINE = [
     role: { en: 'Data Warehousing & SQL Tutor', zh: '数据仓库与 SQL 助教' },
     place: 'Northeastern University',
     location: 'Boston, MA',
+    summary: {
+      en: 'Tutored the graduate data warehousing and SQL course: query tuning, indexing and execution plans.',
+      zh: '研究生数据仓库与 SQL 课程助教：辅导查询调优、索引与执行计划。',
+    },
     bullets: {
       en: [
         'Tutored the graduate data warehousing and SQL course (ALY6030), coaching students on SQL performance tuning, indexing strategies, and execution-plan analysis.',

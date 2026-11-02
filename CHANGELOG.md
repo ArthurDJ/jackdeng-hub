@@ -10,6 +10,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.45.5] — 2026-11-02
+
+### Removed — 失效的 Cloudflare 快速隧道开发来源（#133）
+
+`next.config.mjs` 的 `allowedDevOrigins` 里只有一个 `*.trycloudflare.com` 快速隧道域名。本地隧道在 0.6.1 改用 Vercel 时就拆了，
+这种域名是临时的，早已不指向这里，留着只是让 `next dev` 多信任一个来源。整个键删掉，回到 Next 的默认值：只信任 localhost。
+`AI_DEPLOY.md` 排错一节里「把隧道域名加进 `allowedDevOrigins`」那条改成临时加、用完删。只影响 `next dev`，生产不受影响。
+
+---
+
 ## [1.45.4] — 2026-11-02
 
 ### Fixed — 搜索结果里的标题和描述不再被截在半个词上（#153）

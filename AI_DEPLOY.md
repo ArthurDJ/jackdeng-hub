@@ -134,7 +134,7 @@ Set `embedType` to `iframe` or `script`, and set `embedUrl`.
 Tools that ran elsewhere and reported in through `POST /api/tools/[slug]/callback` are gone. None had run since the visa checker was deleted (#33), `tool_runs` was empty, and there was no way to start one from the site. #83 removed the callback route and `CRON_SECRET`; #86 removed the `ToolRuns` collection, the automation fields and `toolType` (every tool is interactive now), and its migration drops their tables, columns and enums.
 
 ## 🚨 Troubleshooting Guidelines
-- **500 Errors on `/admin` during Local Dev (Cloudflare Tunnel):** Check `next.config.mjs`. Payload strictly enforces CORS and origin checks. Ensure `allowedDevOrigins` includes the active Cloudflare Tunnel hostname.
+- **`/admin` fails in `next dev` when opened through a tunnel or another hostname:** `next dev` only trusts localhost. Add the hostname to `allowedDevOrigins` in `next.config.mjs` for that session and take it out again; there is no tunnel in this setup any more (#133).
 - **Database Connection Failures:** Ensure `DATABASE_URI` uses IPv4 pooling (`aws-1...pooler.supabase.com:6543`) with `?pgbouncer=true`. Native IPv6 (`db.xxx.supabase.co:5432`) will silently fail on local machines without IPv6 ISP support.
 - **Admin collection detail pages all blank (白屏)**：根因是 `payload_locked_documents_rels` 缺少某个 collection 对应的 `_id` 列。手动创建新 collection 表时必须同步向该表添加 FK 列（参考 `20260411_000001_add_tool_runs_rels.ts` 的写法）。症状：Vercel 日志中 INFO 级别出现 `column xxx_id does not exist`，页面返回 200 但内容空白。
 

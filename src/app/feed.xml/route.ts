@@ -61,9 +61,9 @@ export async function GET(request: Request) {
   const items = docs
     .map((post) => {
       const url = `${BASE}/${locale}/blog/${post.slug}`
-      const pubDate = post.publishedAt
-        ? new Date(post.publishedAt).toUTCString()
-        : new Date().toUTCString()
+      // No date, no pubDate (it is optional in RSS). Falling back to now gave
+      // the post a new date on every fetch, and readers could list it again.
+      const pubDate = post.publishedAt ? new Date(post.publishedAt).toUTCString() : null
       const titleStr = escape(String(post.title ?? ''))
       const excerptStr = escape(String(post.excerpt ?? ''))
 
@@ -72,7 +72,7 @@ export async function GET(request: Request) {
       <title>${titleStr}</title>
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
-      <pubDate>${pubDate}</pubDate>
+      ${pubDate ? `<pubDate>${pubDate}</pubDate>` : ''}
       ${excerptStr ? `<description>${excerptStr}</description>` : ''}
     </item>`
     })

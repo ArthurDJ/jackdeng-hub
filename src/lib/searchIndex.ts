@@ -3,6 +3,7 @@ import { unstable_cache } from 'next/cache'
 import { CACHE_TAGS } from './revalidate'
 import { getPayload } from './payload'
 import { lexicalToText, type SearchDoc } from './search'
+import { listedTools } from './listedTools'
 
 type Locale = 'en' | 'zh'
 
@@ -38,12 +39,7 @@ export const getSearchIndex = unstable_cache(
       payload.find({ collection: 'tags', depth: 0, pagination: false, locale }),
       payload.find({
         collection: 'tools',
-        where: {
-          and: [
-            { status: { equals: 'online' } },
-            { accessControl: { equals: 'public' } },
-          ],
-        },
+        where: listedTools(),
         depth: 0,
         pagination: false,
         locale,

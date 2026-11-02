@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { revalidateAfterChange, revalidateAfterDelete } from '../lib/revalidate'
+import { listedTools } from '../lib/listedTools'
 
 export const Tools: CollectionConfig = {
   slug: 'tools',
@@ -16,12 +17,7 @@ export const Tools: CollectionConfig = {
   access: {
     read: ({ req }) => {
       if (req.user) return true
-      return {
-        and: [
-          { status: { equals: 'online' } },
-          { accessControl: { equals: 'public' } },
-        ],
-      }
+      return listedTools()
     },
   },
   hooks: {

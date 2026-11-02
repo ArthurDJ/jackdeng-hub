@@ -27,8 +27,9 @@
   `tsx` 脚本、`npm run migrate`）打的都是生产。
 - Payload 的 schema 推送默认关闭：`src/payload.config.ts` 的 `push` 只在
   `PAYLOAD_SCHEMA_PUSH=1` 且库在 localhost 时打开，供 CI 的 schema-drift 检查用（#46、#54）。
-- `scripts/` 下写库的脚本由 `requireApply()`（`scripts/lib/env.ts`）守着：库在 Supabase 上
-  时不带 `--apply` 就退出。新脚本照这个写法。
+- `scripts/` 下写库的脚本由 `requireApply()`（`scripts/lib/env.ts`）守着：库不在本机
+  （localhost / 127.0.0.1，判断同 schema 推送）时不带 `--apply` 就退出，`DATABASE_URI` 缺失或解析不了也算生产（#159）。
+  新脚本照这个写法。
 - 写生产库之前先问：跑迁移、改数据、带 `--apply` 都算。只读查询可以直接做。
 
 ## 迁移
@@ -38,6 +39,8 @@
 - 迁移手写，不用 `payload migrate:create`：它的 schema 快照停在 2026-04-10，会拿旧快照算差异。
 - Supabase 的 `anon` / `authenticated` 角色对 `public` 没有任何权限，表上都开了 RLS（#82）：它们是 Data API 用的，
   这个站不用 Data API。新迁移不要 GRANT 给这两个角色；新表不用手动收回权限，默认权限已经不再授出。
+  建新表的迁移里要 `ALTER TABLE … ENABLE ROW LEVEL SECURITY`：CI 用 `scripts/check-rls.ts` 查迁移建出的库，
+  有表没开 RLS 或这两个角色有权限就失败（#161）。这个脚本只读，也可以对生产跑一遍核对。
 - 删列分两步：先加新结构、保留旧列上线，确认后再用单独一条迁移 DROP（#27/#29、#31/#32），
   这样两种部署顺序都不会出现破损窗口。
 

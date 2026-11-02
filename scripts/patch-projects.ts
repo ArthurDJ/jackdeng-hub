@@ -4,6 +4,7 @@
  *
  *   DRAFTS_DIR=… npx tsx scripts/patch-projects.ts            # read-only: print the plan
  *   DRAFTS_DIR=… npx tsx scripts/patch-projects.ts --apply    # write it
+ *   … --only <slug>                                            # just that project
  *
  * Each patch finds its record by `slug`, or by the new slug when it renames
  * one that was already renamed. Fields already at their target value are
@@ -11,7 +12,8 @@
  * sentence and fails if that sentence is not found exactly once. A patch
  * with `fromDraft` rewrites both descriptions from
  * $DRAFTS_DIR/projects/<slug>.<locale>.md (scripts/lib/drafts.ts); DRAFTS_DIR
- * is only needed for those.
+ * is only needed for those. A patch whose draft is no longer on this machine
+ * can be skipped with --only, which takes the old or the new slug.
  *
  * After writing it asks the live site to expire its caches
  * (scripts/lib/refreshSite.ts, which needs REVALIDATE_SECRET); script writes
@@ -27,6 +29,8 @@ import { isDeepStrictEqual } from 'util'
 loadEnv()
 
 const apply = process.argv.includes('--apply')
+const onlyAt = process.argv.indexOf('--only')
+const only = onlyAt > -1 ? process.argv[onlyAt + 1] : undefined
 if (apply) requireApply({ script: 'scripts/patch-projects.ts', writes: ['projects'] })
 
 type Locale = 'en' | 'zh'
@@ -77,6 +81,9 @@ const PATCHES: Patch[] = [
     slug: 'vwd-datahub',
     set: { slug: 'data-hub', isPinned: true },
     locales: { en: { name: 'DataHub', madeAt: 'VWD' }, zh: { name: 'DataHub 数据中台', madeAt: 'VWD' } },
+    // 2026-11: the supplier file exchange and sign-in hardening added; the
+    // loopback-only line went, since the app is reachable from the internet.
+    fromDraft: true,
   },
   {
     slug: 'viterra-customer-portal',
@@ -91,6 +98,8 @@ const PATCHES: Patch[] = [
         shortDescription: '给客户用的 B2B 门户，后面接 NetSuite。2026 年 9 月部署到公司服务器，目前内部在用，还没开放给客户。',
       },
     },
+    // 2026-11: what customers can do, ship-label releases, accounts and test counts.
+    fromDraft: true,
   },
 ]
 
@@ -131,8 +140,14 @@ async function run() {
   const find = async (slug: string, locale: Locale) =>
     (await payload.find({ collection: 'projects', where: { slug: { equals: slug } }, limit: 1, depth: 0, locale })).docs[0]
 
+  const selected = only ? PATCHES.filter((p) => p.slug === only || p.set?.slug === only) : PATCHES
+  if (only && !selected.length) {
+    console.error(`--only ${only}: no patch for that slug`)
+    process.exit(1)
+  }
+
   let changes = 0
-  for (const p of PATCHES) {
+  for (const p of selected) {
     // A patch that renames the slug may already have run: carry on with the
     // rest of it under the new slug.
     let slug = p.slug

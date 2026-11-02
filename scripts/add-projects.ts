@@ -39,6 +39,7 @@ const PROJECTS: {
   year: string
   status: 'active' | 'completed' | 'on-hold'
   techStack: string[]
+  isPinned?: boolean
 }[] = [
   {
     slug: 'data-hub',
@@ -55,6 +56,16 @@ const PROJECTS: {
     year: '2026–',
     status: 'active',
     techStack: ['.NET 10', 'ASP.NET Core', 'EF Core', 'SQL Server', 'React 19', 'NetSuite', 'GitHub Actions'],
+  },
+  // Like the two above: no company name in the name, slug or text.
+  {
+    slug: 'order-tracking-portal',
+    name: { en: 'Order Tracking Portal', zh: '订单查询门户' },
+    madeAt: { en: 'VWD', zh: 'VWD' },
+    year: '2026–',
+    status: 'active',
+    techStack: ['.NET 10', 'ASP.NET Core', 'Dapper', 'EF Core', 'SQL Server', 'Vue 3', 'Reka UI', 'Playwright'],
+    isPinned: true,
   },
 ]
 
@@ -73,7 +84,7 @@ async function run() {
     missing++
     const en = readDraft(p.slug, 'en')
     const zh = readDraft(p.slug, 'zh')
-    console.log(`${p.slug}: create (${p.status}, ${p.year}, not pinned)`)
+    console.log(`${p.slug}: create (${p.status}, ${p.year}, ${p.isPinned ? 'pinned' : 'not pinned'})`)
     console.log(`  stack: ${p.techStack.join(', ')}`)
     for (const [locale, d] of [['en', en], ['zh', zh]] as const) {
       const sections = d.body.split('\n').filter((l) => l.startsWith('## ')).map((l) => l.slice(3))
@@ -93,7 +104,7 @@ async function run() {
         madeAt: p.madeAt.en,
         year: p.year,
         status: p.status,
-        isPinned: false,
+        isPinned: p.isPinned ?? false,
         techStack: p.techStack.map((tech) => ({ tech })),
       },
     })

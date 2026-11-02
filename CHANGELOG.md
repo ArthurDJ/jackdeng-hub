@@ -10,6 +10,38 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.45.0] — 2026-11-02
+
+### Added — 简历和项目页补上 10 月的工作，新增「订单查询门户」（#149）
+
+简历和项目页还停在 9 月底。这一版按四个仓库（数据中台、B2B 客户门户、新的订单查询门户及从它拆出的共用组件库）
+的 git 记录、CHANGELOG 和文档补写，只写仓库里查得到的事实和数字。主机、端口、内部编号、客户和供应商名、人名、
+已知的薄弱点一律不写；两个工作项目的名字、slug 和正文里仍不出现公司名，「做于」照旧写 VWD。
+
+- **简历**（`scripts/lib/resume.ts` 的 `RESUME_PROJECTS`）：从 3 个项目变成 4 个。DataHub 加上和玻璃供应商交换文件、
+  131 个带 tag 的版本；B2B 门户加上下单功能和测试数（1,411 个 .NET、393 个前端，取自该仓库 CHANGELOG 的 v0.38）；
+  新增订单查询门户；jackdeng.cc 压成一行。`npm run resume` 重新生成，仍是一页。经历部分（`TIMELINE`）不动，那是 #148 的范围。
+- **新项目 `order-tracking-portal`**：`scripts/add-projects.ts` 加一条，置顶。条目可以带 `isPinned`，不写时和原来一样不置顶。
+- **三个项目的长描述按新草稿重写**（`patch-projects.ts` 的 `fromDraft`）：
+  - DataHub 加「和玻璃供应商交换文件」一节，以及开放到公网后的登录加固；原来「只监听回环地址」那句已经不成立，删掉。
+  - B2B 门户加「有什么」「账号」两节，以及 `ship` 标签发版和测试数。
+  - jackdeng-hub 加上服务端代码高亮的对比度数字、Playground 小工具不发请求，CI 那句补上 ESLint。
+  - 短描述都没变。
+- **`patch-projects.ts --only <slug>`**：只处理一个项目，旧 slug 或新 slug 都认。数据平台那条补丁的草稿已经不在这台机器上，
+  不带 `--only` 会在第一条就报 ENOENT；那条补丁早已写进生产，不需要重跑。
+- 新写和改动的段落都过了一遍 humanizer（中文 humanizer-chinese，英文 humanizer）。
+
+### 合并后
+
+写库要先确认，三条命令都已经演练过（不带 `--apply`）：
+
+```
+DRAFTS_DIR=~/Projects/blog-drafts npx tsx scripts/add-projects.ts --apply
+DRAFTS_DIR=~/Projects/blog-drafts npx tsx scripts/patch-projects.ts --only data-hub --apply      # 再对 b2b-customer-portal、jackdeng-hub 各跑一次
+```
+
+---
+
 ## [1.44.4] — 2026-11-01
 
 ### Changed — 经历条目去 AI 味，简历 PDF 重新生成（#148）

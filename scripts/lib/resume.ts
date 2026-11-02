@@ -19,20 +19,29 @@ import {
 export const RESUME_PROJECTS = [
   {
     name: 'DataHub',
-    tech: 'C#, .NET, ASP.NET Core',
+    tech: 'C#, .NET, ASP.NET Core, Vue 3',
     year: '2026',
     bullets: [
-      'An internal data hub rewritten in C#/.NET: an older system split across three services became one ASP.NET Core application, in production since June 2026.',
-      'Before cutover, a reconciliation tool diffed every endpoint between the old and new systems; releases ship only from version tags, and a failed post-deploy smoke test rolls back automatically.',
+      'An internal data hub rewritten in C#/.NET: three older services became one ASP.NET Core application, cut over in June 2026 after a reconciliation tool diffed every endpoint against the old system.',
+      'Runs the order-file exchange with a glass supplier: outgoing files pass fail-closed checks, received files are archived append-only; 131 tagged releases from late September to early November.',
     ],
   },
   {
     name: 'B2B Customer Portal',
-    tech: 'NetSuite, reverse proxy, CI',
+    tech: 'C#, .NET, React, NetSuite',
     year: '2026',
     bullets: [
-      'A customer portal backed by NetSuite, deployed to a company server in September 2026 and in internal use.',
-      'Every ERP write is a dry run first and is keyed by the portal’s own order number, so a retried order is never sent twice.',
+      'An ordering portal backed by NetSuite, in internal use since September 2026: live stock, quotes, shipping rules.',
+      'Every ERP write is a dry run first, keyed by the portal’s own order number; 1,411 .NET tests and 393 client tests.',
+    ],
+  },
+  {
+    name: 'Order Tracking Portal',
+    tech: 'C#, .NET, Vue 3, Playwright',
+    year: '2026',
+    bullets: [
+      'A read-only portal where B2B customers check orders, production status per unit and invoices; online since October 2026.',
+      'CI fails if a customer-facing bundle or endpoint names an internal system; its UI became a versioned kit other apps share.',
     ],
   },
   {
@@ -40,8 +49,7 @@ export const RESUME_PROJECTS = [
     tech: 'Next.js, Payload CMS, PostgreSQL, Vercel',
     year: '2026',
     bullets: [
-      'This personal site: Next.js 16 and Payload CMS 3 in one app on Supabase Postgres, deployed to Vercel, in English and Chinese.',
-      'CI compares the schema the migrations build with the one the code defines, then seeds, builds and smoke-tests every pull request; the database is backed up nightly, encrypted.',
+      'This site: Next.js 16 and Payload CMS 3 in one app, bilingual; CI checks schema drift and smoke-tests every pull request.',
     ],
   },
 ]

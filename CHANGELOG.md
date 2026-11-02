@@ -27,19 +27,24 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   改成「Systems I've built at work, and this site.」/「我在工作中做的系统，还有这个网站。」它同时是 `/projects` 的 meta description。
 - `/uses` 副标题、博客副标题、错误页（去掉破折号）、工具页「敬请期待」一并改写。
 
+### Changed — 职位统一为 Full-Stack Engineer（#147）
+
+- 首页 / About 副标题、分享卡片和 Person 结构化数据写的是「Full-Stack Engineer · Backend & Data」/「全栈工程师 · 专注后端与数据」，
+  About 正文和经历第一条（`TIMELINE[0].role`）却写「Software Engineer」/「软件工程师」。维护者定为全栈：About 正文改成 full-stack engineer / 全栈工程师，
+  `TIMELINE[0].role` 改成「Full-Stack Engineer (Backend & Data)」/「全栈工程师 (后端与数据)」。
+- 实习那条「Software Engineer Intern」/「软件开发实习生」是另一份工作，不改。
+- `public/resume.pdf` 由 `npm run resume` 从 `TIMELINE` 生成，本 PR 没有重新生成，PDF 上仍是旧职位，下次生成简历时更新。
+
 ### Fixed — About 的 meta description 只是重复标题；中文页的默认描述是英文（#147）
 
 - About 的 description 原来是 `${subtitle} — ${title}`，即「Full-Stack Engineer · Backend & Data — Jack Deng」。
   新增 `about.metaDescription`（中英），OG 描述同用它。
 - `[locale]/layout.tsx` 的默认 description 是一句写死的英文，所有没有自己描述的 `/zh` 页面都拿到英文。改为取 `home.metaDescription`。
 
-### 待维护者决定
+### 合并后
 
-- **职位写法不一致**：首页 / About 副标题、分享卡片和 Person 结构化数据写「Full-Stack Engineer · Backend & Data」/「全栈工程师 · 专注后端与数据」，
-  首页 meta description 写 full-stack engineer；About 正文和经历第一条（`TIMELINE[0].role`，也进简历）写「Software Engineer」/「软件工程师」。
-  这次没有统一，各处保持原来的词，见 PR 描述里的建议。
 - **项目描述**：`enterprise-manufacturing-analytics` 的中英描述已改写成草稿（`DRAFTS_DIR/projects/`），`scripts/patch-projects.ts` 这一条加了
-  `fromDraft: true`，只读预演显示 4 个字段会变，其余 3 个项目不变。未写库，确认草稿后带 `--apply` 执行。
+  `fromDraft: true`，只读预演显示 4 个字段会变，其余 3 个项目不变。草稿已获维护者认可，本 PR 未写库，合并后由维护者带 `--apply` 执行。
 
 ---
 

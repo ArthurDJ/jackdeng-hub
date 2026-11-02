@@ -148,7 +148,7 @@
     "title": "Jack Deng",
     "subtitle": "Full-Stack Engineer · Backend & Data",
     "metaDescription": "Jack Deng's experience, skills, education and contact links. He works on backend and data, currently at Value Windows & Doors.",
-    "bio1": "Hi, I'm Jack, a Software Engineer in California. Most of my work is enterprise data systems and full-stack apps: the backend services and data pipelines that connect a company's day-to-day operations to its technical systems.",
+    "bio1": "Hi, I'm Jack, a full-stack engineer in California, working mostly on backend and data. I build enterprise data systems and the apps on top of them: the backend services and data pipelines that connect a company's day-to-day operations to its technical systems.",
     "bio2": "I write engineering notes and integration patterns here, and post the tools I build along the way. The site runs on <nextjs>Next.js</nextjs> and <payload>Payload CMS</payload>, with a <supabase>Supabase</supabase> PostgreSQL database.",
     "bio3": "Off the clock I'm usually debugging some flow or reading systems-design docs. Sometimes I'm just trying to work out why the ETL ran 3 seconds slower than yesterday.",
     "skillsHeading": "Skills & Stack",

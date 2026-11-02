@@ -148,7 +148,7 @@
     "title": "Jack Deng",
     "subtitle": "全栈工程师 · 专注后端与数据",
     "metaDescription": "Jack Deng 的经历、技能、学历和联系方式。他做后端与数据，目前在 Value Windows & Doors。",
-    "bio1": "你好，我是 Jack，在加州做软件工程师。平时主要做企业数据系统和全栈应用，写后端服务和数据管道，把公司日常的业务运营和技术系统接到一起。",
+    "bio1": "你好，我是 Jack，在加州做全栈工程师，偏后端和数据。平时主要做企业数据系统和配套的应用，写后端服务和数据管道，把公司日常的业务运营和技术系统接到一起。",
     "bio2": "我在这里写工程笔记、记集成方案，顺手做的小工具也放在这儿。网站用 <nextjs>Next.js</nextjs> 和 <payload>Payload CMS</payload> 搭，数据库是 <supabase>Supabase</supabase> 上的 PostgreSQL。",
     "bio3": "下了班，我多半在调某个流程，或者翻系统设计文档。有时候就为了查 ETL 为什么比昨天慢了 3 秒。",
     "skillsHeading": "技能与技术栈",

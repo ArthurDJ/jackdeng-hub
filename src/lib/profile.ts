@@ -54,7 +54,7 @@ export const SKILLS = [
 export const TIMELINE = [
   {
     year: { en: '01/2024 – present', zh: '01/2024 – 至今' },
-    role: { en: 'Software Engineer (Backend & Data)', zh: '软件工程师 (后端与数据)' },
+    role: { en: 'Full-Stack Engineer (Backend & Data)', zh: '全栈工程师 (后端与数据)' },
     place: 'Value Windows & Doors',
     location: 'Duarte, CA',
     summary: {

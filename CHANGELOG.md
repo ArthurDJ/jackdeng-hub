@@ -10,6 +10,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.45.11] — 2026-11-02
+
+### Security — 写库脚本的守卫改为「不是本机就算生产」（#159）
+
+`requireApply()`（`scripts/lib/env.ts`）原来只把 `*.supabase.co` / `*.supabase.com` 当生产，其余一律放行：数据库换到别的主机、
+`DATABASE_URI` 没设或写错，写库脚本都会不带 `--apply` 直接写。现在反过来，只有本机数据库（`localhost` / `127.0.0.1`，
+不带查询参数）不需要 `--apply`，判断复用 schema 推送那条（`src/lib/localDatabase.ts`），其余都按生产处理。
+
+- CI 的 seed 连的是 `localhost:5432`，不受影响；本地对生产库的只读演练也不受影响（只有 `--apply` 才走到守卫）。
+- 拒绝时的提示加了一句「不是 localhost 的都算」；`describeTarget()` 和 `requireApply()` 可以传入参数，便于测试。
+- 新增 `scripts/lib/env.test.ts`（6 条），其中 5 条在旧代码上失败。用一个假的远程地址跑 `seed.ts`，确认被拒。
+- CLAUDE.md 里对守卫的描述同步改掉。
+
+---
+
 ## [1.45.10] — 2026-11-02
 
 ### Fixed — 补做 review：今天已合并的 PR 里的 3 个问题（#158）

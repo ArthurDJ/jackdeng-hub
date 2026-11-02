@@ -11,6 +11,7 @@
  * the config reads process.env.DATABASE_URI the moment it is evaluated.
  */
 import { config as dotenvConfig } from 'dotenv'
+import { isLocalDatabaseUrl } from '../../src/lib/localDatabase'
 
 /**
  * Load .env then .env.local. Call this before importing the Payload config or
@@ -21,9 +22,6 @@ export function loadEnv(): void {
   dotenvConfig({ path: '.env.local' })
 }
 
-/** Hosts we treat as production. Supabase is the only one this project uses. */
-const PRODUCTION_HOST = /(^|\.)supabase\.(co|com)$/i
-
 export type Target = {
   /** Hostname only — never the full URI, which carries the password. */
   host: string
@@ -32,18 +30,20 @@ export type Target = {
 
 /**
  * Describe what DATABASE_URI points at, without ever surfacing credentials.
- * An unparseable or missing URI is reported as a non-production unknown host;
- * the script will fail on connect soon enough, with a clearer error than
- * anything we could raise here.
+ *
+ * Fails closed: only a database on this machine, by the same test the schema
+ * push uses (src/lib/localDatabase.ts), counts as not production. This used to
+ * be the other way round, matching *.supabase.co/com as production and letting
+ * everything else through, so a database moved to another host, or a missing
+ * or unparseable URI, would have run a write script with no --apply.
  */
-export function describeTarget(): Target {
-  const uri = process.env.DATABASE_URI
-  if (!uri) return { host: '(DATABASE_URI not set)', isProduction: false }
+export function describeTarget(uri: string | undefined = process.env.DATABASE_URI): Target {
+  const isProduction = !isLocalDatabaseUrl(uri)
+  if (!uri) return { host: '(DATABASE_URI not set)', isProduction }
   try {
-    const host = new URL(uri).hostname
-    return { host, isProduction: PRODUCTION_HOST.test(host) }
+    return { host: new URL(uri).hostname, isProduction }
   } catch {
-    return { host: '(unparseable DATABASE_URI)', isProduction: false }
+    return { host: '(unparseable DATABASE_URI)', isProduction }
   }
 }
 
@@ -58,16 +58,19 @@ export function describeTarget(): Target {
  * right" — and it is a refusal, not a dry run: no script's own logic changes,
  * so passing --apply behaves exactly as before.
  */
-export function requireApply(opts: { script: string; writes: string[] }): void {
-  const target = describeTarget()
+export function requireApply(
+  opts: { script: string; writes: string[] },
+  target: Target = describeTarget(),
+  argv: string[] = process.argv,
+): void {
   if (!target.isProduction) return
-  if (process.argv.includes('--apply')) {
+  if (argv.includes('--apply')) {
     console.log(`⚠ writing to PRODUCTION (${target.host}) — --apply given, proceeding.\n`)
     return
   }
 
   console.error(`
-  ⛔ refusing to run against a PRODUCTION database
+  ⛔ refusing to run against a PRODUCTION database (anything not on localhost counts)
      host: ${target.host}
      script writes to: ${opts.writes.join(', ')}
 

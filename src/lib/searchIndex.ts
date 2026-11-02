@@ -16,8 +16,10 @@ type Locale = 'en' | 'zh'
 //
 // Size: the Vercel data cache caps an entry at 2 MB. Bodies are stored as
 // plain text, not Lexical JSON, which is several times smaller; at a few KB
-// per post that is hundreds of posts of headroom. Past that, move the body
-// into a Postgres full-text column instead of raising the limit.
+// per post that is hundreds of posts of headroom. Every published post is
+// read (no row limit), so past 2 MB the cache stops storing the index and
+// each search rebuilds it; before that, move the body into a Postgres
+// full-text column.
 export const getSearchIndex = unstable_cache(
   async (locale: Locale): Promise<SearchDoc[]> => {
     const payload = await getPayload()
@@ -28,12 +30,12 @@ export const getSearchIndex = unstable_cache(
         where: { status: { equals: 'published' } },
         sort: '-publishedAt',
         depth: 0,
-        limit: 1000,
+        pagination: false,
         locale,
         select: { title: true, slug: true, excerpt: true, content: true, category: true, tags: true },
       }),
-      payload.find({ collection: 'categories', depth: 0, limit: 100, locale }),
-      payload.find({ collection: 'tags', depth: 0, limit: 200, locale }),
+      payload.find({ collection: 'categories', depth: 0, pagination: false, locale }),
+      payload.find({ collection: 'tags', depth: 0, pagination: false, locale }),
       payload.find({
         collection: 'tools',
         where: {
@@ -43,10 +45,10 @@ export const getSearchIndex = unstable_cache(
           ],
         },
         depth: 0,
-        limit: 100,
+        pagination: false,
         locale,
       }),
-      payload.find({ collection: 'projects', sort: '-createdAt', depth: 0, limit: 100, locale }),
+      payload.find({ collection: 'projects', sort: '-createdAt', depth: 0, pagination: false, locale }),
     ])
 
     const categoryName = new Map(categories.docs.map((c) => [c.id, c.name ?? '']))

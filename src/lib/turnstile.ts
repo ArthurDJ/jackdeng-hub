@@ -24,6 +24,7 @@ export type TurnstileOutcome =
  * missing. Two defects cancelling out is not the same as a working check.
  */
 const SITEVERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+const VERIFY_TIMEOUT_MS = 5000
 
 /**
  * A Turnstile token is single-use: Cloudflare rejects the second siteverify
@@ -45,7 +46,9 @@ export async function verifyTurnstile(
   if (remoteIp) form.append('remoteip', remoteIp)
 
   try {
-    const res = await fetch(SITEVERIFY, { method: 'POST', body: form })
+    // A stalled Cloudflare would otherwise hold the comment request open until
+    // the function's own time limit. Timing out lands in the catch below.
+    const res = await fetch(SITEVERIFY, { method: 'POST', body: form, signal: AbortSignal.timeout(VERIFY_TIMEOUT_MS) })
     if (!res.ok) return 'failed'
     const data = (await res.json()) as { success?: boolean }
     return data.success === true ? 'ok' : 'failed'

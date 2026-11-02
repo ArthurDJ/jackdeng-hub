@@ -10,6 +10,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.45.3] — 2026-11-02
+
+### Security — vite 8.3.5，happy-dom 20.14.6（#152）
+
+`npm audit` 原来报 2 条高危：vite（开发依赖）和 happy-dom。`npm audit fix`（不带 `--force`）只动了锁文件：
+vite 8.3.2 → 8.3.5、rolldown、eslint-config-next 和 `@next/eslint-plugin-next` 16.4.3 → 16.4.4、typescript-eslint
+8.72.0 → 8.72.1、happy-dom 20.14.5 → 20.14.6。`next`、`payload` 和 `@payloadcms/*` 都没变。
+
+**happy-dom 还剩一条高危，这次不处理。** 修复只在 21.0.4，而它是 `@lexical/headless` 带进来的（要求 `^20.9.0`），
+要等 Payload 升级 Lexical。这条在本站碰不到：Lexical 只有 `@lexical/headless/dom` 这个子路径会加载 happy-dom，
+Payload 只引用 `@lexical/headless` 主入口，站点代码和脚本都不引用它，vitest 跑在 node 环境。所以没有用 `overrides`
+强行把一个没人加载的包抬到下一个大版本。
+
+其余 21 条中危，npm 给的修复都是把 `@payloadcms/db-postgres`、eslint 等降到早得多的大版本（0.1.9、4.0.0），跟 10 月那次一样不采纳。
+
+---
+
 ## [1.45.2] — 2026-11-02
 
 ### Changed — 简历的项目条目都带上数字；项目页去掉供应商品类和上线月份（#151）

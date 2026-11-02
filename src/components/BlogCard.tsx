@@ -20,13 +20,29 @@ export interface BlogCardProps {
   publishedAt?: string | null
   featured?: boolean
   content?: unknown
-  /** The first card of a list: its cover is that page's largest paint on phones. */
+  /** Preload the cover: pass it to the card firstCoverIndex() picks. */
   eager?: boolean
+}
+
+type Cover = BlogCardProps['coverImage']
+
+/** The image a card shows: the card size, else the thumbnail, else the original. */
+function cardImageUrl(cover: Cover) {
+  return cover?.sizes?.card?.url ?? cover?.sizes?.thumbnail?.url ?? cover?.url
+}
+
+/**
+ * Which card in a list gets `eager`: the first one that shows an image, whose
+ * cover is the page's largest paint on phones. A post without a cover shows a
+ * placeholder, so it is not always card 0 (the newest post has none).
+ */
+export function firstCoverIndex(covers: Cover[]) {
+  return covers.findIndex((cover) => Boolean(cardImageUrl(cover)))
 }
 
 
 export async function BlogCard({ title, slug, excerpt, coverImage, category, tags = [], publishedAt, featured, content, eager }: BlogCardProps) {
-  const imageUrl = coverImage?.sizes?.card?.url ?? coverImage?.sizes?.thumbnail?.url ?? coverImage?.url
+  const imageUrl = cardImageUrl(coverImage)
 
   const locale = await getLocale()
   const t = await getTranslations({ locale, namespace: 'blog' })

@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
-import { BlogCard } from '@/components/BlogCard'
+import { BlogCard, firstCoverIndex } from '@/components/BlogCard'
 import { Pagination } from '@/components/Pagination'
 import { Sidebar } from '@/components/Sidebar'
 import { TagBadge } from '@/components/TagBadge'
@@ -71,9 +71,7 @@ export async function TagView({ locale, slug, page }: { locale: string; slug: st
 
   const sidebar = await buildSidebarData({ locale: asLocale(locale), activeTag: slug })
   const blogs = blogsResult.docs
-  // The first card with a cover: its image is the page's largest paint on
-  // phones. A post without a cover shows a placeholder, so it may not be card 0.
-  const firstCover = blogs.findIndex((b) => populated(b.coverImage)?.url)
+  const firstCover = firstCoverIndex(blogs.map((b) => populated(b.coverImage)))
   const totalPages = blogsResult.totalPages ?? 1
   // A page past the end is a URL that should not exist, not an empty list.
   if (page > 1 && page > totalPages) notFound()

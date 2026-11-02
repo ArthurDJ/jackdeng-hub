@@ -115,7 +115,8 @@ const withPlugins = withPayload(withNextIntl(nextConfig))
  * stays as it was; smoke.py checks that it is gone from the site.
  */
 async function headers() {
-  return (await withPlugins.headers()).map((rule) =>
+  const rules = withPlugins.headers ? await withPlugins.headers() : []
+  return rules.map((rule) =>
     rule.source === '/:path*' && rule.headers.some((h) => h.key === 'Critical-CH')
       ? { ...rule, source: '/admin/:path*' }
       : rule,

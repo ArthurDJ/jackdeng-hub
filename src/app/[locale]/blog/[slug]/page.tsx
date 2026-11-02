@@ -308,9 +308,13 @@ export default async function BlogDetailPage({ params }: Props) {
                 at 21:9 (up to 480px tall), which pushed the title to the bottom
                 of a 1440x900 screen and, on a phone, cut the top and bottom off
                 a 16:9 cover (Edison lost his head). In the article column at
-                the covers' own 16:9 nothing is cropped at any width. */}
+                the covers' own 16:9 nothing is cropped at any width.
+                Under it, the credit stored as the media caption: some covers
+                are CC BY-SA / BY-NC-SA and must name their author, and none
+                was shown until #165. */}
             {heroUrl ? (
-              <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: 8, border: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)', marginBottom: 40 }}>
+              <figure style={{ margin: '0 0 40px' }}>
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: 8, border: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)' }}>
                 <Image
                   src={heroUrl}
                   alt={cover?.alt ?? blog.title}
@@ -324,6 +328,12 @@ export default async function BlogDetailPage({ params }: Props) {
                   sizes="(min-width: 1024px) 668px, 100vw"
                 />
               </div>
+              {cover?.caption && (
+                <figcaption style={{ marginTop: 8, fontSize: 12, lineHeight: 1.5, color: 'var(--text-tertiary)' }}>
+                  {cover.caption}
+                </figcaption>
+              )}
+              </figure>
             ) : (
               <div style={{ height: 1, background: 'var(--border-subtle)', marginBottom: 32 }} />
             )}

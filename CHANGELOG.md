@@ -10,6 +10,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.46.2] — 2026-11-02
+
+### Fixed — 文章题图下显示署名（#165）
+
+题图的署名一直存在媒体记录的 `caption` 字段里（`publish-drafts.ts` 上传时写入），但文章页从来不显示。大部分题图是公有领域或
+「no known restrictions」，不署名没问题；有两张不是：《The last mile is not the model》的服务器照片是 CC BY-SA 3.0，
+《我也养了一条“大肥鱼”》的题图是 CC BY-NC-SA 4.0，这两种许可都要求注明作者。
+
+- 文章页的题图改成 `<figure>`，下面用 `<figcaption>` 显示 `caption`（12px、次要文字色）；没有 caption 或没有题图时不显示。
+- 只读查过生产库：已发布的 8 篇里 6 篇有题图，6 张都有署名，所以不用补数据。
+
+**验证。** `next build && next start`（读生产库）：四篇文章（中英各两篇，含没有题图的一篇）署名显示正确，没有题图的不多出空行；
+375px 下无横向滚动，深色主题署名对比度约 6:1；Lighthouse 无障碍：英文那篇 100。中文「大肥鱼」那篇 98，扣分项 `heading-order`
+（侧栏的 h3 紧跟标题 h1）线上本来就有，和这次改动无关，另外处理。smoke 全过。
+
+---
+
 ## [1.46.1] — 2026-11-02
 
 ### Added — LCP 文章的题图（#164）

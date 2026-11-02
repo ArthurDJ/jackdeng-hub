@@ -15,6 +15,14 @@ on:
   schedule:
     - cron: '17 14 * * *' # 07:17 in California
 
+# Read-only is enough for every trigger, deployment_status included: the job
+# reads the deployment's state and environment from the event payload, which
+# needs no token scope, and only actions/checkout uses the token. It writes
+# nothing back — no commit status, no comment, no artifact. (Why declare it
+# when the repository default is already read: see ci.yml.)
+permissions:
+  contents: read
+
 jobs:
   smoke:
     name: smoke
@@ -37,6 +45,10 @@ jobs:
       (github.event.deployment_status.state == 'success' &&
        startsWith(github.event.deployment_status.environment, 'Production'))
     runs-on: ubuntu-latest
+    # A healthy run takes about a minute: every internal link is fetched, each
+    # with a 30-second timeout in scripts/smoke.py. Ten minutes leaves room for
+    # a slow site while still failing well before the six-hour default.
+    timeout-minutes: 10
     steps:
       # For a deployment, the commit that was deployed, so the checks match
       # the code under test.

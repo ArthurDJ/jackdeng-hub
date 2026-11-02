@@ -10,10 +10,28 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# The token only has to read the repository: actions/checkout clones it, and
+# setup-node's npm cache talks to the cache service with its own runtime token,
+# not this one. Nothing here comments on the PR, pushes, or uploads artifacts.
+#
+# The repository default is already "read", but that is read on every scope
+# (issues, pull requests, deployments, …) and a settings toggle away from
+# write. Declaring it here drops every scope not listed to none, and keeps the
+# workflow least-privilege whatever the setting says.
+permissions:
+  contents: read
+
 jobs:
   typecheck:
+    # The name is what branch protection requires; renaming it would leave
+    # the required check pending forever and block every merge.
     name: typecheck
     runs-on: ubuntu-latest
+    # A healthy run takes two to three minutes, most of it npm ci and next
+    # build. The limit is generous for a cold cache, but stops a hung step
+    # (a server that never comes up, a stuck install) from holding the runner
+    # for the six-hour default.
+    timeout-minutes: 20
     # A throwaway Postgres for the schema-drift check below. Nothing here
     # touches the production database, and no secret is needed.
     services:

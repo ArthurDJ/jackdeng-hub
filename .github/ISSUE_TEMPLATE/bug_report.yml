@@ -1,0 +1,90 @@
+# Something on jackdeng.cc is broken or looks wrong.
+#
+# The fields are the ones a fix has needed to reproduce in the past: most
+# regressions here show up in one locale only (a Chinese string on /en, #27,
+# #39, #40), at phone width only (#128), or in one theme only (#56).
+name: Bug report / 问题反馈
+description: Something on jackdeng.cc is broken or looks wrong. 网站上有东西坏了或显示不对。
+title: '[Bug] '
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please do not post security vulnerabilities here: this repository is public.
+        感谢反馈。安全漏洞请不要在这里公开提交，本仓库是公开的。
+
+  - type: input
+    id: url
+    attributes:
+      label: Page URL / 页面地址
+      placeholder: https://www.jackdeng.cc/en/blog/…
+    validations:
+      required: true
+
+  - type: dropdown
+    id: locale
+    attributes:
+      label: Language / 语言
+      options:
+        - en
+        - zh
+        - Both / 两种都有
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device, browser and width / 设备、浏览器和宽度
+      description: The window width matters most; many layout bugs only appear on a phone. 宽度最关键，不少排版问题只在手机宽度出现。
+      placeholder: iPhone 15, Safari, 393px / Windows, Chrome, 1440px
+    validations:
+      required: true
+
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Theme / 主题
+      options:
+        - Light / 浅色
+        - Dark / 深色
+        - Both / 两种都有
+        - Not sure / 不确定
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / 复现步骤
+      placeholder: |
+        1. Open the page
+        2. Click …
+        3. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected / 期望
+      description: What should have happened. 应该是什么样。
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual / 实际
+      description: What happened instead, including any error text. 实际发生了什么，有报错就贴上原文。
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot / 截图
+      description: Drag an image in, or paste one. 把图片拖进来或直接粘贴。
+    validations:
+      required: false

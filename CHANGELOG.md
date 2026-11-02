@@ -10,7 +10,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [1.44.2] — 2026-11-01
+## [1.44.3] — 2026-11-01
 
 ### Changed — 站点文案去 AI 味，中英两份（#147）
 
@@ -42,6 +42,34 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `fromDraft: true`，只读预演显示 4 个字段会变，其余 3 个项目不变。未写库，确认草稿后带 `--apply` 执行。
 
 ---
+
+## [1.44.2] — 2026-11-01
+
+### Added — PR 模板和 issue 表单（#146）
+
+- **`.github/pull_request_template.md`**：What / How verified 两节，加一份从 `CLAUDE.md`「每个 PR 都要做的事」抄来的清单：
+  CHANGELOG（带 PR 号）、Roadmap 和「最后更新」、四项本地检查、`/code-review`（high）且确认的问题在本 PR 修掉、
+  浏览器里中英 + 375px（改了渲染路径用 `next build && next start`）、部署后到 jackdeng.cc 走一遍、迁移（手写、经确认后对生产执行）、
+  生产库写入（经确认、带 `--apply`）。不适用的项划掉并写原因。PR 描述一直是英文，模板也用英文，引用的中文小节名保留原文。
+- **`.github/ISSUE_TEMPLATE/`**：两个 issue 表单，标签和说明中英双语。问题反馈必填页面地址、语言（en / zh）、设备和宽度、
+  主题（浅色 / 深色）、复现步骤、期望和实际，截图选填；这几项对应过去的回归各自只在一种语言（#27、#39、#40）、
+  手机宽度（#128）或一种主题（#56）下出现。内容或功能建议分勘误、新文章、实验室小工具、网站改动四类。
+  `config.yml` 关掉空白 issue（有写权限的人仍能看到标为 Maintainers only 的空白选项）；没有 contact link，
+  因为本仓库没开私密漏洞报告，注释里写了开了以后该加的链接。
+
+### Changed — workflow 权限和超时，Dependabot 冷却期（#146）
+
+- **`ci.yml`、`smoke.yml` 声明 `permissions: contents: read`**（`backup.yml` 原来就有）。逐步核过：CI 只有 checkout 用到 token，
+  setup-node 的 npm 缓存走 runner 自己的 token；smoke 由 `deployment_status` 触发时只读事件载荷里的状态和环境名，
+  不调 API、不写 commit status、不评论、不传 artifact。仓库默认的 workflow 权限本来就是 read，但那是所有 scope 都可读，
+  显式声明后没列出的 scope 都是 none，也不随设置改动变成可写。
+- **加 `timeout-minutes`**：`typecheck` 20 分钟（正常 2–3 分钟），`smoke` 10 分钟（正常约 1 分钟，每个站内链接 30 秒超时），
+  免得卡住的步骤占满默认的 6 小时。job 名不变，分支保护要求的仍是 `typecheck`。
+- **Dependabot 加 `cooldown: default-days: 7`**（npm 和 github-actions 两处）：新版本发布满 7 天才开版本更新 PR，
+  把 #139 手动执行的「只取发布满 7 天的版本」写进配置。按 GitHub 文档
+  （[Dependabot options reference: cooldown](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#cooldown-)），
+  cooldown 只作用于版本更新，**不影响安全更新**；不配时默认 3 天；天数取 1–90；不写 include / exclude 就作用于全部依赖；
+  github-actions 只支持 `default-days`。npm 的大版本本来就被 ignore，所以没有设 `semver-major-days`。原有分组和注释不动。
 
 ## [1.44.1] — 2026-11-01
 

@@ -12,7 +12,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.44.1] — 2026-11-01
 
-### Changed — 站点文案去 AI 味，中英两份（#146）
+### Changed — 站点文案去 AI 味，中英两份（#147）
 
 文章之外的站点文案重写了一遍，只改措辞、句式和节奏，事实不变：没有新增或删去任何雇主、日期、数字、技能和经历。
 
@@ -27,7 +27,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   改成「Systems I've built at work, and this site.」/「我在工作中做的系统，还有这个网站。」它同时是 `/projects` 的 meta description。
 - `/uses` 副标题、博客副标题、错误页（去掉破折号）、工具页「敬请期待」一并改写。
 
-### Fixed — About 的 meta description 只是重复标题；中文页的默认描述是英文（#146）
+### Fixed — About 的 meta description 只是重复标题；中文页的默认描述是英文（#147）
 
 - About 的 description 原来是 `${subtitle} — ${title}`，即「Full-Stack Engineer · Backend & Data — Jack Deng」。
   新增 `about.metaDescription`（中英），OG 描述同用它。

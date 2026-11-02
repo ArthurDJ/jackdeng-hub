@@ -10,6 +10,32 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.45.2] — 2026-11-02
+
+### Changed — 简历的项目条目都带上数字；项目页去掉供应商品类和上线月份（#151）
+
+**简历**（`RESUME_PROJECTS`）：每条项目亮点都用一个能在对应仓库里查到的数字佐证，写法偏工程术语，不用形容词。
+
+| 项目 | 数字 | 出处 |
+|---|---|---|
+| DataHub | 3 个服务合成 1 个、345 个 API 接口、9 条导出路径、3 层只追加保护、30 分钟告警、130+ 个版本（9/25 起 136 个 tag，不到 6 周）、测试约 2,200 → 5,100+ | 仓库 origin/main 和 tag v1.14.30 上数 `[Http*]`、`[Fact]/[Theory]`、`it/test(`，设计文档 |
+| B2B 门户 | 60+ 个版本（一个月 65 个 tag）、1,411 个 .NET 测试 + 393 个前端测试 | tag 列表；该仓库 CHANGELOG v0.38.0（150 + 680 + 581，0 失败） |
+| 订单查询门户 | 头两周 32 个版本、424 个后端测试、47 个共用组件 | tag 列表；`docs/TESTING.md`；`frontend/shared/ui` |
+| jackdeng.cc | 138 个已合并 PR、425 个测试 | `gh pr list --state merged`；`npm test` |
+
+jackdeng.cc 那条写的是 CI「现在」跑什么：早期的 PR 没有这么多测试，smoke 是 #79 才加的。经历部分不动，那里只有原来就有的两个数字。仍是一页。
+
+**项目页**（生产库，合并后写）：DataHub、B2B 门户、订单查询门户的短描述和长描述去掉「玻璃」和所有上线月份，发版数改说「不到六周」「头两周」。
+`patch-projects.ts` 里 B2B 门户那条补丁原来写死了旧的短描述，现在交给草稿（`fromDraft`）；订单查询门户加一条 `fromDraft` 补丁，以后改它的文字也走这里。
+
+### 合并后
+
+```
+DRAFTS_DIR=~/Projects/blog-drafts npx tsx scripts/patch-projects.ts --only <slug> --apply   # data-hub、b2b-customer-portal、order-tracking-portal
+```
+
+---
+
 ## [1.45.1] — 2026-11-02
 
 ### Changed — 简历的项目部分少写雇主的细节（#150）

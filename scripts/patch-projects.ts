@@ -88,19 +88,14 @@ const PATCHES: Patch[] = [
   {
     slug: 'viterra-customer-portal',
     set: { slug: 'b2b-customer-portal', isPinned: true },
-    locales: {
-      en: {
-        name: 'B2B Customer Portal',
-        shortDescription: 'A B2B portal for customers, backed by NetSuite. Deployed to a company server in September 2026 and used internally; not yet open to customers.',
-      },
-      zh: {
-        name: 'B2B 客户门户',
-        shortDescription: '给客户用的 B2B 门户，后面接 NetSuite。2026 年 9 月部署到公司服务器，目前内部在用，还没开放给客户。',
-      },
-    },
-    // 2026-11: what customers can do, ship-label releases, accounts and test counts.
+    locales: { en: { name: 'B2B Customer Portal' }, zh: { name: 'B2B 客户门户' } },
+    // 2026-11: what customers can do, ship-label releases, accounts and test
+    // counts. The short description comes from the draft too, which no longer
+    // gives a go-live month.
     fromDraft: true,
   },
+  // Created by add-projects.ts; later edits to its text come through here.
+  { slug: 'order-tracking-portal', fromDraft: true },
 ]
 
 /** Replace `from` with `to` in the one Lexical text node that contains it. */

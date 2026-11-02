@@ -20,29 +20,29 @@ import {
 export const RESUME_PROJECTS = [
   {
     name: 'DataHub',
-    tech: 'C#, .NET, ASP.NET Core, Vue 3',
+    tech: 'C#, .NET 10, ASP.NET Core, Hangfire, Vue 3',
     year: '2026',
     bullets: [
-      'An internal data hub rewritten in C#/.NET: three older services became one ASP.NET Core application, cut over only after a reconciliation tool diffed every endpoint against the old system.',
-      'Runs the order-file exchange with a supplier over SFTP: outgoing files pass fail-closed checks, received files are archived append-only; 131 tagged releases in under six weeks.',
+      'Consolidated a 3-service legacy integration platform into one ASP.NET Core app with 345 API endpoints, cut over only after an automated reconciliation harness diffed every endpoint; 130+ releases in under 6 weeks.',
+      'Built a fail-closed supplier EDI exchange over SFTP: gates on all 9 export paths, an archive made append-only at 3 layers, alerts within 30 min of a missed pickup; tests grew from about 2,200 to 5,100+.',
     ],
   },
   {
     name: 'B2B Customer Portal',
-    tech: 'C#, .NET, React, ERP integration',
+    tech: 'C#, .NET 10, EF Core, React 19, ERP integration',
     year: '2026',
     bullets: [
-      'A B2B ordering portal on top of the company ERP: live stock, quotes, per-customer shipping rules.',
-      'Every ERP write is a dry run first, keyed by the portal’s own order number; 1,411 .NET tests and 393 client tests.',
+      'Built a B2B ordering portal on the company ERP with real-time stock and quote-to-order; 60+ releases in a month.',
+      'Idempotent, dry-run-first ERP writes keyed by the portal’s order number; 1,800+ tests (1,411 .NET, 393 client).',
     ],
   },
   {
     name: 'Order Tracking Portal',
-    tech: 'C#, .NET, Vue 3, Playwright',
+    tech: 'C#, .NET 10, Vue 3, Playwright',
     year: '2026',
     bullets: [
-      'A read-only portal where B2B customers check their orders, the production status of each unit and their invoices.',
-      'CI fails if a customer-facing bundle or endpoint names an internal system; its UI became a versioned kit other apps share.',
+      'Read-only portal for B2B customers’ orders, per-unit production status and invoices; 32 releases in its first 2 weeks.',
+      'CI blocks internal system names in customer-facing code; 424 backend tests; 47 UI components spun out as a shared kit.',
     ],
   },
   {
@@ -50,7 +50,7 @@ export const RESUME_PROJECTS = [
     tech: 'Next.js, Payload CMS, PostgreSQL, Vercel',
     year: '2026',
     bullets: [
-      'This site: Next.js 16 and Payload CMS 3 in one app, bilingual; CI checks schema drift and smoke-tests every pull request.',
+      'Next.js 16 + Payload CMS 3, bilingual; 138 merged PRs; CI now runs 425 tests, a schema-drift check and a smoke test.',
     ],
   },
 ]

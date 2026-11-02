@@ -33,6 +33,10 @@ export const config = buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
   admin: {
     user: 'users',
+    // Payload's built-in avatar, not Gravatar: that one sent a hash of the
+    // editor's email to a third party and is not allowed by the admin's
+    // content security policy (next.config.mjs).
+    avatar: 'default',
     dateFormat: 'yyyy-MM-dd HH:mm',
     meta: {
       titleSuffix: ' — Jack Deng Admin',

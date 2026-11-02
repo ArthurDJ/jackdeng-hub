@@ -91,6 +91,11 @@ export async function GET(request: NextRequest) {
     {
       width: 1200,
       height: 630,
+      // The card is a pure function of its query string, so the CDN can keep
+      // it; it was rendered afresh (130-170 ms) for every crawler that fetched
+      // a share card. A deploy clears Vercel's cache, so a new design still
+      // shows up at once. Browsers keep it a day.
+      headers: { 'Cache-Control': 'public, max-age=86400, s-maxage=31536000, stale-while-revalidate=86400' },
     },
   )
 }

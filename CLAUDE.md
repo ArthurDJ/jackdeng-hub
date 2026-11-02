@@ -39,6 +39,8 @@
 - 迁移手写，不用 `payload migrate:create`：它的 schema 快照停在 2026-04-10，会拿旧快照算差异。
 - Supabase 的 `anon` / `authenticated` 角色对 `public` 没有任何权限，表上都开了 RLS（#82）：它们是 Data API 用的，
   这个站不用 Data API。新迁移不要 GRANT 给这两个角色；新表不用手动收回权限，默认权限已经不再授出。
+  建新表的迁移里要 `ALTER TABLE … ENABLE ROW LEVEL SECURITY`：CI 用 `scripts/check-rls.ts` 查迁移建出的库，
+  有表没开 RLS 或这两个角色有权限就失败（#161）。这个脚本只读，也可以对生产跑一遍核对。
 - 删列分两步：先加新结构、保留旧列上线，确认后再用单独一条迁移 DROP（#27/#29、#31/#32），
   这样两种部署顺序都不会出现破损窗口。
 

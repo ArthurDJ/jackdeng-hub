@@ -10,6 +10,36 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.45.6] — 2026-11-02
+
+### Fixed — 每个页面打开前不再被 Chrome 重新请求一遍；博客列表首张图优先加载（#154）
+
+线上 Lighthouse（移动端）每个页面都有一个 307，`redirects` 一项算作约 790 ms。#106 时把它当成 Vercel 的 103 Early Hints，
+这个判断不对：它是 Chrome 的内部重试。`withPayload` 给所有路径加了 `Accept-CH` / `Critical-CH: Sec-CH-Prefers-Color-Scheme`
+（还有对它的 `Vary`），只为让后台首次渲染就跟随系统主题；Chrome 收到 `Critical-CH` 后丢掉第一次响应，带上这个提示再请求一次。
+站点的主题在客户端选，从来不读这个提示。
+
+- `next.config.mjs` 把 Payload 的这条规则从 `/:path*` 收窄到 `/admin/:path*`，后台照旧。按规则的形状匹配：Payload 哪天改了写法，
+  这里匹配不到，头就原样留着，不会坏；`scripts/smoke.py` 新增第 5 项检查，站点页面带 `Critical-CH` 或后台不带都会失败。
+  静态资源上多余的 `Vary: Sec-CH-Prefers-Color-Scheme` 也一起没了。
+- 博客列表、分类页、标签页：第一张**有题图**的卡片改为预加载、高优先级（`BlogCard` 的 `eager`）。最新一篇没有题图，
+  所以第一张图在第二张卡片上，按下标 0 判断会落空，第一次就是这么没生效的。
+
+**实测**（本地 `next build && next start`，读生产库，Lighthouse 12 移动端，各 3 次取中位数）：
+
+| 页面 | `redirects` | LCP | 性能分 | `lcp-lazy-loaded` |
+|---|---|---|---|---|
+| /en | 603 → 0 ms | 3.22 → 3.07 s | 93 → 94 | — |
+| /zh | — → 0 ms | 3.07 s | 94 | — |
+| /en/blog | 604 → 0 ms | 3.29 → 3.37 s（噪声内） | 92 → 92 | 不通过 → 通过 |
+
+合并前 `/code-review`（high）找出 5 条：插件配置没有 `headers()` 时构建会失败、选「第一张有题图的卡片」的判断和卡片实际显示的图不一致、三处重复、注释格式和文档说法，都在本 PR 里改掉，`firstCoverIndex` 加了测试。
+
+LCP 降得比 `redirects` 少：不限速时首页的 LCP 和首次绘制同在 68 ms，模拟出来剩下的约 2.6 s「渲染延迟」主要是 Lighthouse
+把 LCP 之前开始下载的约 200 KB JS 按慢速 4G 算进去了。再往下要减 JS，另做。线上的数字等部署后再量。
+
+---
+
 ## [1.45.5] — 2026-11-02
 
 ### Removed — 失效的 Cloudflare 快速隧道开发来源（#133）

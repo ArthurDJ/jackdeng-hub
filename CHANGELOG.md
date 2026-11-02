@@ -12,7 +12,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.44.1] — 2026-11-01
 
-### Added — PR 模板和 issue 表单（#PRNUM）
+### Added — PR 模板和 issue 表单（#146）
 
 - **`.github/pull_request_template.md`**：What / How verified 两节，加一份从 `CLAUDE.md`「每个 PR 都要做的事」抄来的清单：
   CHANGELOG（带 PR 号）、Roadmap 和「最后更新」、四项本地检查、`/code-review`（high）且确认的问题在本 PR 修掉、
@@ -24,7 +24,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `config.yml` 关掉空白 issue（有写权限的人仍能看到标为 Maintainers only 的空白选项）；没有 contact link，
   因为本仓库没开私密漏洞报告，注释里写了开了以后该加的链接。
 
-### Changed — workflow 权限和超时，Dependabot 冷却期（#PRNUM）
+### Changed — workflow 权限和超时，Dependabot 冷却期（#146）
 
 - **`ci.yml`、`smoke.yml` 声明 `permissions: contents: read`**（`backup.yml` 原来就有）。逐步核过：CI 只有 checkout 用到 token，
   setup-node 的 npm 缓存走 runner 自己的 token；smoke 由 `deployment_status` 触发时只读事件载荷里的状态和环境名，

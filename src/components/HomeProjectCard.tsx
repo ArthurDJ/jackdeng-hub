@@ -1,5 +1,4 @@
-'use client'
-
+// A server component: next-intl's useTranslations works here too.
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import type { Project } from '@/payload-types'
@@ -79,26 +78,10 @@ export function HomeProjectCard({ project }: HomeProjectCardProps) {
             </svg>
           </span>
         )}
-        {project.link && (
-          <span
-            role="link"
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              window.open(project.link, '_blank', 'noopener,noreferrer')
-            }}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 4,
-              fontSize: 12, fontWeight: 510, color: 'var(--text-secondary)',
-              cursor: 'pointer',
-            }}
-          >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-            </svg>
-            Live
-          </span>
-        )}
+        {/* No "Live" link here. The whole card is one link to the project page,
+            which has the live and GitHub links; a second link nested inside it
+            was a span with onClick that no keyboard could reach, and the only
+            reason this file was a client component. */}
       </div>
       </div>
     </div>

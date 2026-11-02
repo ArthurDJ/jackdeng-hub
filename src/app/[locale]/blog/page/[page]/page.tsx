@@ -1,4 +1,5 @@
-import { notFound, permanentRedirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
+import { permanentRedirect } from '@/i18n/navigation'
 import { parsePageParam } from '@/lib/pagination'
 import { BlogListView, blogListMetadata } from '../../(list)/view'
 
@@ -27,6 +28,6 @@ export default async function Page({ params }: Props) {
   const n = parsePageParam(page)
   if (n === null) notFound()
   // One URL per page: /page/1 is the list itself.
-  if (n === 1) permanentRedirect(`/${locale}/blog`)
+  if (n === 1) permanentRedirect({ href: '/blog', locale })
   return <BlogListView locale={locale} page={n} />
 }

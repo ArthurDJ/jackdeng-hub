@@ -17,7 +17,7 @@ vi.mock('next/image', () => ({
   default: ({ src, alt }: { src: string; alt: string }) => createElement('img', { src, alt }),
 }))
 
-const { BlogCard } = await import('./BlogCard')
+const { BlogCard, firstCoverIndex } = await import('./BlogCard')
 
 const base = {
   title: 'Planning a flight with Claude',
@@ -67,5 +67,20 @@ describe('BlogCard links', () => {
     const html = await render({ ...base, featured: true })
     expect(html).toContain('>Featured</span>')
     for (const l of links(html)) expect(l.text).not.toContain('Featured')
+  })
+})
+
+describe('firstCoverIndex', () => {
+  it('skips posts without a cover, so the preloaded image is the one shown first', () => {
+    // The newest post has no cover; the first image on the page is card 1.
+    expect(firstCoverIndex([null, { url: '/b.webp' }, { url: '/c.webp' }])).toBe(1)
+  })
+
+  it('counts a cover that only has resized versions, as BlogCard renders it', () => {
+    expect(firstCoverIndex([{ url: null, sizes: { card: { url: '/a-card.webp' } } } as never])).toBe(0)
+  })
+
+  it('is -1 when no post has a cover, so no card is eager', () => {
+    expect(firstCoverIndex([null, undefined, { url: null }])).toBe(-1)
   })
 })

@@ -20,11 +20,29 @@ export interface BlogCardProps {
   publishedAt?: string | null
   featured?: boolean
   content?: unknown
+  /** Preload the cover: pass it to the card firstCoverIndex() picks. */
+  eager?: boolean
+}
+
+type Cover = BlogCardProps['coverImage']
+
+/** The image a card shows: the card size, else the thumbnail, else the original. */
+function cardImageUrl(cover: Cover) {
+  return cover?.sizes?.card?.url ?? cover?.sizes?.thumbnail?.url ?? cover?.url
+}
+
+/**
+ * Which card in a list gets `eager`: the first one that shows an image, whose
+ * cover is the page's largest paint on phones. A post without a cover shows a
+ * placeholder, so it is not always card 0 (the newest post has none).
+ */
+export function firstCoverIndex(covers: Cover[]) {
+  return covers.findIndex((cover) => Boolean(cardImageUrl(cover)))
 }
 
 
-export async function BlogCard({ title, slug, excerpt, coverImage, category, tags = [], publishedAt, featured, content }: BlogCardProps) {
-  const imageUrl = coverImage?.sizes?.card?.url ?? coverImage?.sizes?.thumbnail?.url ?? coverImage?.url
+export async function BlogCard({ title, slug, excerpt, coverImage, category, tags = [], publishedAt, featured, content, eager }: BlogCardProps) {
+  const imageUrl = cardImageUrl(coverImage)
 
   const locale = await getLocale()
   const t = await getTranslations({ locale, namespace: 'blog' })
@@ -54,6 +72,9 @@ export async function BlogCard({ title, slug, excerpt, coverImage, category, tag
               src={imageUrl}
               alt=""
               fill
+              // Lazy by default. On the first card that made the browser wait
+              // for layout before fetching the page's largest image (#154).
+              {...(eager ? { preload: true, fetchPriority: 'high' as const } : {})}
               className="object-cover"
               style={{ transition: 'transform 300ms' }}
               sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"

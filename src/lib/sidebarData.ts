@@ -19,8 +19,8 @@ const getCachedSidebarBase = unstable_cache(
     const payload = await getPayload()
 
     const [categoriesResult, tagsResult, recentResult, countSource] = await Promise.all([
-      payload.find({ collection: 'categories', limit: 50, depth: 0, locale }),
-      payload.find({ collection: 'tags', limit: 100, depth: 0, locale }),
+      payload.find({ collection: 'categories', pagination: false, depth: 0, locale }),
+      payload.find({ collection: 'tags', pagination: false, depth: 0, locale }),
       payload.find({
         collection: 'blogs',
         where: { status: { equals: 'published' } },
@@ -35,7 +35,7 @@ const getCachedSidebarBase = unstable_cache(
         where: { status: { equals: 'published' } },
         sort: '-publishedAt',
         depth: 0,
-        limit: 200,
+        pagination: false,
         locale,
         select: { publishedAt: true, category: true, tags: true },
       }),

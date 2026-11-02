@@ -51,25 +51,25 @@ const getSitemapData = unstable_cache(
         where: { status: { equals: 'published' } },
         sort: '-publishedAt',
         depth: 0,
-        limit: 200,
+        pagination: false,
         select: { slug: true, publishedAt: true, updatedAt: true, category: true, tags: true },
       }),
       payload.find({
         collection: 'categories',
         depth: 0,
-        limit: 200,
+        pagination: false,
         select: { slug: true },
       }),
       payload.find({
         collection: 'tags',
         depth: 0,
-        limit: 500,
+        pagination: false,
         select: { slug: true },
       }),
       payload.find({
         collection: 'projects',
         depth: 0,
-        limit: 200,
+        pagination: false,
         select: { slug: true, updatedAt: true },
       }),
       // Only tools the public list page actually renders — same filter as
@@ -83,7 +83,7 @@ const getSitemapData = unstable_cache(
           ],
         },
         depth: 0,
-        limit: 100,
+        pagination: false,
         select: { slug: true, updatedAt: true },
       }),
     ])

@@ -1,0 +1,9 @@
+# Visitors get the two forms only, so every report arrives with the page,
+# locale, width and theme a fix needs. Collaborators with write access still
+# see "Blank issue" (labelled "Maintainers only") for notes to self.
+#
+# No contact links: there is nowhere to send people other than these forms.
+# Private vulnerability reporting is off for this repository; if it is turned
+# on (Settings → Code security), a contact link to
+# https://github.com/ArthurDJ/jackdeng-hub/security/advisories/new belongs here.
+blank_issues_enabled: false

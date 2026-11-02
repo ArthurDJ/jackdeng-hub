@@ -33,6 +33,19 @@ describe('fitDescription', () => {
     expect(out.length).toBeLessThanOrEqual(160)
   })
 
+  it('keeps a sentence that ends exactly at the limit', () => {
+    const first = `${'a'.repeat(159)}.`
+    expect(fitDescription(`${first} And more after it.`, 'en')).toBe(first)
+  })
+
+  it('does not treat an abbreviation as the end of a sentence', () => {
+    // The "e.g." sits past the halfway mark, where a cut may land.
+    const text = `${'word '.repeat(20)}tools, e.g. dbt and Databricks ${'more words '.repeat(10)}`
+    const out = fitDescription(text, 'en')
+    expect(out).toBe(`${'word '.repeat(20)}tools…`)
+    expect(out.length).toBeLessThanOrEqual(160)
+  })
+
   it('cuts Chinese at a 。 within 80 characters', () => {
     const first = '把报表 SQL 从 SQL Server 搬到 Databricks，迁移笔记说周数最多差 1。'
     const text = `${first}${'后面还有很长的一段解释，'.repeat(6)}`

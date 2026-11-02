@@ -58,8 +58,8 @@ export const TIMELINE = [
     place: 'Value Windows & Doors',
     location: 'Duarte, CA',
     summary: {
-      en: 'Helped design and partly built a Databricks + dbt platform for ERP reporting, with the pipelines and dashboards around it.',
-      zh: '参与设计并搭建了部分 Databricks + dbt 数据平台，支撑 ERP 报表，以及配套的数据管道和看板。',
+      en: 'Helped design a Databricks + dbt platform for ERP reporting and built part of it, plus the pipelines and dashboards around it.',
+      zh: '参与设计 Databricks + dbt 数据平台并搭了其中一部分，ERP 报表从这里出；也做周边的数据管道和看板。',
     },
     bullets: {
       en: [
@@ -82,7 +82,7 @@ export const TIMELINE = [
     location: 'New Brunswick, NJ',
     summary: {
       en: 'Built Python + MySQL market-data services, ETL pipelines (40% more efficient batch processing) and a strategy-analysis visualization tool.',
-      zh: '用 Python + MySQL 搭建行情数据服务和 ETL 管道（批处理效率提升 40%），并做了策略分析可视化工具。',
+      zh: '用 Python + MySQL 写行情数据服务和 ETL 管道，批处理效率提升 40%；还做了一个策略分析的可视化工具。',
     },
     bullets: {
       en: [
@@ -104,8 +104,8 @@ export const TIMELINE = [
     place: 'Northeastern University',
     location: 'Boston, MA',
     summary: {
-      en: 'Tutored the graduate data warehousing and SQL course: query tuning, indexing and execution plans.',
-      zh: '研究生数据仓库与 SQL 课程助教：辅导查询调优、索引与执行计划。',
+      en: 'Tutored students in the graduate data warehousing and SQL course on query tuning, indexing and execution plans.',
+      zh: '研究生数据仓库与 SQL 课程的助教，带学生做查询调优、索引和执行计划分析。',
     },
     bullets: {
       en: [

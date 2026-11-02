@@ -10,6 +10,32 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.45.12] — 2026-11-02
+
+### Added — 评论提交接口、sitemap、RSS 补上测试；「哪些工具对外可见」只写一处（#160）
+
+体检指出这几处有逻辑、没测试，`smoke.py` 只确认页面能打开：
+
+- **`POST /api/comments/submit`**（7 条）：正常写入时状态是 pending、带上限流用的客户端地址、不把 Turnstile token 写进库；请求体不合法时
+  不问 Cloudflare；人机验证失败不写库；生产环境没配 Turnstile 时拒绝（503），开发环境放行；防垃圾钩子的 `rate_limited` / `bot_detected`
+  原样返回；其他错误一律 `unavailable`，不外泄错误信息。
+- **sitemap**（5 条）：只查已发布文章和对外可见的工具；没文章用的分类、标签和没有 slug 的项目不列；日期取内容的修改时间，没日期的页面不写；
+  每条都有中英和 x-default。
+- **RSS**（5 条）：按请求的语言查询（不传 locale 会回落到中文，CLAUDE.md 记过这个坑），未知语言当英文；链接指向对应语言；
+  标题和摘要转义；频道日期取最新修改；返回 XML、不走共享缓存。
+- **修了一处**：文章没有发布时间时，`pubDate` 原来用「现在」，同一篇文章每次抓取日期都变，阅读器可能当成新文章；现在不写 `pubDate`（RSS 里它是可选的）。
+
+**「哪些工具对外可见」只写一处。** 「在线且公开」这两个条件原来在集合的读取权限、`/tools` 列表、`/uses`、sitemap、搜索索引里各写一遍，
+注释说它们一致，但没有东西保证。现在都调 `listedTools()`（`src/lib/listedTools.ts`）；工具详情页另外也显示维护中的工具，是有意的，不改。
+`/tools` 列表原来最多 50 个，和 sitemap、搜索（已不设上限）对不上，改为全部。
+
+**验证。** `next build && next start`（读生产库）：`/tools` 中英各 9 个，`/uses`「我自己做的」3 个，sitemap 9 个工具，搜索能搜到，
+公开 API 返回 9 个；中文 RSS 7 篇都有 `pubDate`；smoke 全过；375px 下 `/zh/tools`、`/en/uses` 无横向滚动。测试 446 → 457 条。
+
+合并前 `/code-review`（high）找出 3 条：共享的筛选对象可能被就地修改（改成每次返回新对象的函数）、`/tools` 的 50 个上限、过时的注释路径，都在本 PR 里改掉。
+
+---
+
 ## [1.45.11] — 2026-11-02
 
 ### Security — 写库脚本的守卫改为「不是本机就算生产」（#159）

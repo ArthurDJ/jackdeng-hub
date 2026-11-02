@@ -5,6 +5,7 @@ import { CACHE_TAGS } from '@/lib/revalidate'
 import { countPostsByTaxonomy, withPosts } from '@/lib/taxonomyCounts'
 import { latest, latestByTaxonomy, postModified } from '@/lib/sitemapDates'
 import { localeAlternates } from '@/lib/alternates'
+import { listedTools } from '@/lib/listedTools'
 
 // Rendered on every request, from data cached under a tag. As a cached
 // response (`revalidate = 3600`) it could not be expired on Vercel: no
@@ -72,16 +73,11 @@ const getSitemapData = unstable_cache(
         pagination: false,
         select: { slug: true, updatedAt: true },
       }),
-      // Only tools the public list page actually renders — same filter as
-      // [locale]/tools/page.tsx, so the sitemap never advertises a 404.
+      // Only tools the public list page renders (src/lib/listedTools.ts), so
+      // the sitemap never advertises one the list hides.
       payload.find({
         collection: 'tools',
-        where: {
-          and: [
-            { status: { equals: 'online' } },
-            { accessControl: { equals: 'public' } },
-          ],
-        },
+        where: listedTools(),
         depth: 0,
         pagination: false,
         select: { slug: true, updatedAt: true },

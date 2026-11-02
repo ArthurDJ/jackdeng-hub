@@ -27,6 +27,7 @@ import { populated, populatedList } from '@/lib/relations'
 import { toJsonLd } from '@/lib/jsonLd'
 import { ogCardUrl } from '@/lib/ogCard'
 import { localeAlternates } from '@/lib/alternates'
+import { fitDescription, pageTitle } from '@/lib/metaText'
 
 export const revalidate = 3600
 
@@ -90,8 +91,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : { url: ogCardUrl(BASE, { title, type: 'blog' }), width: 1200, height: 630 }
 
   return {
-    title,
-    description,
+    title: pageTitle(title, locale),
+    description: fitDescription(description, locale),
     openGraph: {
       url: `${BASE}/${locale}/blog/${slug}`,
       title: `${title} — Jack Deng`,

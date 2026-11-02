@@ -14,6 +14,7 @@ import { projectStatusColors } from '@/lib/statusColors'
 import { toJsonLd } from '@/lib/jsonLd'
 import { ogCardUrl } from '@/lib/ogCard'
 import { localeAlternates } from '@/lib/alternates'
+import { fitDescription, pageTitle } from '@/lib/metaText'
 
 // ISR, same as blog/[slug]. This page was force-dynamic from v1.3.1 until
 // now; the DYNAMIC_SERVER_USAGE 500 that prompted it was the layout reading
@@ -69,8 +70,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogImage = ogCardUrl(BASE, { title, type: 'project' })
 
   return {
-    title,
-    description,
+    title: pageTitle(title, locale),
+    description: fitDescription(description, locale),
     openGraph: {
       url: `${BASE}/${locale}/projects/${slug}`,
       title: `${title} — Jack Deng`,

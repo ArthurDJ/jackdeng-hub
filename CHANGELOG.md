@@ -33,6 +33,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 | /zh | — → 0 ms | 3.07 s | 94 | — |
 | /en/blog | 604 → 0 ms | 3.29 → 3.37 s（噪声内） | 92 → 92 | 不通过 → 通过 |
 
+合并前 `/code-review`（high）找出 5 条：插件配置没有 `headers()` 时构建会失败、选「第一张有题图的卡片」的判断和卡片实际显示的图不一致、三处重复、注释格式和文档说法，都在本 PR 里改掉，`firstCoverIndex` 加了测试。
+
 LCP 降得比 `redirects` 少：不限速时首页的 LCP 和首次绘制同在 68 ms，模拟出来剩下的约 2.6 s「渲染延迟」主要是 Lighthouse
 把 LCP 之前开始下载的约 200 KB JS 按慢速 4G 算进去了。再往下要减 JS，另做。线上的数字等部署后再量。
 

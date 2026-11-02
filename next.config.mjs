@@ -3,9 +3,8 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
-// The policy. Enforced on the site; /admin gets it report-only (below).
-// Violations are posted to /api/csp-report, which logs them
-// (src/app/api/csp-report), with `disposition` saying which of the two.
+// The policy, enforced on the site and on /admin (#162). Violations are
+// posted to /api/csp-report, which logs them (src/app/api/csp-report).
 //
 // What each source is for:
 //   challenges.cloudflare.com         Turnstile on the comment form: its
@@ -24,22 +23,34 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 //
 // A tool embedded by URL (embedType iframe or script) is blocked until its
 // origin is added to frame-src or script-src.
+//
+// /admin adds one source. Payload's code fields are Monaco, which
+// @monaco-editor/loader fetches from jsDelivr (scripts, a stylesheet, its
+// icon font, a worker), so the admin allows that one package version's path
+// and nothing else on the CDN. src/lib/adminCsp.test.ts fails when a
+// dependency upgrade moves Monaco to another version.
 const DEV = process.env.NODE_ENV === 'development'
-const CSP = [
-  "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${DEV ? " 'unsafe-eval'" : ''} https://challenges.cloudflare.com`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
-  "font-src 'self' data:",
-  "connect-src 'self' https://challenges.cloudflare.com",
-  "frame-src 'self' https://challenges.cloudflare.com",
-  "worker-src 'self' blob:",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'self'",
-  'report-uri /api/csp-report',
-].join('; ')
+const MONACO_CDN = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/'
+function policy({ admin }) {
+  const monaco = admin ? ` ${MONACO_CDN}` : ''
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'unsafe-inline'${DEV ? " 'unsafe-eval'" : ''} https://challenges.cloudflare.com${monaco}`,
+    `style-src 'self' 'unsafe-inline'${monaco}`,
+    "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
+    `font-src 'self' data:${monaco}`,
+    "connect-src 'self' https://challenges.cloudflare.com",
+    "frame-src 'self' https://challenges.cloudflare.com",
+    `worker-src 'self' blob:${monaco}`,
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'self'",
+    'report-uri /api/csp-report',
+  ].join('; ')
+}
+const CSP = policy({ admin: false })
+const ADMIN_CSP = policy({ admin: true })
 
 // Sent on every response. Until these, the only security header was the HSTS
 // Vercel adds, so any site could frame /admin and clickjack a signed-in
@@ -52,17 +63,13 @@ const COMMON_HEADERS = [
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()' },
 ]
 
-// The site ran the policy report-only from #58; a scan of every page type,
-// the six Playground tools, search, the theme switch and the comment form
-// found no violations, so it is enforced there. Payload's admin loads its
-// own editor code and was never checked against it, so /admin keeps
-// enforcing frame-ancestors alone and trials the rest.
+// The site ran the policy report-only from #58 and enforces it since a scan
+// found no violations. /admin ran it report-only until #162: logged in on a
+// local build, the dashboard, list and edit views and a code block in the
+// post editor reported two things, the Gravatar avatar (now Payload's own,
+// payload.config.ts) and Monaco from jsDelivr (allowed above, admin only).
 const SITE_HEADERS = [{ key: 'Content-Security-Policy', value: CSP }, ...COMMON_HEADERS]
-const ADMIN_HEADERS = [
-  { key: 'Content-Security-Policy', value: "frame-ancestors 'self'" },
-  { key: 'Content-Security-Policy-Report-Only', value: CSP },
-  ...COMMON_HEADERS,
-]
+const ADMIN_HEADERS = [{ key: 'Content-Security-Policy', value: ADMIN_CSP }, ...COMMON_HEADERS]
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

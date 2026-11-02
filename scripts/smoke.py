@@ -11,7 +11,7 @@ nothing fetched a page. Five checks, all read-only:
 1. The routes a build cannot check answer 200 without a server error inside.
 2. Made-up URLs answer 404.
 3. Every internal link on every sitemap page resolves without a redirect.
-4. The site enforces the content security policy; /admin only reports.
+4. The site and /admin enforce the content security policy; only /admin allows Monaco's CDN.
 5. Only /admin asks for the colour-scheme client hint.
 
 Standard library only, so it runs on a bare runner with no install step.
@@ -179,9 +179,10 @@ for href, page in sorted(links.items()):
 print(f'{len(pages)} sitemap pages, {len(links)} distinct internal links')
 
 # ── 4. The content security policy ────────────────────────────────────────
-# Enforced on the site, report-only on /admin (next.config.mjs), each chosen
-# by one path pattern. A slip in either pattern drops a policy without
-# breaking a single page, so nothing else would notice.
+# Enforced on the site and on /admin (next.config.mjs), each chosen by one
+# path pattern; /admin adds Monaco's CDN path and the site must not. A slip in
+# either pattern drops or widens a policy without breaking a single page, so
+# nothing else would notice.
 def headers(path):
     try:
         with no_follow.open(BASE + path, timeout=30) as r:
@@ -194,12 +195,10 @@ for path, admin in (('/en', False), (f'/zh/{nope}/deeper', False), ('/api/search
                     ('/admin', True), ('/admin/login', True)):
     h = headers(path)
     enforced, trial = h.get('Content-Security-Policy', ''), h.get('Content-Security-Policy-Report-Only', '')
-    if admin:
-        ok = enforced == "frame-ancestors 'self'" and "default-src 'self'" in trial
-    else:
-        ok = "default-src 'self'" in enforced and "'unsafe-eval'" not in enforced and not trial
+    monaco = 'cdn.jsdelivr.net/npm/monaco-editor@' in enforced
+    ok = "default-src 'self'" in enforced and "'unsafe-eval'" not in enforced and not trial and monaco == admin
     if ok:
-        print(f'ok   CSP  {path}  ({"report-only" if admin else "enforced"})')
+        print(f'ok   CSP  {path}  (enforced{", with Monaco" if admin else ""})')
     else:
         fail(f'CSP  {path}  (enforced: {enforced or "none"}; report-only: {trial or "none"})')
 

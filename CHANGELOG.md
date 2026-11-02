@@ -10,6 +10,29 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.45.14] — 2026-11-02
+
+### Security — 后台也强制执行内容安全策略（#162）
+
+站点从 #103 起强制执行 CSP，`/admin` 一直只开着 report-only：只记录、不拦截，因为后台加载 Payload 自己的编辑器代码，从没对照过这套策略。
+违规只会写进 Vercel 的函数日志，而这个账号的日志只留约一小时，所以没法靠日志判断后台有没有违规。
+
+**做法：在本地实测。** 用一次性的 Postgres 跑完迁移、灌入示例数据，建了一个只存在于这个库里的测试管理员，`next build && next start` 后登录，
+逐个打开仪表板、文章/媒体/评论列表、项目和工具的编辑页、账号页，并在文章编辑器里插入一个代码块。Chrome 报出两类违规：
+
+- **Gravatar 头像**：Payload 默认从 `www.gravatar.com` 加载头像（会把编辑者邮箱的哈希发给第三方）。改为 `admin.avatar: 'default'`，用 Payload 自带的头像，不再请求外部。
+- **Monaco 代码编辑器**：代码块的编辑器由 `@monaco-editor/loader` 从 jsDelivr 加载（十几个脚本、样式表、图标字体、worker）。
+  后台单独的策略只放行这一个版本的路径 `https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/`，不放行整个 CDN；前台策略不变。
+
+然后 `/admin` 改为强制执行这套后台策略。重新构建后同样走一遍：代码编辑器正常加载，页面上没有 Gravatar 图片，没有因 CSP 被拒的请求。
+
+- `src/lib/adminCsp.test.ts`：读 `@monaco-editor/loader` 实际加载的地址，和策略里放行的路径比对。依赖升级把 Monaco 换了版本时，这条会先失败
+  （把版本改成 0.54.0 试过，确实失败），否则后台代码编辑器会悄悄变成空白。
+- `scripts/smoke.py` 第 4 项改为：站点和后台都强制执行，只有后台带 Monaco 的路径。
+- `next.config.mjs` 里两套策略由同一个 `policy()` 生成；CSP 报告接口的注释和 `AI_DEPLOY.md` 同步改掉。
+
+---
+
 ## [1.45.13] — 2026-11-02
 
 ### Added — CI 检查每张表都开了 RLS（#161）

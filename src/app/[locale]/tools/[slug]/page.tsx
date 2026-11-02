@@ -10,6 +10,7 @@ import { asLocale, routing } from '@/i18n/routing'
 import { toolStatusColors } from '@/lib/statusColors'
 import { ogCardUrl } from '@/lib/ogCard'
 import { localeAlternates } from '@/lib/alternates'
+import { fitDescription, pageTitle } from '@/lib/metaText'
 
 export const revalidate = 3600
 
@@ -64,8 +65,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = tool.name
   const description = tool.description ?? ''
   return {
-    title,
-    description,
+    title: pageTitle(title, locale),
+    description: fitDescription(description, locale),
     alternates: localeAlternates(locale, `/tools/${slug}`),
     // A page-level openGraph replaces the layout's whole, image included, so
     // the tool has to bring its own card or links to it share without one.

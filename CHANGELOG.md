@@ -17,7 +17,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 11 月 2 日代码体检找出的几项，各自都小，一起修：
 
 - **评论列表少查很多数据**（`CommentList.tsx`）：没写 `depth`，按默认的 2 层，每条评论都把整篇文章（正文、分类、标签）带出来，
-  一页最多 100 次；加上 `overrideAccess`，评论人的邮箱和 IP 也读了出来（没有输出到页面）。现在 `depth: 0`，只选列表要显示的三个字段。
+  一页最多 100 次；加上 `overrideAccess`，评论人的邮箱和 IP 也读了出来（没有输出到页面）。现在 `depth: 0`，只选列表要显示的三个字段。原来最多显示 100 条，标题却按全部计数，超出的最新评论看不到；现在全部显示，数量按列表本身算。
 - **人机验证请求有超时**（`turnstile.ts`）：Cloudflare 卡住时，评论请求会一直挂到函数自己的时限。现在 5 秒超时，超时按失败处理（照旧不放行），加了一条测试。
 - **第 1 页的跳转走 i18n 路由**：博客、分类、标签的 `/page/1` 原来手写 `/${locale}/…` 跳转，违反 CLAUDE.md 的约定。`@/i18n/navigation`
   导出 `permanentRedirect`，三处改用它；跳转结果不变（308 到不带 `/page/1` 的地址）。
@@ -29,6 +29,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 **验证。** `next build && next start`（读生产库）：三种 `/page/1` 都 308 到对应列表；sitemap 47 个地址不变；首页项目卡片和线上一致；
 文章页评论区正常；归档 7 篇；smoke 全过。测试 434 → 435 条。
+
+合并前 `/code-review`（high）找出 3 条：评论仍有 100 条上限、搜索索引的容量说明还在讲已删掉的上限、超时测试没钉住 5 秒，都在本 PR 里改掉。
 
 ---
 

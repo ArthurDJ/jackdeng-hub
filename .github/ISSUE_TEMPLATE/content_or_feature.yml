@@ -1,0 +1,44 @@
+# A post to write, a correction to existing copy, a Playground tool, or a
+# change to how the site works. Corrections to a post are the most common
+# request, so the form asks for the exact page and passage first.
+name: Content or feature request / 内容或功能建议
+description: A post or topic, a correction, a Playground tool, or a site change. 文章或选题、内容勘误、实验室小工具、网站功能。
+title: '[Request] '
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind / 类型
+      options:
+        - Correction to existing content / 内容勘误
+        - New post or topic / 新文章或选题
+        - Playground tool / 实验室小工具
+        - Site feature or change / 网站功能或改动
+    validations:
+      required: true
+
+  - type: input
+    id: url
+    attributes:
+      label: Related page / 相关页面
+      description: For a correction, the page it is on. 勘误请给出所在页面。
+      placeholder: https://www.jackdeng.cc/zh/…
+    validations:
+      required: false
+
+  - type: textarea
+    id: request
+    attributes:
+      label: What and why / 内容和原因
+      description: For a correction, quote the passage and what it should say. 勘误请引用原文并写出应改成什么。
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / 参考资料
+      description: Links, sources or examples that support the request. 支持这个建议的链接、来源或例子。
+    validations:
+      required: false

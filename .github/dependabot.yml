@@ -17,6 +17,13 @@
 #
 # Security fixes also arrive as Dependabot security updates once the repo's
 # vulnerability alerts are on (GitHub → Settings → Code security).
+#
+# Version updates wait a week after a release (`cooldown` below). #139 picked
+# "only versions released at least 7 days ago" by hand: a compromised or
+# broken release is usually caught and yanked within days, and a week costs a
+# personal site nothing. Security updates ignore the cooldown, so a fix for a
+# published advisory is not held back. Reference:
+# https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#cooldown-
 version: 2
 updates:
   - package-ecosystem: npm
@@ -29,6 +36,12 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: chore(deps)
+    # Dependabot's own default is 3 days. Without include/exclude it applies to
+    # every dependency, and it is judged per package: a group PR leaves out only the
+    # members still inside their week. Majors are ignored below, so there is no
+    # semver-major-days.
+    cooldown:
+      default-days: 7
     groups:
       # Every @payloadcms/* package pins payload to the exact same version, so
       # they can only move together; one at a time fails with ERESOLVE.
@@ -71,6 +84,11 @@ updates:
       interval: monthly
     commit-message:
       prefix: ci
+    # Same week as npm. GitHub Actions only supports default-days (no
+    # per-semver days); an action runs with this workflow's token, so a
+    # hijacked release is as dangerous here as in npm.
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns:

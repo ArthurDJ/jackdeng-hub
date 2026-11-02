@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages, setRequestLocale } from 'next-intl/server'
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
 import { GeistMono, GeistSans } from '@/lib/fonts'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
@@ -30,12 +30,15 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
   // The fallback card for pages without their own, with the headline in the
   // page's language: it used to be the English headline on every /zh page.
   const openGraph = await siteOpenGraph(locale)
+  const t = await getTranslations({ locale, namespace: 'home' })
   return {
     title: {
       default: 'Jack Deng',
       template: '%s — Jack Deng',
     },
-    description: 'Jack Deng — full-stack engineer focused on backend and data. Data platforms, integrations and internal tools.',
+    // The home page's description, in the page's language. It used to be a
+    // hard-coded English line, so /zh pages without their own got English.
+    description: t('metaDescription'),
     metadataBase: new URL(BASE),
     openGraph,
     twitter: {

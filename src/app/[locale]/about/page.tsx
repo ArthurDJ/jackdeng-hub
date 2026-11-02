@@ -25,13 +25,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const tNav = await getTranslations({ locale, namespace: 'nav' })
   return {
     title: tNav('about'),
-    description: `${t('subtitle')} — ${t('title')}`,
+    description: t('metaDescription'),
     openGraph: {
       siteName: 'Jack Deng',
       type: 'profile',
       url: `${BASE}/${locale}/about`,
       title: `${tNav('about')} — Jack Deng`,
-      description: `${t('subtitle')} — ${t('title')}`,
+      description: t('metaDescription'),
       images: [{ url: profileOgImage(BASE, t('subtitle')), width: 1200, height: 630 }],
     },
     twitter: {

@@ -10,6 +10,44 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.44.3] — 2026-11-01
+
+### Changed — 站点文案去 AI 味，中英两份（#147）
+
+文章之外的站点文案重写了一遍，只改措辞、句式和节奏，事实不变：没有新增或删去任何雇主、日期、数字、技能和经历。
+
+- **About**：开头那段「robust backend architectures… bridge business operations」式的套话改成平实的第一人称；
+  `bio2` 不再和首页详细版简介逐字重复；「下班后」那段拆掉三连排比。CTA 按钮从 Get in touch / 联系我 改成 Email me / 发邮件给我
+  （它本来就是 mailto 链接）；「…writing lately →.」箭头后多出的句号去掉（中文同）。
+- **首页**：简短版和详细版简介调整句式；`introLong4` 不再和 About 用同一句「public workspace」；没有项目时的占位文案去掉
+  「Currently working on something great」这类宣传腔。
+- **经历摘要**（`TIMELINE.summary`）：VWD 和东北大学两条改写，中文去掉「支撑」「辅导…」这类说法；APEXUS 英文原样（改写后超出 140 字符上限）。
+  条目（bullets）没动：它们同时是一页简历 PDF 的内容，改了要重新生成 PDF 并核对仍是一页，留给维护者决定。
+- **项目页副标题**：「case studies, side projects, and open-source tools」与实际不符（4 个项目是 3 个工作系统加这个网站），
+  改成「Systems I've built at work, and this site.」/「我在工作中做的系统，还有这个网站。」它同时是 `/projects` 的 meta description。
+- `/uses` 副标题、博客副标题、错误页（去掉破折号）、工具页「敬请期待」一并改写。
+
+### Changed — 职位统一为 Full-Stack Engineer（#147）
+
+- 首页 / About 副标题、分享卡片和 Person 结构化数据写的是「Full-Stack Engineer · Backend & Data」/「全栈工程师 · 专注后端与数据」，
+  About 正文和经历第一条（`TIMELINE[0].role`）却写「Software Engineer」/「软件工程师」。维护者定为全栈：About 正文改成 full-stack engineer / 全栈工程师，
+  `TIMELINE[0].role` 改成「Full-Stack Engineer (Backend & Data)」/「全栈工程师 (后端与数据)」。
+- 实习那条「Software Engineer Intern」/「软件开发实习生」是另一份工作，不改。
+- `public/resume.pdf` 由 `npm run resume` 从 `TIMELINE` 生成，本 PR 没有重新生成，PDF 上仍是旧职位，下次生成简历时更新。
+
+### Fixed — About 的 meta description 只是重复标题；中文页的默认描述是英文（#147）
+
+- About 的 description 原来是 `${subtitle} — ${title}`，即「Full-Stack Engineer · Backend & Data — Jack Deng」。
+  新增 `about.metaDescription`（中英），OG 描述同用它。
+- `[locale]/layout.tsx` 的默认 description 是一句写死的英文，所有没有自己描述的 `/zh` 页面都拿到英文。改为取 `home.metaDescription`。
+
+### 合并后
+
+- **项目描述**：`enterprise-manufacturing-analytics` 的中英描述已改写成草稿（`DRAFTS_DIR/projects/`），`scripts/patch-projects.ts` 这一条加了
+  `fromDraft: true`，只读预演显示 4 个字段会变，其余 3 个项目不变。草稿已获维护者认可，本 PR 未写库，合并后由维护者带 `--apply` 执行。
+
+---
+
 ## [1.44.2] — 2026-11-01
 
 ### Added — PR 模板和 issue 表单（#146）

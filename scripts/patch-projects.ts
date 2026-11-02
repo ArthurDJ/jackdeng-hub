@@ -47,6 +47,9 @@ const PATCHES: Patch[] = [
     slug: 'enterprise-manufacturing-analytics',
     set: { year: '2024–' },
     locales: { en: { madeAt: 'VWD' }, zh: { madeAt: 'VWD' } },
+    // Both descriptions rewritten in plainer wording (same facts). The two
+    // sentence edits below were applied before; the draft already has them.
+    fromDraft: true,
     replaceInLong: {
       en: [
         ['Took part in the architecture design and deployment of the platform.', "Took part in the platform's architecture design and built part of it."],

@@ -14,7 +14,8 @@ import {
  * Drizzle ORM and edge routing, all of which the site had since corrected.
  *
  * Projects are the one part the site keeps in the database, so their résumé
- * lines live here. Keep them in step with the project pages.
+ * lines live here. Keep them in step with the project pages, but vaguer about
+ * the employer: no vendor or supplier names, no go-live months.
  */
 export const RESUME_PROJECTS = [
   {
@@ -22,16 +23,16 @@ export const RESUME_PROJECTS = [
     tech: 'C#, .NET, ASP.NET Core, Vue 3',
     year: '2026',
     bullets: [
-      'An internal data hub rewritten in C#/.NET: three older services became one ASP.NET Core application, cut over in June 2026 after a reconciliation tool diffed every endpoint against the old system.',
-      'Runs the order-file exchange with a glass supplier: outgoing files pass fail-closed checks, received files are archived append-only; 131 tagged releases from late September to early November.',
+      'An internal data hub rewritten in C#/.NET: three older services became one ASP.NET Core application, cut over only after a reconciliation tool diffed every endpoint against the old system.',
+      'Runs the order-file exchange with a supplier over SFTP: outgoing files pass fail-closed checks, received files are archived append-only; 131 tagged releases in under six weeks.',
     ],
   },
   {
     name: 'B2B Customer Portal',
-    tech: 'C#, .NET, React, NetSuite',
+    tech: 'C#, .NET, React, ERP integration',
     year: '2026',
     bullets: [
-      'An ordering portal backed by NetSuite, in internal use since September 2026: live stock, quotes, shipping rules.',
+      'A B2B ordering portal on top of the company ERP: live stock, quotes, per-customer shipping rules.',
       'Every ERP write is a dry run first, keyed by the portal’s own order number; 1,411 .NET tests and 393 client tests.',
     ],
   },
@@ -40,7 +41,7 @@ export const RESUME_PROJECTS = [
     tech: 'C#, .NET, Vue 3, Playwright',
     year: '2026',
     bullets: [
-      'A read-only portal where B2B customers check orders, production status per unit and invoices; online since October 2026.',
+      'A read-only portal where B2B customers check their orders, the production status of each unit and their invoices.',
       'CI fails if a customer-facing bundle or endpoint names an internal system; its UI became a versioned kit other apps share.',
     ],
   },

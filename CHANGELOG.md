@@ -10,6 +10,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.45.1] — 2026-11-02
+
+### Changed — 简历的项目部分少写雇主的细节（#150）
+
+简历 PDF 是公开的，项目部分在 #149 里写得比需要的细。现在只讲做法，不讲公司内部的情况：
+
+- 去掉供应商的品类（「glass supplier」改成「a supplier over SFTP」）和 ERP 的厂商名（B2B 门户的技术栈从 NetSuite 改成
+  ERP integration，正文改成「on top of the company ERP」）。
+- 去掉各系统哪个月切换、上线，以及「内部在用」这类部署状态；131 个版本改说「不到六周」，不再给具体起止日期。
+- 经历部分不动：雇主、职位、地点和时间是简历必须有的。技能栏里的 NetSuite 是技能，也保留。
+- `RESUME_PROJECTS` 的注释写明这条规矩。项目页（数据库里的）不在这次范围内。
+- `npm run resume` 重新生成，仍是一页。
+
+---
+
 ## [1.45.0] — 2026-11-02
 
 ### Added — 简历和项目页补上 10 月的工作，新增「订单查询门户」（#149）

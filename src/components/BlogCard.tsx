@@ -20,10 +20,12 @@ export interface BlogCardProps {
   publishedAt?: string | null
   featured?: boolean
   content?: unknown
+  /** The first card of a list: its cover is that page's largest paint on phones. */
+  eager?: boolean
 }
 
 
-export async function BlogCard({ title, slug, excerpt, coverImage, category, tags = [], publishedAt, featured, content }: BlogCardProps) {
+export async function BlogCard({ title, slug, excerpt, coverImage, category, tags = [], publishedAt, featured, content, eager }: BlogCardProps) {
   const imageUrl = coverImage?.sizes?.card?.url ?? coverImage?.sizes?.thumbnail?.url ?? coverImage?.url
 
   const locale = await getLocale()
@@ -54,6 +56,9 @@ export async function BlogCard({ title, slug, excerpt, coverImage, category, tag
               src={imageUrl}
               alt=""
               fill
+              // Lazy by default. On the first card that made the browser wait
+              // for layout before fetching the page's largest image (#154).
+              {...(eager ? { preload: true, fetchPriority: 'high' as const } : {})}
               className="object-cover"
               style={{ transition: 'transform 300ms' }}
               sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"

@@ -71,6 +71,9 @@ export async function TagView({ locale, slug, page }: { locale: string; slug: st
 
   const sidebar = await buildSidebarData({ locale: asLocale(locale), activeTag: slug })
   const blogs = blogsResult.docs
+  // The first card with a cover: its image is the page's largest paint on
+  // phones. A post without a cover shows a placeholder, so it may not be card 0.
+  const firstCover = blogs.findIndex((b) => populated(b.coverImage)?.url)
   const totalPages = blogsResult.totalPages ?? 1
   // A page past the end is a URL that should not exist, not an empty list.
   if (page > 1 && page > totalPages) notFound()
@@ -111,8 +114,9 @@ export async function TagView({ locale, slug, page }: { locale: string; slug: st
             ) : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-                  {blogs.map((blog) => (
+                  {blogs.map((blog, i) => (
                     <BlogCard
+                      eager={i === firstCover}
                       key={blog.id}
                       title={blog.title}
                       slug={blog.slug}

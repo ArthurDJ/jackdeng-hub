@@ -102,4 +102,26 @@ const nextConfig = {
   },
 }
 
-export default withPayload(withNextIntl(nextConfig))
+const withPlugins = withPayload(withNextIntl(nextConfig))
+
+/**
+ * withPayload adds `Accept-CH` / `Critical-CH: Sec-CH-Prefers-Color-Scheme`
+ * (and `Vary` on it) to every path, so the admin can match the system theme on
+ * its first render. On the public site Critical-CH made Chrome throw away the
+ * first response and fetch the page again with the hint, which Lighthouse
+ * counted as a ~600 ms redirect before every page (#154); the site picks its
+ * theme on the client and never reads the hint. Same rule, scoped to /admin.
+ * If Payload ever changes the rule's shape this matches nothing and the header
+ * stays as it was; smoke.py checks that it is gone from the site.
+ */
+async function headers() {
+  return (await withPlugins.headers()).map((rule) =>
+    rule.source === '/:path*' && rule.headers.some((h) => h.key === 'Critical-CH')
+      ? { ...rule, source: '/admin/:path*' }
+      : rule,
+  )
+}
+
+const config = { ...withPlugins, headers }
+
+export default config

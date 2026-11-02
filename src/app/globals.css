@@ -372,6 +372,32 @@
   .ds-toc a:hover::before,
   .ds-toc a[aria-current='true']::before { width: 64px; }
   .ds-toc a:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 4px; border-radius: 2px; }
+
+  /* ── Blog post: "On this page" in the right column ──
+     The TOC and the sidebar share one column that runs the full height of the
+     article, so a sticky TOC stays put while Recent Posts and Tags scroll up
+     behind it. It used to be transparent at top: 80px, which left their text
+     printed over its links. Now it sticks flush under the 52px navbar and
+     paints the page background, so the sidebar slides under it instead; the
+     padding-top keeps its text 80px down, and the negative margin keeps it
+     level with the breadcrumb before it sticks. A TOC longer than the
+     viewport scrolls in its own box. Below 1024px the column falls under the
+     article and the TOC is an ordinary block. */
+  .post-toc { padding-bottom: 8px; }
+  @media (min-width: 1024px) {
+    .post-toc {
+      position: sticky;
+      top: 52px;
+      z-index: 1;
+      max-height: calc(100vh - 52px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      margin-top: -28px;
+      padding-top: 28px;
+      padding-bottom: 16px;
+      background: var(--bg-base);
+    }
+  }
   @media (hover: hover) {
     .ds-dim-item { transition: opacity var(--duration-slow) var(--ease-default); }
     .ds-dim-group:has(> .ds-dim-item:hover) > .ds-dim-item:not(:hover) { opacity: 0.5; }

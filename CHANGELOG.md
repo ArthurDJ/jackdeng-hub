@@ -10,6 +10,44 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.44.0] — 2026-11-01
+
+### Changed — 7 篇已发布文章重写，标题和摘要同步（#144）
+
+线上 7 篇已发布文章（the-last-mile-is-not-the-model、three-ideas-from-systems-engineering、from-sql-server-to-databricks、
+one-app-one-deploy、when-the-cheapest-flight-is-wrong、astrbot-deepseek-wechat、flight-skill-v3）的中英正文都重写了一遍，
+去掉读起来像 AI 的句式。正文在 `DRAFTS_DIR`，和以前一样不进仓库；线上版本另存了一份 JSON 备份，也不进仓库。
+
+标题和摘要由维护者逐条挑过，`scripts/publish-drafts.ts` 的 POSTS 条目改成挑定的值：
+
+- **标题保留原样**：the-last-mile-is-not-the-model、from-sql-server-to-databricks、one-app-one-deploy（中英），
+  astrbot-deepseek-wechat（中文）。原标题有画面感、和 slug 对得上。
+- **标题换新**：three-ideas-from-systems-engineering（原英文标题只对得上三个想法里的第三个）、when-the-cheapest-flight-is-wrong、
+  flight-skill-v3（中英），astrbot-deepseek-wechat（英文）。
+- **摘要换新**：除下面三条外全部换新。astrbot-deepseek-wechat 的英文摘要不变（新写法超过 150 字符）；
+  the-last-mile-is-not-the-model（156）和 three-ideas-from-systems-engineering（165）挑定的英文摘要也超过 `Blogs.excerpt`
+  的 150 字符上限，脚本的长度检查不让过，先保留原摘要，等维护者给出缩短的版本。
+
+### Added — 发文脚本 `--meta`：已有文章也能改标题和摘要（#144）
+
+- 以前对已存在的 slug 只重写正文：英文那一支只写 `content`，`writeZh` 只在中文槽为空时才带标题和摘要，
+  为的是不覆盖在 `/admin` 里改过的标题。改标题只能去后台两种语言各改一次。
+- 新增 `--meta`（只在显式传入时生效）：和 `--apply` 一起用时，已有文章的标题和摘要按 POSTS 条目写入中英两种语言，
+  **只写和库里不同的字段**，日志逐条打印。不带 `--apply` 时是只读预演，每篇按语言打印「旧 → 新」；
+  已经一致的打印 `title and excerpt already match`；`seo.metaTitle` / `seo.metaDescription` 有值时提示它们会盖过新标题和摘要
+  （文章页的 metadata 先取它们）。不带 `--meta` 时写入行为不变，预演里多一行提示有几个字段和脚本不一致、已保留。
+- 比较逻辑是纯函数 `scripts/lib/postMeta.ts`（`metaChanges` / `metaData` / `describeMetaChange`），有单测；
+  读库时 `fallbackLocale: false`，空的语言槽读作空，而不是另一种语言的值。
+
+只读预演（每篇 `--only <slug> --meta`，不带 `--apply`）对生产库跑过：7 篇都是「已存在、会重写正文并更新标题 / 摘要」，
+旧 → 新和上面挑定的值一致；有题图的 5 篇都复用已有的 media（48、49、52、53、58），两篇机票文章没有题图。
+**astrbot-deepseek-wechat 的 4 张正文插图不能复用**：media 54–57 存的是 Payload 转码后的文件（尺寸相同、小约 4%，
+比如 whale-girl 库里 98394 字节、本地 102472 字节），`scripts/lib/mediaReuse.ts` 按文件大小判成「同名但文件不同」，
+现在带 `--apply` 写这一篇会把 4 张图从正文里去掉。可见静态 WebP 也会被转码，和该文件注释里「原图原样保存、只有动图会转码」
+的说法不符；JPEG 题图是原样存的（206025 字节，和本地一致）。修好之前不要对这一篇 `--apply`，已记进 Roadmap。
+
+**本 PR 没有写库。**
+
 ## [1.43.0] — 2026-11-01
 
 ### Added — 新文章《第二版自己的算例算错了：机票 skill 3.0》（#143）

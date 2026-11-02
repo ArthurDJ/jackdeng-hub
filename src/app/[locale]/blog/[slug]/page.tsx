@@ -217,27 +217,9 @@ export default async function BlogDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: toJsonLd(breadcrumbSchema) }}
       />
 
-      {/* Hero image */}
-      {heroUrl && (
-        <div style={{ position: 'relative', width: '100%', aspectRatio: '21/9', maxHeight: 480, overflow: 'hidden', background: 'var(--bg-elevated)' }}>
-          <Image
-            src={heroUrl}
-            alt={cover?.alt ?? blog.title}
-            fill
-            // The cover is the post's largest paint. Next 16's preload no
-            // longer implies a high fetch priority the way priority did.
-            preload
-            fetchPriority="high"
-            className="object-cover"
-            sizes="100vw"
-          />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,10,0.5), transparent)' }} />
-        </div>
-      )}
-
-      {/* Landmark the skip link targets (#main) — starts below the cover art,
-          so keyboard users land on the article itself. */}
-      <main id="main" className="ds-container py-10 flex-1">
+      {/* Landmark the skip link targets (#main). Padding is inline because
+          .ds-container's `padding: 0 24px` overrides Tailwind's py-*. */}
+      <main id="main" className="ds-container flex-1" style={{ paddingTop: '2.5rem', paddingBottom: '4rem' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 48 }} className="article-layout">
           <style>{`
             @media (min-width: 1024px) {
@@ -321,8 +303,29 @@ export default async function BlogDetailPage({ params }: Props) {
               )}
             </header>
 
-            {/* Divider */}
-            <div style={{ height: 1, background: 'var(--border-subtle)', marginBottom: 32 }} />
+            {/* Cover, after the title. It used to run full-bleed above the page
+                at 21:9 (up to 480px tall), which pushed the title to the bottom
+                of a 1440x900 screen and, on a phone, cut the top and bottom off
+                a 16:9 cover (Edison lost his head). In the article column at
+                the covers' own 16:9 nothing is cropped at any width. */}
+            {heroUrl ? (
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: 8, border: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)', marginBottom: 40 }}>
+                <Image
+                  src={heroUrl}
+                  alt={cover?.alt ?? blog.title}
+                  fill
+                  // The cover is the post's largest paint. Next 16's preload no
+                  // longer implies a high fetch priority the way priority did.
+                  preload
+                  fetchPriority="high"
+                  className="object-cover"
+                  // The column is at most 668px (1024 container - 260 sidebar - gaps).
+                  sizes="(min-width: 1024px) 668px, 100vw"
+                />
+              </div>
+            ) : (
+              <div style={{ height: 1, background: 'var(--border-subtle)', marginBottom: 32 }} />
+            )}
 
             {/* Body */}
             <div style={{ color: 'var(--text-secondary)' }}>

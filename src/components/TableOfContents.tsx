@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import type { TocHeading } from '@/lib/extractHeadings'
 
@@ -16,6 +16,7 @@ interface TableOfContentsProps {
 export function TableOfContents({ headings }: TableOfContentsProps) {
   const t = useTranslations('blog')
   const [activeId, setActiveId] = useState<string>(headings[0]?.id ?? '')
+  const navRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     if (headings.length === 0) return
@@ -46,22 +47,31 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
     return () => observer.disconnect()
   }, [headings])
 
+  // A long TOC scrolls inside its own box (see .post-toc). Keep the
+  // highlighted entry in that box's view as the reader moves down the post,
+  // scrolling the box only, never the page.
+  useEffect(() => {
+    const nav = navRef.current
+    if (!nav || nav.scrollHeight <= nav.clientHeight) return
+    const link = nav.querySelector<HTMLElement>(`a[href="#${CSS.escape(activeId)}"]`)
+    if (!link) return
+    const pad = 16
+    const n = nav.getBoundingClientRect()
+    const l = link.getBoundingClientRect()
+    if (l.top < n.top + pad) nav.scrollTop -= n.top + pad - l.top
+    else if (l.bottom > n.bottom - pad) nav.scrollTop += l.bottom - (n.bottom - pad)
+  }, [activeId])
+
   if (headings.length < 2) return null
 
   const label = t('tableOfContents')
   const minLevel = Math.min(...headings.map((h) => h.level))
 
   return (
-    <nav
-      aria-label={label}
-      style={{
-        position: 'sticky',
-        top: 80,
-        maxHeight: 'calc(100vh - 120px)',
-        overflowY: 'auto',
-        paddingBottom: 8,
-      }}
-    >
+    // Sticky positioning, the opaque backdrop and the inner scroll live in
+    // .post-toc (globals.css), because they only apply when the TOC sits in
+    // the desktop side column.
+    <nav ref={navRef} aria-label={label} className="post-toc">
       <p
         style={{
           fontSize: 11,

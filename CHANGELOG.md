@@ -10,6 +10,26 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.46.4] — 2026-11-02
+
+### Changed — 分类描述和三篇英文标题（#167）
+
+- **分类描述**：「后端」还写着 GraphQL（#74 就关了），改为「服务端的活：API、系统集成，以及接进系统里的 AI 工具」；「全栈」「数据」原来没有描述，
+  分类页的描述退回到「全栈 分类下的文章」这种模板句，现在补上。中英各一份。
+- **三篇英文标题超过 60 字符**，搜索结果里会被截断（#153 只能去掉「 — Jack Deng」后缀，标题本身还是超长）：
+  - LCP 那篇 61 → 55：`The redirect I explained away: mobile LCP 3.8 s → 2.2 s`
+  - 「大肥鱼」62 → 43：`My DeepSeek "fat fish" bot only talks to me`
+  - SQL Server 迁移 63 → 59：`Migration notes said "off by at most one." It was two days.`
+  中文标题不变，slug 不变，链接不受影响。
+- 新脚本 `scripts/patch-copy.ts`：默认只打印旧 → 新，`--apply` 才写，已是目标值的跳过。`publish-drafts.ts` 里这三篇的 `title` 同步改，
+  免得以后跑 `--meta` 把旧标题写回去。
+
+### 合并后
+
+写库已确认过（先看演练，再写）：`npx tsx scripts/patch-copy.ts --apply`
+
+---
+
 ## [1.46.3] — 2026-11-02
 
 ### Fixed — 文章页「相关文章」的标题层级（#166）

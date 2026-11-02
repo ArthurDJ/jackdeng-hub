@@ -175,7 +175,7 @@ const POSTS = [
     heroAlt: 'Thomas Edison, seen from behind, punching a time clock beside a wall rack of time cards in 1921',
     heroCredit: 'Thomas Edison punching a time clock on his 74th birthday, 1921, Library of Congress, no known restrictions',
     slug: 'from-sql-server-to-databricks',
-    title: 'The migration notes said "off by at most one." It was two days.',
+    title: 'Migration notes said "off by at most one." It was two days.',
     excerpt:
       "Moving reporting SQL from SQL Server to Databricks, a note said week counts were off by at most one. Doubled for weekends, that's two business days.",
     category: 'data',
@@ -221,7 +221,7 @@ const POSTS = [
     heroCredit:
       'Maid whale-girl by ZipZipPipe after 上善无形\'s original; skin by Small-tailqwq (dsh-deep-whale), cropped. CC BY-NC-SA 4.0',
     slug: 'astrbot-deepseek-wechat',
-    title: 'I set up my own DeepSeek "fat fish", but only I can talk to it',
+    title: 'My DeepSeek "fat fish" bot only talks to me',
     excerpt:
       'After the "fat fish" bots took over Bilibili, I hooked AstrBot and DeepSeek up to WeChat. It works, but via the ClawBot plugin it only talks to me.',
     category: 'backend',
@@ -249,7 +249,7 @@ const POSTS = [
     heroAlt: 'A long telephone switchboard under arched windows, with a row of operators seated at it putting calls through',
     heroCredit: 'Operating room, from "American Telephone Practice" by Kempster B. Miller (1905), Internet Archive, no known copyright restrictions',
     slug: 'the-redirect-i-explained-away',
-    title: 'The redirect I explained away: mobile LCP from 3.8 s to 2.2 s',
+    title: 'The redirect I explained away: mobile LCP 3.8 s → 2.2 s',
     excerpt:
       'Lighthouse showed a 307 before every page. In September I called it harmless; in November it turned out Chrome was fetching every page twice.',
     category: 'full-stack',

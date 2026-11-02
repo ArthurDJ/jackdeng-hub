@@ -63,14 +63,14 @@ export const TIMELINE = [
     },
     bullets: {
       en: [
-        'Helped design and partly built a cloud data platform on Databricks + dbt with a medallion (Bronze→Silver→Gold→Mart) architecture, turning raw ERP data into analytics-ready models for manufacturing, inventory, sales, and workforce reporting.',
-        'Engineered C# and Python data-migration and integration pipelines that improved ERP reliability and processed tens of thousands of records daily across departments.',
-        'Delivered Power BI executive dashboards and React internal portals, giving teams self-serve access to real-time operational metrics.',
+        'Helped design a cloud data platform on Databricks + dbt and built part of it: raw ERP data moves through medallion layers (Bronze→Silver→Gold→Mart) into models for manufacturing, inventory, sales and workforce reporting.',
+        'Wrote data-migration and integration pipelines in C# and Python that improved ERP reliability; they process tens of thousands of records a day across departments.',
+        'Built Power BI dashboards for executives and internal portals in React, so teams can look up real-time operational metrics themselves.',
       ],
       zh: [
-        '参与 Databricks + dbt 云数据平台的架构设计并搭建了其中一部分，采用 Medallion（Bronze→Silver→Gold→Mart）分层架构，将原始 ERP 数据转化为可直接分析的模型，支撑制造、库存、销售与人力效率报表。',
-        '用 C# 与 Python 构建数据迁移与集成管道，提升 ERP 系统可靠性，每天跨部门处理数万条记录。',
-        '交付 Power BI 高管看板与 React 内部门户，让各团队自助获取实时运营指标。',
+        '参与 Databricks + dbt 云数据平台的架构设计，并搭了其中一部分。ERP 原始数据按 Medallion（Bronze→Silver→Gold→Mart）分层整理成模型，制造、库存、销售和人力效率报表直接用。',
+        '用 C# 和 Python 写数据迁移和集成管道，提高了 ERP 系统的可靠性，每天跨部门处理数万条记录。',
+        '给管理层做 Power BI 看板，用 React 做内部门户，各团队可以自己查实时运营指标。',
       ],
     },
     tech: ['Databricks', 'dbt', 'Python', 'C#', 'React', 'Power BI'],
@@ -86,14 +86,14 @@ export const TIMELINE = [
     },
     bullets: {
       en: [
-        'Built a data-visualization tool that streamlined quantitative strategy analysis for the operations desk, improving decision-making speed.',
-        'Developed Python + MySQL backend services that automatically ingested and persisted financial-market data, keeping analyses up to date.',
-        'Designed ETL pipelines that lifted batch-processing efficiency by 40% and shipped internal monitoring dashboards with the product team.',
+        'Built a data-visualization tool that made quantitative strategy analysis simpler for the operations desk, so decisions came faster.',
+        'Wrote Python + MySQL backend services that pulled in and stored financial-market data automatically, so analyses stayed up to date.',
+        'Designed ETL pipelines that lifted batch-processing efficiency by 40%, and built internal monitoring dashboards with the product team.',
       ],
       zh: [
-        '开发数据可视化工具，简化运营部门的量化策略分析，提升决策效率。',
-        '用 Python + MySQL 构建后端服务，自动接入并持久化金融市场数据，保证分析实时更新。',
-        '设计 ETL 管道，使批处理效率提升 40%，并与产品团队共同交付内部监控看板。',
+        '开发了一个数据可视化工具，运营部门做量化策略分析更省事，决策也更快。',
+        '用 Python + MySQL 写后端服务，自动接入并存储金融市场数据，分析用的数据一直是最新的。',
+        '设计 ETL 管道，批处理效率提升 40%；和产品团队一起做了内部监控看板。',
       ],
     },
     tech: ['Python', 'MySQL', 'ETL', 'JavaScript', 'HTML/CSS'],
@@ -109,10 +109,10 @@ export const TIMELINE = [
     },
     bullets: {
       en: [
-        'Tutored the graduate data warehousing and SQL course (ALY6030), coaching students on SQL performance tuning, indexing strategies, and execution-plan analysis.',
+        'Tutored students in the graduate data warehousing and SQL course (ALY6030) on SQL performance tuning, indexing strategies and reading execution plans.',
       ],
       zh: [
-        '担任研究生数据仓库与 SQL 课程（ALY6030）的助教，指导学生做 SQL 性能调优、索引策略与执行计划分析。',
+        '研究生数据仓库与 SQL 课程（ALY6030）的助教，带学生做 SQL 性能调优、设计索引策略、分析执行计划。',
       ],
     },
     tech: ['SQL', 'Data Warehousing'],

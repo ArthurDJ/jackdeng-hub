@@ -10,6 +10,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.44.4] — 2026-11-01
+
+### Changed — 经历条目去 AI 味，简历 PDF 重新生成（#148）
+
+`src/lib/profile.ts` 里 `TIMELINE` 的 7 条经历（中英各一份）重写了措辞，接着 #147：去掉 Engineered / Delivered / 交付 / 支撑 / 持久化这类说法、
+「analytics-ready」「self-serve access」这类空泛的修饰，以及句尾挂一个影响的写法。事实、数字、工具和指标不变（40%、数万条记录、ALY6030、
+Bronze→Silver→Gold→Mart 都原样保留），没有新增说法。这些条目显示在 About 上，英文版也是简历 PDF 的内容。
+
+- APEXUS 第一条的「improving decision-making speed」/「提升决策效率」保留了意思，改成平白的「so decisions came faster」/「决策也更快」。
+- 职位沿用 #147 的决定：VWD 是 Full-Stack Engineer (Backend & Data)，实习那条不改。
+- `public/resume.pdf`（以及 `/en`、`/zh` 两份副本）用 `npm run resume` 重新生成，仍是一页；它不读数据库。
+  #147 合并后 PDF 上的职位还是旧的「Software Engineer (Backend & Data)」，这次一并更新。
+
+---
+
 ## [1.44.3] — 2026-11-01
 
 ### Changed — 站点文案去 AI 味，中英两份（#147）

@@ -67,14 +67,14 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    blogs: Blog;
-    comments: Comment;
+    users: User;
     categories: Category;
+    comments: Comment;
     tags: Tag;
-    media: Media;
+    blogs: Blog;
     projects: Project;
     tools: Tool;
-    users: User;
+    media: Media;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,14 +82,14 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    blogs: BlogsSelect<false> | BlogsSelect<true>;
-    comments: CommentsSelect<false> | CommentsSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    comments: CommentsSelect<false> | CommentsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
+    blogs: BlogsSelect<false> | BlogsSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     tools: ToolsSelect<false> | ToolsSelect<true>;
-    users: UsersSelect<false> | UsersSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -128,6 +128,69 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Blog post comments. Approve or mark as spam before they appear publicly.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments".
+ */
+export interface Comment {
+  id: number;
+  authorName: string;
+  /**
+   * Not displayed publicly.
+   */
+  authorEmail: string;
+  content: string;
+  post: number | Blog;
+  status?: ('pending' | 'approved' | 'spam') | null;
+  /**
+   * Auto-captured for rate limiting.
+   */
+  ip?: string | null;
+  honeypot?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Blog posts. Tip: use the language switcher at the top to fill in zh / en separately.
@@ -256,18 +319,6 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tags".
  */
 export interface Tag {
@@ -282,30 +333,6 @@ export interface Tag {
    */
   color: string;
   description?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Blog post comments. Approve or mark as spam before they appear publicly.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "comments".
- */
-export interface Comment {
-  id: number;
-  authorName: string;
-  /**
-   * Not displayed publicly.
-   */
-  authorEmail: string;
-  content: string;
-  post: number | Blog;
-  status?: ('pending' | 'approved' | 'spam') | null;
-  /**
-   * Auto-captured for rate limiting.
-   */
-  ip?: string | null;
-  honeypot?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -396,33 +423,6 @@ export interface Tool {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  name?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  resetPasswordRequestedAt?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -446,24 +446,24 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'blogs';
-        value: number | Blog;
-      } | null)
-    | ({
-        relationTo: 'comments';
-        value: number | Comment;
+        relationTo: 'users';
+        value: number | User;
       } | null)
     | ({
         relationTo: 'categories';
         value: number | Category;
       } | null)
     | ({
+        relationTo: 'comments';
+        value: number | Comment;
+      } | null)
+    | ({
         relationTo: 'tags';
         value: number | Tag;
       } | null)
     | ({
-        relationTo: 'media';
-        value: number | Media;
+        relationTo: 'blogs';
+        value: number | Blog;
       } | null)
     | ({
         relationTo: 'projects';
@@ -474,8 +474,8 @@ export interface PayloadLockedDocument {
         value: number | Tool;
       } | null)
     | ({
-        relationTo: 'users';
-        value: number | User;
+        relationTo: 'media';
+        value: number | Media;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -521,6 +521,68 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments_select".
+ */
+export interface CommentsSelect<T extends boolean = true> {
+  authorName?: T;
+  authorEmail?: T;
+  content?: T;
+  post?: T;
+  status?: T;
+  ip?: T;
+  honeypot?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags_select".
+ */
+export interface TagsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  color?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blogs_select".
  */
 export interface BlogsSelect<T extends boolean = true> {
@@ -546,39 +608,43 @@ export interface BlogsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "comments_select".
+ * via the `definition` "projects_select".
  */
-export interface CommentsSelect<T extends boolean = true> {
-  authorName?: T;
-  authorEmail?: T;
-  content?: T;
-  post?: T;
+export interface ProjectsSelect<T extends boolean = true> {
+  name?: T;
+  logo?: T;
+  shortDescription?: T;
+  longDescription?: T;
+  link?: T;
   status?: T;
-  ip?: T;
-  honeypot?: T;
+  isPinned?: T;
+  slug?: T;
+  year?: T;
+  madeAt?: T;
+  techStack?:
+    | T
+    | {
+        tech?: T;
+        id?: T;
+      };
+  githubLink?: T;
+  coverImage?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories_select".
+ * via the `definition` "tools_select".
  */
-export interface CategoriesSelect<T extends boolean = true> {
+export interface ToolsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
+  icon?: T;
   description?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags_select".
- */
-export interface TagsSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  color?: T;
-  description?: T;
+  accessControl?: T;
+  status?: T;
+  embedUrl?: T;
+  embedType?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -634,72 +700,6 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-      };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "projects_select".
- */
-export interface ProjectsSelect<T extends boolean = true> {
-  name?: T;
-  logo?: T;
-  shortDescription?: T;
-  longDescription?: T;
-  link?: T;
-  status?: T;
-  isPinned?: T;
-  slug?: T;
-  year?: T;
-  madeAt?: T;
-  techStack?:
-    | T
-    | {
-        tech?: T;
-        id?: T;
-      };
-  githubLink?: T;
-  coverImage?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tools_select".
- */
-export interface ToolsSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  icon?: T;
-  description?: T;
-  accessControl?: T;
-  status?: T;
-  embedUrl?: T;
-  embedType?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
- */
-export interface UsersSelect<T extends boolean = true> {
-  name?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  resetPasswordRequestedAt?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
-    | T
-    | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
       };
 }
 /**

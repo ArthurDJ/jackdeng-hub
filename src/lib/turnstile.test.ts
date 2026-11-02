@@ -75,11 +75,14 @@ describe('verifyTurnstile', () => {
     await expect(verifyTurnstile('token', null, SECRET)).resolves.toBe('failed')
   })
 
-  it('gives up after a timeout and fails closed', async () => {
+  it('gives up after 5 seconds and fails closed', async () => {
+    const timeout = vi.spyOn(AbortSignal, 'timeout')
     const fetchMock = stubFetch(new DOMException('The operation timed out.', 'TimeoutError'))
     await expect(verifyTurnstile('token', null, SECRET)).resolves.toBe('failed')
+    expect(timeout).toHaveBeenCalledWith(5000)
     const init = (fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1]
-    expect(init.signal).toBeInstanceOf(AbortSignal)
+    expect(init.signal).toBe(timeout.mock.results[0].value)
+    timeout.mockRestore()
   })
 
   it('fails closed on a body that is not JSON', async () => {

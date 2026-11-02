@@ -16,8 +16,10 @@ type Locale = 'en' | 'zh'
 //
 // Size: the Vercel data cache caps an entry at 2 MB. Bodies are stored as
 // plain text, not Lexical JSON, which is several times smaller; at a few KB
-// per post that is hundreds of posts of headroom. Past that, move the body
-// into a Postgres full-text column instead of raising the limit.
+// per post that is hundreds of posts of headroom. Every published post is
+// read (no row limit), so past 2 MB the cache stops storing the index and
+// each search rebuilds it; before that, move the body into a Postgres
+// full-text column.
 export const getSearchIndex = unstable_cache(
   async (locale: Locale): Promise<SearchDoc[]> => {
     const payload = await getPayload()

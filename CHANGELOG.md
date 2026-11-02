@@ -10,6 +10,24 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.45.13] — 2026-11-02
+
+### Added — CI 检查每张表都开了 RLS（#161）
+
+#82 给当时的 21 张表开了 RLS，并收回了 `anon` / `authenticated`（Supabase Data API 用的两个角色）的权限。之后新建的表不会自动开 RLS，
+也没有任何东西会发现：Data API 关着时没事，哪天被打开，这张表就会对持有公开 anon key 的人开放。
+
+- 新增 `scripts/check-rls.ts`（只读）：`public` 下每张表都要开 RLS；这两个角色存在时，它们对任何表和序列都不能有权限。
+- CI 的 `typecheck` job 在跑完迁移后执行它，查的是迁移建出来的库，所以哪条迁移建了表却没 `ENABLE ROW LEVEL SECURITY` 会在合并前失败。
+  CI 的 Postgres 没有这两个角色，权限那一半只在有角色的库上查。
+- 本地验证：迁移建出的库通过（21 张表全开）；手工加一张没开 RLS 的表、给 `anon` 一个 `SELECT`，两处都报出来并失败。
+- 对生产跑了一遍（只读）：21 张表全开 RLS，两个角色在表和序列上都没有权限。
+- CLAUDE.md 迁移一节写明新表要开 RLS、CI 会查。
+
+合并前 `/code-review`（high）找出 1 条：原来只查表的权限，没查序列，已在本 PR 里补上。
+
+---
+
 ## [1.45.10] — 2026-11-02
 
 ### Fixed — 补做 review：今天已合并的 PR 里的 3 个问题（#158）

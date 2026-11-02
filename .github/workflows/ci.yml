@@ -112,6 +112,13 @@ jobs:
           NODE_ENV: production
           PAYLOAD_SECRET: ci-schema-drift-throwaway
         run: npx payload migrate
+      # Every table the migrations create has RLS on, and the Data API roles
+      # hold nothing (#82). A migration adding a table without
+      # ENABLE ROW LEVEL SECURITY fails here. scripts/check-rls.ts.
+      - name: 'Row-level security on every table'
+        env:
+          DATABASE_URI: postgresql://postgres:ci@localhost:5432/migrated
+        run: npx tsx scripts/check-rls.ts
       - name: 'Schema drift: push the code schema'
         env:
           PUSHED_URI: postgresql://postgres:ci@localhost:5432/pushed

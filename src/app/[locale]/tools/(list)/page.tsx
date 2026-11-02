@@ -10,6 +10,7 @@ import { PLAYGROUND_LOG, prUrl, visibleLog } from '@/lib/playgroundLog'
 import { formatDay, intlLocale } from '@/lib/formatDate'
 import { localeAlternates } from '@/lib/alternates'
 import { siteOpenGraph } from '@/lib/siteOpenGraph'
+import { listedTools } from '@/lib/listedTools'
 
 export const revalidate = 3600
 
@@ -42,15 +43,11 @@ export default async function ToolsPage({ params }: Props) {
   const payload = await getPayload()
   const { docs: tools } = await payload.find({
     collection: 'tools',
-    where: {
-      and: [
-        { status: { equals: 'online' } },
-        { accessControl: { equals: 'public' } },
-      ],
-    },
+    where: listedTools(),
     depth: 0,
     locale: asLocale(locale),
-    limit: 50,
+    // Every listed tool, as the sitemap and search index read them.
+    pagination: false,
   })
 
   const LOG_KIND: Record<string, string> = {

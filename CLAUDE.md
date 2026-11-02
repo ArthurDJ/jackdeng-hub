@@ -27,8 +27,9 @@
   `tsx` 脚本、`npm run migrate`）打的都是生产。
 - Payload 的 schema 推送默认关闭：`src/payload.config.ts` 的 `push` 只在
   `PAYLOAD_SCHEMA_PUSH=1` 且库在 localhost 时打开，供 CI 的 schema-drift 检查用（#46、#54）。
-- `scripts/` 下写库的脚本由 `requireApply()`（`scripts/lib/env.ts`）守着：库在 Supabase 上
-  时不带 `--apply` 就退出。新脚本照这个写法。
+- `scripts/` 下写库的脚本由 `requireApply()`（`scripts/lib/env.ts`）守着：库不在本机
+  （localhost / 127.0.0.1，判断同 schema 推送）时不带 `--apply` 就退出，`DATABASE_URI` 缺失或解析不了也算生产（#159）。
+  新脚本照这个写法。
 - 写生产库之前先问：跑迁移、改数据、带 `--apply` 都算。只读查询可以直接做。
 
 ## 迁移

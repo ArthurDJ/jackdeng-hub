@@ -10,6 +10,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.46.1] — 2026-11-02
+
+### Added — LCP 文章的题图（#164）
+
+《一个被我解释掉的 307》配上题图：1905 年《American Telephone Practice》（Kempster B. Miller）里的一张接线室照片，拱窗下一长排话务员在插线转接。
+图来自 Internet Archive 扫描、经 Wikimedia Commons 发布，标注「no known copyright restrictions」，和之前几篇的题图同一类来源。
+原图 3152×2100，裁掉扫描边、按其他题图的比例裁成 16:10，缩到 1600×1000，放在 `DRAFTS_DIR/hero-switchboard.jpg`。
+`publish-drafts.ts` 的条目补上 `hero` / `heroAlt` / `heroCredit`；文章已经建好、还没有题图，重跑 `--only` 时 `uploadHero` 会把它挂上。
+
+---
+
 ## [1.46.0] — 2026-11-02
 
 ### Added — 新文章《一个被我解释掉的 307：手机上的 LCP 从 3.8 秒降到 2.2 秒》（#163）

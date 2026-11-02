@@ -245,7 +245,9 @@ const POSTS = [
     mdZh: '09-mobile-lcp-zh.md',
     titleZh: '一个被我解释掉的 307：手机上的 LCP 从 3.8 秒降到 2.2 秒',
     excerptZh: 'Lighthouse 显示每个页面前都有一次 307，9 月我认定它无害。11 月才发现，Chrome 其实把每个页面都请求了两次。',
-    // No cover yet.
+    hero: 'hero-switchboard.jpg',
+    heroAlt: 'A long telephone switchboard under arched windows, with a row of operators seated at it putting calls through',
+    heroCredit: 'Operating room, from "American Telephone Practice" by Kempster B. Miller (1905), Internet Archive, no known copyright restrictions',
     slug: 'the-redirect-i-explained-away',
     title: 'The redirect I explained away: mobile LCP from 3.8 s to 2.2 s',
     excerpt:

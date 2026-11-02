@@ -6,12 +6,13 @@
 
 Why it exists: PR #26 turned every blog post into a 500 while `typecheck`,
 `npm test` and the build all passed. The error was thrown at request time and
-nothing fetched a page. Four checks, all read-only:
+nothing fetched a page. Five checks, all read-only:
 
 1. The routes a build cannot check answer 200 without a server error inside.
 2. Made-up URLs answer 404.
 3. Every internal link on every sitemap page resolves without a redirect.
 4. The site enforces the content security policy; /admin only reports.
+5. Only /admin asks for the colour-scheme client hint.
 
 Standard library only, so it runs on a bare runner with no install step.
 """
@@ -201,6 +202,18 @@ for path, admin in (('/en', False), (f'/zh/{nope}/deeper', False), ('/api/search
         print(f'ok   CSP  {path}  ({"report-only" if admin else "enforced"})')
     else:
         fail(f'CSP  {path}  (enforced: {enforced or "none"}; report-only: {trial or "none"})')
+
+# ── 5. The colour-scheme client hint ─────────────────────────────────────
+# Payload asks for Sec-CH-Prefers-Color-Scheme on every path; next.config.mjs
+# narrows that to /admin, because Critical-CH on a page makes Chrome fetch it
+# twice (#154). The narrowing matches Payload's rule by shape, so a Payload
+# upgrade could quietly undo it.
+for path, admin in (('/en', False), ('/zh/blog', False), ('/admin/login', True)):
+    critical = headers(path).get('Critical-CH', '')
+    if bool(critical) == admin:
+        print(f'ok   CH   {path}  ({"asks for the hint" if admin else "no Critical-CH"})')
+    else:
+        fail(f'CH   {path}  (Critical-CH: {critical or "none"})')
 
 print('FAIL' if failed else 'all ok')
 sys.exit(1 if failed else 0)

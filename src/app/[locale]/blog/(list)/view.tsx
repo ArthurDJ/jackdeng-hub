@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
-import { BlogCard } from '@/components/BlogCard'
+import { BlogCard, firstCoverIndex } from '@/components/BlogCard'
 import { Pagination } from '@/components/Pagination'
 import { Sidebar } from '@/components/Sidebar'
 import { buildSidebarData } from '@/lib/sidebarData'
@@ -51,6 +51,7 @@ export async function BlogListView({ locale, page }: { locale: string; page: num
   ])
 
   const blogs = blogsResult.docs
+  const firstCover = firstCoverIndex(blogs.map((b) => populated(b.coverImage)))
   const totalPages = blogsResult.totalPages ?? 1
   // A page past the end is a URL that should not exist, not an empty list.
   if (page > 1 && page > totalPages) notFound()
@@ -90,8 +91,9 @@ export async function BlogListView({ locale, page }: { locale: string; page: num
             ) : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-                  {blogs.map((blog) => (
+                  {blogs.map((blog, i) => (
                     <BlogCard
+                      eager={i === firstCover}
                       key={blog.id}
                       title={blog.title}
                       slug={blog.slug}

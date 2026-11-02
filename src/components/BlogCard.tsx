@@ -22,6 +22,12 @@ export interface BlogCardProps {
   content?: unknown
   /** Preload the cover: pass it to the card firstCoverIndex() picks. */
   eager?: boolean
+  /**
+   * The title's heading level. h2 on a list page, where the cards sit right
+   * under the page's h1; h3 inside a section that has its own h2 (the home
+   * page's latest posts, a post's related posts), so no level is skipped.
+   */
+  heading?: 'h2' | 'h3'
 }
 
 type Cover = BlogCardProps['coverImage']
@@ -41,7 +47,7 @@ export function firstCoverIndex(covers: Cover[]) {
 }
 
 
-export async function BlogCard({ title, slug, excerpt, coverImage, category, tags = [], publishedAt, featured, content, eager }: BlogCardProps) {
+export async function BlogCard({ title, slug, excerpt, coverImage, category, tags = [], publishedAt, featured, content, eager, heading: Heading = 'h2' }: BlogCardProps) {
   const imageUrl = cardImageUrl(coverImage)
 
   const locale = await getLocale()
@@ -122,7 +128,7 @@ export async function BlogCard({ title, slug, excerpt, coverImage, category, tag
 
         {/* Title */}
         <Link href={`/blog/${slug}`} style={{ display: 'block', textDecoration: 'none' }}>
-          <h2 style={{
+          <Heading style={{
             fontSize: 15,
             fontWeight: 510,
             lineHeight: 1.4,
@@ -133,7 +139,7 @@ export async function BlogCard({ title, slug, excerpt, coverImage, category, tag
             overflow: 'hidden',
           }}>
             {title}
-          </h2>
+          </Heading>
         </Link>
 
         {/* Excerpt */}

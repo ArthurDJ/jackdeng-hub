@@ -10,6 +10,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.45.9] — 2026-11-02
+
+### Changed — Payload 全家桶锁步升到 3.92.1（#157）
+
+`payload` 和 6 个 `@payloadcms/*` 一起从 3.92.0 升到 3.92.1（10 月 27 日发布，已过 7 天冷却期）。这一版全是 bug 修复，没有表结构变化，
+其中三条修的正是本站在用的 `storage-vercel-blob`：带随机后缀时保留回执键、各尺寸图的文件名分开、处理后的客户端上传从临时文件读。
+另有「重置密码时也校验密码字段」。
+
+- 锁文件只动了这 10 个包（含随包的 `drizzle`、`graphql`、`plugin-cloud-storage`）。npm 在旧锁上解不开这组互相精确锁定的 peer 依赖
+  （ERESOLVE），做法是先从锁文件删掉 `payload` 和 `@payloadcms/*` 的条目再装，没有用 `--force` / `--legacy-peer-deps`。
+- 同期可升的 next 16.4.4、vitest 5.1.0、shiki 4.6.0 都是 11 月 2 日当天发布的，等冷却期过了再升。
+
+---
+
 ## [1.45.5] — 2026-11-02
 
 ### Removed — 失效的 Cloudflare 快速隧道开发来源（#133）

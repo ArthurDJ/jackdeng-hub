@@ -13,6 +13,9 @@ const LIMITS = {
 
 const SUFFIX = ' — Jack Deng'
 
+/** A full stop that ends an abbreviation, not a sentence: "e.g.", "vs.". */
+const ABBREVIATION = /\b(?:e\.g|i\.e|vs|etc|cf|approx|U\.S)\.$/i
+
 const limits = (locale: string) => (locale === 'zh' ? LIMITS.zh : LIMITS.en)
 
 /**
@@ -27,12 +30,13 @@ export function fitDescription(text: string, locale: string): string {
   if (s.length <= max) return s
   const head = s.slice(0, max)
   const floor = Math.floor(max / 2)
-  const lastOf = (re: RegExp) => {
-    let at = -1
-    for (const m of head.matchAll(re)) at = m.index + m[0].length
-    return at
+  // Matched one character past the limit, so a sentence that ends exactly at
+  // it still has its following space to look at.
+  let sentence = -1
+  for (const m of s.slice(0, max + 1).matchAll(/[.!?](?=\s)|[。！？]/g)) {
+    const end = m.index + m[0].length
+    if (end <= max && !ABBREVIATION.test(s.slice(0, end))) sentence = end
   }
-  const sentence = lastOf(/[.!?](?=\s)|[。！？]/g)
   if (sentence > floor) return head.slice(0, sentence).trim()
   // Room is kept for the ellipsis, so the result never runs past the limit.
   const room = head.slice(0, max - 1)

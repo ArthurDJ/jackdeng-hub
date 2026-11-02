@@ -31,6 +31,11 @@ loadEnv()
 const apply = process.argv.includes('--apply')
 const onlyAt = process.argv.indexOf('--only')
 const only = onlyAt > -1 ? process.argv[onlyAt + 1] : undefined
+// `--only` with nothing after it would otherwise select every patch.
+if (onlyAt > -1 && (!only || only.startsWith('--'))) {
+  console.error('--only needs a slug: --only <slug>')
+  process.exit(1)
+}
 if (apply) requireApply({ script: 'scripts/patch-projects.ts', writes: ['projects'] })
 
 type Locale = 'en' | 'zh'

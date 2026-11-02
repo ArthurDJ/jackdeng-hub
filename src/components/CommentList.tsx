@@ -42,6 +42,11 @@ export async function CommentList({ postId }: Props) {
     },
     sort: 'createdAt',
     limit: 100,
+    // Only what the list shows. At the default depth each comment brought its
+    // whole post along (body, category, tags), up to 100 times per page, and
+    // with overrideAccess the commenter's email and IP were read for nothing.
+    depth: 0,
+    select: { authorName: true, content: true, createdAt: true },
     overrideAccess: true,
   })
 

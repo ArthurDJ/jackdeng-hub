@@ -75,6 +75,13 @@ describe('verifyTurnstile', () => {
     await expect(verifyTurnstile('token', null, SECRET)).resolves.toBe('failed')
   })
 
+  it('gives up after a timeout and fails closed', async () => {
+    const fetchMock = stubFetch(new DOMException('The operation timed out.', 'TimeoutError'))
+    await expect(verifyTurnstile('token', null, SECRET)).resolves.toBe('failed')
+    const init = (fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1]
+    expect(init.signal).toBeInstanceOf(AbortSignal)
+  })
+
   it('fails closed on a body that is not JSON', async () => {
     stubFetch(new Response('<html>nope</html>', { status: 200 }))
     await expect(verifyTurnstile('token', null, SECRET)).resolves.toBe('failed')

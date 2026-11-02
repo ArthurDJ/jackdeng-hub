@@ -45,7 +45,7 @@ export default async function ArchivePage({ params }: Props) {
     where: { status: { equals: 'published' } },
     sort: '-publishedAt',
     depth: 0,
-    limit: 1000,
+    pagination: false,
     // Without this Payload falls back to its defaultLocale, zh, and the English
     // archive listed every post under its Chinese title.
     locale: asLocale(locale),

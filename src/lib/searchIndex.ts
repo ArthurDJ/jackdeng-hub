@@ -28,12 +28,12 @@ export const getSearchIndex = unstable_cache(
         where: { status: { equals: 'published' } },
         sort: '-publishedAt',
         depth: 0,
-        limit: 1000,
+        pagination: false,
         locale,
         select: { title: true, slug: true, excerpt: true, content: true, category: true, tags: true },
       }),
-      payload.find({ collection: 'categories', depth: 0, limit: 100, locale }),
-      payload.find({ collection: 'tags', depth: 0, limit: 200, locale }),
+      payload.find({ collection: 'categories', depth: 0, pagination: false, locale }),
+      payload.find({ collection: 'tags', depth: 0, pagination: false, locale }),
       payload.find({
         collection: 'tools',
         where: {
@@ -43,10 +43,10 @@ export const getSearchIndex = unstable_cache(
           ],
         },
         depth: 0,
-        limit: 100,
+        pagination: false,
         locale,
       }),
-      payload.find({ collection: 'projects', sort: '-createdAt', depth: 0, limit: 100, locale }),
+      payload.find({ collection: 'projects', sort: '-createdAt', depth: 0, pagination: false, locale }),
     ])
 
     const categoryName = new Map(categories.docs.map((c) => [c.id, c.name ?? '']))

@@ -7,8 +7,9 @@
  *
  * An image is a line of its own, `![alt](file.png "optional caption")`, with
  * the file in DRAFTS_DIR. It is uploaded to media like the hero (or the
- * existing media row with that file name is reused, if it holds a file of the
- * same size; otherwise the image is left out and the run says to rename it),
+ * existing media row with that file name is reused, if it holds the same file:
+ * same size, or for GIF/TIFF/WebP, which Payload re-encodes, same pixel
+ * dimensions; otherwise the image is left out and the run says to rename it),
  * and the en and zh bodies each keep their own alt text and caption on the node.
  *
  * Posts are created with status 'draft' on purpose. Blogs.access.read hides
@@ -34,9 +35,10 @@
 import { loadEnv, requireApply, describeTarget } from './lib/env'
 import { refreshLiveSite } from './lib/refreshSite'
 import { toLexical, collectImages, resolveImages } from './lib/markdown'
-import { decideMedia, describeConflict } from './lib/mediaReuse'
+import { decideMedia, describeConflict, type LocalFile } from './lib/mediaReuse'
 import { metaChanges, metaData, describeMetaChange, type MetaChange, type MetaField } from './lib/postMeta'
 import { getPayload } from 'payload'
+import sharp from 'sharp'
 import fs from 'fs'
 import path from 'path'
 
@@ -114,7 +116,7 @@ const POSTS = [
     slug: 'the-last-mile-is-not-the-model',
     title: 'The last mile is not the model',
     excerpt:
-      '80% of enterprise apps now embed an agent, and under 10% have scaled one to real value. I do not think that gap is a model problem.',
+      '80% of enterprise apps embed an agent, yet under 10% of companies have scaled one to measurable value. I think the gap is integration, not the model.',
     category: 'backend',
     tags: ['ai', 'rest-api'],
   },
@@ -129,7 +131,7 @@ const POSTS = [
     slug: 'three-ideas-from-systems-engineering',
     title: 'Three ideas I brought back from a systems engineering course',
     excerpt:
-      'I expected vocabulary from a systems engineering course. Three ideas followed me back to my desk instead, and each corrected an old habit.',
+      "I took a systems engineering course expecting vocabulary. Three ideas followed me back to my desk, and each corrected a habit I'd carried for years.",
     category: 'career-thoughts',
     tags: ['systems-engineering', 'data-engineering'],
   },
@@ -344,9 +346,37 @@ function localSize(filename: string) {
   return fs.existsSync(file) ? fs.statSync(file).size : null
 }
 
+const SHARP_MIME: Record<string, string> = {
+  gif: 'image/gif', tiff: 'image/tiff', webp: 'image/webp', jpeg: 'image/jpeg', png: 'image/png',
+}
+
+/**
+ * The file in DRAFTS_DIR as decideMedia needs it: size, plus the pixel size
+ * Payload would record and the type sharp reads, or null when it is not there.
+ * Payload auto-rotates by EXIF before recording width and height, and divides
+ * an animated image's height by its frame count, so the same is done here.
+ * Dimensions are left null when sharp cannot read the file.
+ */
+async function localFile(filename: string): Promise<LocalFile | null> {
+  const size = localSize(filename)
+  if (size == null) return null
+  try {
+    const m = await sharp(path.join(DRAFTS!, filename)).metadata()
+    const pages = m.pages ?? 1
+    return {
+      size,
+      width: m.autoOrient?.width ?? m.width ?? null,
+      height: pages > 1 ? (m.pageHeight ?? null) : (m.autoOrient?.height ?? m.height ?? null),
+      mimeType: (m.format && SHARP_MIME[m.format]) ?? null,
+    }
+  } catch {
+    return { size, width: null, height: null, mimeType: null }
+  }
+}
+
 /** Reuse, upload, or neither, for a file in DRAFTS_DIR (scripts/lib/mediaReuse.ts). Read-only. */
 async function mediaDecision(payload: any, filename: string) {
-  return decideMedia(await findMedia(payload, filename), localSize(filename))
+  return decideMedia(await findMedia(payload, filename), await localFile(filename))
 }
 
 /**
@@ -359,7 +389,7 @@ async function mediaFor(payload: any, filename: string, data: { alt?: string; ca
   const decision = await mediaDecision(payload, filename)
   switch (decision.kind) {
     case 'reuse':
-      console.log(`media  ${decision.id}  ${filename} (reused)`)
+      console.log(`media  ${decision.id}  ${filename} (reused${decision.note ? `; ${decision.note}` : ''})`)
       return decision.id
     case 'conflict':
       console.warn(`  ! ${describeConflict(filename, decision)} — ${leftOut}`)
@@ -384,7 +414,7 @@ async function planMedia(payload: any, filename: string, leftOut: string) {
   const size = localSize(filename)
   const decision = await mediaDecision(payload, filename)
   const action = decision.kind === 'reuse'
-    ? `would reuse media ${decision.id}`
+    ? `would reuse media ${decision.id}${decision.note ? ` (${decision.note})` : ''}`
     : decision.kind === 'conflict'
       ? `${describeConflict(filename, decision)} — ${leftOut}`
       : decision.kind === 'missing'

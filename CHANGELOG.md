@@ -24,9 +24,9 @@ one-app-one-deploy、when-the-cheapest-flight-is-wrong、astrbot-deepseek-wechat
   astrbot-deepseek-wechat（中文）。原标题有画面感、和 slug 对得上。
 - **标题换新**：three-ideas-from-systems-engineering（原英文标题只对得上三个想法里的第三个）、when-the-cheapest-flight-is-wrong、
   flight-skill-v3（中英），astrbot-deepseek-wechat（英文）。
-- **摘要换新**：除下面三条外全部换新。astrbot-deepseek-wechat 的英文摘要不变（新写法超过 150 字符）；
-  the-last-mile-is-not-the-model（156）和 three-ideas-from-systems-engineering（165）挑定的英文摘要也超过 `Blogs.excerpt`
-  的 150 字符上限，脚本的长度检查不让过，先保留原摘要，等维护者给出缩短的版本。
+- **摘要换新**：只有 astrbot-deepseek-wechat 的英文摘要不变（新写法超过 150 字符）。the-last-mile-is-not-the-model（156）和
+  three-ideas-from-systems-engineering（165）新写的英文摘要也超过 `Blogs.excerpt` 的 150 字符上限，脚本的长度检查不让过，
+  改用维护者确认的缩短版（149、148 字符）。
 
 ### Added — 发文脚本 `--meta`：已有文章也能改标题和摘要（#144）
 
@@ -39,12 +39,23 @@ one-app-one-deploy、when-the-cheapest-flight-is-wrong、astrbot-deepseek-wechat
 - 比较逻辑是纯函数 `scripts/lib/postMeta.ts`（`metaChanges` / `metaData` / `describeMetaChange`），有单测；
   读库时 `fallbackLocale: false`，空的语言槽读作空，而不是另一种语言的值。
 
+### Fixed — 重跑时 WebP 插图被当成「同名但文件不同」（#144）
+
+- 预演时发现 astrbot-deepseek-wechat 的 4 张正文图都不能复用：media 54–57 存的是 Payload 转码后的文件（尺寸相同、小约 4%，
+  比如 whale-girl 库里 98394 字节、本地 102472 字节），`scripts/lib/mediaReuse.ts`（#140）按文件大小判成冲突，
+  带 `--apply` 重写这一篇会把 4 张图从正文里去掉。JPEG 题图是原样存的（206025 字节，和本地一致）。
+- 原因查了 payload 3.92 的 `uploads/generateFileData.js`：Media 的 `upload` 上没有 `resizeOptions` / `formatOptions` /
+  `trimOptions` / `constructorOptions`（`formatOptions` 只在派生尺寸上），这时原图只在 `isAnimatedImage(mimeType)` 为真时过 sharp，
+  而它只看 MIME：**所有 GIF、TIFF、WebP，动不动都一样**，都会重新编码（`rotate()` 后 `toBuffer()`，元数据去掉）；
+  JPEG、PNG、AVIF 原样保存。原注释「只有动图会转码」不对。
+- `decideMedia` 现在按格式分两种比法，仍是纯函数，尺寸和类型由调用方传入：原样保存的格式照旧比文件大小；GIF / TIFF / WebP
+  比像素宽高（本地用 sharp 读，按 EXIF 方向和帧数折算成 Payload 记录的值），宽高相同就复用，不同就是冲突，提示里写出两边的宽高。
+  任何一边缺宽高或大小时照旧复用，但附一句说明没比，预演和 `--apply` 都会打印出来。单测补了 WebP 同宽高复用、不同宽高冲突、
+  JPEG 大小不同冲突、行上没有宽高时带说明复用等情形。
+
 只读预演（每篇 `--only <slug> --meta`，不带 `--apply`）对生产库跑过：7 篇都是「已存在、会重写正文并更新标题 / 摘要」，
-旧 → 新和上面挑定的值一致；有题图的 5 篇都复用已有的 media（48、49、52、53、58），两篇机票文章没有题图。
-**astrbot-deepseek-wechat 的 4 张正文插图不能复用**：media 54–57 存的是 Payload 转码后的文件（尺寸相同、小约 4%，
-比如 whale-girl 库里 98394 字节、本地 102472 字节），`scripts/lib/mediaReuse.ts` 按文件大小判成「同名但文件不同」，
-现在带 `--apply` 写这一篇会把 4 张图从正文里去掉。可见静态 WebP 也会被转码，和该文件注释里「原图原样保存、只有动图会转码」
-的说法不符；JPEG 题图是原样存的（206025 字节，和本地一致）。修好之前不要对这一篇 `--apply`，已记进 Roadmap。
+旧 → 新和上面挑定的值一致；有题图的 5 篇都复用已有的 media（48、49、52、53、58），两篇机票文章没有题图；
+astrbot 的 4 张正文图复用 media 54、55、56、57。
 
 **本 PR 没有写库。**
 

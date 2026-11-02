@@ -375,12 +375,16 @@ export default async function BlogDetailPage({ params }: Props) {
             {/* Related Posts */}
             {relatedDocs.length > 0 && (
               <div style={{ marginTop: 64, paddingTop: 48, borderTop: '1px solid var(--border-subtle)' }}>
-                <h3 style={{ fontSize: 13, fontWeight: 510, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 24 }}>
+                {/* h2, like the comments heading below: as an h3 it came straight
+                    after the title's h1 on a post with no ## sections, a skipped
+                    level (Lighthouse heading-order). */}
+                <h2 style={{ fontSize: 13, fontWeight: 510, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 24 }}>
                   {t('relatedPosts')}
-                </h3>
+                </h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
                   {relatedDocs.map((related) => (
                     <BlogCard
+                      heading="h3"
                       key={related.id}
                       title={related.title}
                       slug={related.slug}

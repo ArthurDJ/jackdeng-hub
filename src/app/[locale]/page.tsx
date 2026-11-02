@@ -445,6 +445,7 @@ export default async function HomePage({ params }: Props) {
               {blogs.map((blog, i) => (
                 <div key={blog.id} className={`ds-reveal ds-dim-item grid ${pairSpan(i, blogs.length)}`}>
                 <BlogCard
+                  heading="h3"
                   title={blog.title}
                   slug={blog.slug}
                   excerpt={blog.excerpt}

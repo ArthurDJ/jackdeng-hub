@@ -84,3 +84,16 @@ describe('firstCoverIndex', () => {
     expect(firstCoverIndex([null, undefined, { url: null }])).toBe(-1)
   })
 })
+
+describe('BlogCard heading level', () => {
+  it('titles the card with an h2 by default, for list pages', async () => {
+    const html = await render(base)
+    expect(html).toMatch(/<h2[^>]*>Planning a flight with Claude<\/h2>/)
+  })
+
+  it('uses h3 inside a section that has its own h2', async () => {
+    const html = await render({ ...base, heading: 'h3' })
+    expect(html).toMatch(/<h3[^>]*>Planning a flight with Claude<\/h3>/)
+    expect(html).not.toContain('<h2')
+  })
+})

@@ -89,7 +89,8 @@
   `AI_DEPLOY.md` 的「Extending the Tools Engine」；部署、环境变量、迁移顺序见同一文件的
   「Deployment」。
 - `scripts/publish-drafts.ts` 把 markdown 转成 Lexical 写进数据库（中英双语，建为 draft）。默认只读、打印计划，
-  `--apply` 才写；用 `--only <slug>` 只处理一篇，不带它会重写所有已有文章的正文。
+  `--apply` 才写；用 `--only <slug>` 只处理一篇，不带它会重写所有已有文章的正文。已有文章的标题和摘要默认不动，
+  加 `--meta` 才按 POSTS 条目写（只写不同的字段，预演打印旧 → 新）。
   上传题图需要 `BLOB_READ_WRITE_TOKEN`，没有时脚本会拒绝上传。正文插图写成单独一行的
   `![alt](file.png "图注")`，文件放在 `DRAFTS_DIR`，同样按文件名复用 media、没有 token 不上传。
 - 写库脚本带 `--apply` 写完生产库后，会调 `POST /api/revalidate` 让线上缓存立刻失效（`scripts/lib/refreshSite.ts`，#107），

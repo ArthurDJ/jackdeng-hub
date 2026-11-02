@@ -12,7 +12,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.44.1] — 2026-11-01
 
-### Fixed — 文章页：目录不再压住侧栏，题图移到标题之后（#PRNUM）
+### Fixed — 文章页：目录不再压住侧栏，题图移到标题之后（#145）
 
 - **目录压字**：文章页右栏是一列，「本页目录」和侧栏（分类、标签、最新文章、归档）上下排，这一列和正文一样高。
   目录是 `position: sticky; top: 80px` 的透明 `nav`，往下滚时它停在原地，侧栏照常往上走，从它底下穿过去，

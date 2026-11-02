@@ -1,4 +1,5 @@
-import { notFound, permanentRedirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
+import { permanentRedirect } from '@/i18n/navigation'
 import { parsePageParam } from '@/lib/pagination'
 import { TagView, tagMetadata } from '../../view'
 
@@ -27,6 +28,6 @@ export default async function Page({ params }: Props) {
   const n = parsePageParam(page)
   if (n === null) notFound()
   // One URL per page: /page/1 is the list itself.
-  if (n === 1) permanentRedirect(`/${locale}/blog/tag/${slug}`)
+  if (n === 1) permanentRedirect({ href: `/blog/tag/${slug}`, locale })
   return <TagView locale={locale} slug={slug} page={n} />
 }

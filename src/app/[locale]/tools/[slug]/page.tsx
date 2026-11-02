@@ -122,11 +122,14 @@ export default async function ToolDetailPage({ params }: Props) {
       <main id="main" className="ds-container" style={{ paddingTop: '64px', paddingBottom: '80px' }}>
 
         {/* ── Breadcrumb ──────────────────────────────────────────────── */}
-        <nav style={{ marginBottom: '32px', fontSize: '14px', color: 'var(--text-tertiary)' }}>
+        {/* Laid out like the project and post breadcrumbs. As inline text the link
+            sat in a run of grey text it barely differed from (1.46:1), which
+            Lighthouse fails as link-in-text-block (#155). */}
+        <nav style={{ marginBottom: '32px', fontSize: '14px', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Link href="/tools" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
             {t('title')}
           </Link>
-          <span style={{ margin: '0 8px' }}>›</span>
+          <span aria-hidden="true">›</span>
           <span style={{ color: 'var(--text-primary)' }}>{tool.name}</span>
         </nav>
 

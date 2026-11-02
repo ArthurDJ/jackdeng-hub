@@ -32,7 +32,7 @@ export async function CommentList({ postId }: Props) {
   const t = await getTranslations({ locale, namespace: 'blog' })
   const payload = await getPayload()
 
-  const { docs: comments, totalDocs } = await payload.find({
+  const { docs: comments } = await payload.find({
     collection: 'comments',
     where: {
       and: [
@@ -41,9 +41,17 @@ export async function CommentList({ postId }: Props) {
       ],
     },
     sort: 'createdAt',
-    limit: 100,
+    // All of them: with a cap of 100 the heading counted every comment while
+    // the newest ones past the cap were never shown.
+    pagination: false,
+    // Only what the list shows. At the default depth each comment brought its
+    // whole post along (body, category, tags), up to 100 times per page, and
+    // with overrideAccess the commenter's email and IP were read for nothing.
+    depth: 0,
+    select: { authorName: true, content: true, createdAt: true },
     overrideAccess: true,
   })
+  const totalDocs = comments.length
 
   return (
     <section aria-labelledby="comments-heading">

@@ -8,6 +8,7 @@ import { asLocale } from '@/i18n/routing'
 import { localeAlternates } from '@/lib/alternates'
 import { siteOpenGraph } from '@/lib/siteOpenGraph'
 import { BUILT_HERE, USES } from '@/lib/uses'
+import { listedTools } from '@/lib/listedTools'
 
 export const revalidate = 3600
 
@@ -40,11 +41,7 @@ export default async function UsesPage({ params }: Props) {
   const { docs } = await orEmpty(payload.find({
     collection: 'tools',
     where: {
-      and: [
-        { slug: { in: BUILT_HERE } },
-        { status: { equals: 'online' } },
-        { accessControl: { equals: 'public' } },
-      ],
+      and: [{ slug: { in: BUILT_HERE } }, listedTools()],
     },
     depth: 0,
     locale: asLocale(locale),

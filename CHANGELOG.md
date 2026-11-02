@@ -10,6 +10,30 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.46.0] — 2026-11-02
+
+### Added — 新文章《一个被我解释掉的 307：手机上的 LCP 从 3.8 秒降到 2.2 秒》（#163）
+
+写手机 LCP 的两轮优化（#106、#154）：第一轮的四项改动和没采用的 `inlineCss`；当时把每页前面的 307 解释成 Early Hints、写下「真实访客
+不受影响」；11 月发现是 `withPayload` 加的 `Critical-CH` 让 Chrome 每个页面请求两次；博客列表的第一张图其实在第二张卡片上；剩下约 2 秒
+是 Lighthouse 把约 200KB 的 JS 按慢速 4G 算进 LCP。数字都出自 CHANGELOG 和 11 月 2 日的线上实测。
+
+- `scripts/publish-drafts.ts` 加一条（`the-redirect-i-explained-away`，分类「全栈」，标签 nextjs、payload-cms，以及新标签 `performance`，
+  第一次写入时创建）。暂无题图。
+- #106 的条目里那段「Early Hints、真实访客不受影响」原样保留，后面加了一条更正，指向 #154。文章结尾提到了这条更正。
+- 正文中英两版都过了 humanizer（humanizer-chinese / humanizer）。
+
+### 合并后
+
+写库要先确认。先演练再写，文章建为草稿，发布在 /admin 里点：
+
+```
+DRAFTS_DIR=~/Projects/blog-drafts npx tsx scripts/publish-drafts.ts --only the-redirect-i-explained-away
+DRAFTS_DIR=~/Projects/blog-drafts npx tsx scripts/publish-drafts.ts --only the-redirect-i-explained-away --apply
+```
+
+---
+
 ## [1.45.14] — 2026-11-02
 
 ### Security — 后台也强制执行内容安全策略（#162）
@@ -1185,6 +1209,10 @@ canonical、中英 hreflang、h1、alt、结构化数据全部通过；外链只
 - 翻译只下发客户端组件用到的命名空间：每页 gzip 后约省 5KB，但要拆多层 Provider，漏掉一个命名空间客户端就会报错，这次不做。
 
 测量上的一个坑：线上 Lighthouse 显示每个页面都有一次 307 跳转，多算了 165–824ms。本地没有这次跳转，curl 也看不到；线上只是多一个 Vercel 的 `103 Early Hints`，Lighthouse 把它当成了跳转。真实访客不受影响。
+
+> **更正（2026-11-02，#154）**：上面这段判断错了。307 是 Chrome 的内部重试：`withPayload` 给所有路径加了 `Critical-CH`，
+> Chrome 丢掉第一次响应、带上客户端提示再请求一次，真实访客每个页面都多一次往返。curl 不实现客户端提示，所以看不到。
+> #154 把这个头收窄到 `/admin` 后，线上手机 LCP 从 3.5–3.9 秒降到 2.1–2.4 秒。原文保留，不改。
 
 验证：本地 `next build && next start` 冒烟检查全部通过；typecheck、测试（34 个文件、296 个）、i18n 检查通过。本地冒烟检查一开始报了 3 个 404 链接，原因是之前用 seed 数据库构建留在 `.next/cache` 里的侧栏缓存，清掉后通过，线上不受影响。
 

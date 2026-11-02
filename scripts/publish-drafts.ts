@@ -77,6 +77,7 @@ const NEW_TAGS = [
   { slug: 'astrbot', name: 'AstrBot' },
   { slug: 'deepseek', name: 'DeepSeek' },
   { slug: 'wechat', name: 'WeChat' },
+  { slug: 'performance', name: 'Performance' },
 ]
 
 /**
@@ -238,6 +239,19 @@ const POSTS = [
       'Version 2 put the refund break-even at 31% when it should be 23.7%. flight-trip-planning 3.0 fixes that, trims Quick mode and rechecks the rules.',
     category: 'backend',
     tags: ['ai'],
+  },
+  {
+    md: '09-mobile-lcp-en.md',
+    mdZh: '09-mobile-lcp-zh.md',
+    titleZh: '一个被我解释掉的 307：手机上的 LCP 从 3.8 秒降到 2.2 秒',
+    excerptZh: 'Lighthouse 显示每个页面前都有一次 307，9 月我认定它无害。11 月才发现，Chrome 其实把每个页面都请求了两次。',
+    // No cover yet.
+    slug: 'the-redirect-i-explained-away',
+    title: 'The redirect I explained away: mobile LCP from 3.8 s to 2.2 s',
+    excerpt:
+      'Lighthouse showed a 307 before every page. In September I called it harmless; in November it turned out Chrome was fetching every page twice.',
+    category: 'full-stack',
+    tags: ['nextjs', 'payload-cms', 'performance'],
   },
 ]
 

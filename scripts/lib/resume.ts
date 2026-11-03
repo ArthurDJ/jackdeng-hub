@@ -24,7 +24,7 @@ export const RESUME_PROJECTS = [
     year: '2026',
     bullets: [
       'Consolidated a 3-service legacy integration platform into one ASP.NET Core app with 345 API endpoints, cut over only after an automated reconciliation harness diffed every endpoint; 130+ releases in under 6 weeks.',
-      'Built a fail-closed supplier EDI exchange over SFTP: gates on all 9 export paths, an archive made append-only at 3 layers, alerts within 30 min of a missed pickup; tests grew from about 2,200 to 5,100+.',
+      'Built a supplier EDI exchange over SFTP that fails closed: all 9 export paths are gated, the archive is append-only at 3 layers, and a missed pickup alerts within 30 min; tests grew from about 2,200 to 5,100+.',
     ],
   },
   {
@@ -33,7 +33,7 @@ export const RESUME_PROJECTS = [
     year: '2026',
     bullets: [
       'Built a B2B ordering portal on the company ERP with real-time stock and quote-to-order; 60+ releases in a month.',
-      'Idempotent, dry-run-first ERP writes keyed by the portal’s order number; 1,800+ tests (1,411 .NET, 393 client).',
+      "ERP writes are idempotent, keyed by the portal's order number, and dry-run first; 1,800+ tests (1,411 .NET, 393 client).",
     ],
   },
   {
@@ -41,7 +41,7 @@ export const RESUME_PROJECTS = [
     tech: 'C#, .NET 10, Vue 3, Playwright',
     year: '2026',
     bullets: [
-      'Read-only portal for B2B customers’ orders, per-unit production status and invoices; 32 releases in its first 2 weeks.',
+      "Read-only portal for B2B customers' orders, per-unit production status and invoices; 32 releases in its first 2 weeks.",
       'CI blocks internal system names in customer-facing code; 424 backend tests; 47 UI components spun out as a shared kit.',
     ],
   },

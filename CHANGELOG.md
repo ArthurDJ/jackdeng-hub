@@ -10,6 +10,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.47.1] — 2026-11-02
+
+### Changed — 今天的文案补跑 humanizer（#169）
+
+#147 之后写的文案只有 #168 正式跑过 humanizer / humanizer-chinese，其余是自己对着清单查的。这次把简历项目条目、首页 meta description、
+分类描述、三篇英文标题、项目短描述都过了一遍，大部分没问题，改了 6 处，事实和数字不变：
+
+- 简历：EDI 那条从三个名词短语改成三个完整分句；ERP 写入那条补上谓语；两处弯引号换成直引号。简历重新生成，中英都还是一页。
+- 分类描述（中文）：「后端」的「以及」改「还有」，和「数据」那条不再是同一个句式；「全栈」的「从前到后怎么做」改成「是怎么做出来的」。
+- 项目短描述（草稿，写库走 `patch-projects --only`）：数据中台英文的残句 "In production and released by tag." 补成完整句；
+  订单查询门户中文去掉多余的「它的」。
+
+### 合并后
+
+写库（先看演练，再写）：`npx tsx scripts/patch-copy.ts --apply`；
+`DRAFTS_DIR=~/Projects/blog-drafts npx tsx scripts/patch-projects.ts --only data-hub --apply` 和 `--only order-tracking-portal --apply`。
+
 ## [1.47.0] — 2026-11-02
 
 ### Changed — 经历写进三个 .NET 应用；项目标签显示起始年份（#168）

@@ -4,14 +4,12 @@ import { Link } from '@/i18n/navigation'
 import { Navbar } from '@/components/Navbar'
 import { BlogCard } from '@/components/BlogCard'
 import { HomeProjectCard } from '@/components/HomeProjectCard'
-import { IntroSwitch } from '@/components/IntroSwitch'
 import { SectionNav } from '@/components/SectionNav'
-import { EducationList } from '@/components/EducationList'
 import { PAIR_GRID, pairSpan } from '@/lib/bento'
 import { getPayload } from '@/lib/payload'
 import { asLocale } from '@/i18n/routing'
 import { populated, populatedList } from '@/lib/relations'
-import { CONTACT_EMAIL, PROFILE_LINKS, RESUME_URL, SKILLS, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
+import { CONTACT_EMAIL, PROFILE_LINKS, RESUME_URL, TIMELINE, personJsonLd, profileOgImage } from '@/lib/profile'
 import { toJsonLd } from '@/lib/jsonLd'
 import { PrintContact } from '@/components/PrintContact'
 import { localeAlternates } from '@/lib/alternates'
@@ -117,8 +115,8 @@ export default async function HomePage({ params }: Props) {
                 {t('location')}
               </p>
 
-              {/* Name first: this page stands in for a résumé, and a reader
-                  should know whose it is before anything else. */}
+              {/* Name first: a reader should know whose page this is before
+                  anything else. */}
               <h1
                 className="mb-3"
                 style={{
@@ -218,8 +216,6 @@ export default async function HomePage({ params }: Props) {
               items={[
                 { id: 'about', label: t('aboutHeading') },
                 { id: 'experience', label: t('experienceHeading') },
-                { id: 'education', label: t('educationHeading') },
-                { id: 'skills', label: t('skillsHeading') },
                 { id: 'projects', label: t('selectedProjects') },
                 ...(blogs.length > 0 ? [{ id: 'posts', label: t('latestPosts') }] : []),
               ]}
@@ -231,11 +227,10 @@ export default async function HomePage({ params }: Props) {
         {/* A large scroll margin sends the "About" link to the very top of the
             page, where the section list marks it current. */}
         <section id="about" aria-label={t('aboutHeading')} className="ds-section pb-10" style={{ scrollMarginTop: 400 }}>
-          <IntroSwitch
-            short={t('intro')}
-            long={[t('introLong1'), t('introLong2'), t('introLong3'), t('introLong4')]}
-            labels={{ group: t('bioGroup'), short: t('bioShort'), long: t('bioLong') }}
-          />
+          {/* The short bio only; the long one is the bio on About. */}
+          <p className="mb-8" style={{ fontSize: 16, fontWeight: 400, color: 'var(--text-secondary)', lineHeight: 1.65, maxWidth: 560 }}>
+            {t('intro')}
+          </p>
         </section>
 
         {/* ── Experience ───────────────────────────────────────────── */}
@@ -244,14 +239,9 @@ export default async function HomePage({ params }: Props) {
           className="ds-section py-12 print:py-5!"
           style={{ borderTop: '1px solid var(--border-subtle)' }}
         >
-          <div className="flex items-baseline justify-between mb-8">
-            <h2 style={{ fontSize: 20, fontWeight: 510, letterSpacing: '-0.3px', color: 'var(--text-primary)' }}>
-              {t('experienceHeading')}
-            </h2>
-            <Link href="/about" className="print:hidden!" style={{ fontSize: 13, color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 510 }}>
-              {t('experienceMore')}
-            </Link>
-          </div>
+          <h2 className="mb-8" style={{ fontSize: 20, fontWeight: 510, letterSpacing: '-0.3px', color: 'var(--text-primary)' }}>
+            {t('experienceHeading')}
+          </h2>
           <ol className="ds-dim-group" style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {TIMELINE.map(({ year, role, place, summary, bullets, tech }) => (
               <li
@@ -302,57 +292,16 @@ export default async function HomePage({ params }: Props) {
               </li>
             ))}
           </ol>
-        </section>
-
-        {/* ── Education ────────────────────────────────────────────── */}
-        <section
-          id="education"
-          className="ds-section py-12 print:py-5!"
-          style={{ borderTop: '1px solid var(--border-subtle)' }}
-        >
-          <h2
-            className="mb-8"
-            style={{ fontSize: 20, fontWeight: 510, letterSpacing: '-0.3px', color: 'var(--text-primary)' }}
-          >
-            {t('educationHeading')}
-          </h2>
-          <div className="ds-reveal">
-            <EducationList lang={lang} />
-          </div>
-        </section>
-
-        {/* ── Skills ───────────────────────────────────────────────── */}
-        <section
-          id="skills"
-          className="ds-section py-12 print:py-5!"
-          style={{ borderTop: '1px solid var(--border-subtle)' }}
-        >
-          <h2
-            className="mb-8"
-            style={{ fontSize: 20, fontWeight: 510, letterSpacing: '-0.3px', color: 'var(--text-primary)' }}
-          >
-            {t('skillsHeading')}
-          </h2>
-          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
-            {SKILLS.map(({ group, items }) => (
-              <div key={group.en} className="ds-reveal">
-                <dt style={{ fontSize: 11, fontWeight: 510, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 8 }}>
-                  {group[lang]}
-                </dt>
-                <dd style={{ margin: 0, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  {items.map((item) => (
-                    <span key={item} className="ds-chip" style={{
-                      fontSize: 13, padding: '3px 10px', borderRadius: 9999,
-                      background: 'var(--bg-panel)', color: 'var(--text-primary)',
-                      border: '1px solid var(--border-default)',
-                    }}>
-                      {item}
-                    </span>
-                  ))}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          {/* Skills, education and every bullet of each role are on About. */}
+          <p className="print:hidden!" style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 16 }}>
+            {t.rich('backgroundNote', {
+              link: (chunks) => (
+                <Link href="/about" style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 510 }}>
+                  {chunks}
+                </Link>
+              ),
+            })}
+          </p>
         </section>
 
         {/* ── Latest Projects ──────────────────────────────────────────── */}

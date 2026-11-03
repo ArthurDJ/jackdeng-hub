@@ -301,18 +301,6 @@
   }
   @keyframes ds-dots { to { background-position: 12px 12px, 0 0; } }
 
-  /* Skill chips lift and pick up the accent on hover. */
-  .ds-chip {
-    transition:
-      border-color var(--duration-base) var(--ease-default),
-      color var(--duration-base) var(--ease-default),
-      translate var(--duration-base) var(--ease-default);
-  }
-  .ds-chip:hover { border-color: var(--accent-primary) !important; }
-  @media (prefers-reduced-motion: no-preference) {
-    .ds-chip:hover { translate: 0 -1px; }
-  }
-
   /* ── Reveal: fade in and rise as a block scrolls into view ──
      Scroll-driven, no JavaScript. It animates `translate` and a filter, so
      a card's tilt transform and the sibling dim's opacity are left alone. Without support for
@@ -729,10 +717,6 @@
     outline: 2px solid var(--accent-primary);
     outline-offset: 1px;
   }
-
-  /* Content swapped in place (the home intro's Short / Long) fades in. */
-  .ds-fade:not([hidden]) { animation: ds-fade-in 240ms var(--ease-default); }
-  @keyframes ds-fade-in { from { opacity: 0; translate: 0 4px; } }
 
   /* ── Search button with a keycap (Navbar, sm and up) ── */
   .ds-search-btn {

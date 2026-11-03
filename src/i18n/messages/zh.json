@@ -220,6 +220,62 @@
     "colLink": "链接",
     "notSet": "未填写"
   },
+  "projectDiagrams": {
+    "caption": "架构示意，做了简化。高亮的部分是这个项目本身。",
+    "jackdeng-hub": {
+      "visitor": "访客",
+      "vercel": "Vercel",
+      "cdn": "CDN",
+      "cdnNote": "静态页面，保存内容就刷新",
+      "app": "Next.js 16 + Payload",
+      "appNote": "网站和后台是同一个应用",
+      "postgres": "Supabase Postgres",
+      "postgresNote": "开了 RLS，关了 Data API"
+    },
+    "data-hub": {
+      "erp": "ERP",
+      "erpNote": "只读",
+      "hub": "数据中台",
+      "jobs": "定时任务",
+      "jobsNote": "每个任务一把锁",
+      "switch": "对外写入",
+      "switchNote": "演练 / 正式开关",
+      "supplier": "供应商",
+      "supplierNote": "SFTP：发订单，收回执"
+    },
+    "b2b-customer-portal": {
+      "customer": "客户",
+      "proxy": "反向代理",
+      "proxyNote": "只走 HTTPS，后台路径返回 404",
+      "portal": "门户",
+      "app": "下单",
+      "appNote": "实时库存、报价、购物车",
+      "mirror": "订单镜像",
+      "mirrorNote": "只读",
+      "erp": "ERP",
+      "erpNote": "写入先演练"
+    },
+    "order-tracking-portal": {
+      "customer": "客户",
+      "customerNote": "只看得到自己的记录",
+      "portal": "门户",
+      "portalNote": "Vue 3 + .NET 10，只读",
+      "views": "视图 schema",
+      "viewsNote": "只能 SELECT 的账号",
+      "erp": "ERP"
+    },
+    "enterprise-manufacturing-analytics": {
+      "erp": "ERP",
+      "erpNote": "原始数据",
+      "lakehouse": "Databricks + dbt",
+      "bronze": "Bronze",
+      "silver": "Silver",
+      "gold": "Gold",
+      "mart": "Mart",
+      "powerbi": "Power BI",
+      "powerbiNote": "报表直接读 mart"
+    }
+  },
   "tools": {
     "title": "实验室",
     "subtitle": "在浏览器里跑的小实验和小工具。",

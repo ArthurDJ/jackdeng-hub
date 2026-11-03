@@ -6,6 +6,8 @@ import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
 import { asLocale } from '@/i18n/routing'
 import { badgeLabels, projectBadge } from '@/lib/projectBadge'
+import { projectDiagram } from '@/lib/projectDiagrams'
+import { ProjectDiagram } from '@/components/ProjectDiagram'
 import { localeAlternates } from '@/lib/alternates'
 import { siteOpenGraph } from '@/lib/siteOpenGraph'
 
@@ -64,6 +66,7 @@ export default async function ProjectsPage({ params }: Props) {
             const badge = projectBadge(project, labels)
             const techStack: string[] = (project.techStack ?? []).map((t) => t.tech).filter(Boolean)
             const hasSlug = Boolean(project.slug)
+            const diagram = projectDiagram(project.slug)
 
             const CardInner = (
               <div
@@ -72,16 +75,17 @@ export default async function ProjectsPage({ params }: Props) {
                   background: 'var(--bg-panel)',
                   border: '1px solid var(--border-default)',
                   borderRadius: 12,
-                  padding: '20px 24px',
+                  overflow: 'hidden',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: 10,
                   height: '100%',
                   width: '100%',
                   textDecoration: 'none',
                   color: 'inherit',
                 }}
               >
+                {diagram && project.slug && <ProjectDiagram slug={project.slug} stages={diagram} mini />}
+                <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
                 {/* Name + status */}
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
                   <h2 style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)', lineHeight: 1.4, margin: 0 }}>
@@ -133,6 +137,7 @@ export default async function ProjectsPage({ params }: Props) {
                     </svg>
                   </span>
                 )}
+                </div>
               </div>
             )
 

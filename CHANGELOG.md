@@ -10,6 +10,27 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.49.1] — 2026-11-02
+
+### Added — 纵深防御那篇文章；两篇机票文章补题图（#172）
+
+- `publish-drafts.ts` 加入新文章「每一层都假设前面那层已经失守」/ *Each layer assumes the one in front has failed*（`each-layer-assumes-the-last-failed`，
+  全栈分类，标签 security、nextjs、payload-cms、postgresql）。按层讲这两个月查出来的六处：Supabase 的 anon/authenticated 权限（#82、#161）、
+  REST 访问规则和 `PAYLOAD_SECRET`（#74）、评论的人机验证（#36、#156、#160）、草稿标题随 404 泄露（#89）、后台 CSP（#103、#162）、
+  写库守卫（#159）。文中的数字和日期都对过 PR 描述：22 张表、0 条已批准评论、7 个测试、5 秒超时、9 月 26 日和 28 日。中英两稿都过了
+  humanizer / humanizer-chinese。
+- 题图：Neuf-Brisach 要塞平面图，1705 年，法国国家图书馆藏，公有领域；层层城墙和护城河对应文章的意思。
+- 两篇机票文章原来没有题图，博客列表里是占位图。现在用 Jack Delano 1941 年 7 月在华盛顿国家机场拍的两张照片（美国国会图书馆，公有领域）：
+  候机厅落地窗前看飞机的人（*The cheapest flight isn't always the one to book*），主候机厅里指路的老人（*Flight skill 3.0*）。
+  这两篇的 markdown 不在这台机器上，正文也不该重写，所以 `publish-drafts.ts` 加了 `--cover-only`：只给已存在、还没有封面的文章挂上
+  条目里的题图，不读 markdown、不动正文，演练照样只读。
+- 题图都裁成 1600×1000，和之前的题图一样；署名写在 media 的 caption 里，文章页题图下面显示（#165）。
+
+### 合并后
+
+写库（先看演练，再写，要 Jack 确认）：`--only each-layer-assumes-the-last-failed --apply`（建为草稿，再发布），
+`--only when-the-cheapest-flight-is-wrong --cover-only --apply`、`--only flight-skill-v3 --cover-only --apply`（挂题图）。
+
 ## [1.49.0] — 2026-11-02
 
 ### Changed — 首页和关于页分工（#171）

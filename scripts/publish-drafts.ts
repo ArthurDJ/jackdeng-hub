@@ -24,6 +24,14 @@
  * parser fix reaches old posts, and also how an edit made in /admin gets
  * overwritten, so name the post unless that is the point.
  *
+ * --cover-only attaches the entry's hero to a post that exists and has no
+ * cover yet, and touches nothing else: no markdown is read and the body is not
+ * rewritten. For a cover chosen after the post went live, when its markdown
+ * may not be on this machine.
+ *
+ *   DRAFTS_DIR=… npx tsx scripts/publish-drafts.ts --only <slug> --cover-only           # read-only
+ *   DRAFTS_DIR=… npx tsx scripts/publish-drafts.ts --only <slug> --cover-only --apply   # attach it
+ *
  * Title and excerpt of a post that exists are left alone, so a title edited
  * in /admin survives a body rewrite. Add --meta to also write them, in both
  * locales, from the entry below; only the fields that differ are written, and
@@ -53,6 +61,8 @@ if (!DRAFTS) {
 const apply = process.argv.includes('--apply')
 // Also write title and excerpt of posts that exist (see the header).
 const meta = process.argv.includes('--meta')
+// Only attach a missing cover to posts that exist (see the header).
+const coverOnly = process.argv.includes('--cover-only')
 const onlyAt = process.argv.indexOf('--only')
 const only = onlyAt > -1 ? process.argv[onlyAt + 1] : undefined
 
@@ -201,9 +211,11 @@ const POSTS = [
     mdZh: '06-flight-skill-zh.md',
     titleZh: '搜出来最便宜的机票，常常不是该订的那张',
     excerptZh: '机票搜索能告诉你哪张最便宜，我常要回答的却是该订哪一张。为这个问题，我写了一个 Claude skill。',
-    // No cover chosen yet, so no hero fields: the post goes in without one and
-    // the cover is attached from /admin, or added here and picked up on a later
-    // run (uploadHero offers it to a post that still has none).
+    // Added after the post went live: uploadHero offers it to a post that still
+    // has no cover, so a later run picks it up.
+    hero: 'hero-airport-window.jpg',
+    heroAlt: 'Silhouetted passengers at a tall terminal window watching an Eastern Air Lines DC-3 on the apron, 1941',
+    heroCredit: 'Terminal waiting room, Washington National Airport, July 1941, by Jack Delano, Library of Congress, public domain',
     slug: 'when-the-cheapest-flight-is-wrong',
     title: "The cheapest flight isn't always the one to book",
     excerpt:
@@ -232,7 +244,9 @@ const POSTS = [
     mdZh: '08-flight-skill-v3-zh.md',
     titleZh: '机票 skill 出了 3.0，第二版连自己的算例都算错了',
     excerptZh: 'flight-trip-planning 3.0 改正了 v2 算错的退票盈亏平衡（31% 应为 23.7%），Quick 模式也真的短了，规则对着官方来源重查过，评测里分不出高下的地方也照实写了。',
-    // No cover, like the post it follows (when-the-cheapest-flight-is-wrong).
+    hero: 'hero-airport-hall.jpg',
+    heroAlt: 'A bearded man points the way for a woman in a hat in the curved main waiting room of an airport, 1941',
+    heroCredit: 'Main waiting room, Washington National Airport, July 1941, by Jack Delano, Library of Congress, public domain',
     slug: 'flight-skill-v3',
     title: 'Flight skill 3.0 fixes the example version 2 got wrong',
     excerpt:
@@ -254,6 +268,21 @@ const POSTS = [
       'Lighthouse showed a 307 before every page. In September I called it harmless; in November it turned out Chrome was fetching every page twice.',
     category: 'full-stack',
     tags: ['nextjs', 'payload-cms', 'performance'],
+  },
+  {
+    md: '10-defense-in-depth-en.md',
+    mdZh: '10-defense-in-depth-zh.md',
+    titleZh: '每一层都假设前面那层已经失守：一个个人站的纵深防御',
+    excerptZh: '这两个月，每次认真查这个站的一处，都发现一道我以为在的防线其实不在。这篇按层讲六处，以及后来补上的检查。',
+    hero: 'hero-fortress-plan.jpg',
+    heroAlt: 'Hand-coloured plan of the star-shaped fortress town of Neuf-Brisach, its streets ringed by several layers of walls and moats',
+    heroCredit: 'Plan of Neuf-Brisach, 1705, Bibliothèque nationale de France, public domain',
+    slug: 'each-layer-assumes-the-last-failed',
+    title: 'Each layer assumes the one in front has failed',
+    excerpt:
+      "Every time I looked closely at this site, a defense I thought was there wasn't. This post goes through six of them and the checks I added after.",
+    category: 'full-stack',
+    tags: ['security', 'nextjs', 'payload-cms', 'postgresql'],
   },
 ]
 
@@ -551,10 +580,42 @@ async function ensureTaxonomy(payload: any) {
   }
 }
 
+/**
+ * --cover-only: for each selected post that exists without a cover, the hero
+ * it would get (dry run) or gets (--apply). Never reads the markdown and never
+ * writes anything but coverImage.
+ */
+async function covers(payload: any) {
+  if (!apply) console.log(`DRY RUN (read-only) against ${describeTarget().host}\n`)
+  let attached = 0
+  for (const post of SELECTED) {
+    const found = await payload.find({ collection: 'blogs', where: { slug: { equals: post.slug } }, limit: 1, depth: 0 })
+    const doc = found.docs[0]
+    if (!doc) { console.log(`${post.slug}: no such post; --cover-only only adds covers to posts that exist`); continue }
+    if (doc.coverImage) { console.log(`${post.slug}: already has a cover (media ${doc.coverImage}), left alone`); continue }
+    if (!post.hero) { console.log(`${post.slug}: no hero in this script`); continue }
+    if (!apply) {
+      console.log(`${post.slug} (id ${doc.id}, ${doc.status}): cover ${await planMedia(payload, post.hero, 'no cover attached')}`)
+      continue
+    }
+    const cover = await uploadHero(payload, post)
+    if (!cover) continue
+    await payload.update({ collection: 'blogs', id: doc.id, data: { coverImage: cover } as any })
+    console.log(`update blog ${doc.id}  ${post.slug}  (cover only)`)
+    attached++
+  }
+  if (!apply) { console.log('\nNothing written. Re-run with --apply to write.'); return }
+  if (attached) await refreshLiveSite({ isProduction: describeTarget().isProduction })
+}
+
 async function run() {
   const config = (await import('../src/payload.config')).default
   const payload = await getPayload({ config })
 
+  if (coverOnly) {
+    await covers(payload)
+    return
+  }
   if (!apply) {
     await plan(payload)
     return

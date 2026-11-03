@@ -24,6 +24,9 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   候机厅落地窗前看飞机的人（*The cheapest flight isn't always the one to book*），主候机厅里指路的老人（*Flight skill 3.0*）。
   这两篇的 markdown 不在这台机器上，正文也不该重写，所以 `publish-drafts.ts` 加了 `--cover-only`：只给已存在、还没有封面的文章挂上
   条目里的题图，不读 markdown、不动正文，演练照样只读。
+- 合并前 `/code-review`（high）找出 3 条，修了 2 条：第一篇机票文章条目上的注释还说「下次运行会挂上」，其实那条路要读 markdown，
+  改成指向 `--cover-only`；`--cover-only` 和 `--meta` 一起用时 `--meta` 会被悄悄忽略，现在直接报错退出。没改的一条：slug
+  `each-layer-assumes-the-last-failed` 和标题措辞不同，意思一样，留着。
 - 题图都裁成 1600×1000，和之前的题图一样；署名写在 media 的 caption 里，文章页题图下面显示（#165）。
 
 ### 合并后

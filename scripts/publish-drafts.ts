@@ -63,6 +63,10 @@ const apply = process.argv.includes('--apply')
 const meta = process.argv.includes('--meta')
 // Only attach a missing cover to posts that exist (see the header).
 const coverOnly = process.argv.includes('--cover-only')
+if (coverOnly && meta) {
+  console.error('--cover-only writes the cover and nothing else; run --meta separately')
+  process.exit(1)
+}
 const onlyAt = process.argv.indexOf('--only')
 const only = onlyAt > -1 ? process.argv[onlyAt + 1] : undefined
 
@@ -211,8 +215,8 @@ const POSTS = [
     mdZh: '06-flight-skill-zh.md',
     titleZh: '搜出来最便宜的机票，常常不是该订的那张',
     excerptZh: '机票搜索能告诉你哪张最便宜，我常要回答的却是该订哪一张。为这个问题，我写了一个 Claude skill。',
-    // Added after the post went live: uploadHero offers it to a post that still
-    // has no cover, so a later run picks it up.
+    // Chosen after the post went live, and its markdown is not on hand: attach
+    // it with --cover-only, which leaves the body alone.
     hero: 'hero-airport-window.jpg',
     heroAlt: 'Silhouetted passengers at a tall terminal window watching an Eastern Air Lines DC-3 on the apron, 1941',
     heroCredit: 'Terminal waiting room, Washington National Airport, July 1941, by Jack Delano, Library of Congress, public domain',

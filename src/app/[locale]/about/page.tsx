@@ -150,15 +150,8 @@ export default async function AboutPage({ params }: Props) {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, color: 'var(--text-secondary)', fontSize: 15, lineHeight: 1.7 }}>
-            <p>{t('bio1')}</p>
-            <p>
-              {t.rich('bio2', {
-                nextjs:   (c) => <a href="https://nextjs.org" target="_blank" rel="noreferrer" style={{ color: 'var(--text-primary)', textDecoration: 'underline', textUnderlineOffset: 3 }}>{c}</a>,
-                payload:  (c) => <a href="https://payloadcms.com" target="_blank" rel="noreferrer" style={{ color: 'var(--text-primary)', textDecoration: 'underline', textUnderlineOffset: 3 }}>{c}</a>,
-                supabase: (c) => <a href="https://supabase.com" target="_blank" rel="noreferrer" style={{ color: 'var(--text-primary)', textDecoration: 'underline', textUnderlineOffset: 3 }}>{c}</a>,
-              })}
-            </p>
-            <p>{t('bio3')}</p>
+            {/* The long bio; the home page keeps only the short one. */}
+            {(['bio1', 'bio2', 'bio3', 'bio4'] as const).map((k) => <p key={k}>{t(k)}</p>)}
           </div>
         </section>
 

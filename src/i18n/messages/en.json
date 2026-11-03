@@ -60,7 +60,7 @@
   "home": {
     "title": "Full-Stack Engineer · Backend & Data",
     "location": "Based in California",
-    "intro": "Most of my work is on the backend and data side: pipelines, integrations, and the internal tools people run their day on. At Value Windows & Doors I built three internal .NET apps on the company ERP, and helped design the company's Databricks + dbt data platform and built part of it.",
+    "intro": "Most of my work is on the backend and data side: pipelines, integrations, and the internal tools people run their day on. At Value Windows & Doors I built three internal .NET apps that run on the company's ERP. I also helped design its Databricks + dbt data platform and built part of it.",
     "bioGroup": "Bio",
     "bioShort": "Short",
     "bioLong": "Long",

@@ -58,7 +58,7 @@ export const TIMELINE = [
     place: 'Value Windows & Doors',
     location: 'Duarte, CA',
     summary: {
-      en: 'Built three internal .NET apps on the company ERP, and helped design a Databricks + dbt reporting platform and built part of it.',
+      en: 'Built three internal .NET apps on the company ERP; helped design a Databricks + dbt reporting platform and built part of it.',
       zh: '做了三个接公司 ERP 的内部 .NET 应用；也参与设计 Databricks + dbt 报表平台，并搭了其中一部分。',
     },
     bullets: {
@@ -69,7 +69,7 @@ export const TIMELINE = [
         'Built Power BI dashboards for executives, so teams can look up real-time operational metrics themselves.',
       ],
       zh: [
-        '搭了三个接公司 ERP 的内部 .NET 10 应用，并负责日常维护：一个替掉三个旧服务的数据中台、一个 B2B 下单门户、一个给客户查订单的只读门户。',
+        '搭了三个接公司 ERP 的内部 .NET 10 应用，并负责日常维护：数据中台（替掉了三个旧服务）、B2B 下单门户，还有给客户查订单的只读门户。',
         '参与 Databricks + dbt 云数据平台的架构设计，并搭了其中一部分。ERP 原始数据按 Medallion（Bronze→Silver→Gold→Mart）分层整理成模型，制造、库存、销售和人力效率报表直接用。',
         '用 C# 和 Python 写数据迁移和集成管道，提高了 ERP 系统的可靠性，每天跨部门处理数万条记录。',
         '给管理层做 Power BI 看板，各团队可以自己查实时运营指标。',

@@ -32,6 +32,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 合并前 `/code-review`（high）找出 1 条：标签对象在三处重复构建，已收进 `badgeLabels()`。
 
+新增和改动的文案都跑过 humanizer（英文 `humanizer`、中文 `humanizer-chinese`）：英文简介和摘要去掉重复的 company 和叠在一起的 and；中文简介去掉重复的「公司」，三个应用不再写成「一个……一个……一个……」的三连。
+
 ---
 
 ## [1.46.4] — 2026-11-02

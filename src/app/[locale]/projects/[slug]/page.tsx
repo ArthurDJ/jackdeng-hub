@@ -10,7 +10,7 @@ import { getTranslations } from 'next-intl/server'
 import { getPayload, orEmpty } from '@/lib/payload'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
 import { Navbar } from '@/components/Navbar'
-import { projectStatusColors } from '@/lib/statusColors'
+import { badgeLabels, projectBadge } from '@/lib/projectBadge'
 import { toJsonLd } from '@/lib/jsonLd'
 import { ogCardUrl } from '@/lib/ogCard'
 import { localeAlternates } from '@/lib/alternates'
@@ -97,12 +97,8 @@ export default async function ProjectDetailPage({ params }: Props) {
   const techStack: string[] = (project.techStack ?? []).map((t) => t.tech).filter(Boolean)
   const coverUrl: string | null = populated(project.coverImage)?.url ?? null
   const logoUrl: string | null = populated(project.logo)?.url ?? null
-  const statusLabel: Record<string, string> = {
-    active:    tHome('projectStatus.active'),
-    completed: tHome('projectStatus.completed'),
-    'on-hold': tHome('projectStatus.onHold'),
-  }
-  const sc = projectStatusColors(project.status)
+  const labels = badgeLabels(tHome)
+  const badge = projectBadge(project, labels)
 
   // Other projects (exclude current). Optional: the page is still worth
   // serving without them.
@@ -174,12 +170,12 @@ export default async function ProjectDetailPage({ params }: Props) {
                 <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.03em', margin: 0 }}>
                   {project.name}
                 </h1>
-                {project.status && (
+                {badge && (
                   <span style={{
                     fontSize: 12, fontWeight: 510, padding: '3px 10px', borderRadius: 9999,
-                    background: sc.bg, color: sc.text, border: `1px solid ${sc.border}`,
+                    background: badge.colors.bg, color: badge.colors.text, border: `1px solid ${badge.colors.border}`,
                   }}>
-                    {statusLabel[project.status] ?? project.status}
+                    {badge.label}
                   </span>
                 )}
               </div>
@@ -278,7 +274,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
               {otherProjects.filter(p => p.slug).map((other) => {
-                const oSc = projectStatusColors(other.status)
+                const oBadge = projectBadge(other, labels)
                 const oTech: string[] = (other.techStack ?? []).map((t) => t.tech).filter(Boolean)
                 return (
                   <Link
@@ -292,9 +288,9 @@ export default async function ProjectDetailPage({ params }: Props) {
                     }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6 }}>
                         <span style={{ fontSize: 14, fontWeight: 510, color: 'var(--text-primary)', lineHeight: 1.4 }}>{other.name}</span>
-                        {other.status && (
-                          <span style={{ fontSize: 10, fontWeight: 510, padding: '2px 6px', borderRadius: 9999, whiteSpace: 'nowrap', background: oSc.bg, color: oSc.text, border: `1px solid ${oSc.border}`, flexShrink: 0 }}>
-                            {statusLabel[other.status]}
+                        {oBadge && (
+                          <span style={{ fontSize: 10, fontWeight: 510, padding: '2px 6px', borderRadius: 9999, whiteSpace: 'nowrap', background: oBadge.colors.bg, color: oBadge.colors.text, border: `1px solid ${oBadge.colors.border}`, flexShrink: 0 }}>
+                            {oBadge.label}
                           </span>
                         )}
                       </div>

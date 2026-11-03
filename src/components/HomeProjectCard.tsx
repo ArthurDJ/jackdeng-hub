@@ -2,7 +2,7 @@
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import type { Project } from '@/payload-types'
-import { projectStatusColors } from '@/lib/statusColors'
+import { badgeLabels, projectBadge } from '@/lib/projectBadge'
 
 interface HomeProjectCardProps {
   project: Project
@@ -10,12 +10,7 @@ interface HomeProjectCardProps {
 
 export function HomeProjectCard({ project }: HomeProjectCardProps) {
   const t = useTranslations('home')
-  const statusLabel: Record<string, string> = {
-    active:    t('projectStatus.active'),
-    completed: t('projectStatus.completed'),
-    'on-hold': t('projectStatus.onHold'),
-  }
-  const sc = projectStatusColors(project.status)
+  const badge = projectBadge(project, badgeLabels(t))
   const techStack: string[] = (project.techStack ?? []).map((ts) => ts.tech).filter(Boolean)
   const hasSlug = Boolean(project.slug)
 
@@ -41,12 +36,12 @@ export function HomeProjectCard({ project }: HomeProjectCardProps) {
         <h3 style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)', lineHeight: 1.4 }}>
           {project.name}
         </h3>
-        {project.status && (
+        {badge && (
           <span style={{
             fontSize: 11, fontWeight: 510, padding: '2px 8px', borderRadius: 9999,
-            whiteSpace: 'nowrap', background: sc.bg, color: sc.text, border: `1px solid ${sc.border}`, flexShrink: 0,
+            whiteSpace: 'nowrap', background: badge.colors.bg, color: badge.colors.text, border: `1px solid ${badge.colors.border}`, flexShrink: 0,
           }}>
-            {statusLabel[project.status] ?? project.status}
+            {badge.label}
           </span>
         )}
       </div>

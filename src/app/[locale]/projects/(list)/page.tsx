@@ -5,7 +5,7 @@ import { getTranslations } from 'next-intl/server'
 import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
 import { asLocale } from '@/i18n/routing'
-import { projectStatusColors } from '@/lib/statusColors'
+import { badgeLabels, projectBadge } from '@/lib/projectBadge'
 import { localeAlternates } from '@/lib/alternates'
 import { siteOpenGraph } from '@/lib/siteOpenGraph'
 
@@ -30,6 +30,7 @@ export default async function ProjectsPage({ params }: Props) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'projects' })
   const tHome = await getTranslations({ locale, namespace: 'home' })
+  const labels = badgeLabels(tHome)
 
   const payload = await getPayload()
   const { docs: projects } = await payload.find({
@@ -60,12 +61,7 @@ export default async function ProjectsPage({ params }: Props) {
       ) : (
         <div className={BENTO_GRID}>
           {projects.map((project, i) => {
-            const sc = projectStatusColors(project.status)
-            const statusLabel: Record<string, string> = {
-              active:    tHome('projectStatus.active'),
-              completed: tHome('projectStatus.completed'),
-              'on-hold': tHome('projectStatus.onHold'),
-            }
+            const badge = projectBadge(project, labels)
             const techStack: string[] = (project.techStack ?? []).map((t) => t.tech).filter(Boolean)
             const hasSlug = Boolean(project.slug)
 
@@ -91,13 +87,13 @@ export default async function ProjectsPage({ params }: Props) {
                   <h2 style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)', lineHeight: 1.4, margin: 0 }}>
                     {project.name}
                   </h2>
-                  {project.status && (
+                  {badge && (
                     <span style={{
                       fontSize: 11, fontWeight: 510, padding: '2px 8px', borderRadius: 9999,
-                      whiteSpace: 'nowrap', background: sc.bg, color: sc.text, border: `1px solid ${sc.border}`,
+                      whiteSpace: 'nowrap', background: badge.colors.bg, color: badge.colors.text, border: `1px solid ${badge.colors.border}`,
                       flexShrink: 0,
                     }}>
-                      {statusLabel[project.status] ?? project.status}
+                      {badge.label}
                     </span>
                   )}
                 </div>

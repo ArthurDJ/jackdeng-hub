@@ -58,22 +58,24 @@ export const TIMELINE = [
     place: 'Value Windows & Doors',
     location: 'Duarte, CA',
     summary: {
-      en: 'Helped design a Databricks + dbt platform for ERP reporting and built part of it, plus the pipelines and dashboards around it.',
-      zh: '参与设计 Databricks + dbt 数据平台并搭了其中一部分，ERP 报表从这里出；也做周边的数据管道和看板。',
+      en: 'Built three internal .NET apps on the company ERP, and helped design a Databricks + dbt reporting platform and built part of it.',
+      zh: '做了三个接公司 ERP 的内部 .NET 应用；也参与设计 Databricks + dbt 报表平台，并搭了其中一部分。',
     },
     bullets: {
       en: [
+        'Built and run three internal .NET 10 apps on the company ERP: a data hub that replaced three older services, a B2B ordering portal, and a read-only order tracking portal for customers.',
         'Helped design a cloud data platform on Databricks + dbt and built part of it: raw ERP data moves through medallion layers (Bronze→Silver→Gold→Mart) into models for manufacturing, inventory, sales and workforce reporting.',
-        'Wrote data-migration and integration pipelines in C# and Python that improved ERP reliability; they process tens of thousands of records a day across departments.',
-        'Built Power BI dashboards for executives and internal portals in React, so teams can look up real-time operational metrics themselves.',
+        'Wrote C#/Python migration and integration pipelines that made the ERP more reliable at tens of thousands of records/day.',
+        'Built Power BI dashboards for executives, so teams can look up real-time operational metrics themselves.',
       ],
       zh: [
+        '搭了三个接公司 ERP 的内部 .NET 10 应用，并负责日常维护：一个替掉三个旧服务的数据中台、一个 B2B 下单门户、一个给客户查订单的只读门户。',
         '参与 Databricks + dbt 云数据平台的架构设计，并搭了其中一部分。ERP 原始数据按 Medallion（Bronze→Silver→Gold→Mart）分层整理成模型，制造、库存、销售和人力效率报表直接用。',
         '用 C# 和 Python 写数据迁移和集成管道，提高了 ERP 系统的可靠性，每天跨部门处理数万条记录。',
-        '给管理层做 Power BI 看板，用 React 做内部门户，各团队可以自己查实时运营指标。',
+        '给管理层做 Power BI 看板，各团队可以自己查实时运营指标。',
       ],
     },
-    tech: ['Databricks', 'dbt', 'Python', 'C#', 'React', 'Power BI'],
+    tech: ['C#', '.NET', 'ASP.NET Core', 'Databricks', 'dbt', 'Python', 'React', 'Vue', 'Power BI'],
   },
   {
     year: { en: '07/2022 – 01/2024', zh: '07/2022 – 01/2024' },

@@ -26,11 +26,11 @@ type Locale = 'en' | 'zh'
 const CATEGORY_DESCRIPTIONS: Record<string, Record<Locale, string>> = {
   backend: {
     en: 'Server-side work: APIs, integrations, and the AI tools wired into them.',
-    zh: '服务端的活：API、系统集成，以及接进系统里的 AI 工具。',
+    zh: '服务端的活：API、系统集成，还有接进系统里的 AI 工具。',
   },
   'full-stack': {
     en: 'How this site and other apps are built end to end: architecture, deployment, performance.',
-    zh: '这个网站和其他应用从前到后怎么做：架构、部署、性能。',
+    zh: '这个网站和其他应用是怎么做出来的：架构、部署、性能。',
   },
   data: {
     en: 'Data platforms and pipelines: SQL, dbt, Databricks, and what breaks in migrations.',

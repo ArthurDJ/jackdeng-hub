@@ -10,6 +10,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.49.2] — 2026-11-03
+
+### Changed — 联系邮箱定为 Gmail（#173）
+
+- 网站和简历上的联系邮箱继续用 Gmail，这是 Jack 定下的，不再计划改成 `hello@jackdeng.cc`。`src/lib/profile.ts` 里 `CONTACT_EMAIL`
+  的注释原来写着「转发配好以后再换」，像一条待办，现在写明是有意的选择：域名没有 MX 记录，`@jackdeng.cc` 的地址会退信，没配好转发前不要用。
+  页面和简历不变。
+
 ## [1.49.1] — 2026-11-02
 
 ### Added — 纵深防御那篇文章；两篇机票文章补题图（#172）

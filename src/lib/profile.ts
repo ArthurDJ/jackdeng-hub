@@ -6,9 +6,9 @@ import { ogCardUrl } from './ogCard'
 // one of which had no mailbox behind it).
 
 /**
- * Where "email me" goes. hello@jackdeng.cc would read better, but the domain
- * has no MX record, so mail to it bounces. Switch this once a forwarding
- * service (e.g. Cloudflare Email Routing) is set up and a test message arrives.
+ * Where "email me" goes: Jack's Gmail, by his choice (November 2026). The
+ * domain has no MX record, so an @jackdeng.cc address would bounce; don't use
+ * one unless forwarding is set up and a test message arrives.
  */
 export const CONTACT_EMAIL = 'dj3013158@gmail.com'
 

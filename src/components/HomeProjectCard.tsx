@@ -3,6 +3,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import type { Project } from '@/payload-types'
 import { badgeLabels, projectBadge } from '@/lib/projectBadge'
+import { ProjectCardCover } from '@/components/ProjectDiagram'
 
 interface HomeProjectCardProps {
   project: Project
@@ -29,8 +30,9 @@ export function HomeProjectCard({ project }: HomeProjectCardProps) {
 
   const inner = (
     <div className="ds-card-hover ds-spotlight ds-tilt print:break-inside-avoid" style={cardStyle}>
-      {/* Dot cover: decoration in the theme's tokens, and left off paper */}
-      <div aria-hidden="true" className="ds-dot-cover print:hidden!" style={{ height: 72, flexShrink: 0 }} />
+      {/* Cover: the project's architecture in miniature, or plain dots when
+          it has none. Decoration either way, and left off paper. */}
+      <ProjectCardCover slug={project.slug} />
       <div style={{ padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
         <h3 style={{ fontSize: 15, fontWeight: 510, color: 'var(--text-primary)', lineHeight: 1.4 }}>

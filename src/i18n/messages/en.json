@@ -220,6 +220,62 @@
     "colLink": "Link",
     "notSet": "Not set"
   },
+  "projectDiagrams": {
+    "caption": "Architecture, simplified. The highlighted part is what this project is.",
+    "jackdengHub": {
+      "visitor": "Visitor",
+      "vercel": "Vercel",
+      "cdn": "CDN",
+      "cdnNote": "Static pages, refreshed on save",
+      "app": "Next.js 16 + Payload",
+      "appNote": "Site and CMS admin in one app",
+      "postgres": "Supabase Postgres",
+      "postgresNote": "RLS on, Data API off"
+    },
+    "dataHub": {
+      "erp": "ERP",
+      "erpNote": "Read only",
+      "hub": "Data hub",
+      "jobs": "Scheduled jobs",
+      "jobsNote": "One lock per job",
+      "switch": "Outbound writes",
+      "switchNote": "Dry-run / live switch",
+      "supplier": "Supplier",
+      "supplierNote": "SFTP: orders out, confirmations back"
+    },
+    "b2bCustomerPortal": {
+      "customer": "Customer",
+      "proxy": "Reverse proxy",
+      "proxyNote": "HTTPS only, admin paths 404",
+      "portal": "Portal",
+      "app": "Ordering",
+      "appNote": "Live stock, quotes, cart",
+      "mirror": "Order mirror",
+      "mirrorNote": "Read only",
+      "erp": "ERP",
+      "erpNote": "Writes go dry-run first"
+    },
+    "orderTrackingPortal": {
+      "customer": "Customer",
+      "customerNote": "Sees only their own records",
+      "portal": "Portal",
+      "portalNote": "Vue 3 + .NET 10, read only",
+      "views": "View schema",
+      "viewsNote": "SELECT-only login",
+      "erp": "ERP"
+    },
+    "enterpriseManufacturingAnalytics": {
+      "erp": "ERP",
+      "erpNote": "Raw data",
+      "lakehouse": "Databricks + dbt",
+      "bronze": "Bronze",
+      "silver": "Silver",
+      "gold": "Gold",
+      "mart": "Mart",
+      "powerbi": "Power BI",
+      "powerbiNote": "Reports read the marts"
+    }
+  },
   "tools": {
     "title": "Playground",
     "subtitle": "Small experiments and handy utilities that run in your browser.",

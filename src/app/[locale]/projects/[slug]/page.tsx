@@ -11,6 +11,8 @@ import { getPayload, orEmpty } from '@/lib/payload'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
 import { Navbar } from '@/components/Navbar'
 import { badgeLabels, projectBadge } from '@/lib/projectBadge'
+import { projectDiagram } from '@/lib/projectDiagrams'
+import { ProjectDiagram } from '@/components/ProjectDiagram'
 import { toJsonLd } from '@/lib/jsonLd'
 import { ogCardUrl } from '@/lib/ogCard'
 import { localeAlternates } from '@/lib/alternates'
@@ -99,6 +101,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   const logoUrl: string | null = populated(project.logo)?.url ?? null
   const labels = badgeLabels(tHome)
   const badge = projectBadge(project, labels)
+  const diagram = projectDiagram(slug)
 
   // Other projects (exclude current). Optional: the page is still worth
   // serving without them.
@@ -184,6 +187,8 @@ export default async function ProjectDetailPage({ params }: Props) {
               </p>
             </div>
           </div>
+
+          {diagram && <ProjectDiagram slug={slug} stages={diagram} />}
 
           {/* Tech stack */}
           {techStack.length > 0 && (

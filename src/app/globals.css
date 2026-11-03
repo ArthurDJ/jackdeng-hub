@@ -542,6 +542,113 @@
     background-size: 12px 12px, 100% 100%;
   }
 
+  /* ── Project architecture diagrams (ProjectDiagram) ──
+     A row of boxes joined by arrows; below 640px the full diagram stacks and
+     the arrows point down. The mini one is a card cover: same row, smaller,
+     on the dot-cover background (.ds-dot-cover, so it drifts on hover like
+     the plain one), and never stacks. `ds-diagram-self` marks
+     what the project itself is; it alone takes the accent. */
+  .ds-diagram {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ds-diagram-box {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-panel);
+    min-width: 0;
+  }
+  .ds-diagram-label { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.35; }
+  .ds-diagram-note { font-size: 11.5px; color: var(--text-secondary); line-height: 1.4; }
+  .ds-diagram-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px dashed var(--border-strong);
+  }
+  .ds-diagram-group-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    padding: 0 4px;
+  }
+  .ds-diagram-group-boxes { display: flex; gap: 6px; }
+  .ds-diagram-self { border-color: var(--accent-primary); background: var(--accent-subtle); }
+  .ds-diagram-self .ds-diagram-group-label { color: var(--accent-primary); }
+  .ds-diagram > .ds-diagram-box { flex: 1 1 0; }
+  .ds-diagram > .ds-diagram-group { flex: 2 1 0; }
+  .ds-diagram-group-boxes > .ds-diagram-box { flex: 1 1 0; }
+  .ds-diagram-arrow {
+    flex: 0 0 16px;
+    height: 1px;
+    background: var(--text-tertiary);
+    position: relative;
+  }
+  .ds-diagram-arrow::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -3px;
+    border: 3.5px solid transparent;
+    border-left: 5px solid var(--text-tertiary);
+    border-right: 0;
+  }
+  @media (max-width: 639px) {
+    .ds-diagram:not(.ds-diagram-mini) { flex-direction: column; align-items: stretch; }
+    .ds-diagram:not(.ds-diagram-mini) > .ds-diagram-arrow {
+      flex-basis: 14px;
+      width: 1px;
+      height: auto;
+      align-self: center;
+    }
+    .ds-diagram:not(.ds-diagram-mini) > .ds-diagram-arrow::after {
+      right: auto;
+      top: auto;
+      bottom: -1px;
+      left: -3px;
+      border: 3.5px solid transparent;
+      border-top: 5px solid var(--text-tertiary);
+      border-bottom: 0;
+    }
+    /* Boxes in a group stack too: wrapped into a grid, Bronze/Silver/Gold/
+       Mart lost their order. */
+    .ds-diagram:not(.ds-diagram-mini) .ds-diagram-group-boxes { flex-direction: column; }
+  }
+
+  .ds-diagram-cover {
+    height: 88px;
+    flex-shrink: 0;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  .ds-diagram-mini { width: 100%; gap: 4px; justify-content: center; }
+  .ds-diagram-mini .ds-diagram-box { padding: 4px 6px; border-radius: 6px; }
+  .ds-diagram-mini .ds-diagram-label {
+    font-size: 10.5px;
+    font-weight: 510;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ds-diagram-mini .ds-diagram-group { padding: 4px; gap: 3px; border-radius: 8px; }
+  .ds-diagram-mini .ds-diagram-group-label { font-size: 9px; padding: 0 2px; white-space: nowrap; }
+  .ds-diagram-mini .ds-diagram-group-boxes { gap: 3px; }
+  /* Boxes keep their width; the arrows give way first. */
+  .ds-diagram-mini > .ds-diagram-box,
+  .ds-diagram-mini > .ds-diagram-group,
+  .ds-diagram-mini .ds-diagram-group-boxes > .ds-diagram-box { flex: 0 0 auto; }
+  .ds-diagram-mini .ds-diagram-arrow { flex: 0 1 28px; min-width: 6px; }
+
   /* ── Spotlight: a soft highlight that follows the cursor over a card ──
      SpotlightTracker writes --spot-x / --spot-y. The pseudo-element sits at
      z-index -1 inside the card's own stacking context (isolation), which is

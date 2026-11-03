@@ -222,7 +222,7 @@
   },
   "projectDiagrams": {
     "caption": "Architecture, simplified. The highlighted part is what this project is.",
-    "jackdeng-hub": {
+    "jackdengHub": {
       "visitor": "Visitor",
       "vercel": "Vercel",
       "cdn": "CDN",
@@ -232,7 +232,7 @@
       "postgres": "Supabase Postgres",
       "postgresNote": "RLS on, Data API off"
     },
-    "data-hub": {
+    "dataHub": {
       "erp": "ERP",
       "erpNote": "Read only",
       "hub": "Data hub",
@@ -243,7 +243,7 @@
       "supplier": "Supplier",
       "supplierNote": "SFTP: orders out, confirmations back"
     },
-    "b2b-customer-portal": {
+    "b2bCustomerPortal": {
       "customer": "Customer",
       "proxy": "Reverse proxy",
       "proxyNote": "HTTPS only, admin paths 404",
@@ -255,7 +255,7 @@
       "erp": "ERP",
       "erpNote": "Writes go dry-run first"
     },
-    "order-tracking-portal": {
+    "orderTrackingPortal": {
       "customer": "Customer",
       "customerNote": "Sees only their own records",
       "portal": "Portal",
@@ -264,7 +264,7 @@
       "viewsNote": "SELECT-only login",
       "erp": "ERP"
     },
-    "enterprise-manufacturing-analytics": {
+    "enterpriseManufacturingAnalytics": {
       "erp": "ERP",
       "erpNote": "Raw data",
       "lakehouse": "Databricks + dbt",

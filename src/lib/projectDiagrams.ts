@@ -3,7 +3,8 @@
  *
  * A diagram is a left-to-right row of stages; each stage is one box or a
  * dashed group of boxes. The text lives in messages under
- * `projectDiagrams.<slug>.<id>` (and `<id>Note` for the second line), so the
+ * `projectDiagrams.<slugInCamelCase>.<id>` (and `<id>Note` for the second
+ * line; message keys are camelCase), so the
  * data here is only structure. `self` marks what the project itself is: it
  * gets the accent colour, everything else is context.
  *
@@ -12,6 +13,9 @@
  * `card: false` is left out.
  *
  * Work projects name no vendor, supplier or volume: "ERP", "Supplier".
+ *
+ * Keyed by slug, which /admin can change: renaming a project's slug drops its
+ * diagram (the card falls back to dots) until the key here is renamed too.
  */
 
 export interface DiagramBox {
@@ -90,15 +94,21 @@ export function cardStages(stages: DiagramStage[]): DiagramStage[] {
   return stages.filter((s) => s.card !== false)
 }
 
+/** `b2b-customer-portal` → `b2bCustomerPortal`, the diagram's messages namespace. */
+export function diagramNamespace(slug: string): string {
+  return slug.replace(/-([a-z0-9])/g, (_, c: string) => c.toUpperCase())
+}
+
 /** Every message key a diagram reads, for the test that keeps the two in step. */
 export function diagramMessageKeys(slug: string, stages: DiagramStage[]): string[] {
+  const ns = diagramNamespace(slug)
   const keys: string[] = []
   for (const stage of stages) {
     const boxes = 'box' in stage ? [stage.box] : stage.boxes
-    if ('group' in stage) keys.push(`${slug}.${stage.group}`)
+    if ('group' in stage) keys.push(`${ns}.${stage.group}`)
     for (const b of boxes) {
-      keys.push(`${slug}.${b.id}`)
-      if (b.note) keys.push(`${slug}.${b.id}Note`)
+      keys.push(`${ns}.${b.id}`)
+      if (b.note) keys.push(`${ns}.${b.id}Note`)
     }
   }
   return keys

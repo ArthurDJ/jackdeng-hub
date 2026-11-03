@@ -26,6 +26,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - 5 条新测试。`i18n:check` 只比对两份 json 的键，查不出图里用了 json 里没有的键（页面上会显示原始键名），所以测试对每个语言核对
   「图用到的键」和「json 里有的键」完全一致；删掉一个键，测试会失败（验过）。另外每张图恰好一个高亮、`card: false` 只影响卡片。
 
+合并前 `/code-review`（high）找出 7 条，修了 6 条：图加上列表语义，读屏能听出步骤顺序和分组；文案的命名空间改成 camelCase（`b2bCustomerPortal`），
+和 `en.json` 开头的命名规则一致；卡片封面直接用 `.ds-dot-cover`，悬停时点阵照旧漂移，点阵样式也不再写两份；项目列表里没有图的项目
+退回点阵封面，和首页一致；手机上分组里的方框改成竖排，Bronze → Silver → Gold → Mart 的顺序不再被折成两行。没修的一条：图按 slug 登记，
+在后台改了 slug，图就退回点阵，单元测试连不到数据库，查不出来，已在代码里注明。
+
 **验证。** `next build && next start`（读生产库）：中英文 5 个详情页都是 200、都有图、没有原始键名；首页和项目列表的卡片有封面；
 375px 和深色模式看过；`scripts/smoke.py` 全过。参考图来自 Lazyweb（Hightouch 的流程图、s2 的分组框）。
 

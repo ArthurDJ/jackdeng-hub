@@ -222,7 +222,7 @@
   },
   "projectDiagrams": {
     "caption": "架构示意，做了简化。高亮的部分是这个项目本身。",
-    "jackdeng-hub": {
+    "jackdengHub": {
       "visitor": "访客",
       "vercel": "Vercel",
       "cdn": "CDN",
@@ -232,7 +232,7 @@
       "postgres": "Supabase Postgres",
       "postgresNote": "开了 RLS，关了 Data API"
     },
-    "data-hub": {
+    "dataHub": {
       "erp": "ERP",
       "erpNote": "只读",
       "hub": "数据中台",
@@ -243,7 +243,7 @@
       "supplier": "供应商",
       "supplierNote": "SFTP：发订单，收回执"
     },
-    "b2b-customer-portal": {
+    "b2bCustomerPortal": {
       "customer": "客户",
       "proxy": "反向代理",
       "proxyNote": "只走 HTTPS，后台路径返回 404",
@@ -255,7 +255,7 @@
       "erp": "ERP",
       "erpNote": "写入先演练"
     },
-    "order-tracking-portal": {
+    "orderTrackingPortal": {
       "customer": "客户",
       "customerNote": "只看得到自己的记录",
       "portal": "门户",
@@ -264,7 +264,7 @@
       "viewsNote": "只能 SELECT 的账号",
       "erp": "ERP"
     },
-    "enterprise-manufacturing-analytics": {
+    "enterpriseManufacturingAnalytics": {
       "erp": "ERP",
       "erpNote": "原始数据",
       "lakehouse": "Databricks + dbt",

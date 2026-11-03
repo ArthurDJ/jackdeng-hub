@@ -6,8 +6,7 @@ import { getPayload } from '@/lib/payload'
 import { Navbar } from '@/components/Navbar'
 import { asLocale } from '@/i18n/routing'
 import { badgeLabels, projectBadge } from '@/lib/projectBadge'
-import { projectDiagram } from '@/lib/projectDiagrams'
-import { ProjectDiagram } from '@/components/ProjectDiagram'
+import { ProjectCardCover } from '@/components/ProjectDiagram'
 import { localeAlternates } from '@/lib/alternates'
 import { siteOpenGraph } from '@/lib/siteOpenGraph'
 
@@ -66,7 +65,6 @@ export default async function ProjectsPage({ params }: Props) {
             const badge = projectBadge(project, labels)
             const techStack: string[] = (project.techStack ?? []).map((t) => t.tech).filter(Boolean)
             const hasSlug = Boolean(project.slug)
-            const diagram = projectDiagram(project.slug)
 
             const CardInner = (
               <div
@@ -84,7 +82,7 @@ export default async function ProjectsPage({ params }: Props) {
                   color: 'inherit',
                 }}
               >
-                {diagram && project.slug && <ProjectDiagram slug={project.slug} stages={diagram} mini />}
+                <ProjectCardCover slug={project.slug} />
                 <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
                 {/* Name + status */}
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>

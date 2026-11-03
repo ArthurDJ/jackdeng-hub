@@ -545,7 +545,8 @@
   /* ── Project architecture diagrams (ProjectDiagram) ──
      A row of boxes joined by arrows; below 640px the full diagram stacks and
      the arrows point down. The mini one is a card cover: same row, smaller,
-     on the dot-cover background, and never stacks. `ds-diagram-self` marks
+     on the dot-cover background (.ds-dot-cover, so it drifts on hover like
+     the plain one), and never stacks. `ds-diagram-self` marks
      what the project itself is; it alone takes the accent. */
   .ds-diagram {
     display: flex;
@@ -617,8 +618,9 @@
       border-top: 5px solid var(--text-tertiary);
       border-bottom: 0;
     }
-    .ds-diagram:not(.ds-diagram-mini) .ds-diagram-group-boxes { flex-wrap: wrap; }
-    .ds-diagram:not(.ds-diagram-mini) .ds-diagram-group-boxes > .ds-diagram-box { flex: 1 1 120px; }
+    /* Boxes in a group stack too: wrapped into a grid, Bronze/Silver/Gold/
+       Mart lost their order. */
+    .ds-diagram:not(.ds-diagram-mini) .ds-diagram-group-boxes { flex-direction: column; }
   }
 
   .ds-diagram-cover {
@@ -628,9 +630,6 @@
     display: flex;
     align-items: center;
     overflow: hidden;
-    background-color: var(--bg-elevated);
-    background-image: radial-gradient(var(--border-default) 1px, transparent 1px);
-    background-size: 12px 12px;
   }
   .ds-diagram-mini { width: 100%; gap: 4px; justify-content: center; }
   .ds-diagram-mini .ds-diagram-box { padding: 4px 6px; border-radius: 6px; }

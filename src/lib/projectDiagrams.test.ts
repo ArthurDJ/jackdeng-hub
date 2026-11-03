@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import en from '../i18n/messages/en.json'
 import zh from '../i18n/messages/zh.json'
-import { PROJECT_DIAGRAMS, cardStages, diagramMessageKeys, projectDiagram } from './projectDiagrams'
+import { PROJECT_DIAGRAMS, cardStages, diagramMessageKeys, diagramNamespace, projectDiagram } from './projectDiagrams'
 
 // i18n:check only compares the two files with each other; it can't see that a
 // box id here has no text there, which renders as the raw key on the page.
@@ -29,6 +29,12 @@ describe('project diagrams', () => {
     const stages = projectDiagram('b2b-customer-portal')!
     expect(stages.some((s) => 'box' in s && s.box.id === 'proxy')).toBe(true)
     expect(cardStages(stages).some((s) => 'box' in s && s.box.id === 'proxy')).toBe(false)
+  })
+
+  it('reads its text from a camelCase namespace, like every other message key', () => {
+    expect(diagramNamespace('b2b-customer-portal')).toBe('b2bCustomerPortal')
+    expect(diagramNamespace('jackdeng-hub')).toBe('jackdengHub')
+    expect(Object.keys(en.projectDiagrams).filter((k) => k.includes('-'))).toEqual([])
   })
 
   it('has nothing for an unknown or missing slug', () => {

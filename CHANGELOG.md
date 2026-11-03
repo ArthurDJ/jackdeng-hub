@@ -26,6 +26,9 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - 文案：`home.introLong1–4` 挪成 `about.bio1–4`，删掉 `home.bioGroup/bioShort/bioLong/educationHeading/skillsHeading/experienceMore`，
   新增 `home.backgroundNote`（中英各一句，过了 humanizer）。没有新事实。
 
+合并前 `/code-review`（high）找出 4 条，都修了：原来关于页第一段是唯一写所在地（加州）的地方，换掉后关于页和它的打印版都不写在哪，
+现在名字下面加一行，用首页那句「现居加州」；`.ds-fade`、`.ds-chip` 只给删掉的切换和技能标签用，CSS 一起删掉；两条注释改成写现在的样子。
+
 **验证。** `next build && next start`（读生产库）：中英首页只剩关于、经历、项目、文章四节，链接指向 `/en/about`、`/zh/about`；
 中文关于页是四段长版；375px 无横向滚动；`scripts/smoke.py` 全过。
 

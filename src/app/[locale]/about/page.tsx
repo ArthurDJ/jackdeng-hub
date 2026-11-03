@@ -97,6 +97,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'about' })
+  const tHome = await getTranslations({ locale, namespace: 'home' })
   const lang = asLocale(locale)
 
   return (
@@ -126,6 +127,10 @@ export default async function AboutPage({ params }: Props) {
               </h1>
               <p style={{ fontSize: 14, color: 'var(--text-tertiary)', fontWeight: 400 }}>
                 {t('subtitle')}
+              </p>
+              {/* The same line as the home page header, which the bio doesn't repeat. */}
+              <p style={{ fontSize: 13, color: 'var(--text-tertiary)', marginTop: 4 }}>
+                {tHome('location')}
               </p>
               <PrintContact />
             </div>

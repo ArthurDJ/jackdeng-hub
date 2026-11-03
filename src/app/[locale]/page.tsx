@@ -115,8 +115,8 @@ export default async function HomePage({ params }: Props) {
                 {t('location')}
               </p>
 
-              {/* Name first: this page stands in for a résumé, and a reader
-                  should know whose it is before anything else. */}
+              {/* Name first: a reader should know whose page this is before
+                  anything else. */}
               <h1
                 className="mb-3"
                 style={{
@@ -292,7 +292,7 @@ export default async function HomePage({ params }: Props) {
               </li>
             ))}
           </ol>
-          {/* Skills and education live on About only; they were on both pages. */}
+          {/* Skills, education and every bullet of each role are on About. */}
           <p className="print:hidden!" style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 16 }}>
             {t.rich('backgroundNote', {
               link: (chunks) => (

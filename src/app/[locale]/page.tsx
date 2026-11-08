@@ -13,6 +13,7 @@ import { CONTACT_EMAIL, PROFILE_LINKS, RESUME_URL, TIMELINE, personJsonLd, profi
 import { toJsonLd } from '@/lib/jsonLd'
 import { PrintContact } from '@/components/PrintContact'
 import { localeAlternates } from '@/lib/alternates'
+import { PROJECT_SORT } from '@/lib/projectOrder'
 
 export const revalidate = 3600
 
@@ -72,7 +73,7 @@ export default async function HomePage({ params }: Props) {
     payload.find({
       collection: 'projects',
       where: { isPinned: { equals: true } },
-      sort: '-createdAt',
+      sort: PROJECT_SORT,
       depth: 1,
       limit: 4,
       locale: asLocale(locale),

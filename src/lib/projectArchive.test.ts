@@ -38,6 +38,17 @@ describe('sortArchive', () => {
     expect(sortArchive(rows).map((r) => r.name)).toEqual(['b', 'a'])
   })
 
+  it('orders a year by sortOrder before age, unset last', () => {
+    const rows = [
+      { name: 'skill', year: '2026–', sortOrder: 10, createdAt: '2026-11-07' },
+      { name: 'unset', year: '2026–', sortOrder: null, createdAt: '2026-11-08' },
+      { name: 'work-old', year: '2026–', sortOrder: 0, createdAt: '2026-04-01' },
+      { name: 'work-new', year: '2026–', sortOrder: 0, createdAt: '2026-11-02' },
+      { name: 'older-year', year: '2025', sortOrder: 0, createdAt: '2026-01-01' },
+    ]
+    expect(sortArchive(rows).map((r) => r.name)).toEqual(['work-new', 'work-old', 'skill', 'unset', 'older-year'])
+  })
+
   it('does not change its input', () => {
     const rows = [row('a', null, '2026-01-01'), row('b', '2024', '2026-01-01')]
     sortArchive(rows)

@@ -81,6 +81,22 @@ export const Projects: CollectionConfig = {
         description: { en: 'Pinned to homepage highlights.', zh: '置顶到首页高亮区域。' },
       },
     },
+    // Order on /projects, in "other projects" and among same-year rows of the
+    // archive (src/lib/projectOrder.ts). Kept apart from isPinned, which picks
+    // the homepage highlights, so pinning a project does not move it here.
+    {
+      name: 'sortOrder',
+      type: 'number',
+      label: { en: 'Sort order', zh: '排序' },
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+        description: {
+          en: 'Lower comes first in the project list; equal values show the newest first. Default 0.',
+          zh: '数字小的在项目列表里排前面，相同时新建的在前。默认 0。',
+        },
+      },
+    },
     {
       name: 'slug',
       type: 'text',

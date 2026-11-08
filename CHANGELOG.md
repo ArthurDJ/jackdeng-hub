@@ -10,6 +10,47 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.50.0] — 2026-11-07
+
+### Added — 项目页加上两个 Claude skill：rental-search 和 flight-trip-planning；项目可以手动排序（#174）
+
+两个 skill 都在 GitHub 上公开，MIT 许可，所以项目页可以放仓库链接。Jack 要它们排在工作项目后面。
+
+- `scripts/add-projects.ts` 加两条，「做于」和 jackdeng-hub 一样写「Personal / 个人项目」，年份 `2026–`，进行中，不置顶，排序 10：
+  - `rental-search`（Rental Search Skill for Claude / 租房搜索 Claude skill）：在用户自己的浏览器里搜租房网站，
+    实测早高峰通勤，算实际月花费，核对房源是否还在、是不是诈骗，输出 Excel、CSV 和网页；不联系房东、不付款。1.0.0。
+  - `flight-trip-planning`（Flight Planning Skill for Claude / 机票规划 Claude skill）：决定订哪张机票，在航司官网核实价格，
+    用盈亏平衡判断给可退、可改、基础票定价。3.0.0。长描述链到本站写它的两篇文章。
+- 条目可以带 `githubLink` 和 `sortOrder`，写库时一起写进去，预演会打印出来。不写时 `githubLink` 留空、`sortOrder` 为 0。
+- 正文是 `$DRAFTS_DIR/projects/<slug>.<locale>.md` 里的四份草稿，不进仓库。内容取自两个仓库的 README 和 CHANGELOG，
+  不含任何人的个人信息；中英两稿分别过了 humanizer / humanizer-chinese。
+- 两个项目没有架构示意图（`src/lib/projectDiagrams.ts`），详情页和卡片照常不显示图。
+
+### Added — 项目的 `sortOrder` 字段（#174）
+
+项目列表原来只按创建时间倒序，新建的记录总排第一，两个 skill 会压在工作项目上面。
+
+- `Projects` 加数字字段 `sortOrder`（后台侧栏「排序」），默认 0，小的在前，相同时新建的在前。
+  `/projects`、详情页的「其他项目」、首页的置顶项目、搜索索引都改用 `src/lib/projectOrder.ts` 的同一个排序；
+  `/projects/archive` 仍按年份分组，同一年里先按 `sortOrder` 再按新旧（`sortArchive`，加了测试）。
+- 没有沿用已有字段：`isPinned` 管首页精选，拿它排序的话，以后改首页置顶会顺带改项目页的顺序；`madeAt` 是分语言的自由文本，
+  拿「Personal」做判断太脆。改 `createdAt` 这种回填，下次再加工作项目又会排到 skill 前面去。
+- 迁移 `20261107_000001_projects_sort_order` 手写，只加一列 `projects.sort_order numeric DEFAULT 0`。已有的 5 个项目由默认值
+  填成 0，生产库不用另外写值，顺序和现在一样。
+- `add-projects.ts` 第二个问题顺带修了：记录先写英文、再写中文，两次调用。中文那次失败的话，重跑原来会当成「已存在」跳过。
+  现在重跑会查中文名称和短描述（不回退到别的语言），缺了就报出来，带 `--apply` 时补写中文那一半。读库只取 slug、名称和短描述，
+  所以迁移跑之前演练也能跑。
+
+### 合并后
+
+顺序不能反（每一步先看演练，要 Jack 确认）：
+
+1. 对生产执行 `npm run migrate`。必须在这个 PR 部署之前：新代码排序时会读 `sort_order`，库里没有这列时项目页会报错。
+2. `DRAFTS_DIR=… npx tsx scripts/add-projects.ts --apply`，建两个 skill 项目。迁移之前跑会在建记录时失败。
+3. 合并，部署后在线上看 `/en/projects`、`/zh/projects` 和归档页的顺序。
+
+只读预演对生产库跑过（迁移之前）：已有的三个项目跳过，要新建的正好是这两个。
+
 ## [1.49.2] — 2026-11-03
 
 ### Changed — 联系邮箱定为 Gmail（#173）

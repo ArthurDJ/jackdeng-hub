@@ -376,6 +376,10 @@ export interface Project {
    */
   isPinned?: boolean | null;
   /**
+   * Lower comes first in the project list; equal values show the newest first. Default 0.
+   */
+  sortOrder?: number | null;
+  /**
    * URL path identifier, e.g. "jackdeng-hub"
    */
   slug?: string | null;
@@ -618,6 +622,7 @@ export interface ProjectsSelect<T extends boolean = true> {
   link?: T;
   status?: T;
   isPinned?: T;
+  sortOrder?: T;
   slug?: T;
   year?: T;
   madeAt?: T;

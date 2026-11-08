@@ -9,6 +9,7 @@ import { badgeLabels, projectBadge } from '@/lib/projectBadge'
 import { ProjectCardCover } from '@/components/ProjectDiagram'
 import { localeAlternates } from '@/lib/alternates'
 import { siteOpenGraph } from '@/lib/siteOpenGraph'
+import { PROJECT_SORT } from '@/lib/projectOrder'
 
 export const revalidate = 3600
 
@@ -36,7 +37,7 @@ export default async function ProjectsPage({ params }: Props) {
   const payload = await getPayload()
   const { docs: projects } = await payload.find({
     collection: 'projects',
-    sort: '-createdAt',
+    sort: PROJECT_SORT,
     depth: 1,
     limit: 100,
     locale: asLocale(locale),

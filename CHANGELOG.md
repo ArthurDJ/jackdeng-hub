@@ -12,7 +12,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.51.0] — 2026-11-07
 
-### Added — 新文章《租房网站告诉你有哪些房，没告诉你先联系哪一套》（#PRNUM）
+### Added — 新文章《租房网站告诉你有哪些房，没告诉你先联系哪一套》（#175）
 
 介绍 [rental-search](https://github.com/ArthurDJ/rental-search) 1.0.0：在用户自己的浏览器里搜租房网站，逐套打开，实测车程，
 算每月实际花费，核对有没有下架、像不像诈骗；给房东的消息只起草、不发送。正文的例子来自 2026-11-06 在 Kelowna 的完整测试：

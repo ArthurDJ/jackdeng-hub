@@ -288,6 +288,21 @@ const POSTS = [
     category: 'full-stack',
     tags: ['security', 'nextjs', 'payload-cms', 'postgresql'],
   },
+  {
+    md: '11-rental-search-en.md',
+    mdZh: '11-rental-search-zh.md',
+    titleZh: '租房网站告诉你有哪些房，没告诉你先联系哪一套',
+    excerptZh: '租房网站能告诉你有哪些房。我写了一个 Claude skill，回答下一个问题：先联系哪几套，每套要问房东什么。它在 Kelowna 完整测过一遍。',
+    hero: 'hero-for-rent.jpg',
+    heroAlt: 'A hand-lettered sign over a doorway on a brick street front, advertising apartments of 3 and 4 light rooms with hot water bath and electric light',
+    heroCredit: 'A sign offering apartments for rent, 61st Street, New York, August 1938, by Walker Evans, Library of Congress, public domain',
+    slug: 'which-rental-to-contact-first',
+    title: "Rental sites show what's for rent, not which place to contact first",
+    excerpt:
+      'Listing sites tell you what is for rent. I wrote a Claude skill for the next question: which places to contact first, and what to ask each landlord.',
+    category: 'backend',
+    tags: ['ai'],
+  },
 ]
 
 // Blogs.excerpt is capped at 150 characters. Payload reports the overflow as a

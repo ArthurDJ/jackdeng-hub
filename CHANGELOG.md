@@ -10,6 +10,26 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.51.0] — 2026-11-07
+
+### Added — 新文章《租房网站告诉你有哪些房，没告诉你先联系哪一套》（#PRNUM）
+
+介绍 [rental-search](https://github.com/ArthurDJ/rental-search) 1.0.0：在用户自己的浏览器里搜租房网站，逐套打开，实测车程，
+算每月实际花费，核对有没有下架、像不像诈骗；给房东的消息只起草、不发送。正文的例子来自 2026-11-06 在 Kelowna 的完整测试：
+六个网站和跳过的 Castanet（人机验证）、车程拿 Google Maps 区间的慢端和上限比、一份旧清单重新打开后 5 套已下架、一套疑似诈骗
+怎么排除；评测数字出自 skill 仓库的 `evals/README.md` 和三轮评测记录（最后一轮 62/62 对 55/62，大城市租房规定的用例分不出高下，
+触发查询没跑）。中英两稿都过了 humanizer / humanizer-chinese。
+
+- `scripts/publish-drafts.ts` 加入这篇（slug `which-rental-to-contact-first`），分类 `backend`、标签 `ai`，和两篇机票文章一致。
+  正文在 `$DRAFTS_DIR/11-rental-search-{en,zh}.md`，不进仓库；编号用 11，因为 09、10 已经被别的文章占了。
+- 正文不写房源地址、房东和任何个人信息。Kelowna 写成 skill 完整测过的城市，20 分钟写成测试设定的车程上限；Facebook 上
+  「再次发消息」只按 `sites.md` 里的规则写。
+- 题图：Walker Evans 1938 年 8 月在纽约 61 街拍的出租公寓招牌（美国国会图书馆 FSA/OWI，digital ID `fsa.8a19114`，公有领域）。
+  用的是 Wikimedia Commons 上同一张 LOC 扫描（4110×2734），裁成 1600×1000，和之前的题图一样。
+- 指向第一篇机票文章的链接写成按语言的绝对地址，理由同 #143。
+
+**本 PR 没有写库。** 只读预演见 PR 描述；写入（草稿）、上传题图和发布等维护者确认。
+
 ## [1.50.0] — 2026-11-07
 
 ### Added — 项目页加上两个 Claude skill：rental-search 和 flight-trip-planning；项目可以手动排序（#174）

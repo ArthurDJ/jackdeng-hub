@@ -40,6 +40,7 @@ const PROJECTS: {
   status: 'active' | 'completed' | 'on-hold'
   techStack: string[]
   isPinned?: boolean
+  githubLink?: string
 }[] = [
   {
     slug: 'data-hub',
@@ -67,6 +68,25 @@ const PROJECTS: {
     techStack: ['.NET 10', 'ASP.NET Core', 'Dapper', 'EF Core', 'SQL Server', 'Vue 3', 'Reka UI', 'Playwright'],
     isPinned: true,
   },
+  // Two Claude skills of mine, public on GitHub under the MIT license.
+  {
+    slug: 'rental-search',
+    name: { en: 'Rental Search Skill for Claude', zh: '租房搜索 Claude skill' },
+    madeAt: { en: 'Personal', zh: '个人项目' },
+    year: '2026–',
+    status: 'active',
+    techStack: ['Claude Agent Skills', 'Markdown', 'Python', 'openpyxl', 'GitHub Actions'],
+    githubLink: 'https://github.com/ArthurDJ/rental-search',
+  },
+  {
+    slug: 'flight-trip-planning',
+    name: { en: 'Flight Planning Skill for Claude', zh: '机票规划 Claude skill' },
+    madeAt: { en: 'Personal', zh: '个人项目' },
+    year: '2026–',
+    status: 'active',
+    techStack: ['Claude Agent Skills', 'Markdown', 'Python', 'GitHub Actions'],
+    githubLink: 'https://github.com/ArthurDJ/flight-trip-planning',
+  },
 ]
 
 async function run() {
@@ -86,6 +106,7 @@ async function run() {
     const zh = readDraft(p.slug, 'zh')
     console.log(`${p.slug}: create (${p.status}, ${p.year}, ${p.isPinned ? 'pinned' : 'not pinned'})`)
     console.log(`  stack: ${p.techStack.join(', ')}`)
+    if (p.githubLink) console.log(`  github: ${p.githubLink}`)
     for (const [locale, d] of [['en', en], ['zh', zh]] as const) {
       const sections = d.body.split('\n').filter((l) => l.startsWith('## ')).map((l) => l.slice(3))
       console.log(`  ${locale}: ${p.name[locale]} · made at ${p.madeAt[locale]}`)
@@ -105,6 +126,7 @@ async function run() {
         year: p.year,
         status: p.status,
         isPinned: p.isPinned ?? false,
+        githubLink: p.githubLink,
         techStack: p.techStack.map((tech) => ({ tech })),
       },
     })

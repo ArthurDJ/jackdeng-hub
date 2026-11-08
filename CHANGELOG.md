@@ -10,6 +10,27 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.50.0] — 2026-11-07
+
+### Added — 项目页加上两个 Claude skill：rental-search 和 flight-trip-planning（#174）
+
+两个 skill 都在 GitHub 上公开，MIT 许可，所以项目页可以放仓库链接。
+
+- `scripts/add-projects.ts` 加两条，「做于」和 jackdeng-hub 一样写「Personal / 个人项目」，年份 `2026–`，进行中，不置顶：
+  - `rental-search`（Rental Search Skill for Claude / 租房搜索 Claude skill）：在用户自己的浏览器里搜租房网站，
+    实测早高峰通勤，算实际月花费，核对房源是否还在、是不是诈骗，输出 Excel、CSV 和网页；不联系房东、不付款。1.0.0。
+  - `flight-trip-planning`（Flight Planning Skill for Claude / 机票规划 Claude skill）：决定订哪张机票，在航司官网核实价格，
+    用盈亏平衡判断给可退、可改、基础票定价。3.0.0。长描述链到本站写它的两篇文章。
+- 条目可以带 `githubLink`，写库时一起写进去，预演会打印出来。不写时和原来一样留空。
+- 正文是 `$DRAFTS_DIR/projects/<slug>.<locale>.md` 里的四份草稿，不进仓库。内容取自两个仓库的 README 和 CHANGELOG，
+  不含任何人的个人信息；中英两稿分别过了 humanizer / humanizer-chinese。
+- 两个项目没有架构示意图（`src/lib/projectDiagrams.ts`），详情页和卡片照常不显示图。
+
+### 合并后
+
+写库（先看演练，再写，要 Jack 确认）：`DRAFTS_DIR=… npx tsx scripts/add-projects.ts --apply`。只读预演对生产库跑过：
+已有的三个项目跳过，要新建的正好是这两个。
+
 ## [1.49.2] — 2026-11-03
 
 ### Changed — 联系邮箱定为 Gmail（#173）

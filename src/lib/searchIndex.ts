@@ -4,6 +4,7 @@ import { CACHE_TAGS } from './revalidate'
 import { getPayload } from './payload'
 import { lexicalToText, type SearchDoc } from './search'
 import { listedTools } from './listedTools'
+import { PROJECT_SORT } from './projectOrder'
 
 type Locale = 'en' | 'zh'
 
@@ -44,7 +45,7 @@ export const getSearchIndex = unstable_cache(
         pagination: false,
         locale,
       }),
-      payload.find({ collection: 'projects', sort: '-createdAt', depth: 0, pagination: false, locale }),
+      payload.find({ collection: 'projects', sort: PROJECT_SORT, depth: 0, pagination: false, locale }),
     ])
 
     const categoryName = new Map(categories.docs.map((c) => [c.id, c.name ?? '']))

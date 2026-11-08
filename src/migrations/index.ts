@@ -23,6 +23,7 @@ import * as migration_20260926_000002_drop_automation from './20260926_000002_dr
 import * as migration_20260928_000001_projects_year_made_at from './20260928_000001_projects_year_made_at';
 import * as migration_20260929_000001_drop_comments_turnstile_token from './20260929_000001_drop_comments_turnstile_token';
 import * as migration_20261017_000001_payload_3_91_locale_parent_indexes from './20261017_000001_payload_3_91_locale_parent_indexes';
+import * as migration_20261107_000001_projects_sort_order from './20261107_000001_projects_sort_order';
 
 export const migrations = [
   {
@@ -148,5 +149,10 @@ export const migrations = [
     up: migration_20261017_000001_payload_3_91_locale_parent_indexes.up,
     down: migration_20261017_000001_payload_3_91_locale_parent_indexes.down,
     name: '20261017_000001_payload_3_91_locale_parent_indexes',
+  },
+  {
+    up: migration_20261107_000001_projects_sort_order.up,
+    down: migration_20261107_000001_projects_sort_order.down,
+    name: '20261107_000001_projects_sort_order',
   },
 ];

@@ -7,6 +7,7 @@ import { asLocale } from '@/i18n/routing'
 import { linkLabel, sortArchive } from '@/lib/projectArchive'
 import { localeAlternates } from '@/lib/alternates'
 import { siteOpenGraph } from '@/lib/siteOpenGraph'
+import { PROJECT_SORT } from '@/lib/projectOrder'
 
 /**
  * Every project in one table (after brittanychiang.com/archive): year,
@@ -45,7 +46,7 @@ export default async function ProjectArchivePage({ params }: Props) {
     collection: 'projects',
     depth: 0,
     limit: 200,
-    sort: '-createdAt',
+    sort: PROJECT_SORT,
     locale: asLocale(locale),
   })
   const rows = sortArchive(docs)

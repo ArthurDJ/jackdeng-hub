@@ -7,6 +7,11 @@
  * first paragraph becomes the short description, the rest the long one
  * (scripts/lib/markdown.ts turns it into Lexical).
  *
+ * A record is written in two calls, English then Chinese. If the second one
+ * failed, a re-run finds the record with no Chinese name or short description
+ * and writes the Chinese half again; anything else on an existing record is
+ * left alone.
+ *
  *   DRAFTS_DIR=… npx tsx scripts/add-projects.ts            # read-only: print the plan
  *   DRAFTS_DIR=… npx tsx scripts/add-projects.ts --apply    # write it
  *
@@ -41,6 +46,8 @@ const PROJECTS: {
   techStack: string[]
   isPinned?: boolean
   githubLink?: string
+  /** Lower comes first on /projects (src/lib/projectOrder.ts); 0 when left out. */
+  sortOrder?: number
 }[] = [
   {
     slug: 'data-hub',
@@ -68,7 +75,8 @@ const PROJECTS: {
     techStack: ['.NET 10', 'ASP.NET Core', 'Dapper', 'EF Core', 'SQL Server', 'Vue 3', 'Reka UI', 'Playwright'],
     isPinned: true,
   },
-  // Two Claude skills of mine, public on GitHub under the MIT license.
+  // Two Claude skills of mine, public on GitHub under the MIT license. Listed
+  // after the work projects, which are 0.
   {
     slug: 'rental-search',
     name: { en: 'Rental Search Skill for Claude', zh: '租房搜索 Claude skill' },
@@ -77,6 +85,7 @@ const PROJECTS: {
     status: 'active',
     techStack: ['Claude Agent Skills', 'Markdown', 'Python', 'openpyxl', 'GitHub Actions'],
     githubLink: 'https://github.com/ArthurDJ/rental-search',
+    sortOrder: 10,
   },
   {
     slug: 'flight-trip-planning',
@@ -86,6 +95,7 @@ const PROJECTS: {
     status: 'active',
     techStack: ['Claude Agent Skills', 'Markdown', 'Python', 'GitHub Actions'],
     githubLink: 'https://github.com/ArthurDJ/flight-trip-planning',
+    sortOrder: 10,
   },
 ]
 
@@ -94,17 +104,41 @@ async function run() {
   const payload = await getPayload({ config: configPromise })
   console.log(`database: ${describeTarget().host}${apply ? '' : ' (read-only run)'}\n`)
 
+  const writeZh = (id: number, p: (typeof PROJECTS)[number], zh: ReturnType<typeof readDraft>) =>
+    payload.update({
+      collection: 'projects',
+      id,
+      locale: 'zh',
+      data: { name: p.name.zh, shortDescription: zh.short, longDescription: toLexical(zh.body) as any, madeAt: p.madeAt.zh },
+    })
+
   let missing = 0
   for (const p of PROJECTS) {
-    const { docs } = await payload.find({ collection: 'projects', where: { slug: { equals: p.slug } }, limit: 1, depth: 0, locale: 'en' })
+    // `select` keeps these reads to columns every deployed schema has.
+    const { docs } = await payload.find({
+      collection: 'projects', where: { slug: { equals: p.slug } }, limit: 1, depth: 0, locale: 'en', select: { slug: true },
+    })
     if (docs[0]) {
-      console.log(`${p.slug}: exists (id ${docs[0].id}), left alone`)
+      const id = docs[0].id
+      const zhDoc = await payload.findByID({
+        collection: 'projects', id, locale: 'zh', fallbackLocale: false, depth: 0, select: { name: true, shortDescription: true },
+      })
+      if (zhDoc.name && zhDoc.shortDescription) {
+        console.log(`${p.slug}: exists (id ${id}), left alone`)
+        continue
+      }
+      missing++
+      console.log(`${p.slug}: exists (id ${id}) without its Chinese name or short description; write the Chinese half`)
+      if (apply) {
+        await writeZh(id, p, readDraft(p.slug, 'zh'))
+        console.log(`  written (id ${id}, zh)`)
+      }
       continue
     }
     missing++
     const en = readDraft(p.slug, 'en')
     const zh = readDraft(p.slug, 'zh')
-    console.log(`${p.slug}: create (${p.status}, ${p.year}, ${p.isPinned ? 'pinned' : 'not pinned'})`)
+    console.log(`${p.slug}: create (${p.status}, ${p.year}, ${p.isPinned ? 'pinned' : 'not pinned'}, order ${p.sortOrder ?? 0})`)
     console.log(`  stack: ${p.techStack.join(', ')}`)
     if (p.githubLink) console.log(`  github: ${p.githubLink}`)
     for (const [locale, d] of [['en', en], ['zh', zh]] as const) {
@@ -127,19 +161,15 @@ async function run() {
         status: p.status,
         isPinned: p.isPinned ?? false,
         githubLink: p.githubLink,
+        sortOrder: p.sortOrder ?? 0,
         techStack: p.techStack.map((tech) => ({ tech })),
       },
     })
-    await payload.update({
-      collection: 'projects',
-      id: created.id,
-      locale: 'zh',
-      data: { name: p.name.zh, shortDescription: zh.short, longDescription: toLexical(zh.body) as any, madeAt: p.madeAt.zh },
-    })
+    await writeZh(created.id, p, zh)
     console.log(`  written (id ${created.id})`)
   }
-  if (!missing) console.log('\nNothing to create.')
-  else console.log(apply ? '\nDone.' : `\n${missing} to create. Nothing written. Re-run with --apply to write.`)
+  if (!missing) console.log('\nNothing to write.')
+  else console.log(apply ? '\nDone.' : `\n${missing} to write. Nothing written. Re-run with --apply to write.`)
   if (apply && missing) await refreshLiveSite({ isProduction: describeTarget().isProduction })
   process.exit(0)
 }

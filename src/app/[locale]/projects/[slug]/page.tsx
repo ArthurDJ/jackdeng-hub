@@ -17,6 +17,7 @@ import { toJsonLd } from '@/lib/jsonLd'
 import { ogCardUrl } from '@/lib/ogCard'
 import { localeAlternates } from '@/lib/alternates'
 import { fitDescription, pageTitle } from '@/lib/metaText'
+import { PROJECT_SORT } from '@/lib/projectOrder'
 
 // ISR, same as blog/[slug]. This page was force-dynamic from v1.3.1 until
 // now; the DYNAMIC_SERVER_USAGE 500 that prompted it was the layout reading
@@ -109,7 +110,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   const { docs: otherProjects } = await orEmpty(payload.find({
     collection: 'projects',
     where: { slug: { not_equals: slug } },
-    sort: '-createdAt',
+    sort: PROJECT_SORT,
     depth: 1,
     limit: 3,
     locale: asLocale(locale),
